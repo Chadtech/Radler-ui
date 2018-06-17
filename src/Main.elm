@@ -2,7 +2,6 @@ module Main exposing (..)
 
 import Browser
 import Browser.Navigation
-import Init
 import Json.Decode as D
 import Model exposing (Model)
 import Msg exposing (Msg(..))
@@ -27,7 +26,7 @@ main =
 
 init : Browser.Env D.Value -> ( Model, Cmd Msg )
 init json =
-    Init.model |> R2.withNoCmd
+    Model.empty |> R2.withNoCmd
 
 
 

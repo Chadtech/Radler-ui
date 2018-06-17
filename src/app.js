@@ -25,5 +25,5 @@ function jsMsgHandler(msg) {
 	action(msg.payload);
 }
 
-app.ports.toJs.subscribe(jsMsgHandler)
+// app.ports.toJs.subscribe(jsMsgHandler)
 
