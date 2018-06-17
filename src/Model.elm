@@ -1,4 +1,4 @@
-module Model exposing (Model, empty)
+module Model exposing (Model, Tracker(..), empty)
 
 import Array exposing (Array)
 import Data.Sheet as Sheet exposing (Sheet)
@@ -7,8 +7,7 @@ import Data.Sheet as Sheet exposing (Sheet)
 type alias Model =
     { projectName : String
     , sheets : Array Sheet
-    , smallViewSheet : Int
-    , bigViewSheet : Int
+    , trackers : Array ( Int, Tracker )
     , majorMark : Int
     , minorMark : Int
     }
@@ -17,11 +16,18 @@ type alias Model =
 empty : Model
 empty =
     { projectName = ""
-    , sheets =
-        Array.fromList
-            [ Sheet.empty ]
-    , smallViewSheet = 0
-    , bigViewSheet = 0
+    , sheets = Array.fromList [ Sheet.empty ]
+    , trackers =
+        [ ( 2, Small )
+        , ( 2, Small )
+        , ( 2, Big )
+        ]
+            |> Array.fromList
     , majorMark = 16
     , minorMark = 4
     }
+
+
+type Tracker
+    = Big
+    | Small

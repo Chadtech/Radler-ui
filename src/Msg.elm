@@ -5,10 +5,12 @@ module Msg
         )
 
 import Json.Decode as D exposing (Decoder)
+import Tracker
 
 
 type Msg
     = MsgDecodeFailed D.Error
+    | TrackerMsg Int Tracker.Msg
 
 
 decode : D.Value -> Msg

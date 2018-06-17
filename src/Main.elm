@@ -46,4 +46,9 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         MsgDecodeFailed _ ->
-            model |> R2.withNoCmd
+            model
+                |> R2.withNoCmd
+
+        TrackerMsg trackerIndex trackerMsg ->
+            model
+                |> R2.withNoCmd

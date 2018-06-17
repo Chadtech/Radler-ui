@@ -1,4 +1,4 @@
-module Small
+module Tracker.Small.View
     exposing
         ( view
         )
@@ -22,7 +22,8 @@ import Html.Styled.Attributes as Attrs
         )
 import Model exposing (Model)
 import Style
-import Tracker exposing (Msg, Payload)
+import Tracker.Msg exposing (Msg)
+import Tracker.Payload exposing (Payload)
 
 
 -- VIEW --

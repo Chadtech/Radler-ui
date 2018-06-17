@@ -1,13 +1,4 @@
-module Style
-    exposing
-        ( basicInput
-        , basicP
-        , fontSmoothingNone
-        , hfnss
-        , hftin
-        , indent
-        , outdent
-        )
+module Style exposing (..)
 
 import Colors
 import Css exposing (..)
@@ -46,6 +37,7 @@ outdent =
 hfnss : Style
 hfnss =
     [ fontFamilies [ "HFNSS" ]
+    , fontSize (px 32)
     ]
         |> Css.batch
 
@@ -68,5 +60,17 @@ hftin : Style
 hftin =
     [ fontFamilies [ "HFTIN" ]
     , fontSize (px 16)
+    ]
+        |> Css.batch
+
+
+cardContainer : Style
+cardContainer =
+    [ outdent
+    , backgroundColor Colors.ignorable2
+    , flex2 (int 0) (int 1)
+    , displayFlex
+    , flexDirection column
+    , margin (px 4)
     ]
         |> Css.batch

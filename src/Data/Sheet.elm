@@ -16,7 +16,7 @@ type alias Sheet =
 
 empty : Sheet
 empty =
-    { name = ""
+    { name = "doink"
     , rows =
         Array.repeat 6 ""
             |> Array.repeat 64
