@@ -1,4 +1,4 @@
-module Small
+module Tracker.View.Big
     exposing
         ( view
         )
@@ -22,7 +22,8 @@ import Html.Styled.Attributes as Attrs
         )
 import Model exposing (Model)
 import Style
-import Tracker exposing (Msg, Payload)
+import Tracker.Msg exposing (Msg)
+import Tracker.Payload exposing (Payload)
 
 
 -- VIEW --
@@ -51,7 +52,7 @@ rowHeadersView sheet =
         |> div
             [ css
                 [ Css.batch rowStyle
-                , alignSelf flexEnd
+                , justifyContent flexEnd
                 ]
             ]
 
@@ -62,7 +63,7 @@ sheetNameView sheet =
         [ css
             [ Css.batch rowButtonStyle
             , flex2 (int 1) (int 1)
-            , width (px 94)
+            , width (px 139)
             ]
         ]
         [ Html.text sheet.name ]
@@ -74,8 +75,7 @@ rowHeaderView columnIndex =
         [ css
             [ Css.batch rowButtonStyle
             , flex2 (int 0) (int 1)
-            , flexBasis (px 60)
-            , width (px 60)
+            , flexBasis (px cellWidth)
             ]
         ]
         [ Html.text (String.fromInt columnIndex)
@@ -95,42 +95,34 @@ rowView payload ( index, row ) =
 
 rowStyle : List Style
 rowStyle =
-    [ displayFlex
-    , alignSelf flexStart
-    ]
+    [ displayFlex ]
 
 
 rowDeleteView : Payload -> Int -> Html Msg
 rowDeleteView payload index =
     button
-        [ css rowButtonStyleClickable ]
+        [ css rowButtonStyle ]
         [ Html.text "x" ]
 
 
 rowPlusView : Payload -> Int -> Html Msg
 rowPlusView payload index =
     button
-        [ css rowButtonStyleClickable ]
+        [ css rowButtonStyle ]
         [ Html.text "+v" ]
-
-
-rowButtonStyleClickable : List Style
-rowButtonStyleClickable =
-    [ Css.batch rowButtonStyle
-    , active [ Style.indent ]
-    , hover [ color Colors.point1 ]
-    ]
 
 
 rowButtonStyle : List Style
 rowButtonStyle =
     [ Style.outdent
-    , Style.hftin
+    , Style.hfnss
+    , active [ Style.indent ]
+    , hover [ color Colors.point1 ]
     , margin (px 1)
     , flex2 (int 0) (int 1)
-    , flexBasis (px 30)
-    , width (px 30)
-    , height (px 16)
+    , flexBasis (px 45)
+    , width (px 45)
+    , height (px 24)
     , backgroundColor Colors.ignorable2
     , color Colors.point0
     , Style.fontSmoothingNone
@@ -141,33 +133,60 @@ rowButtonStyle =
 
 rowNumberView : Payload -> Int -> Html Msg
 rowNumberView payload index =
-    button
-        [ css rowButtonStyle ]
+    p
+        [ css rowNumberStyle ]
         [ Html.text (String.fromInt index) ]
+
+
+rowNumberStyle : List Style
+rowNumberStyle =
+    [ Style.outdent
+    , Style.hfnss
+    , margin (px 1)
+    , textAlign center
+    , height (px 20)
+    , flex2 (int 1) (int 1)
+    , width (px 45)
+    , lineHeight (px 24)
+    ]
 
 
 cellView : Payload -> Int -> ( Int, String ) -> Html Msg
 cellView payload rowIndex ( cellIndex, str ) =
     input
-        [ css cellStyle
+        [ css (cellStyle payload rowIndex)
         , Attrs.value str
         , Attrs.spellcheck False
         ]
         []
 
 
-cellStyle : List Style
-cellStyle =
-    [ Style.basicInput
-    , Style.hftin
+cellStyle : Payload -> Int -> List Style
+cellStyle payload rowIndex =
+    [ Style.indent
+    , outline none
+    , determineCellBgColor payload rowIndex
+        |> backgroundColor
+    , Style.hfnss
     , color Colors.point0
     , width (px cellWidth)
     , margin (px 1)
     , flex2 (int 0) (int 1)
     , Style.fontSmoothingNone
+    , height (px 24)
     ]
+
+
+determineCellBgColor : Payload -> Int -> Color
+determineCellBgColor { majorMark, minorMark } rowIndex =
+    if remainderBy majorMark rowIndex == 0 then
+        Colors.background4
+    else if remainderBy minorMark rowIndex == 0 then
+        Colors.background3
+    else
+        Colors.background2
 
 
 cellWidth : Float
 cellWidth =
-    60
+    80

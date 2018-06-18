@@ -8,7 +8,7 @@ import Html.Styled.Attributes exposing (css)
 basicInput : Style
 basicInput =
     [ outline none
-    , backgroundColor Colors.background3
+    , backgroundColor Colors.background1
     , indent
     ]
         |> Css.batch
@@ -68,7 +68,7 @@ cardContainer : Style
 cardContainer =
     [ outdent
     , backgroundColor Colors.ignorable2
-    , flex2 (int 0) (int 1)
+    , flex2 (int 1) (int 1)
     , displayFlex
     , flexDirection column
     , margin (px 4)

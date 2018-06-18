@@ -5,7 +5,7 @@ module Msg
         )
 
 import Json.Decode as D exposing (Decoder)
-import Tracker
+import Tracker.Msg as Tracker
 
 
 type Msg

@@ -4,6 +4,7 @@ module Colors
         , background1
         , background2
         , background3
+        , background4
         , critical
         , good
         , ignorable0
@@ -45,6 +46,21 @@ module Colors
 import Css exposing (Color, hex)
 
 
+background4 : Color
+background4 =
+    hex "#082221"
+
+
+{-| A lighter version of `background2`. Usually used to highlight list items against `background2`
+
+<div style="border: 2px solid #000000; width: 200px; height: 200px; background-color: #071d17"></div>
+
+-}
+background3 : Color
+background3 =
+    hex "#071d17"
+
+
 {-| `background2` is the default background color. Not totally black, and slightly turqoise, but still dark
 
 <div style="border: 2px solid #000000; width: 200px; height: 200px; background-color: #06120e"></div>
@@ -63,16 +79,6 @@ background2 =
 background1 : Color
 background1 =
     hex "#030907"
-
-
-{-| A lighter version of `background2`. Usually used to highlight list items against `background2`
-
-<div style="border: 2px solid #000000; width: 200px; height: 200px; background-color: #071d17"></div>
-
--}
-background3 : Color
-background3 =
-    hex "#071d17"
 
 
 {-| Actual black. Should rarely be used, but used to demonstrate absolute minimum brightness.

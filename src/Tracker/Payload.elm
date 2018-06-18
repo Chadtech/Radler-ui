@@ -7,4 +7,7 @@ import Data.Sheet exposing (Sheet)
 
 
 type alias Payload =
-    { sheet : Sheet }
+    { sheet : Sheet
+    , majorMark : Int
+    , minorMark : Int
+    }

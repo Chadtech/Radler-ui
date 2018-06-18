@@ -12,9 +12,10 @@ import Html.Styled.Attributes exposing (css)
 import Model exposing (Model, Tracker(..))
 import Msg exposing (Msg(..))
 import Style
-import Tracker.Big.View as Big
-import Tracker.Msg as Tracker
-import Tracker.Small.View as Small
+import Tracker.Msg
+import Tracker.Payload exposing (Payload)
+import Tracker.View.Big as Big
+import Tracker.View.Small as Small
 
 
 view : Model -> ( Int, ( Int, Tracker ) ) -> Html.Html Msg
@@ -24,29 +25,37 @@ view model ( trackerIndex, ( sheetIndex, tracker ) ) =
       , tracker
       )
     )
-        |> viewTracker
+        |> viewTracker model
         |> Html.Styled.map (TrackerMsg trackerIndex)
         |> Html.Styled.toUnstyled
 
 
-viewTracker : ( Int, ( Maybe Sheet, Tracker ) ) -> Html Tracker.Msg
-viewTracker ( trackerIndex, ( maybeSheet, tracker ) ) =
+viewTracker : Model -> ( Int, ( Maybe Sheet, Tracker ) ) -> Html Tracker.Msg.Msg
+viewTracker model ( trackerIndex, ( maybeSheet, tracker ) ) =
     case maybeSheet of
         Just sheet ->
             case tracker of
                 Big ->
-                    { sheet = sheet }
+                    makePayload model sheet
                         |> Big.view
 
                 Small ->
-                    { sheet = sheet }
+                    makePayload model sheet
                         |> Small.view
 
         Nothing ->
             notFoundView
 
 
-notFoundView : Html Tracker.Msg
+makePayload : Model -> Sheet -> Payload
+makePayload model sheet =
+    { sheet = sheet
+    , majorMark = model.majorMark
+    , minorMark = model.minorMark
+    }
+
+
+notFoundView : Html Tracker.Msg.Msg
 notFoundView =
     div
         [ css [ Style.cardContainer ] ]

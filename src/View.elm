@@ -1,5 +1,6 @@
 module View exposing (view)
 
+import Array
 import Browser
 import Model exposing (Model)
 import Msg exposing (Msg(..))
