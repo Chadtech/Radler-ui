@@ -1,6 +1,7 @@
 module Tracker.View.Small.Cell
     exposing
         ( view
+        , width
         )
 
 import Colors
@@ -37,10 +38,7 @@ cellStyle payload rowIndex =
     , Style.indent
     , Style.hftin
     , color Colors.point0
-    , width (px cellWidth)
-
-    --, margin (px 1)
-    --, flex2 (int 0) (int 1)
+    , Css.width (px width)
     , Style.fontSmoothingNone
     ]
         |> Css.batch
@@ -56,6 +54,6 @@ determineCellBgColor { majorMark, minorMark } rowIndex =
         Colors.background2
 
 
-cellWidth : Float
-cellWidth =
+width : Float
+width =
     60

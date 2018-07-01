@@ -4,19 +4,15 @@ module Tracker.View.Small
         )
 
 import Array exposing (Array)
-import Colors
 import Css exposing (..)
 import Data.Sheet as Sheet exposing (Sheet)
 import Data.Tracker exposing (Payload)
-import Html.Custom exposing (p)
 import Html.Grid as Grid
 import Html.Styled as Html
     exposing
         ( Attribute
         , Html
         , button
-        , div
-        , input
         )
 import Html.Styled.Attributes as Attrs
     exposing
@@ -25,6 +21,7 @@ import Html.Styled.Attributes as Attrs
 import Model exposing (Model)
 import Style
 import Tracker.Msg exposing (Msg)
+import Tracker.View.Small.Cell as Cell
 import Tracker.View.Small.Row as Row
 
 
@@ -45,9 +42,9 @@ view payload =
             []
             (header payload)
         , Grid.row
-            []
+            [ css [ marginTop (px 4) ] ]
             [ Grid.container
-                []
+                [ css [ overflow auto ] ]
                 (viewRows payload)
             ]
         ]
@@ -78,8 +75,7 @@ columnNumbers sheet i =
         [ button
             [ css
                 [ Row.buttonStyle
-                , flexBasis (px 62)
-                , width (px 62)
+                , width (px (Cell.width + 2))
                 ]
             ]
             [ Html.text (String.fromInt i)
@@ -94,7 +90,7 @@ sheetNameView sheet =
         [ button
             [ css
                 [ Row.buttonStyle
-                , width (px 94)
+                , width (px (Cell.width * 1.5 + 4))
                 ]
             ]
             [ Html.text sheet.name ]

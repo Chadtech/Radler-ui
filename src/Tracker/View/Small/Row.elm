@@ -69,7 +69,7 @@ buttonStyle =
     [ Style.outdent
     , Style.hftin
     , margin (px 1)
-    , width (px 30)
+    , width (px (Cell.width / 2))
     , height (px 16)
     , backgroundColor Colors.ignorable2
     , color Colors.point0
