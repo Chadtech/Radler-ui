@@ -18,7 +18,7 @@ empty : Sheet
 empty =
     { name = "doink"
     , rows =
-        Array.repeat 4 ""
+        Array.repeat 6 ""
             |> Array.repeat 64
     }
 

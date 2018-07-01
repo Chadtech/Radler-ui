@@ -16,15 +16,14 @@ import View exposing (view)
 main : Program D.Value Model Msg
 main =
     { init = init
-    , onNavigation = Nothing
     , subscriptions = subscriptions
     , update = update
     , view = view
     }
-        |> Browser.fullscreen
+        |> Browser.document
 
 
-init : Browser.Env D.Value -> ( Model, Cmd Msg )
+init : D.Value -> ( Model, Cmd Msg )
 init json =
     Model.empty |> R2.withNoCmd
 

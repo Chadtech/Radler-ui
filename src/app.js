@@ -1,4 +1,4 @@
-var app = Elm.Main.fullscreen();
+var app = Elm.Main.init();
 
 function toElm (type, payload) {
 	app.ports.fromJs.send({
@@ -25,5 +25,6 @@ function jsMsgHandler(msg) {
 	action(msg.payload);
 }
 
+// console.log(app)
 // app.ports.toJs.subscribe(jsMsgHandler)
 

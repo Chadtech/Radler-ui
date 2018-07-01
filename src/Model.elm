@@ -1,7 +1,8 @@
-module Model exposing (Model, Tracker(..), empty)
+module Model exposing (Model, empty)
 
 import Array exposing (Array)
 import Data.Sheet as Sheet exposing (Sheet)
+import Data.Tracker exposing (Tracker(..))
 
 
 type alias Model =
@@ -27,8 +28,3 @@ empty =
     , majorMark = 16
     , minorMark = 4
     }
-
-
-type Tracker
-    = Big
-    | Small

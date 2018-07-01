@@ -64,13 +64,24 @@ hftin =
         |> Css.batch
 
 
-cardContainer : Style
-cardContainer =
+basicSpacing : Style
+basicSpacing =
+    [ padding (px 1)
+    , margin (px 1)
+    ]
+        |> Css.batch
+
+
+card : Style
+card =
     [ outdent
     , backgroundColor Colors.ignorable2
-    , flex2 (int 1) (int 1)
-    , displayFlex
-    , flexDirection column
-    , margin (px 4)
+    , display inlineFlex
+    , basicSpacing
+
+    --, flex2 (int 1) (int 1)
+    --, displayFlex
+    --, flexDirection column
+    --, margin (px 4)
     ]
         |> Css.batch

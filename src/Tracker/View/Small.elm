@@ -7,7 +7,9 @@ import Array exposing (Array)
 import Colors
 import Css exposing (..)
 import Data.Sheet as Sheet exposing (Sheet)
+import Data.Tracker exposing (Payload)
 import Html.Custom exposing (p)
+import Html.Grid as Grid
 import Html.Styled as Html
     exposing
         ( Attribute
@@ -23,7 +25,7 @@ import Html.Styled.Attributes as Attrs
 import Model exposing (Model)
 import Style
 import Tracker.Msg exposing (Msg)
-import Tracker.Payload exposing (Payload)
+import Tracker.View.Small.Row as Row
 
 
 -- VIEW --
@@ -31,157 +33,69 @@ import Tracker.Payload exposing (Payload)
 
 view : Payload -> Html Msg
 view payload =
-    div
-        [ css [ Style.cardContainer ] ]
-        (viewBody payload)
+    Grid.container
+        [ css
+            [ Style.card
+            , flexDirection Css.column
+            , height (calc (vh 100) minus (px 20))
+            , overflow hidden
+            ]
+        ]
+        [ Grid.row
+            []
+            (header payload)
+        , Grid.row
+            []
+            [ Grid.container
+                []
+                (viewRows payload)
+            ]
+        ]
 
 
-viewBody : Payload -> List (Html Msg)
-viewBody payload =
+viewRows : Payload -> List (Html Msg)
+viewRows payload =
     payload.sheet.rows
         |> Array.toIndexedList
-        |> List.map (rowView payload)
-        |> (::) (rowHeadersView payload.sheet)
+        |> List.map (Row.view payload)
 
 
-rowHeadersView : Sheet -> Html Msg
-rowHeadersView sheet =
+
+-- HEADER --
+
+
+header : Payload -> List (Html Msg)
+header { sheet } =
     List.range 0 (Sheet.columnCount sheet - 1)
-        |> List.map rowHeaderView
+        |> List.map (columnNumbers sheet)
         |> (::) (sheetNameView sheet)
-        |> div
+
+
+columnNumbers : Sheet -> Int -> Html Msg
+columnNumbers sheet i =
+    Grid.column
+        []
+        [ button
             [ css
-                [ Css.batch rowStyle
-                , alignSelf flexEnd
+                [ Row.buttonStyle
+                , flexBasis (px 62)
+                , width (px 62)
                 ]
             ]
+            [ Html.text (String.fromInt i)
+            ]
+        ]
 
 
 sheetNameView : Sheet -> Html Msg
 sheetNameView sheet =
-    button
-        [ css
-            [ Css.batch rowButtonStyle
-            , flex2 (int 1) (int 1)
-            , width (px 94)
-            ]
-        ]
-        [ Html.text sheet.name ]
-
-
-rowHeaderView : Int -> Html Msg
-rowHeaderView columnIndex =
-    button
-        [ css
-            [ Css.batch rowButtonStyle
-            , flex2 (int 0) (int 1)
-            , flexBasis (px 60)
-            , width (px 60)
-            ]
-        ]
-        [ Html.text (String.fromInt columnIndex)
-        ]
-
-
-rowView : Payload -> ( Int, Array String ) -> Html Msg
-rowView payload ( index, row ) =
-    row
-        |> Array.toIndexedList
-        |> List.map (cellView payload index)
-        |> (::) (rowNumberView payload index)
-        |> (::) (rowPlusView payload index)
-        |> (::) (rowDeleteView payload index)
-        |> div [ css rowStyle ]
-
-
-rowStyle : List Style
-rowStyle =
-    [ displayFlex
-    , alignSelf flexStart
-    ]
-
-
-rowDeleteView : Payload -> Int -> Html Msg
-rowDeleteView payload index =
-    button
-        [ css rowButtonStyleClickable ]
-        [ Html.text "x" ]
-
-
-rowPlusView : Payload -> Int -> Html Msg
-rowPlusView payload index =
-    button
-        [ css rowButtonStyleClickable ]
-        [ Html.text "+v" ]
-
-
-rowButtonStyleClickable : List Style
-rowButtonStyleClickable =
-    [ Css.batch rowButtonStyle
-    , active [ Style.indent ]
-    , hover [ color Colors.point1 ]
-    ]
-
-
-rowButtonStyle : List Style
-rowButtonStyle =
-    [ Style.outdent
-    , Style.hftin
-    , margin (px 1)
-    , flex2 (int 0) (int 1)
-    , flexBasis (px 30)
-    , width (px 30)
-    , height (px 16)
-    , backgroundColor Colors.ignorable2
-    , color Colors.point0
-    , Style.fontSmoothingNone
-    , padding (px 0)
-    , outline none
-    ]
-
-
-rowNumberView : Payload -> Int -> Html Msg
-rowNumberView payload index =
-    button
-        [ css rowButtonStyle ]
-        [ Html.text (String.fromInt index) ]
-
-
-cellView : Payload -> Int -> ( Int, String ) -> Html Msg
-cellView payload rowIndex ( cellIndex, str ) =
-    input
-        [ css (cellStyle payload rowIndex)
-        , Attrs.value str
-        , Attrs.spellcheck False
-        ]
+    Grid.column
         []
-
-
-cellStyle : Payload -> Int -> List Style
-cellStyle payload rowIndex =
-    [ outline none
-    , determineCellBgColor payload rowIndex
-        |> backgroundColor
-    , Style.indent
-    , Style.hftin
-    , color Colors.point0
-    , width (px cellWidth)
-    , margin (px 1)
-    , flex2 (int 0) (int 1)
-    , Style.fontSmoothingNone
-    ]
-
-
-determineCellBgColor : Payload -> Int -> Color
-determineCellBgColor { majorMark, minorMark } rowIndex =
-    if remainderBy majorMark rowIndex == 0 then
-        Colors.background4
-    else if remainderBy minorMark rowIndex == 0 then
-        Colors.background3
-    else
-        Colors.background2
-
-
-cellWidth : Float
-cellWidth =
-    60
+        [ button
+            [ css
+                [ Row.buttonStyle
+                , width (px 94)
+                ]
+            ]
+            [ Html.text sheet.name ]
+        ]

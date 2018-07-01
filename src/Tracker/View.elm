@@ -6,32 +6,39 @@ module Tracker.View
 import Array
 import Css exposing (..)
 import Data.Sheet exposing (Sheet)
-import Html
-import Html.Styled exposing (Attribute, Html, div, p)
+import Data.Tracker
+    exposing
+        ( Payload
+        , Tracker(..)
+        )
+import Html.Grid as Grid
+import Html.Styled as Html
+    exposing
+        ( Attribute
+        , Html
+        , div
+        , p
+        )
 import Html.Styled.Attributes exposing (css)
-import Model exposing (Model, Tracker(..))
-import Msg exposing (Msg(..))
+import Model exposing (Model)
 import Style
-import Tracker.Msg
-import Tracker.Payload exposing (Payload)
+import Tracker.Msg exposing (Msg)
 import Tracker.View.Big as Big
 import Tracker.View.Small as Small
 
 
-view : Model -> ( Int, ( Int, Tracker ) ) -> Html.Html Msg
+view : Model -> ( Int, ( Int, Tracker ) ) -> Html Msg
 view model ( trackerIndex, ( sheetIndex, tracker ) ) =
     ( trackerIndex
     , ( Array.get sheetIndex model.sheets
       , tracker
       )
     )
-        |> viewTracker model
-        |> Html.Styled.map (TrackerMsg trackerIndex)
-        |> Html.Styled.toUnstyled
+        |> viewBody model
 
 
-viewTracker : Model -> ( Int, ( Maybe Sheet, Tracker ) ) -> Html Tracker.Msg.Msg
-viewTracker model ( trackerIndex, ( maybeSheet, tracker ) ) =
+viewBody : Model -> ( Int, ( Maybe Sheet, Tracker ) ) -> Html Msg
+viewBody model ( trackerIndex, ( maybeSheet, tracker ) ) =
     case maybeSheet of
         Just sheet ->
             case tracker of
@@ -55,10 +62,10 @@ makePayload model sheet =
     }
 
 
-notFoundView : Html Tracker.Msg.Msg
+notFoundView : Html Msg
 notFoundView =
     div
-        [ css [ Style.cardContainer ] ]
+        [ css [ Style.card ] ]
         [ p
             [ css
                 [ Style.basicP
@@ -67,5 +74,5 @@ notFoundView =
                 , margin (px 4)
                 ]
             ]
-            [ Html.Styled.text "Error : Sheet not found" ]
+            [ Html.text "Error : Sheet not found" ]
         ]

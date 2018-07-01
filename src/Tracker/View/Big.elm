@@ -7,7 +7,9 @@ import Array exposing (Array)
 import Colors
 import Css exposing (..)
 import Data.Sheet as Sheet exposing (Sheet)
+import Data.Tracker exposing (Payload)
 import Html.Custom exposing (p)
+import Html.Grid as Grid
 import Html.Styled as Html
     exposing
         ( Attribute
@@ -23,7 +25,6 @@ import Html.Styled.Attributes as Attrs
 import Model exposing (Model)
 import Style
 import Tracker.Msg exposing (Msg)
-import Tracker.Payload exposing (Payload)
 
 
 -- VIEW --
@@ -31,17 +32,18 @@ import Tracker.Payload exposing (Payload)
 
 view : Payload -> Html Msg
 view payload =
-    div
-        [ css [ Style.cardContainer ] ]
-        (viewBody payload)
+    Grid.container
+        [ css [ Style.card ] ]
+        [ Grid.row [] []
+        , Grid.row [] []
+        ]
 
 
-viewBody : Payload -> List (Html Msg)
-viewBody payload =
-    payload.sheet.rows
-        |> Array.toIndexedList
-        |> List.map (rowView payload)
-        |> (::) (rowHeadersView payload.sheet)
+
+--payload.sheet.rows
+--    |> Array.toIndexedList
+--    |> List.map (rowView payload)
+--    |> (::) (rowHeadersView payload.sheet)
 
 
 rowHeadersView : Sheet -> Html Msg
