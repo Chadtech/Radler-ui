@@ -23,6 +23,10 @@ empty =
     }
 
 
+
+-- HELPERS --
+
+
 columnCount : Sheet -> Int
 columnCount { rows } =
     rows

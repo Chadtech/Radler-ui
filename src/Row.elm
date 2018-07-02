@@ -1,6 +1,6 @@
 module Row
     exposing
-        ( Msg
+        ( Msg(..)
         , buttonStyle
         , view
         )

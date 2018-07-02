@@ -1,4 +1,8 @@
-module Model exposing (Model, empty)
+module Model
+    exposing
+        ( Model
+        , empty
+        )
 
 import Array exposing (Array)
 import Data.Sheet as Sheet exposing (Sheet)

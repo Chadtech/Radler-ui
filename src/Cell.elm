@@ -1,6 +1,6 @@
 module Cell
     exposing
-        ( Msg
+        ( Msg(..)
         , view
         )
 
@@ -13,6 +13,7 @@ import Html.Styled.Attributes as Attrs
     exposing
         ( css
         )
+import Html.Styled.Events exposing (onInput)
 import Style
 
 
@@ -20,7 +21,7 @@ import Style
 
 
 type Msg
-    = Noop
+    = Updated String
 
 
 
@@ -35,6 +36,7 @@ view payload rowIndex ( cellIndex, str ) =
             [ css [ style payload rowIndex ]
             , Attrs.value str
             , Attrs.spellcheck False
+            , onInput Updated
             ]
             []
         ]
