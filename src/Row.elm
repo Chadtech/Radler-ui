@@ -2,6 +2,7 @@ module Row
     exposing
         ( Msg(..)
         , buttonStyle
+        , setCell
         , view
         )
 
@@ -95,3 +96,12 @@ buttonStyle payload =
     , outline none
     ]
         |> Css.batch
+
+
+
+-- HELPERS --
+
+
+setCell : Int -> String -> Array String -> Array String
+setCell index str row =
+    Array.set index str row

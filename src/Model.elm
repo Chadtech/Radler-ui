@@ -2,6 +2,8 @@ module Model
     exposing
         ( Model
         , empty
+        , getThreadsSheetIndex
+        , mapSheet
         )
 
 import Array exposing (Array)
@@ -32,3 +34,29 @@ empty =
     , majorMark = 16
     , minorMark = 4
     }
+
+
+
+-- HELPERS --
+
+
+mapSheet : Int -> (Sheet -> Sheet) -> Model -> Model
+mapSheet index f model =
+    case Array.get index model.sheets of
+        Just sheet ->
+            { model
+                | sheets =
+                    Array.set
+                        index
+                        (f sheet)
+                        model.sheets
+            }
+
+        Nothing ->
+            model
+
+
+getThreadsSheetIndex : Int -> Model -> Maybe Int
+getThreadsSheetIndex threadIndex model =
+    Array.get threadIndex model.trackers
+        |> Maybe.map Tuple.first

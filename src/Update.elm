@@ -1,6 +1,7 @@
 module Update exposing (update)
 
 import Cell
+import Data.Sheet as Sheet
 import Header
 import Model exposing (Model)
 import Msg exposing (Msg(..))
@@ -17,8 +18,17 @@ update msg model =
                 |> R2.withNoCmd
 
         TrackerMsg ti (Tracker.RowMsg ri (Row.CellMsg ci (Cell.Updated str))) ->
-            model
-                |> R2.withNoCmd
+            case Model.getThreadsSheetIndex ti model of
+                Just si ->
+                    Row.setCell ci str
+                        |> Sheet.mapRow ri
+                        |> Model.mapSheet si
+                        |> (|>) model
+                        |> R2.withNoCmd
+
+                Nothing ->
+                    model
+                        |> R2.withNoCmd
 
         HeaderMsg subMsg ->
             Header.update subMsg model
