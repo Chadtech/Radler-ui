@@ -1,7 +1,7 @@
-module Tracker.View.Small.Cell
+module Cell
     exposing
-        ( view
-        , width
+        ( Msg
+        , view
         )
 
 import Colors
@@ -14,7 +14,17 @@ import Html.Styled.Attributes as Attrs
         ( css
         )
 import Style
-import Tracker.Msg exposing (Msg)
+
+
+-- TYPES --
+
+
+type Msg
+    = Noop
+
+
+
+-- VIEW --
 
 
 view : Payload -> Int -> ( Int, String ) -> Html Msg
@@ -22,7 +32,7 @@ view payload rowIndex ( cellIndex, str ) =
     Grid.column
         [ css [ Style.basicSpacing ] ]
         [ input
-            [ css [ cellStyle payload rowIndex ]
+            [ css [ style payload rowIndex ]
             , Attrs.value str
             , Attrs.spellcheck False
             ]
@@ -30,15 +40,15 @@ view payload rowIndex ( cellIndex, str ) =
         ]
 
 
-cellStyle : Payload -> Int -> Style
-cellStyle payload rowIndex =
+style : Payload -> Int -> Style
+style payload rowIndex =
     [ outline none
     , determineCellBgColor payload rowIndex
         |> backgroundColor
     , Style.indent
-    , Style.hftin
+    , payload.fontStyle
     , color Colors.point0
-    , Css.width (px width)
+    , Css.width (px payload.cellWidth)
     , Style.fontSmoothingNone
     ]
         |> Css.batch
@@ -52,8 +62,3 @@ determineCellBgColor { majorMark, minorMark } rowIndex =
         Colors.background3
     else
         Colors.background2
-
-
-width : Float
-width =
-    60

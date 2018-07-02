@@ -2,6 +2,7 @@ module Main exposing (..)
 
 import Browser
 import Browser.Navigation
+import Header
 import Json.Decode as D
 import Model exposing (Model)
 import Msg exposing (Msg(..))
@@ -51,3 +52,7 @@ update msg model =
         TrackerMsg trackerIndex trackerMsg ->
             model
                 |> R2.withNoCmd
+
+        HeaderMsg subMsg ->
+            Header.update subMsg model
+                |> R2.mapCmd HeaderMsg

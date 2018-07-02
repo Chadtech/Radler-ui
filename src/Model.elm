@@ -20,8 +20,8 @@ empty =
     , sheets = Array.fromList [ Sheet.empty ]
     , trackers =
         [ ( 0, Small )
-        , ( 0, Small )
-        , ( 0, Small )
+        , ( 0, Big )
+        , ( 0, Big )
         , ( 0, Small )
         ]
             |> Array.fromList

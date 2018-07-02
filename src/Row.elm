@@ -1,10 +1,12 @@
-module Tracker.View.Small.Row
+module Row
     exposing
-        ( buttonStyle
+        ( Msg
+        , buttonStyle
         , view
         )
 
 import Array exposing (Array)
+import Cell
 import Colors
 import Css exposing (..)
 import Data.Tracker exposing (Payload)
@@ -19,58 +21,73 @@ import Html.Styled.Attributes as Attrs
         ( css
         )
 import Style
-import Tracker.Msg exposing (Msg)
-import Tracker.View.Small.Cell as Cell
+
+
+-- TYPES --
+
+
+type Msg
+    = CellMsg Int Cell.Msg
+
+
+
+-- VIEW --
 
 
 view : Payload -> ( Int, Array String ) -> Html Msg
 view payload ( index, row ) =
     row
         |> Array.toIndexedList
-        |> List.map (Cell.view payload index)
+        |> List.map (wrapCell payload index)
         |> (::) (numberView payload index)
         |> (::) (plusView payload index)
         |> (::) (deleteView payload index)
         |> Grid.row []
 
 
+wrapCell : Payload -> Int -> ( Int, String ) -> Html Msg
+wrapCell payload rowIndex ( cellIndex, str ) =
+    Cell.view payload rowIndex ( cellIndex, str )
+        |> Html.map (CellMsg cellIndex)
+
+
 deleteView : Payload -> Int -> Html Msg
 deleteView payload index =
     button
-        [ css [ buttonStyleClickable ] ]
+        [ css [ buttonStyleClickable payload ] ]
         [ Html.text "x" ]
 
 
 plusView : Payload -> Int -> Html Msg
 plusView payload index =
     button
-        [ css [ buttonStyleClickable ] ]
+        [ css [ buttonStyleClickable payload ] ]
         [ Html.text "+v" ]
 
 
 numberView : Payload -> Int -> Html Msg
 numberView payload index =
     button
-        [ css [ buttonStyle ] ]
+        [ css [ buttonStyle payload ] ]
         [ Html.text (String.fromInt index) ]
 
 
-buttonStyleClickable : Style
-buttonStyleClickable =
-    [ buttonStyle
+buttonStyleClickable : Payload -> Style
+buttonStyleClickable payload =
+    [ buttonStyle payload
     , active [ Style.indent ]
     , hover [ color Colors.point1 ]
     ]
         |> Css.batch
 
 
-buttonStyle : Style
-buttonStyle =
+buttonStyle : Payload -> Style
+buttonStyle payload =
     [ Style.outdent
-    , Style.hftin
+    , payload.fontStyle
     , margin (px 1)
-    , width (px (Cell.width / 2))
-    , height (px 16)
+    , width (px (payload.cellWidth / 2))
+    , height (px payload.cellHeight)
     , backgroundColor Colors.ignorable2
     , color Colors.point0
     , Style.fontSmoothingNone

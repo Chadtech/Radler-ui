@@ -1,8 +1,11 @@
 module Html.Grid
     exposing
         ( column
+        , columnWrapper
         , container
+        , containerWrapper
         , row
+        , rowWrapper
         )
 
 import Css exposing (..)
@@ -16,7 +19,7 @@ import Html.Styled as Html
     exposing
         ( Attribute
         , Html
-        , div
+        , node
         )
 import Html.Styled.Attributes exposing (css)
 
@@ -26,7 +29,12 @@ import Html.Styled.Attributes exposing (css)
 
 container : List (Attribute msg) -> List (Html msg) -> Html msg
 container attrs =
-    div (containerStyle :: attrs)
+    node "container" (containerStyle :: attrs)
+
+
+containerWrapper : Html msg -> Html msg
+containerWrapper child =
+    container [] [ child ]
 
 
 containerStyle : Attribute msg
@@ -41,7 +49,12 @@ containerStyle =
 
 row : List (Attribute msg) -> List (Html msg) -> Html msg
 row attrs =
-    div (rowStyle :: attrs)
+    node "row" (rowStyle :: attrs)
+
+
+rowWrapper : Html msg -> Html msg
+rowWrapper child =
+    row [] [ child ]
 
 
 rowStyle : Attribute msg
@@ -59,7 +72,12 @@ rowStyle =
 
 column : List (Attribute msg) -> List (Html msg) -> Html msg
 column attrs =
-    div (columnStyle :: attrs)
+    node "column" (columnStyle :: attrs)
+
+
+columnWrapper : Html msg -> Html msg
+columnWrapper child =
+    column [] [ child ]
 
 
 columnStyle : Attribute msg

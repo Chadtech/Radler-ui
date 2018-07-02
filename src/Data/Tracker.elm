@@ -4,6 +4,7 @@ module Data.Tracker
         , Tracker(..)
         )
 
+import Css exposing (Style)
 import Data.Sheet exposing (Sheet)
 
 
@@ -16,4 +17,7 @@ type alias Payload =
     { sheet : Sheet
     , majorMark : Int
     , minorMark : Int
+    , fontStyle : Style
+    , cellWidth : Float
+    , cellHeight : Float
     }

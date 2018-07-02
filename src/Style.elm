@@ -78,10 +78,5 @@ card =
     , backgroundColor Colors.ignorable2
     , display inlineFlex
     , basicSpacing
-
-    --, flex2 (int 1) (int 1)
-    --, displayFlex
-    --, flexDirection column
-    --, margin (px 4)
     ]
         |> Css.batch

@@ -4,13 +4,15 @@ module Msg
         , decode
         )
 
+import Header
 import Json.Decode as D exposing (Decoder)
-import Tracker.Msg as Tracker
+import Tracker
 
 
 type Msg
     = MsgDecodeFailed D.Error
     | TrackerMsg Int Tracker.Msg
+    | HeaderMsg Header.Msg
 
 
 decode : D.Value -> Msg
