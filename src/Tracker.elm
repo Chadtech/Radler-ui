@@ -49,25 +49,6 @@ view model ( sheetIndex, tracker ) =
                 model.minorMark
                 tracker
 
-        --case tracker of
-        --Big ->
-        --    { sheet = sheet
-        --    , majorMark = model.majorMark
-        --    , minorMark = model.minorMark
-        --    , fontStyle = Css.batch [ Style.hfnss ]
-        --    , cellWidth = 90
-        --    , cellHeight = 26
-        --    }
-        --        |> fromPayload
-        --Small ->
-        --    { sheet = sheet
-        --    , majorMark = model.majorMark
-        --    , minorMark = model.minorMark
-        --    , fontStyle = Css.batch [ Style.hftin ]
-        --    , cellWidth = 60
-        --    , cellHeight = 16
-        --    }
-        --        |> fromPayload
         Nothing ->
             notFoundView
 

@@ -28,8 +28,8 @@ type Msg
 -- VIEW --
 
 
-view : Int -> Int -> Tracker -> Int -> Int -> String -> Html Msg
-view majorMark minorMark tracker rowIndex cellIndex str =
+view : Int -> Int -> Tracker -> Int -> String -> Html Msg
+view majorMark minorMark tracker rowIndex str =
     Grid.column
         [ css [ Style.basicSpacing ] ]
         [ input

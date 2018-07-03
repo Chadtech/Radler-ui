@@ -49,13 +49,12 @@ view majorMark minorMark tracker index row =
 
 wrapCell : Int -> Int -> Tracker -> Int -> ( Int, String ) -> Html Msg
 wrapCell majorMark minorMark tracker rowIndex ( cellIndex, str ) =
-    Html.Styled.Lazy.lazy6
+    Html.Styled.Lazy.lazy5
         Cell.view
         majorMark
         minorMark
         tracker
         rowIndex
-        cellIndex
         str
         |> Html.map (CellMsg cellIndex)
 
