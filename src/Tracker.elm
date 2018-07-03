@@ -7,10 +7,9 @@ module Tracker
 import Array exposing (Array)
 import Css exposing (..)
 import Data.Sheet as Sheet exposing (Sheet)
-import Data.Tracker
+import Data.Tracker as Tracker
     exposing
-        ( Payload
-        , Tracker(..)
+        ( Tracker(..)
         )
 import Html.Custom exposing (p)
 import Html.Grid as Grid
@@ -22,6 +21,7 @@ import Html.Styled as Html
         , div
         )
 import Html.Styled.Attributes exposing (css)
+import Html.Styled.Lazy
 import Model exposing (Model)
 import Row
 import Style
@@ -42,33 +42,38 @@ view : Model -> ( Int, Tracker ) -> Html Msg
 view model ( sheetIndex, tracker ) =
     case Array.get sheetIndex model.sheets of
         Just sheet ->
-            case tracker of
-                Big ->
-                    { sheet = sheet
-                    , majorMark = model.majorMark
-                    , minorMark = model.minorMark
-                    , fontStyle = Css.batch [ Style.hfnss ]
-                    , cellWidth = 90
-                    , cellHeight = 26
-                    }
-                        |> fromPayload
+            Html.Styled.Lazy.lazy4
+                fromPayload
+                sheet
+                model.majorMark
+                model.minorMark
+                tracker
 
-                Small ->
-                    { sheet = sheet
-                    , majorMark = model.majorMark
-                    , minorMark = model.minorMark
-                    , fontStyle = Css.batch [ Style.hftin ]
-                    , cellWidth = 60
-                    , cellHeight = 16
-                    }
-                        |> fromPayload
-
+        --case tracker of
+        --Big ->
+        --    { sheet = sheet
+        --    , majorMark = model.majorMark
+        --    , minorMark = model.minorMark
+        --    , fontStyle = Css.batch [ Style.hfnss ]
+        --    , cellWidth = 90
+        --    , cellHeight = 26
+        --    }
+        --        |> fromPayload
+        --Small ->
+        --    { sheet = sheet
+        --    , majorMark = model.majorMark
+        --    , minorMark = model.minorMark
+        --    , fontStyle = Css.batch [ Style.hftin ]
+        --    , cellWidth = 60
+        --    , cellHeight = 16
+        --    }
+        --        |> fromPayload
         Nothing ->
             notFoundView
 
 
-fromPayload : Payload -> Html Msg
-fromPayload payload =
+fromPayload : Sheet -> Int -> Int -> Tracker -> Html Msg
+fromPayload sheet majorMark minorMark tracker =
     Grid.container
         [ css
             [ Style.card
@@ -79,26 +84,32 @@ fromPayload payload =
         ]
         [ Grid.row
             [ css [ minHeight fitContent ] ]
-            (header payload)
+            (header sheet tracker)
         , Grid.row
             []
             [ Grid.container
                 [ css [ overflow auto ] ]
-                (viewRows payload)
+                (viewRows sheet majorMark minorMark tracker)
             ]
         ]
 
 
-viewRows : Payload -> List (Html Msg)
-viewRows payload =
-    payload.sheet.rows
+viewRows : Sheet -> Int -> Int -> Tracker -> List (Html Msg)
+viewRows sheet majorMark minorMark tracker =
+    sheet.rows
         |> Array.toIndexedList
-        |> List.map (wrapRow payload)
+        |> List.map (wrapRow majorMark minorMark tracker)
 
 
-wrapRow : Payload -> ( Int, Array String ) -> Html Msg
-wrapRow payload ( index, row ) =
-    Row.view payload ( index, row )
+wrapRow : Int -> Int -> Tracker -> ( Int, Array String ) -> Html Msg
+wrapRow majorMark minorMark tracker ( index, row ) =
+    Html.Styled.Lazy.lazy5
+        Row.view
+        majorMark
+        minorMark
+        tracker
+        index
+        row
         |> Html.map (RowMsg index)
 
 
@@ -106,21 +117,21 @@ wrapRow payload ( index, row ) =
 -- HEADER --
 
 
-header : Payload -> List (Html Msg)
-header payload =
-    List.range 0 (Sheet.columnCount payload.sheet - 1)
-        |> List.map (columnNumbers payload)
-        |> (::) (sheetNameView payload)
+header : Sheet -> Tracker -> List (Html Msg)
+header sheet tracker =
+    List.range 0 (Sheet.columnCount sheet - 1)
+        |> List.map (columnNumbers tracker)
+        |> (::) (sheetNameView sheet tracker)
 
 
-columnNumbers : Payload -> Int -> Html Msg
-columnNumbers ({ cellWidth, sheet } as payload) i =
+columnNumbers : Tracker -> Int -> Html Msg
+columnNumbers tracker i =
     Grid.column
         []
         [ button
             [ css
-                [ Row.buttonStyle payload
-                , width (px (cellWidth + 2))
+                [ Row.buttonStyle tracker
+                , width (px (Tracker.cellWidth tracker + 2))
                 , minHeight fitContent
                 ]
             ]
@@ -129,14 +140,15 @@ columnNumbers ({ cellWidth, sheet } as payload) i =
         ]
 
 
-sheetNameView : Payload -> Html Msg
-sheetNameView ({ cellWidth, sheet } as payload) =
+sheetNameView : Sheet -> Tracker -> Html Msg
+sheetNameView sheet tracker =
     Grid.column
         []
         [ button
             [ css
-                [ Row.buttonStyle payload
-                , width (px (cellWidth * 1.5 + 4))
+                [ Row.buttonStyle tracker
+                , width
+                    (px (Tracker.cellWidth tracker * 1.5 + 4))
                 ]
             ]
             [ Html.text sheet.name ]

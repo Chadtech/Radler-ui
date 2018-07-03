@@ -10,7 +10,7 @@ import Array exposing (Array)
 import Cell
 import Colors
 import Css exposing (..)
-import Data.Tracker exposing (Payload)
+import Data.Tracker as Tracker exposing (Tracker)
 import Html.Grid as Grid
 import Html.Styled as Html
     exposing
@@ -21,6 +21,7 @@ import Html.Styled.Attributes as Attrs
     exposing
         ( css
         )
+import Html.Styled.Lazy
 import Style
 
 
@@ -35,60 +36,67 @@ type Msg
 -- VIEW --
 
 
-view : Payload -> ( Int, Array String ) -> Html Msg
-view payload ( index, row ) =
+view : Int -> Int -> Tracker -> Int -> Array String -> Html Msg
+view majorMark minorMark tracker index row =
     row
         |> Array.toIndexedList
-        |> List.map (wrapCell payload index)
-        |> (::) (numberView payload index)
-        |> (::) (plusView payload index)
-        |> (::) (deleteView payload index)
+        |> List.map (wrapCell majorMark minorMark tracker index)
+        |> (::) (numberView tracker index)
+        |> (::) (plusView tracker)
+        |> (::) (deleteView tracker)
         |> Grid.row []
 
 
-wrapCell : Payload -> Int -> ( Int, String ) -> Html Msg
-wrapCell payload rowIndex ( cellIndex, str ) =
-    Cell.view payload rowIndex ( cellIndex, str )
+wrapCell : Int -> Int -> Tracker -> Int -> ( Int, String ) -> Html Msg
+wrapCell majorMark minorMark tracker rowIndex ( cellIndex, str ) =
+    Html.Styled.Lazy.lazy6
+        Cell.view
+        majorMark
+        minorMark
+        tracker
+        rowIndex
+        cellIndex
+        str
         |> Html.map (CellMsg cellIndex)
 
 
-deleteView : Payload -> Int -> Html Msg
-deleteView payload index =
+deleteView : Tracker -> Html Msg
+deleteView tracker =
     button
-        [ css [ buttonStyleClickable payload ] ]
+        [ css [ buttonStyleClickable tracker ] ]
         [ Html.text "x" ]
 
 
-plusView : Payload -> Int -> Html Msg
-plusView payload index =
+plusView : Tracker -> Html Msg
+plusView tracker =
     button
-        [ css [ buttonStyleClickable payload ] ]
+        [ css [ buttonStyleClickable tracker ] ]
         [ Html.text "+v" ]
 
 
-numberView : Payload -> Int -> Html Msg
-numberView payload index =
+numberView : Tracker -> Int -> Html Msg
+numberView tracker index =
     button
-        [ css [ buttonStyle payload ] ]
+        [ css [ buttonStyle tracker ] ]
         [ Html.text (String.fromInt index) ]
 
 
-buttonStyleClickable : Payload -> Style
-buttonStyleClickable payload =
-    [ buttonStyle payload
+buttonStyleClickable : Tracker -> Style
+buttonStyleClickable tracker =
+    [ buttonStyle tracker
     , active [ Style.indent ]
     , hover [ color Colors.point1 ]
     ]
         |> Css.batch
 
 
-buttonStyle : Payload -> Style
-buttonStyle payload =
+buttonStyle : Tracker -> Style
+buttonStyle tracker =
     [ Style.outdent
-    , payload.fontStyle
+    , Tracker.font tracker
     , margin (px 1)
-    , width (px (payload.cellWidth / 2))
-    , height (px payload.cellHeight)
+    , width (px (Tracker.cellWidth tracker / 2))
+    , height (px (Tracker.cellHeight tracker))
     , backgroundColor Colors.ignorable2
     , color Colors.point0
     , Style.fontSmoothingNone
