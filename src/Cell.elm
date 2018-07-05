@@ -59,8 +59,8 @@ style majorMark minorMark tracker rowIndex =
 determineCellBgColor : Int -> Int -> Int -> Color
 determineCellBgColor majorMark minorMark rowIndex =
     if remainderBy majorMark rowIndex == 0 then
-        Colors.background4
+        Colors.highlight1
     else if remainderBy minorMark rowIndex == 0 then
-        Colors.background3
+        Colors.highlight0
     else
-        Colors.background2
+        Colors.background3

@@ -7,6 +7,8 @@ module Colors
         , background4
         , critical
         , good
+        , highlight0
+        , highlight1
         , ignorable0
         , ignorable1
         , ignorable2
@@ -44,6 +46,16 @@ module Colors
 -}
 
 import Css exposing (Color, hex)
+
+
+highlight1 : Color
+highlight1 =
+    hex "#494a2d"
+
+
+highlight0 : Color
+highlight0 =
+    hex "#333e22"
 
 
 background4 : Color
