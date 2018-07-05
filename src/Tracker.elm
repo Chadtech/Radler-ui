@@ -129,7 +129,7 @@ sheetNameView sheet tracker =
             [ css
                 [ Row.buttonStyle tracker
                 , width
-                    (px (Tracker.cellWidth tracker * 1.5 + 4))
+                    (px (Tracker.cellWidth tracker * 2 + 4))
                 ]
             ]
             [ Html.text sheet.name ]

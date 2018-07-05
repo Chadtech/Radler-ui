@@ -41,7 +41,7 @@ view majorMark minorMark tracker index row =
     row
         |> Array.toIndexedList
         |> List.map (wrapCell majorMark minorMark tracker index)
-        |> (::) (numberView tracker index)
+        |> (::) (numberView tracker majorMark index)
         |> (::) (plusView tracker)
         |> (::) (deleteView tracker)
         |> Grid.row []
@@ -73,11 +73,30 @@ plusView tracker =
         [ Html.text "+v" ]
 
 
-numberView : Tracker -> Int -> Html Msg
-numberView tracker index =
+numberView : Tracker -> Int -> Int -> Html Msg
+numberView tracker majorMark index =
     button
-        [ css [ buttonStyle tracker ] ]
-        [ Html.text (String.fromInt index) ]
+        [ css [ numberStyle tracker ] ]
+        [ Html.text (numberStr majorMark index) ]
+
+
+numberStr : Int -> Int -> String
+numberStr majorMark index =
+    [ String.fromInt (index // majorMark)
+    , "."
+    , beatNumber
+        (remainderBy majorMark index)
+        "0123456789abcdefghijklmnopqrstuv"
+    ]
+        |> String.concat
+
+
+beatNumber : Int -> String -> String
+beatNumber i str =
+    if i == 0 then
+        String.left 1 str
+    else
+        beatNumber (i - 1) (String.dropLeft 1 str)
 
 
 buttonStyleClickable : Tracker -> Style
@@ -95,6 +114,22 @@ buttonStyle tracker =
     , Tracker.font tracker
     , margin (px 1)
     , width (px (Tracker.cellWidth tracker / 2))
+    , height (px (Tracker.cellHeight tracker))
+    , backgroundColor Colors.ignorable2
+    , color Colors.point0
+    , Style.fontSmoothingNone
+    , padding (px 0)
+    , outline none
+    ]
+        |> Css.batch
+
+
+numberStyle : Tracker -> Style
+numberStyle tracker =
+    [ Style.outdent
+    , Tracker.font tracker
+    , margin (px 1)
+    , width (px (Tracker.cellWidth tracker))
     , height (px (Tracker.cellHeight tracker))
     , backgroundColor Colors.ignorable2
     , color Colors.point0
