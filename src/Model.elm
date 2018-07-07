@@ -1,23 +1,38 @@
 module Model
     exposing
         ( Model
+        , Page(..)
         , empty
         , getThreadsSheetIndex
         , mapSheet
+        , mapTracker
         )
 
 import Array exposing (Array)
 import Data.Sheet as Sheet exposing (Sheet)
-import Data.Tracker exposing (Tracker(..))
+import Data.Tracker as Tracker
+    exposing
+        ( Tracker
+        )
+import Style
+
+
+-- TYPES --
 
 
 type alias Model =
     { projectName : String
     , sheets : Array Sheet
-    , trackers : Array ( Int, Tracker )
+    , trackers : Array Tracker
     , majorMark : Int
     , minorMark : Int
+    , page : Page
     }
+
+
+type Page
+    = Package
+    | Trackers
 
 
 empty : Model
@@ -25,14 +40,15 @@ empty =
     { projectName = ""
     , sheets = Array.fromList [ Sheet.empty ]
     , trackers =
-        [ ( 0, Small )
-        , ( 0, Big )
-        , ( 0, Big )
-        , ( 0, Small )
+        [ Tracker.init Style.Small 0
+        , Tracker.init Style.Big 0
+        , Tracker.init Style.Big 0
+        , Tracker.init Style.Small 0
         ]
             |> Array.fromList
     , majorMark = 16
     , minorMark = 4
+    , page = Trackers
     }
 
 
@@ -56,7 +72,24 @@ mapSheet index f model =
             model
 
 
+mapTracker : Int -> (Tracker -> Tracker) -> Model -> Model
+mapTracker index f model =
+    case Array.get index model.trackers of
+        Just tracker ->
+            { model
+                | trackers =
+                    Array.set
+                        index
+                        (f tracker)
+                        model.trackers
+            }
+
+        Nothing ->
+            model
+
+
 getThreadsSheetIndex : Int -> Model -> Maybe Int
 getThreadsSheetIndex threadIndex model =
-    Array.get threadIndex model.trackers
-        |> Maybe.map Tuple.first
+    model.trackers
+        |> Array.get threadIndex
+        |> Maybe.map .sheetIndex

@@ -1,46 +1,53 @@
 module Data.Tracker
     exposing
-        ( Tracker(..)
-        , cellHeight
-        , cellWidth
-        , font
+        ( Tracker
+        , closeDetails
+        , init
+        , mapDetails
+        , openDetails
         )
 
 import Css exposing (Style)
-import Data.Sheet exposing (Sheet)
+import Details
 import Style
 
 
-type Tracker
-    = Big
-    | Small
+-- TYPES --
 
 
-cellWidth : Tracker -> Float
-cellWidth tracker =
-    case tracker of
-        Big ->
-            90
-
-        Small ->
-            60
+type alias Tracker =
+    { size : Style.Size
+    , sheetIndex : Int
+    , sheetDetails : Maybe Details.Model
+    }
 
 
-cellHeight : Tracker -> Float
-cellHeight tracker =
-    case tracker of
-        Big ->
-            26
-
-        Small ->
-            16
+init : Style.Size -> Int -> Tracker
+init size sheetIndex =
+    { size = size
+    , sheetIndex = sheetIndex
+    , sheetDetails = Nothing
+    }
 
 
-font : Tracker -> Style
-font tracker =
-    case tracker of
-        Big ->
-            Style.hfnss
 
-        Small ->
-            Style.hftin
+-- HELPERS --
+
+
+openDetails : String -> Tracker -> Tracker
+openDetails sheetName tracker =
+    { tracker
+        | sheetDetails =
+            { sheetNameField = sheetName }
+                |> Just
+    }
+
+
+closeDetails : Tracker -> Tracker
+closeDetails tracker =
+    { tracker | sheetDetails = Nothing }
+
+
+mapDetails : (Details.Model -> Details.Model) -> Tracker -> Tracker
+mapDetails f tracker =
+    { tracker | sheetDetails = Maybe.map f tracker.sheetDetails }

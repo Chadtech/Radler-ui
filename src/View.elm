@@ -54,6 +54,23 @@ bodyContainer model =
 
 body : Model -> Html Msg
 body model =
+    case model.page of
+        Model.Package ->
+            packageBody model
+
+        Model.Trackers ->
+            trackersBody model
+
+
+packageBody : Model -> Html Msg
+packageBody model =
+    div
+        []
+        []
+
+
+trackersBody : Model -> Html Msg
+trackersBody model =
     div
         [ css
             [ Style.indent
@@ -84,8 +101,8 @@ viewTrackers model =
         |> List.map (viewTracker model)
 
 
-viewTracker : Model -> ( Int, ( Int, Tracker ) ) -> Html Msg
-viewTracker model ( trackerIndex, rest ) =
-    rest
+viewTracker : Model -> ( Int, Tracker ) -> Html Msg
+viewTracker model ( trackerIndex, tracker ) =
+    tracker
         |> Tracker.view model
         |> Html.map (TrackerMsg trackerIndex)

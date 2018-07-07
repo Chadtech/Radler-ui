@@ -5,6 +5,18 @@ import Css exposing (..)
 import Html.Styled.Attributes exposing (css)
 
 
+-- TYPES --
+
+
+type Size
+    = Big
+    | Small
+
+
+
+-- STYLES --
+
+
 basicInput : Style
 basicInput =
     [ outline none
@@ -80,3 +92,53 @@ card =
     , basicSpacing
     ]
         |> Css.batch
+
+
+basicButton : Size -> Style
+basicButton size =
+    [ outdent
+    , font size
+    , margin (px 1)
+    , width (px (cellWidth size / 2))
+    , height (px (cellHeight size))
+    , backgroundColor Colors.ignorable2
+    , color Colors.point0
+    , fontSmoothingNone
+    , padding (px 0)
+    , outline none
+    ]
+        |> Css.batch
+
+
+
+-- HELPERS --
+
+
+cellWidth : Size -> Float
+cellWidth size =
+    case size of
+        Big ->
+            90
+
+        Small ->
+            60
+
+
+cellHeight : Size -> Float
+cellHeight size =
+    case size of
+        Big ->
+            26
+
+        Small ->
+            16
+
+
+font : Size -> Style
+font size =
+    case size of
+        Big ->
+            hfnss
+
+        Small ->
+            hftin

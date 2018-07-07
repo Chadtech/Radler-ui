@@ -17,13 +17,10 @@ update msg model =
             model
                 |> R2.withNoCmd
 
-        TrackerMsg ti (Tracker.RowMsg ri (Row.CellMsg ci (Cell.Updated str))) ->
+        TrackerMsg ti subMsg ->
             case Model.getThreadsSheetIndex ti model of
                 Just si ->
-                    Row.setCell ci str
-                        |> Sheet.mapRow ri
-                        |> Model.mapSheet si
-                        |> (|>) model
+                    Tracker.update ti si subMsg model
                         |> R2.withNoCmd
 
                 Nothing ->

@@ -1,12 +1,15 @@
 module Cell
     exposing
         ( Msg(..)
+        , update
         , view
         )
 
+import Array exposing (Array)
 import Colors
 import Css exposing (..)
-import Data.Tracker as Tracker exposing (Tracker)
+import Data.Sheet as Sheet
+import Data.Tracker as Tracker
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Html, input)
 import Html.Styled.Attributes as Attrs
@@ -14,6 +17,7 @@ import Html.Styled.Attributes as Attrs
         ( css
         )
 import Html.Styled.Events exposing (onInput)
+import Model exposing (Model)
 import Style
 
 
@@ -25,15 +29,40 @@ type Msg
 
 
 
+-- UPDATE --
+
+
+update : Int -> Int -> Int -> Msg -> Model -> Model
+update si ri ci msg model =
+    case msg of
+        Updated str ->
+            setCell ci str
+                |> Sheet.mapRow ri
+                |> Model.mapSheet si
+                |> (|>) model
+
+
+setCell : Int -> String -> Array String -> Array String
+setCell index str row =
+    Array.set index str row
+
+
+
 -- VIEW --
 
 
-view : Int -> Int -> Tracker -> Int -> String -> Html Msg
-view majorMark minorMark tracker rowIndex str =
+view : Int -> Int -> Style.Size -> Int -> String -> Html Msg
+view majorMark minorMark size rowIndex str =
     Grid.column
         [ css [ Style.basicSpacing ] ]
         [ input
-            [ css [ style majorMark minorMark tracker rowIndex ]
+            [ css
+                [ style
+                    majorMark
+                    minorMark
+                    size
+                    rowIndex
+                ]
             , Attrs.value str
             , Attrs.spellcheck False
             , onInput Updated
@@ -42,15 +71,18 @@ view majorMark minorMark tracker rowIndex str =
         ]
 
 
-style : Int -> Int -> Tracker -> Int -> Style
-style majorMark minorMark tracker rowIndex =
+style : Int -> Int -> Style.Size -> Int -> Style
+style majorMark minorMark size rowIndex =
     [ outline none
-    , determineCellBgColor majorMark minorMark rowIndex
+    , determineCellBgColor
+        majorMark
+        minorMark
+        rowIndex
         |> backgroundColor
     , Style.indent
-    , Tracker.font tracker
+    , Style.font size
     , color Colors.point0
-    , width (px (Tracker.cellWidth tracker))
+    , width (px (Style.cellWidth size))
     , Style.fontSmoothingNone
     ]
         |> Css.batch
