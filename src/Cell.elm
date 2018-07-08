@@ -54,7 +54,9 @@ setCell index str row =
 view : Int -> Int -> Style.Size -> Int -> String -> Html Msg
 view majorMark minorMark size rowIndex str =
     Grid.column
-        [ Style.basicSpacing ]
+        [ margin (px 1)
+        , marginBottom (px 0)
+        ]
         [ input
             [ css
                 [ style

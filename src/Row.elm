@@ -11,6 +11,7 @@ import Colors
 import Css exposing (..)
 import Data.Sheet as Sheet
 import Data.Tracker as Tracker
+import Html.Buttons as Buttons
 import Html.Grid as Grid
 import Html.Styled as Html
     exposing
@@ -69,8 +70,8 @@ view majorMark minorMark size index row =
         |> Array.toIndexedList
         |> List.map (wrapCell majorMark minorMark size index)
         |> (::) (numberView size majorMark index)
-        |> (::) (plusView size)
-        |> (::) (deleteView size)
+        |> (::) (Buttons.plus AddBelowClicked [] size)
+        |> (::) (Buttons.delete DeleteClicked size)
         |> Grid.row []
 
 
@@ -84,24 +85,6 @@ wrapCell majorMark minorMark size rowIndex ( cellIndex, str ) =
         rowIndex
         str
         |> Html.map (CellMsg cellIndex)
-
-
-deleteView : Style.Size -> Html Msg
-deleteView size =
-    button
-        [ css [ buttonStyleClickable size ]
-        , onClick DeleteClicked
-        ]
-        [ Html.text "x" ]
-
-
-plusView : Style.Size -> Html Msg
-plusView size =
-    button
-        [ css [ buttonStyleClickable size ]
-        , onClick AddBelowClicked
-        ]
-        [ Html.text "+v" ]
 
 
 numberView : Style.Size -> Int -> Int -> Html Msg
@@ -128,15 +111,6 @@ beatNumber i str =
         String.left 1 str
     else
         beatNumber (i - 1) (String.dropLeft 1 str)
-
-
-buttonStyleClickable : Style.Size -> Style
-buttonStyleClickable size =
-    [ Style.basicButton size
-    , active [ Style.indent ]
-    , hover [ color Colors.point1 ]
-    ]
-        |> Css.batch
 
 
 numberStyle : Style.Size -> Style

@@ -14,6 +14,7 @@ import Html.Styled.Attributes as Attrs
         )
 import Model exposing (Model)
 import Msg exposing (Msg(..))
+import Package
 import Style
 import Tracker
 
@@ -54,17 +55,11 @@ body : Model -> Html Msg
 body model =
     case model.page of
         Model.Package ->
-            packageBody model
+            Package.view model
+                |> Html.map PackageMsg
 
         Model.Trackers ->
             trackersBody model
-
-
-packageBody : Model -> Html Msg
-packageBody model =
-    div
-        []
-        []
 
 
 trackersBody : Model -> Html Msg

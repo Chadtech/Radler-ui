@@ -6,6 +6,7 @@ module Msg
 
 import Header
 import Json.Decode as D exposing (Decoder)
+import Package
 import Tracker
 
 
@@ -13,6 +14,7 @@ type Msg
     = MsgDecodeFailed D.Error
     | TrackerMsg Int Tracker.Msg
     | HeaderMsg Header.Msg
+    | PackageMsg Package.Msg
 
 
 decode : D.Value -> Msg

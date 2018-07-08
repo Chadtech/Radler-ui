@@ -86,6 +86,7 @@ buttonStyle currentPage thisPage =
     , color Colors.point0
     , Style.fontSmoothingNone
     , outline none
+    , active [ Style.indent ]
     ]
         |> Css.batch
 

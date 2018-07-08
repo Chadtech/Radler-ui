@@ -6,6 +6,7 @@ module Model
         , getThreadsSheetIndex
         , mapSheet
         , mapTracker
+        , removeTracker
         )
 
 import Array exposing (Array)
@@ -91,6 +92,19 @@ mapTracker index f model =
 
         Nothing ->
             model
+
+
+removeTracker : Int -> Model -> Model
+removeTracker index model =
+    { model
+        | trackers =
+            model.trackers
+                |> Array.slice
+                    (index + 1)
+                    (Array.length model.trackers)
+                |> Array.append
+                    (Array.slice 0 index model.trackers)
+    }
 
 
 getThreadsSheetIndex : Int -> Model -> Maybe Int

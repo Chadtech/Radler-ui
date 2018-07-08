@@ -1,13 +1,17 @@
 module Data.Tracker
     exposing
         ( Tracker
+        , addToggledColumn
+        , clearToggledColumns
         , closeDetails
         , init
         , openDetails
+        , removeToggledColumn
         , setSheetIndex
         )
 
 import Css exposing (Style)
+import Set exposing (Set)
 import Style
 
 
@@ -16,6 +20,7 @@ import Style
 
 type alias Tracker =
     { size : Style.Size
+    , toggledColumns : Set Int
     , sheetIndex : Int
     , sheetDetails : Bool
     }
@@ -24,6 +29,7 @@ type alias Tracker =
 init : Style.Size -> Int -> Tracker
 init size sheetIndex =
     { size = size
+    , toggledColumns = Set.empty
     , sheetIndex = sheetIndex
     , sheetDetails = False
     }
@@ -31,6 +37,27 @@ init size sheetIndex =
 
 
 -- HELPERS --
+
+
+addToggledColumn : Int -> Tracker -> Tracker
+addToggledColumn index tracker =
+    { tracker
+        | toggledColumns =
+            Set.insert index tracker.toggledColumns
+    }
+
+
+removeToggledColumn : Int -> Tracker -> Tracker
+removeToggledColumn index tracker =
+    { tracker
+        | toggledColumns =
+            Set.remove index tracker.toggledColumns
+    }
+
+
+clearToggledColumns : Tracker -> Tracker
+clearToggledColumns tracker =
+    { tracker | toggledColumns = Set.empty }
 
 
 setSheetIndex : Int -> Tracker -> Tracker

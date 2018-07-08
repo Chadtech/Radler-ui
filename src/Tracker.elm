@@ -12,6 +12,7 @@ import Css exposing (..)
 import Data.Sheet as Sheet exposing (Sheet)
 import Data.Tracker as Tracker exposing (Tracker)
 import Details
+import Html.Buttons as Buttons
 import Html.Custom exposing (p)
 import Html.Grid as Grid
 import Html.Styled as Html
@@ -22,11 +23,12 @@ import Html.Styled as Html
         , div
         )
 import Html.Styled.Attributes exposing (css)
-import Html.Styled.Events exposing (onClick)
+import Html.Styled.Events exposing (onClick, onMouseLeave)
 import Html.Styled.Lazy
 import Model exposing (Model)
 import Return2 as R2
 import Row
+import Set exposing (Set)
 import Style
 import Util
 
@@ -40,6 +42,7 @@ type alias Payload =
     , minorMark : Int
     , size : Style.Size
     , sheetDetails : Maybe (List ( Int, String ))
+    , toggledColumns : Set Int
     }
 
 
@@ -47,6 +50,12 @@ type Msg
     = RowMsg Int Row.Msg
     | DetailsMsg Details.Msg
     | NameClicked
+    | DeleteTrackerClicked
+    | AddRowBelowClicked
+    | ColumnNumberClicked Int
+    | ColumnNumberExited Int
+    | DeleteColumnClicked Int
+    | AddColumnClicked Int
 
 
 
@@ -83,6 +92,38 @@ update ti si msg model =
         RowMsg ri subMsg ->
             Row.update si ri subMsg model
 
+        DeleteTrackerClicked ->
+            Model.removeTracker ti model
+
+        AddRowBelowClicked ->
+            Model.mapSheet
+                si
+                (Sheet.addRow -1)
+                model
+
+        ColumnNumberClicked index ->
+            Model.mapTracker
+                ti
+                (Tracker.addToggledColumn index)
+                model
+
+        ColumnNumberExited index ->
+            Model.mapTracker
+                ti
+                (Tracker.removeToggledColumn index)
+                model
+
+        AddColumnClicked index ->
+            Model.mapSheet
+                si
+                (Sheet.addColumn index)
+                model
+
+        DeleteColumnClicked index ->
+            model
+                |> Model.mapSheet si (Sheet.removeColumn index)
+                |> Model.mapTracker ti Tracker.clearToggledColumns
+
 
 
 -- VIEW --
@@ -104,6 +145,7 @@ view model tracker =
                         |> Just
                 else
                     Nothing
+            , toggledColumns = tracker.toggledColumns
             }
                 |> fromPayload
 
@@ -128,7 +170,17 @@ contentView payload =
     [ detailsContainerView payload
     , Grid.row
         [ minHeight fitContent ]
-        (header payload)
+        (trackerOptions payload)
+    , Grid.row
+        [ minHeight fitContent
+        , marginBottom (px 1)
+        ]
+        (columnOptions payload)
+    , Grid.row
+        [ minHeight fitContent
+        , marginBottom (px 1)
+        ]
+        (columnNumbers payload)
     , Grid.row
         []
         [ Html.Styled.Lazy.lazy4
@@ -163,6 +215,7 @@ detailsContainerStyle =
     , width (pct 100)
     , height (pct 100)
     , position absolute
+    , zIndex (int 2)
     ]
         |> Css.batch
 
@@ -194,30 +247,147 @@ wrapRow majorMark minorMark size ( index, row ) =
 
 
 
--- HEADER --
+-- TRACKER OPTIONS --
 
 
-header : Payload -> List (Html Msg)
-header { sheet, size } =
+trackerOptions : Payload -> List (Html Msg)
+trackerOptions payload =
+    [ Grid.column
+        [ flex none
+        , flexBasis (px (Style.cellWidth payload.size + 4))
+        , position relative
+        ]
+        [ button
+            [ css
+                [ Style.basicButton payload.size
+                , width (px (Style.cellWidth payload.size + 2))
+                , height (px ((Style.cellHeight payload.size * 2) + 2))
+                , position absolute
+                , top (px 0)
+                , left (px 0)
+                , hover [ color Colors.point1 ]
+                , active [ Style.indent ]
+                ]
+            , onClick DeleteTrackerClicked
+            ]
+            [ Html.text "x" ]
+        ]
+    , Grid.column
+        []
+        [ sheetNameView payload.sheet payload.size ]
+    ]
+
+
+
+-- COLUMN OPTIONS --
+
+
+columnOptions : Payload -> List (Html Msg)
+columnOptions { sheet, toggledColumns, size } =
     List.range 0 (Sheet.columnCount sheet - 1)
-        |> List.map (columnNumbers size)
-        |> (::) (sheetNameView sheet size)
+        |> List.map (columnOption toggledColumns size)
+        |> (::) (addColumnZero size)
 
 
-columnNumbers : Style.Size -> Int -> Html Msg
-columnNumbers size i =
+columnOption : Set Int -> Style.Size -> Int -> Html Msg
+columnOption toggledColumns size i =
+    [ div
+        [ css
+            [ position absolute
+            , top (px 0)
+            , left (px 0)
+            , width (px (Style.cellWidth size + 4))
+            , minHeight fitContent
+            ]
+        ]
+        [ button
+            [ css
+                [ Style.basicButton size
+                , width (px (Style.cellWidth size / 2 - 1))
+                , minHeight fitContent
+                , active [ Style.indent ]
+                , cursor pointer
+                , hover [ color Colors.point1 ]
+                ]
+            , onClick (DeleteColumnClicked i)
+            ]
+            [ Html.text "x"
+            ]
+        , button
+            [ css
+                [ Style.basicButton size
+                , width (px (Style.cellWidth size / 2 - 1))
+                , minHeight fitContent
+                , active [ Style.indent ]
+                , cursor pointer
+                , hover [ color Colors.point1 ]
+                , marginRight (px 0)
+                ]
+            , onClick (AddColumnClicked i)
+            ]
+            [ Html.text "+>"
+            ]
+        ]
+    ]
+        |> Grid.column [ position relative ]
+
+
+addColumnZero : Style.Size -> Html Msg
+addColumnZero size =
     Grid.column
         []
         [ button
             [ css
                 [ Style.basicButton size
-                , width (px (Style.cellWidth size + 2))
+                , width (px (Style.cellWidth size))
                 , minHeight fitContent
+                , active [ Style.indent ]
+                , marginLeft (px (Style.cellWidth size + 5))
                 ]
+            , onClick (AddColumnClicked -1)
             ]
-            [ Html.text (String.fromInt i)
+            [ Html.text "+>"
             ]
         ]
+
+
+
+-- COLUMN NUMBERS --
+
+
+columnNumbers : Payload -> List (Html Msg)
+columnNumbers { sheet, toggledColumns, size } =
+    List.range 0 (Sheet.columnCount sheet - 1)
+        |> List.map (columnNumber toggledColumns size)
+        |> (::) (addRowButton size)
+
+
+addRowButton : Style.Size -> Html Msg
+addRowButton size =
+    Buttons.plus
+        AddRowBelowClicked
+        [ margin (px 0)
+        , marginRight (px (Style.cellWidth size + 4))
+        , marginLeft (px ((Style.cellWidth size / 2) + 3))
+        ]
+        size
+
+
+columnNumber : Set Int -> Style.Size -> Int -> Html Msg
+columnNumber toggledColumns size i =
+    [ button
+        [ css
+            [ Style.basicButton size
+            , width (px (Style.cellWidth size))
+            , minHeight fitContent
+            , position absolute
+            , margin (px 0)
+            , zIndex (int 1)
+            ]
+        ]
+        [ Html.text (String.fromInt i) ]
+    ]
+        |> Grid.column [ position relative ]
 
 
 sheetNameView : Sheet -> Style.Size -> Html Msg
@@ -232,20 +402,12 @@ sheetNameView sheet size =
         ]
 
 
-sheetOptions : () -> Html Msg
-sheetOptions () =
-    div
-        []
-        []
-
-
 sheetNameStyle : Style.Size -> Style
 sheetNameStyle size =
     [ Style.basicButton size
-    , width (px (Style.cellWidth size * 2 + 4))
+    , width (pct 100)
     , hover [ color Colors.point1 ]
     , active [ Style.indent ]
-    , cursor pointer
     ]
         |> Css.batch
 
