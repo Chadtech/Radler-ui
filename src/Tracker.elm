@@ -24,6 +24,7 @@ import Html.Styled as Html
         )
 import Html.Styled.Attributes exposing (css)
 import Html.Styled.Events exposing (onClick, onMouseLeave)
+import Html.Styled.Keyed
 import Html.Styled.Lazy
 import Model exposing (Model)
 import Return2 as R2
@@ -343,6 +344,8 @@ addColumnZero size =
                 , minHeight fitContent
                 , active [ Style.indent ]
                 , marginLeft (px (Style.cellWidth size + 5))
+                , cursor pointer
+                , hover [ color Colors.point1 ]
                 ]
             , onClick (AddColumnClicked -1)
             ]

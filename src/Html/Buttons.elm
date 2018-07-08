@@ -45,5 +45,6 @@ buttonStyleClickable size =
     [ Style.basicButton size
     , active [ Style.indent ]
     , hover [ color Colors.point1 ]
+    , cursor pointer
     ]
         |> Css.batch
