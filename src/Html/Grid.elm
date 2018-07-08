@@ -1,11 +1,8 @@
 module Html.Grid
     exposing
         ( column
-        , columnWrapper
         , container
-        , containerWrapper
         , row
-        , rowWrapper
         )
 
 import Css exposing (..)
@@ -27,63 +24,48 @@ import Html.Styled.Attributes exposing (css)
 -- CONTAINER --
 
 
-container : List (Attribute msg) -> List (Html msg) -> Html msg
-container attrs =
-    node "container" (containerStyle :: attrs)
+container : List Style -> List (Html msg) -> Html msg
+container styles =
+    node "container" [ css [ containerStyle, Css.batch styles ] ]
 
 
-containerWrapper : Html msg -> Html msg
-containerWrapper child =
-    container [] [ child ]
-
-
-containerStyle : Attribute msg
+containerStyle : Style
 containerStyle =
     [ margin2 zero auto ]
-        |> css
+        |> Css.batch
 
 
 
 -- ROW --
 
 
-row : List (Attribute msg) -> List (Html msg) -> Html msg
-row attrs =
-    node "row" (rowStyle :: attrs)
+row : List Style -> List (Html msg) -> Html msg
+row styles =
+    node "row" [ css [ rowStyle, Css.batch styles ] ]
 
 
-rowWrapper : Html msg -> Html msg
-rowWrapper child =
-    row [] [ child ]
-
-
-rowStyle : Attribute msg
+rowStyle : Style
 rowStyle =
     [ displayFlex
     , flexDirection Css.row
     , boxSizing borderBox
     ]
-        |> css
+        |> Css.batch
 
 
 
 -- COLUMN --
 
 
-column : List (Attribute msg) -> List (Html msg) -> Html msg
-column attrs =
-    node "column" (columnStyle :: attrs)
+column : List Style -> List (Html msg) -> Html msg
+column styles =
+    node "column" [ css [ columnStyle, Css.batch styles ] ]
 
 
-columnWrapper : Html msg -> Html msg
-columnWrapper child =
-    column [] [ child ]
-
-
-columnStyle : Attribute msg
+columnStyle : Style
 columnStyle =
     [ flexBasis (pct 100)
     , boxSizing borderBox
     , flex (int 1)
     ]
-        |> css
+        |> Css.batch

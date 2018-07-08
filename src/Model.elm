@@ -38,7 +38,12 @@ type Page
 empty : Model
 empty =
     { projectName = ""
-    , sheets = Array.fromList [ Sheet.empty ]
+    , sheets =
+        [ Sheet.empty
+        , Sheet.empty
+        , Sheet.empty
+        ]
+            |> Array.fromList
     , trackers =
         [ Tracker.init Style.Small 0
         , Tracker.init Style.Big 0

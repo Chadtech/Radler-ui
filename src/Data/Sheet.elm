@@ -6,6 +6,7 @@ module Data.Sheet
         , empty
         , mapRow
         , removeRow
+        , setName
         )
 
 import Array exposing (Array)
@@ -38,6 +39,11 @@ emptyRow length =
 -- HELPERS --
 
 
+setName : String -> Sheet -> Sheet
+setName str sheet =
+    { sheet | name = str }
+
+
 columnCount : Sheet -> Int
 columnCount { rows } =
     rows
@@ -54,8 +60,7 @@ removeRow index sheet =
                 |> Array.slice
                     (index + 1)
                     (Array.length sheet.rows)
-                |> Array.append
-                    (pushEmptyRow (Array.slice 0 index sheet.rows))
+                |> Array.append (Array.slice 0 index sheet.rows)
     }
 
 

@@ -50,11 +50,9 @@ update msg model =
 view : Model -> Html Msg
 view model =
     Grid.row
-        [ css
-            [ Style.card
-            , displayFlex
-            , minHeight minContent
-            ]
+        [ Style.card
+        , displayFlex
+        , minHeight minContent
         ]
         [ button
             [ css

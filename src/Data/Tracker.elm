@@ -3,12 +3,11 @@ module Data.Tracker
         ( Tracker
         , closeDetails
         , init
-        , mapDetails
         , openDetails
+        , setSheetIndex
         )
 
 import Css exposing (Style)
-import Details
 import Style
 
 
@@ -18,7 +17,7 @@ import Style
 type alias Tracker =
     { size : Style.Size
     , sheetIndex : Int
-    , sheetDetails : Maybe Details.Model
+    , sheetDetails : Bool
     }
 
 
@@ -26,7 +25,7 @@ init : Style.Size -> Int -> Tracker
 init size sheetIndex =
     { size = size
     , sheetIndex = sheetIndex
-    , sheetDetails = Nothing
+    , sheetDetails = False
     }
 
 
@@ -34,20 +33,16 @@ init size sheetIndex =
 -- HELPERS --
 
 
-openDetails : String -> Tracker -> Tracker
-openDetails sheetName tracker =
-    { tracker
-        | sheetDetails =
-            { sheetNameField = sheetName }
-                |> Just
-    }
+setSheetIndex : Int -> Tracker -> Tracker
+setSheetIndex index tracker =
+    { tracker | sheetIndex = index }
+
+
+openDetails : Tracker -> Tracker
+openDetails tracker =
+    { tracker | sheetDetails = True }
 
 
 closeDetails : Tracker -> Tracker
 closeDetails tracker =
-    { tracker | sheetDetails = Nothing }
-
-
-mapDetails : (Details.Model -> Details.Model) -> Tracker -> Tracker
-mapDetails f tracker =
-    { tracker | sheetDetails = Maybe.map f tracker.sheetDetails }
+    { tracker | sheetDetails = False }

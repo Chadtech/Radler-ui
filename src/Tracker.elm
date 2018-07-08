@@ -39,7 +39,7 @@ type alias Payload =
     , majorMark : Int
     , minorMark : Int
     , size : Style.Size
-    , sheetDetails : Maybe Details.Model
+    , sheetDetails : Maybe (List ( Int, String ))
     }
 
 
@@ -57,20 +57,27 @@ update : Int -> Int -> Msg -> Model -> Model
 update ti si msg model =
     case msg of
         NameClicked ->
-            case Array.get si model.sheets of
-                Just { name } ->
-                    Model.mapTracker
-                        ti
-                        (Tracker.openDetails name)
-                        model
-
-                Nothing ->
-                    model
-
-        DetailsMsg subMsg ->
             Model.mapTracker
                 ti
-                (Tracker.mapDetails (Details.update subMsg))
+                Tracker.openDetails
+                model
+
+        DetailsMsg (Details.NameFieldUpdated str) ->
+            Model.mapSheet
+                si
+                (Sheet.setName str)
+                model
+
+        DetailsMsg (Details.SheetClicked index) ->
+            Model.mapTracker
+                ti
+                (Tracker.setSheetIndex index)
+                model
+
+        DetailsMsg Details.BackClicked ->
+            Model.mapTracker
+                ti
+                Tracker.closeDetails
                 model
 
         RowMsg ri subMsg ->
@@ -89,7 +96,14 @@ view model tracker =
             , majorMark = model.majorMark
             , minorMark = model.minorMark
             , size = tracker.size
-            , sheetDetails = tracker.sheetDetails
+            , sheetDetails =
+                if tracker.sheetDetails then
+                    model.sheets
+                        |> Array.toIndexedList
+                        |> List.map (Tuple.mapSecond .name)
+                        |> Just
+                else
+                    Nothing
             }
                 |> fromPayload
 
@@ -100,22 +114,20 @@ view model tracker =
 fromPayload : Payload -> Html Msg
 fromPayload payload =
     Grid.container
-        [ css
-            [ Style.card
-            , flexDirection Css.column
-            , height (calc (vh 100) minus (px 78))
-            , overflow hidden
-            , position relative
-            ]
+        [ Style.card
+        , flexDirection Css.column
+        , height (calc (vh 100) minus (px 78))
+        , overflow hidden
+        , position relative
         ]
         (contentView payload)
 
 
 contentView : Payload -> List (Html Msg)
 contentView payload =
-    [ detailsContainerView payload.sheetDetails
+    [ detailsContainerView payload
     , Grid.row
-        [ css [ minHeight fitContent ] ]
+        [ minHeight fitContent ]
         (header payload)
     , Grid.row
         []
@@ -129,13 +141,16 @@ contentView payload =
     ]
 
 
-detailsContainerView : Maybe Details.Model -> Html Msg
-detailsContainerView maybeDetails =
-    case maybeDetails of
-        Just details ->
-            div
-                [ css [ detailsContainerStyle ] ]
-                [ Details.view details ]
+detailsContainerView : Payload -> Html Msg
+detailsContainerView payload =
+    case payload.sheetDetails of
+        Just sheetNames ->
+            { sheetNameField = payload.sheet.name
+            , sheets = sheetNames
+            }
+                |> Details.view
+                |> List.singleton
+                |> div [ css [ detailsContainerStyle ] ]
                 |> Html.map DetailsMsg
 
         Nothing ->
@@ -155,7 +170,7 @@ detailsContainerStyle =
 rowsView : Sheet -> Int -> Int -> Style.Size -> Html Msg
 rowsView sheet majorMark minorMark size =
     Grid.container
-        [ css [ overflow auto ] ]
+        [ overflow auto ]
         (rowsContentView sheet majorMark minorMark size)
 
 

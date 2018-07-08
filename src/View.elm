@@ -40,13 +40,11 @@ view model =
 bodyContainer : Model -> Html Msg
 bodyContainer model =
     Grid.row
-        [ css [ flex (int 1) ] ]
+        [ flex (int 1) ]
         [ Grid.column
-            [ css
-                [ Style.card
-                , Style.basicSpacing
-                , overflow hidden
-                ]
+            [ Style.card
+            , Style.basicSpacing
+            , overflow hidden
             ]
             [ body model ]
         ]
@@ -81,10 +79,8 @@ trackersBody model =
             ]
         ]
         [ Grid.container
-            [ css
-                [ display inlineFlex
-                , Style.basicSpacing
-                ]
+            [ display inlineFlex
+            , Style.basicSpacing
             ]
             (viewTrackers model)
         ]
