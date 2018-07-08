@@ -25,6 +25,7 @@ import Html.Styled.Attributes as Attrs
 import Html.Styled.Events exposing (onClick)
 import Html.Styled.Lazy
 import Model exposing (Model)
+import Return2 as R2
 import Style
 
 
@@ -41,50 +42,55 @@ type Msg
 -- UPDATE --
 
 
-update : Int -> Int -> Msg -> Model -> Model
-update si ri msg model =
+update : Int -> Int -> Int -> Msg -> Model -> ( Model, Cmd Msg )
+update ti si ri msg model =
     case msg of
         CellMsg ci subMsg ->
-            Cell.update si ri ci subMsg model
+            Cell.update ti si ri ci subMsg model
+                |> R2.mapCmd (CellMsg ci)
 
         DeleteClicked ->
             Model.mapSheet
                 si
                 (Sheet.removeRow ri)
                 model
+                |> R2.withNoCmd
 
         AddBelowClicked ->
             Model.mapSheet
                 si
                 (Sheet.addRow ri)
                 model
+                |> R2.withNoCmd
 
 
 
 -- VIEW --
 
 
-view : Int -> Int -> Style.Size -> Int -> Array String -> Html Msg
-view majorMark minorMark size index row =
+view : Int -> Int -> Style.Size -> Int -> Int -> Array String -> Html Msg
+view majorMark minorMark size ti ri row =
     row
         |> Array.toIndexedList
-        |> List.map (wrapCell majorMark minorMark size index)
-        |> (::) (numberView size majorMark index)
+        |> List.map (wrapCell majorMark minorMark size ti ri)
+        |> (::) (numberView size majorMark ri)
         |> (::) (Buttons.plus AddBelowClicked [] size)
         |> (::) (Buttons.delete DeleteClicked size)
         |> Grid.row []
 
 
-wrapCell : Int -> Int -> Style.Size -> Int -> ( Int, String ) -> Html Msg
-wrapCell majorMark minorMark size rowIndex ( cellIndex, str ) =
-    Html.Styled.Lazy.lazy5
+wrapCell : Int -> Int -> Style.Size -> Int -> Int -> ( Int, String ) -> Html Msg
+wrapCell majorMark minorMark size ti ri ( ci, str ) =
+    Html.Styled.Lazy.lazy7
         Cell.view
         majorMark
         minorMark
         size
-        rowIndex
+        ti
+        ri
+        ci
         str
-        |> Html.map (CellMsg cellIndex)
+        |> Html.map (CellMsg ci)
 
 
 numberView : Style.Size -> Int -> Int -> Html Msg

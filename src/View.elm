@@ -95,5 +95,5 @@ viewTrackers model =
 viewTracker : Model -> ( Int, Tracker ) -> Html Msg
 viewTracker model ( trackerIndex, tracker ) =
     tracker
-        |> Tracker.view model
+        |> Tracker.view model trackerIndex
         |> Html.map (TrackerMsg trackerIndex)

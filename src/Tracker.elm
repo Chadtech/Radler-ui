@@ -44,6 +44,7 @@ type alias Payload =
     , size : Style.Size
     , sheetDetails : Maybe (List ( Int, String ))
     , toggledColumns : Set Int
+    , trackerIndex : Int
     }
 
 
@@ -63,7 +64,7 @@ type Msg
 -- UPDATE --
 
 
-update : Int -> Int -> Msg -> Model -> Model
+update : Int -> Int -> Msg -> Model -> ( Model, Cmd Msg )
 update ti si msg model =
     case msg of
         NameClicked ->
@@ -71,67 +72,78 @@ update ti si msg model =
                 ti
                 Tracker.openDetails
                 model
+                |> R2.withNoCmd
 
         DetailsMsg (Details.NameFieldUpdated str) ->
             Model.mapSheet
                 si
                 (Sheet.setName str)
                 model
+                |> R2.withNoCmd
 
         DetailsMsg (Details.SheetClicked index) ->
             Model.mapTracker
                 ti
                 (Tracker.setSheetIndex index)
                 model
+                |> R2.withNoCmd
 
         DetailsMsg Details.BackClicked ->
             Model.mapTracker
                 ti
                 Tracker.closeDetails
                 model
+                |> R2.withNoCmd
 
         RowMsg ri subMsg ->
-            Row.update si ri subMsg model
+            Row.update ti si ri subMsg model
+                |> R2.mapCmd (RowMsg ri)
 
         DeleteTrackerClicked ->
             Model.removeTracker ti model
+                |> R2.withNoCmd
 
         AddRowBelowClicked ->
             Model.mapSheet
                 si
                 (Sheet.addRow -1)
                 model
+                |> R2.withNoCmd
 
         ColumnNumberClicked index ->
             Model.mapTracker
                 ti
                 (Tracker.addToggledColumn index)
                 model
+                |> R2.withNoCmd
 
         ColumnNumberExited index ->
             Model.mapTracker
                 ti
                 (Tracker.removeToggledColumn index)
                 model
+                |> R2.withNoCmd
 
         AddColumnClicked index ->
             Model.mapSheet
                 si
                 (Sheet.addColumn index)
                 model
+                |> R2.withNoCmd
 
         DeleteColumnClicked index ->
             model
                 |> Model.mapSheet si (Sheet.removeColumn index)
                 |> Model.mapTracker ti Tracker.clearToggledColumns
+                |> R2.withNoCmd
 
 
 
 -- VIEW --
 
 
-view : Model -> Tracker -> Html Msg
-view model tracker =
+view : Model -> Int -> Tracker -> Html Msg
+view model trackerIndex tracker =
     case Array.get tracker.sheetIndex model.sheets of
         Just sheet ->
             { sheet = sheet
@@ -147,6 +159,7 @@ view model tracker =
                 else
                     Nothing
             , toggledColumns = tracker.toggledColumns
+            , trackerIndex = trackerIndex
             }
                 |> fromPayload
 
@@ -184,12 +197,13 @@ contentView payload =
         (columnNumbers payload)
     , Grid.row
         []
-        [ Html.Styled.Lazy.lazy4
+        [ Html.Styled.Lazy.lazy5
             rowsView
             payload.sheet
             payload.majorMark
             payload.minorMark
             payload.size
+            payload.trackerIndex
         ]
     ]
 
@@ -221,30 +235,31 @@ detailsContainerStyle =
         |> Css.batch
 
 
-rowsView : Sheet -> Int -> Int -> Style.Size -> Html Msg
-rowsView sheet majorMark minorMark size =
+rowsView : Sheet -> Int -> Int -> Style.Size -> Int -> Html Msg
+rowsView sheet majorMark minorMark size ti =
     Grid.container
         [ overflow auto ]
-        (rowsContentView sheet majorMark minorMark size)
+        (rowsContentView sheet majorMark minorMark size ti)
 
 
-rowsContentView : Sheet -> Int -> Int -> Style.Size -> List (Html Msg)
-rowsContentView sheet majorMark minorMark size =
+rowsContentView : Sheet -> Int -> Int -> Style.Size -> Int -> List (Html Msg)
+rowsContentView sheet majorMark minorMark size ti =
     sheet.rows
         |> Array.toIndexedList
-        |> List.map (wrapRow majorMark minorMark size)
+        |> List.map (wrapRow majorMark minorMark size ti)
 
 
-wrapRow : Int -> Int -> Style.Size -> ( Int, Array String ) -> Html Msg
-wrapRow majorMark minorMark size ( index, row ) =
-    Html.Styled.Lazy.lazy5
+wrapRow : Int -> Int -> Style.Size -> Int -> ( Int, Array String ) -> Html Msg
+wrapRow majorMark minorMark size ti ( ri, row ) =
+    Html.Styled.Lazy.lazy6
         Row.view
         majorMark
         minorMark
         size
-        index
+        ti
+        ri
         row
-        |> Html.map (RowMsg index)
+        |> Html.map (RowMsg ri)
 
 
 

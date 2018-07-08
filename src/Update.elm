@@ -22,7 +22,7 @@ update msg model =
             case Model.getThreadsSheetIndex ti model of
                 Just si ->
                     Tracker.update ti si subMsg model
-                        |> R2.withNoCmd
+                        |> R2.mapCmd (TrackerMsg ti)
 
                 Nothing ->
                     model
