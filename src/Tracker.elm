@@ -95,6 +95,20 @@ update ti si msg model =
                 model
                 |> R2.withNoCmd
 
+        DetailsMsg Details.SmallClicked ->
+            Model.mapTracker
+                ti
+                (Tracker.setSize Style.Small)
+                model
+                |> R2.withNoCmd
+
+        DetailsMsg Details.BigClicked ->
+            Model.mapTracker
+                ti
+                (Tracker.setSize Style.Big)
+                model
+                |> R2.withNoCmd
+
         RowMsg ri subMsg ->
             Row.update ti si ri subMsg model
                 |> R2.mapCmd (RowMsg ri)
@@ -214,6 +228,7 @@ detailsContainerView payload =
         Just sheetNames ->
             { sheetNameField = payload.sheet.name
             , sheets = sheetNames
+            , size = payload.size
             }
                 |> Details.view
                 |> List.singleton

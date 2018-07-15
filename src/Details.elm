@@ -37,6 +37,7 @@ import Style
 type alias Payload =
     { sheetNameField : String
     , sheets : List ( Int, String )
+    , size : Style.Size
     }
 
 
@@ -44,6 +45,8 @@ type Msg
     = NameFieldUpdated String
     | SheetClicked Int
     | BackClicked
+    | SmallClicked
+    | BigClicked
 
 
 
@@ -73,12 +76,55 @@ view payload =
                     [ sheetOptions payload ]
                 ]
             , Grid.row
+                [ margin (px 5) ]
+                [ smallViewButton payload.size
+                , bigViewButton payload.size
+                ]
+            , Grid.row
                 [ margin (px 5)
                 , justifyContent spaceAround
                 ]
                 [ sheetBackButton ]
             ]
         ]
+
+
+smallViewButton : Style.Size -> Html Msg
+smallViewButton size =
+    Grid.column
+        []
+        [ button
+            [ css
+                [ buttonStyle
+                , indentIf (size == Style.Small)
+                ]
+            , onClick SmallClicked
+            ]
+            [ Html.text "small" ]
+        ]
+
+
+bigViewButton : Style.Size -> Html Msg
+bigViewButton size =
+    Grid.column
+        []
+        [ button
+            [ css
+                [ buttonStyle
+                , indentIf (size == Style.Big)
+                ]
+            , onClick BigClicked
+            ]
+            [ Html.text "big" ]
+        ]
+
+
+indentIf : Bool -> Style
+indentIf condition =
+    if condition then
+        Style.indent
+    else
+        Css.batch []
 
 
 sheetOptions : Payload -> Html Msg

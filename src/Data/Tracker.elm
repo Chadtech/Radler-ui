@@ -8,6 +8,7 @@ module Data.Tracker
         , openDetails
         , removeToggledColumn
         , setSheetIndex
+        , setSize
         )
 
 import Css exposing (Style)
@@ -58,6 +59,11 @@ removeToggledColumn index tracker =
 clearToggledColumns : Tracker -> Tracker
 clearToggledColumns tracker =
     { tracker | toggledColumns = Set.empty }
+
+
+setSize : Style.Size -> Tracker -> Tracker
+setSize size tracker =
+    { tracker | size = size }
 
 
 setSheetIndex : Int -> Tracker -> Tracker
