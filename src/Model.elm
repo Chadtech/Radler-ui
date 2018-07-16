@@ -47,9 +47,6 @@ empty =
             |> Array.fromList
     , trackers =
         [ Tracker.init Style.Small 0
-        , Tracker.init Style.Big 0
-        , Tracker.init Style.Big 0
-        , Tracker.init Style.Small 0
         ]
             |> Array.fromList
     , majorMark = 16

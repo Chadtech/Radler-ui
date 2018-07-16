@@ -5,8 +5,10 @@ module Header
         , view
         )
 
+import Array
 import Colors
 import Css exposing (..)
+import Data.Sheet as Sheet
 import Data.Tracker as Tracker
 import Html.Grid as Grid
 import Html.Styled as Html
@@ -29,18 +31,24 @@ import Style
 
 type Msg
     = PageClicked Page
+    | NewSheetClicked
 
 
 
 -- UPDATE --
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+update : Msg -> Model -> Model
 update msg model =
     case msg of
         PageClicked page ->
             { model | page = page }
-                |> R2.withNoCmd
+
+        NewSheetClicked ->
+            { model
+                | sheets =
+                    Array.push Sheet.empty model.sheets
+            }
 
 
 
@@ -57,28 +65,33 @@ view model =
         [ button
             [ css
                 [ buttonStyle
-                    model.page
-                    Model.Trackers
+                , dent model.page Model.Trackers
                 ]
             , onClick (PageClicked Model.Trackers)
             ]
-            [ Html.text "Trackers" ]
+            [ Html.text "trackers" ]
         , button
             [ css
                 [ buttonStyle
-                    model.page
-                    Model.Package
+                , dent model.page Model.Package
                 ]
             , onClick (PageClicked Model.Package)
             ]
-            [ Html.text "Package" ]
+            [ Html.text "package" ]
+        , button
+            [ css
+                [ buttonStyle
+                , marginLeft (px 10)
+                ]
+            , onClick NewSheetClicked
+            ]
+            [ Html.text "new sheet" ]
         ]
 
 
-buttonStyle : Page -> Page -> Style
-buttonStyle currentPage thisPage =
-    [ dent currentPage thisPage
-    , Style.hfnss
+buttonStyle : Style
+buttonStyle =
+    [ Style.hfnss
     , margin (px 1)
     , width (px (Style.cellWidth Style.Big * 1.5))
     , height (px (Style.cellHeight Style.Big))
@@ -87,6 +100,7 @@ buttonStyle currentPage thisPage =
     , Style.fontSmoothingNone
     , outline none
     , active [ Style.indent ]
+    , Style.outdent
     ]
         |> Css.batch
 
