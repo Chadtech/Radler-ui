@@ -97,6 +97,8 @@ smallViewButton size =
             [ css
                 [ buttonStyle
                 , indentIf (size == Style.Small)
+                , margin (px 0)
+                , width (pct 100)
                 ]
             , onClick SmallClicked
             ]
@@ -107,11 +109,13 @@ smallViewButton size =
 bigViewButton : Style.Size -> Html Msg
 bigViewButton size =
     Grid.column
-        []
+        [ paddingLeft (px 5) ]
         [ button
             [ css
                 [ buttonStyle
                 , indentIf (size == Style.Big)
+                , margin (px 0)
+                , width (pct 100)
                 ]
             , onClick BigClicked
             ]
