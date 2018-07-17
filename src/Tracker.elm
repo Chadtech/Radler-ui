@@ -109,6 +109,32 @@ update ti si msg model =
                 model
                 |> R2.withNoCmd
 
+        DetailsMsg (Details.MajorMarkFieldUpdated field) ->
+            case String.toInt field of
+                Just majorMark ->
+                    Model.mapTracker
+                        ti
+                        (Tracker.setMajorMark majorMark)
+                        model
+                        |> R2.withNoCmd
+
+                Nothing ->
+                    model
+                        |> R2.withNoCmd
+
+        DetailsMsg (Details.MinorMarkFieldUpdated field) ->
+            case String.toInt field of
+                Just minorMark ->
+                    Model.mapTracker
+                        ti
+                        (Tracker.setMinorMark minorMark)
+                        model
+                        |> R2.withNoCmd
+
+                Nothing ->
+                    model
+                        |> R2.withNoCmd
+
         RowMsg ri subMsg ->
             Row.update ti si ri subMsg model
                 |> R2.mapCmd (RowMsg ri)
@@ -161,8 +187,8 @@ view model trackerIndex tracker =
     case Array.get tracker.sheetIndex model.sheets of
         Just sheet ->
             { sheet = sheet
-            , majorMark = model.majorMark
-            , minorMark = model.minorMark
+            , majorMark = tracker.majorMark
+            , minorMark = tracker.minorMark
             , size = tracker.size
             , sheetDetails =
                 if tracker.sheetDetails then
@@ -229,6 +255,8 @@ detailsContainerView payload =
             { sheetNameField = payload.sheet.name
             , sheets = sheetNames
             , size = payload.size
+            , majorMark = payload.majorMark
+            , minorMark = payload.minorMark
             }
                 |> Details.view
                 |> List.singleton

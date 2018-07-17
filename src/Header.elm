@@ -10,11 +10,13 @@ import Colors
 import Css exposing (..)
 import Data.Sheet as Sheet
 import Data.Tracker as Tracker
+import Html.Custom exposing (p)
 import Html.Grid as Grid
 import Html.Styled as Html
     exposing
         ( Html
         , button
+        , input
         )
 import Html.Styled.Attributes as Attrs
     exposing
@@ -62,31 +64,51 @@ view model =
         , displayFlex
         , minHeight minContent
         ]
-        [ button
-            [ css
-                [ buttonStyle
-                , dent model.page Model.Trackers
-                ]
-            , onClick (PageClicked Model.Trackers)
+        [ Grid.column
+            [ flex (int 0) ]
+            [ trackersButton model.page ]
+        , Grid.column
+            [ flex (int 0) ]
+            [ packageButton model.page ]
+        , Grid.column
+            [ marginLeft (px 10)
+            , flex (int 0)
             ]
-            [ Html.text "trackers" ]
-        , button
-            [ css
-                [ buttonStyle
-                , dent model.page Model.Package
-                ]
-            , onClick (PageClicked Model.Package)
-            ]
-            [ Html.text "package" ]
-        , button
-            [ css
-                [ buttonStyle
-                , marginLeft (px 10)
-                ]
-            , onClick NewSheetClicked
-            ]
-            [ Html.text "new sheet" ]
+            [ newSheetButton ]
         ]
+
+
+trackersButton : Page -> Html Msg
+trackersButton page =
+    button
+        [ css
+            [ buttonStyle
+            , dent page Model.Trackers
+            ]
+        , onClick (PageClicked Model.Trackers)
+        ]
+        [ Html.text "trackers" ]
+
+
+packageButton : Page -> Html Msg
+packageButton page =
+    button
+        [ css
+            [ buttonStyle
+            , dent page Model.Package
+            ]
+        , onClick (PageClicked Model.Package)
+        ]
+        [ Html.text "package" ]
+
+
+newSheetButton : Html Msg
+newSheetButton =
+    button
+        [ css [ buttonStyle ]
+        , onClick NewSheetClicked
+        ]
+        [ Html.text "new sheet" ]
 
 
 buttonStyle : Style

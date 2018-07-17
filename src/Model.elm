@@ -25,8 +25,6 @@ type alias Model =
     { projectName : String
     , sheets : Array Sheet
     , trackers : Array Tracker
-    , majorMark : Int
-    , minorMark : Int
     , page : Page
     }
 
@@ -49,8 +47,6 @@ empty =
         [ Tracker.init Style.Small 0
         ]
             |> Array.fromList
-    , majorMark = 16
-    , minorMark = 4
     , page = Trackers
     }
 

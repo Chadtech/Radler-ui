@@ -7,6 +7,8 @@ module Data.Tracker
         , init
         , openDetails
         , removeToggledColumn
+        , setMajorMark
+        , setMinorMark
         , setSheetIndex
         , setSize
         )
@@ -24,6 +26,8 @@ type alias Tracker =
     , toggledColumns : Set Int
     , sheetIndex : Int
     , sheetDetails : Bool
+    , majorMark : Int
+    , minorMark : Int
     }
 
 
@@ -33,11 +37,23 @@ init size sheetIndex =
     , toggledColumns = Set.empty
     , sheetIndex = sheetIndex
     , sheetDetails = False
+    , majorMark = 16
+    , minorMark = 4
     }
 
 
 
 -- HELPERS --
+
+
+setMajorMark : Int -> Tracker -> Tracker
+setMajorMark majorMark tracker =
+    { tracker | majorMark = majorMark }
+
+
+setMinorMark : Int -> Tracker -> Tracker
+setMinorMark minorMark tracker =
+    { tracker | minorMark = minorMark }
 
 
 addToggledColumn : Int -> Tracker -> Tracker

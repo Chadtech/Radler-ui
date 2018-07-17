@@ -38,6 +38,8 @@ type alias Payload =
     { sheetNameField : String
     , sheets : List ( Int, String )
     , size : Style.Size
+    , majorMark : Int
+    , minorMark : Int
     }
 
 
@@ -47,6 +49,8 @@ type Msg
     | BackClicked
     | SmallClicked
     | BigClicked
+    | MajorMarkFieldUpdated String
+    | MinorMarkFieldUpdated String
 
 
 
@@ -77,6 +81,20 @@ view payload =
                 ]
             , Grid.row
                 [ margin (px 5) ]
+                [ markLabel "major mark"
+                , markField
+                    payload.majorMark
+                    MajorMarkFieldUpdated
+                ]
+            , Grid.row
+                [ margin (px 5) ]
+                [ markLabel "minor mark"
+                , markField
+                    payload.minorMark
+                    MinorMarkFieldUpdated
+                ]
+            , Grid.row
+                [ margin (px 5) ]
                 [ smallViewButton payload.size
                 , bigViewButton payload.size
                 ]
@@ -86,6 +104,41 @@ view payload =
                 ]
                 [ sheetBackButton ]
             ]
+        ]
+
+
+markLabel : String -> Html Msg
+markLabel labelText =
+    Grid.column
+        []
+        [ p
+            [ css
+                [ Style.basicP
+                , Style.hfnss
+                , lineHeight (px 26)
+                , paddingLeft (px 10)
+                ]
+            ]
+            [ Html.text labelText ]
+        ]
+
+
+markField : Int -> (String -> Msg) -> Html Msg
+markField mark msgCtor =
+    Grid.column
+        [ paddingLeft (px 5) ]
+        [ input
+            [ css
+                [ Style.basicInput
+                , Style.hfnss
+                , color Colors.point0
+                , Style.fontSmoothingNone
+                , width (pct 100)
+                ]
+            , onInput msgCtor
+            , Attrs.defaultValue (String.fromInt mark)
+            ]
+            []
         ]
 
 

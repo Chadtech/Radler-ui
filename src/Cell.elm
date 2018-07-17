@@ -120,13 +120,12 @@ view majorMark minorMark size ti ri ci str =
 
 style : Int -> Int -> Style.Size -> Int -> Style
 style majorMark minorMark size rowIndex =
-    [ outline none
+    [ Style.basicInput
     , determineCellBgColor
         majorMark
         minorMark
         rowIndex
         |> backgroundColor
-    , Style.indent
     , Style.font size
     , color Colors.point0
     , width (px (Style.cellWidth size))
@@ -137,12 +136,15 @@ style majorMark minorMark size rowIndex =
 
 determineCellBgColor : Int -> Int -> Int -> Color
 determineCellBgColor majorMark minorMark rowIndex =
-    if remainderBy majorMark rowIndex == 0 then
-        Colors.highlight1
-    else if remainderBy minorMark rowIndex == 0 then
-        Colors.highlight0
-    else
-        Colors.background3
+    case remainderBy majorMark rowIndex of
+        0 ->
+            Colors.highlight1
+
+        moduloMajorMark ->
+            if remainderBy minorMark moduloMajorMark == 0 then
+                Colors.highlight0
+            else
+                Colors.background3
 
 
 cellId : Int -> Int -> Int -> String
