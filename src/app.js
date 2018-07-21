@@ -1,19 +1,19 @@
 var app = Elm.Main.init();
 
-function toElm (type, payload) {
+function toElm(type, payload) {
 	app.ports.fromJs.send({
 		type: type,
 		payload: payload
 	});
 }
 
-function square(n) {
-	toElm("square computed", n * n);
-}
-
 var actions = {
-	consoleLog: console.log,
-	square: square
+	saveSheet: function (payload) {
+		console.log(payload);
+	},
+	savePackage: function (payload) {
+		console.log('SAVE PACKAGE', payload);
+	}
 }
 
 function jsMsgHandler(msg) {
@@ -25,6 +25,5 @@ function jsMsgHandler(msg) {
 	action(msg.payload);
 }
 
-// console.log(app)
-// app.ports.toJs.subscribe(jsMsgHandler)
+app.ports.toJs.subscribe(jsMsgHandler)
 

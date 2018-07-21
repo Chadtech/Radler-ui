@@ -30,7 +30,7 @@ update msg model =
 
         HeaderMsg subMsg ->
             Header.update subMsg model
-                |> R2.withNoCmd
+                |> R2.mapCmd HeaderMsg
 
         PackageMsg subMsg ->
             Package.update subMsg model

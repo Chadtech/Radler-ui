@@ -5,36 +5,42 @@ port module Ports
         , send
         )
 
-import Json.Encode as Encode exposing (Value)
+import Json.Encode as E exposing (Value)
 
 
 type JsMsg
-    = ConsoleLog String
-    | Square Int
-
+    = SaveSheet (String, String)
+    | SavePackage String
 
 toCmd : String -> Value -> Cmd msg
 toCmd type_ payload =
-    [ ( "type", Encode.string type_ )
+    [ ( "type", E.string type_ )
     , ( "payload", payload )
     ]
-        |> Encode.object
+        |> E.object
         |> toJs
 
 
 noPayload : String -> Cmd msg
 noPayload type_ =
-    toCmd type_ Encode.null
+    toCmd type_ E.null
 
 
 send : JsMsg -> Cmd msg
 send msg =
     case msg of
-        ConsoleLog str ->
-            toCmd "consoleLog" (Encode.string str)
+        SaveSheet (name, data) ->
+            [ Tuple.pair "name" (E.string name)
+            , Tuple.pair "data" (E.string data)
+            ]
+                |> E.object
+                |> toCmd "saveSheet"
 
-        Square int ->
-            toCmd "square" (Encode.int int)
+        SavePackage package ->
+            package
+                |> E.string
+                |> toCmd "savePackage"
+
 
 
 port toJs : Value -> Cmd msg

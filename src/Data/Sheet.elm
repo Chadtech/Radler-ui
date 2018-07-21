@@ -9,10 +9,10 @@ module Data.Sheet
         , removeColumn
         , removeRow
         , setName
+        , toFile 
         )
 
 import Array exposing (Array)
-
 
 -- TYPES --
 
@@ -139,3 +139,23 @@ mapRow index f sheet =
 
         Nothing ->
             sheet
+
+
+toFile : Sheet -> (String, String)
+toFile sheet =
+    ( sheet.name, toString sheet )
+
+
+toString : Sheet -> String
+toString sheet =
+    sheet.rows
+        |> Array.map rowToString
+        |> Array.toList
+        |> String.join "\n"
+
+
+rowToString : Array String -> String
+rowToString row =
+    row
+        |> Array.toList
+        |> String.join ","

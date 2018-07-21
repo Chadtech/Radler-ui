@@ -35,23 +35,26 @@ type Msg
     = PageClicked Page
     | NewSheetClicked
     | NewTrackerClicked
+    | SaveClicked
 
 
 
 -- UPDATE --
 
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         PageClicked page ->
             { model | page = page }
+                |> R2.withNoCmd
 
         NewSheetClicked ->
             { model
                 | sheets =
                     Array.push Sheet.empty model.sheets
             }
+                |> R2.withNoCmd
 
         NewTrackerClicked ->
             { model
@@ -60,6 +63,12 @@ update msg model =
                         (Tracker.init Style.Small 0)
                         model.trackers
             }
+                |> R2.withNoCmd
+
+        SaveClicked ->
+            model
+                |> Model.save
+                |> R2.withModel model
 
 
 
@@ -75,6 +84,11 @@ view model =
         ]
         [ Grid.column
             [ flex (int 0) ]
+            [ saveButton ]
+        , Grid.column
+            [ flex (int 0)
+            , marginLeft (px 10)
+            ]
             [ trackersButton model.page ]
         , Grid.column
             [ flex (int 0) ]
@@ -88,6 +102,15 @@ view model =
             [ flex (int 0) ]
             [ newTrackerButton ]
         ]
+
+
+saveButton : Html Msg
+saveButton =
+    button
+        [ css [ buttonStyle ]
+        , onClick SaveClicked
+        ]
+        [ Html.text "save" ]
 
 
 trackersButton : Page -> Html Msg

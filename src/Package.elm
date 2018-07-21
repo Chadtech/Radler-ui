@@ -8,6 +8,7 @@ module Package
 import Colors
 import Css exposing (..)
 import Html.Styled as Html exposing (Html, div, textarea)
+import Html.Styled.Events exposing (onInput)
 import Html.Styled.Attributes as Attrs
     exposing
         ( css
@@ -20,7 +21,7 @@ import Style
 
 
 type Msg
-    = None
+    = PackageUpdated String
 
 
 
@@ -30,8 +31,8 @@ type Msg
 update : Msg -> Model -> Model
 update msg model =
     case msg of
-        None ->
-            model
+        PackageUpdated str ->
+            { model | package = str }
 
 
 
@@ -50,5 +51,6 @@ view model =
             , Style.hfnss
             ]
         , Attrs.spellcheck False
+        , onInput PackageUpdated
         ]
         []

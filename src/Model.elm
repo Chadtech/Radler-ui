@@ -7,6 +7,7 @@ module Model
         , mapSheet
         , mapTracker
         , removeTracker
+        , save
         )
 
 import Array exposing (Array)
@@ -15,6 +16,7 @@ import Data.Tracker as Tracker
     exposing
         ( Tracker
         )
+import Ports
 import Style
 
 
@@ -26,6 +28,7 @@ type alias Model =
     , sheets : Array Sheet
     , trackers : Array Tracker
     , page : Page
+    , package : String
     }
 
 
@@ -48,6 +51,7 @@ empty =
         ]
             |> Array.fromList
     , page = Trackers
+    , package = ""
     }
 
 
@@ -105,3 +109,28 @@ getThreadsSheetIndex threadIndex model =
     model.trackers
         |> Array.get threadIndex
         |> Maybe.map .sheetIndex
+
+
+save : Model -> Cmd msg
+save model =
+    [ model.sheets
+        |> Array.toList
+        |> List.map saveSheet
+        |> Cmd.batch
+    , model.package
+        |> savePackage
+    ]
+        |> Cmd.batch
+
+
+savePackage : String -> Cmd msg
+savePackage =
+    Ports.SavePackage >> Ports.send
+
+
+saveSheet : Sheet -> Cmd msg
+saveSheet sheet =
+    sheet
+        |> Sheet.toFile
+        |> Ports.SaveSheet
+        |> Ports.send
