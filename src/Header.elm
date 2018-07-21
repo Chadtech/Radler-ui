@@ -34,6 +34,7 @@ import Style
 type Msg
     = PageClicked Page
     | NewSheetClicked
+    | NewTrackerClicked
 
 
 
@@ -50,6 +51,14 @@ update msg model =
             { model
                 | sheets =
                     Array.push Sheet.empty model.sheets
+            }
+
+        NewTrackerClicked ->
+            { model
+                | trackers =
+                    Array.push
+                        (Tracker.init Style.Small 0)
+                        model.trackers
             }
 
 
@@ -75,6 +84,9 @@ view model =
             , flex (int 0)
             ]
             [ newSheetButton ]
+        , Grid.column
+            [ flex (int 0) ]
+            [ newTrackerButton ]
         ]
 
 
@@ -109,6 +121,18 @@ newSheetButton =
         , onClick NewSheetClicked
         ]
         [ Html.text "new sheet" ]
+
+
+newTrackerButton : Html Msg
+newTrackerButton =
+    button
+        [ css
+            [ buttonStyle
+            , width (px (Style.cellWidth Style.Big * 2))
+            ]
+        , onClick NewTrackerClicked
+        ]
+        [ Html.text "new tracker" ]
 
 
 buttonStyle : Style
