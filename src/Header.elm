@@ -163,7 +163,7 @@ buttonStyle =
     [ Style.hfnss
     , margin (px 1)
     , width (px (Style.cellWidth Style.Big * 1.5))
-    , height (px (Style.cellHeight Style.Big))
+    , height (px (Style.cellHeight Style.Big + 4))
     , backgroundColor Colors.ignorable2
     , color Colors.point0
     , Style.fontSmoothingNone

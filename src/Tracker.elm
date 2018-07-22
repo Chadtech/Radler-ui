@@ -355,14 +355,15 @@ columnOption toggledColumns size i =
             [ position absolute
             , top (px 0)
             , left (px 0)
-            , width (px (Style.cellWidth size + 4))
+            , width (px (Style.cellWidth size + 6))
             , minHeight fitContent
+            , displayFlex
             ]
         ]
         [ button
             [ css
                 [ Style.basicButton size
-                , width (px (Style.cellWidth size / 2 - 1))
+                , width (px (Style.cellWidth size / 2 + 2))
                 , minHeight fitContent
                 , active [ Style.indent ]
                 , cursor pointer
@@ -375,7 +376,7 @@ columnOption toggledColumns size i =
         , button
             [ css
                 [ Style.basicButton size
-                , width (px (Style.cellWidth size / 2 - 1))
+                , width (px (Style.cellWidth size / 2 + 2))
                 , minHeight fitContent
                 , active [ Style.indent ]
                 , cursor pointer
@@ -439,7 +440,7 @@ columnNumber toggledColumns size i =
     [ button
         [ css
             [ Style.basicButton size
-            , width (px (Style.cellWidth size))
+            , width (px (Style.cellWidth size + 6))
             , minHeight fitContent
             , position absolute
             , margin (px 0)
@@ -453,14 +454,11 @@ columnNumber toggledColumns size i =
 
 sheetNameView : Sheet -> Style.Size -> Html Msg
 sheetNameView sheet size =
-    Grid.column
-        []
-        [ button
-            [ css [ sheetNameStyle size ]
-            , onClick NameClicked
-            ]
-            [ Html.text sheet.name ]
+    button
+        [ css [ sheetNameStyle size ]
+        , onClick NameClicked
         ]
+        [ Html.text sheet.name ]
 
 
 sheetNameStyle : Style.Size -> Style

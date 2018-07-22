@@ -67,5 +67,6 @@ columnStyle =
     [ flexBasis (pct 100)
     , boxSizing borderBox
     , flex (int 1)
+    , displayFlex
     ]
         |> Css.batch

@@ -190,6 +190,7 @@ sheetOptions payload =
         [ css
             [ Style.indent
             , backgroundColor Colors.background3
+            , width (pct 100)
             ]
         ]
         [ Grid.container
