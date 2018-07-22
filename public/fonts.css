@@ -1,6 +1,6 @@
 @font-face {
   font-family: HFNSS;
-  src: url("./HFNSS.ttf");
+  src: url("https://raw.githubusercontent.com/Chadtech/personal-elm-boilerplate/34fb7992/development/HFNSS.ttf");
 }
 @font-face {
   font-family: HFNSS1;
@@ -12,7 +12,7 @@
 }
 @font-face {
   font-family: HFTIN;
-  src: url("./hftin.ttf");
+  src: url(".https://raw.githubusercontent.com/Chadtech/personal-elm-boilerplate/34fb7992/development/HFTIN.ttf");
 }
 @font-face {
   font-family: HFLLG;

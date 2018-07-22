@@ -1,22 +1,24 @@
 {
-  "name": "elm-gulp",
+  "name": "Radler-ui",
   "version": "1.0.0",
-  "description": "Gulp - Elm boilerplate",
-  "main": "gulpFile.js",
+  "description": "a UI for music composition and audio generation software",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": "https://github.com/chadtech/radler-ui",
+  "keywords": [],
+  "author": "GitHub",
+  "license": "CC0-1.0",
+  "devDependencies": {
+    "electron": "^2.0.0"
+  },
   "dependencies": {
-    "body-parser": "^1.15.0",
-    "browserify": "^16.1.1",
-    "express": "^4.13.4",
+    "body-parser": "^1.18.3",
+    "browserify": "^16.2.2",
     "gulp": "^3.9.1",
     "gulp-autowatch": "^1.0.2",
-    "vinyl-buffer": "^1.0.0",
-    "vinyl-source-stream": "^1.1.0"
-  },
-  "devDependencies": {},
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "gulp"
-  },
-  "author": "Chadtech",
-  "license": "ISC"
+    "vinyl-buffer": "^1.0.1",
+    "vinyl-source-stream": "^2.0.0"
+  }
 }
