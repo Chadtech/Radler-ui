@@ -37,21 +37,11 @@ gulp.task("elm", function () {
     });
 });
 
-
-// gulp.task("server", function() {
-//   return require("./server")(2948, util.log);
-// });
-
-gulp.task("dist", function () {
-  production = true;
-  gulp.task("default");
-
-  return gulp
-    .src(paths.public + "/**/*")
-    .pipe(gulp.dest(paths.dist));
-})
+gulp.task("electron", function () {
+  cp.exec("electron .");
+});
 
 gulp.watch(paths.elm, ["elm"]);
 gulp.watch(paths.js, ["js"]);
 
-gulp.task("default", ["elm", "js"]);
+gulp.task("default", ["elm", "js", "electron"]);
