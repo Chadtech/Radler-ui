@@ -7,12 +7,10 @@ module Package
 
 import Colors
 import Css exposing (..)
+import Data.Package as Package
 import Html.Styled as Html exposing (Html, div, textarea)
-import Html.Styled.Events exposing (onInput)
 import Html.Styled.Attributes as Attrs
-    exposing
-        ( css
-        )
+import Html.Styled.Events exposing (onInput)
 import Model exposing (Model)
 import Style
 
@@ -32,7 +30,9 @@ update : Msg -> Model -> Model
 update msg model =
     case msg of
         PackageUpdated str ->
-            { model | package = str }
+            Package.setJsonStrField str
+                |> Model.mapPackage
+                |> Model.apply model
 
 
 
@@ -42,7 +42,7 @@ update msg model =
 view : Model -> Html Msg
 view model =
     textarea
-        [ css
+        [ Attrs.css
             [ Style.basicInput
             , color Colors.point0
             , Style.fontSmoothingNone
@@ -51,6 +51,7 @@ view model =
             , Style.hfnss
             ]
         , Attrs.spellcheck False
+        , Attrs.value model.package.jsonStrField
         , onInput PackageUpdated
         ]
         []

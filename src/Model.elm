@@ -2,8 +2,10 @@ module Model
     exposing
         ( Model
         , Page(..)
-        , empty
+        , apply
         , getThreadsSheetIndex
+        , init
+        , mapPackage
         , mapSheet
         , mapTracker
         , removeTracker
@@ -11,6 +13,8 @@ module Model
         )
 
 import Array exposing (Array)
+import Data.Flags as Flags exposing (Flags)
+import Data.Package exposing (Package)
 import Data.Sheet as Sheet exposing (Sheet)
 import Data.Tracker as Tracker
     exposing
@@ -24,11 +28,10 @@ import Style
 
 
 type alias Model =
-    { projectName : String
-    , sheets : Array Sheet
+    { sheets : Array Sheet
     , trackers : Array Tracker
     , page : Page
-    , package : String
+    , package : Package
     }
 
 
@@ -37,10 +40,9 @@ type Page
     | Trackers
 
 
-empty : Model
-empty =
-    { projectName = ""
-    , sheets =
+init : Flags -> Model
+init flags =
+    { sheets =
         [ Sheet.empty
         , Sheet.empty
         , Sheet.empty
@@ -51,12 +53,22 @@ empty =
         ]
             |> Array.fromList
     , page = Trackers
-    , package = ""
+    , package = flags.package
     }
 
 
 
 -- HELPERS --
+
+
+apply : Model -> (Model -> Model) -> Model
+apply model f =
+    f model
+
+
+mapPackage : (Package -> Package) -> Model -> Model
+mapPackage f model =
+    { model | package = f model.package }
 
 
 mapSheet : Int -> (Sheet -> Sheet) -> Model -> Model
@@ -117,8 +129,9 @@ save model =
         |> Array.toList
         |> List.map saveSheet
         |> Cmd.batch
-    , model.package
-        |> savePackage
+
+    -- , model.package
+    -- |> savePackage
     ]
         |> Cmd.batch
 
