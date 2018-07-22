@@ -27,7 +27,7 @@ type alias Package =
 
 decoder : String -> Decoder Package
 decoder jsonStr =
-    case D.decodeString (fromStringDecoder jsonStr) jsonStr of
+    case decode jsonStr of
         Ok package ->
             D.succeed package
 
@@ -48,13 +48,18 @@ fromStringDecoder jsonStr =
         |> JDP.required "timing-variance" D.int
 
 
+decode : String -> Result D.Error Package
+decode jsonStr =
+    D.decodeString (fromStringDecoder jsonStr) jsonStr
+
+
 
 -- HELPERS --
 
 
 setJsonStrField : String -> Package -> Package
 setJsonStrField str package =
-    case D.decodeString (fromStringDecoder str) str of
+    case decode str of
         Ok newPackage ->
             newPackage
 
