@@ -1,4 +1,4 @@
-module Package
+module Html.Package
     exposing
         ( Msg
         , update

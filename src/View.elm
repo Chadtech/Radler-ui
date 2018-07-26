@@ -5,20 +5,20 @@ import Browser
 import Colors
 import Css exposing (..)
 import Data.Tracker exposing (Tracker)
-import Header
 import Html.Custom exposing (p)
 import Html.Grid as Grid
+import Html.Header as Header
+import Html.Package as Package
 import Html.Styled as Html exposing (Html, div)
 import Html.Styled.Attributes as Attrs
     exposing
         ( css
         )
+import Html.Tracker as Tracker
 import Json.Decode as D
 import Model exposing (Model)
 import Msg exposing (Msg(..))
-import Package
 import Style
-import Tracker
 
 
 -- VIEW --

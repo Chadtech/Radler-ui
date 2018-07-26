@@ -1,4 +1,4 @@
-module Header
+module Html.Header
     exposing
         ( Msg
         , update

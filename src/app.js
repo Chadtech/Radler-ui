@@ -18,14 +18,14 @@ var app = Elm.Main.init({
 				projectDir('package.json'),
 				'utf-8'
 			),
-		sheets:
+		parts:
 			fs.readdirSync(partsDir())
-				.map(function (sheetName) {
+				.map(function (partName) {
 					return {
-						name: sheetName,
+						name: partName,
 						data:
 							fs.readFileSync(
-								partsDir(sheetName),
+								partsDir(partName),
 								'utf-8'
 							)
 					};

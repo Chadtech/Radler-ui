@@ -1,4 +1,4 @@
-module Tracker
+module Html.Tracker
     exposing
         ( Msg(..)
         , update
@@ -6,15 +6,16 @@ module Tracker
         )
 
 import Array exposing (Array)
-import Beat
 import Colors
 import Css exposing (..)
 import Data.Part as Part exposing (Part)
 import Data.Tracker as Tracker exposing (Tracker)
-import Details
+import Html.Beat as Beat
 import Html.Buttons as Buttons
 import Html.Custom exposing (p)
+import Html.Details as Details
 import Html.Grid as Grid
+import Html.Note
 import Html.Styled as Html
     exposing
         ( Attribute
@@ -27,7 +28,6 @@ import Html.Styled.Events exposing (onClick, onMouseLeave)
 import Html.Styled.Keyed
 import Html.Styled.Lazy
 import Model exposing (Model)
-import Note
 import Return2 as R2
 import Set exposing (Set)
 import Style

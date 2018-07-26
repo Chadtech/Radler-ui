@@ -1,4 +1,4 @@
-module Beat
+module Html.Beat
     exposing
         ( Msg(..)
         , update
@@ -12,6 +12,7 @@ import Data.Part as Part
 import Data.Tracker as Tracker
 import Html.Buttons as Buttons
 import Html.Grid as Grid
+import Html.Note as Note
 import Html.Styled as Html
     exposing
         ( Html
@@ -24,7 +25,6 @@ import Html.Styled.Attributes as Attrs
 import Html.Styled.Events exposing (onClick)
 import Html.Styled.Lazy
 import Model exposing (Model)
-import Note
 import Return2 as R2
 import Style
 

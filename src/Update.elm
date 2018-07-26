@@ -1,11 +1,11 @@
 module Update exposing (update)
 
-import Header
+import Html.Header as Header
+import Html.Package as Package
+import Html.Tracker as Tracker
 import Model exposing (Model)
 import Msg exposing (Msg(..))
-import Package
 import Return2 as R2
-import Tracker
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )

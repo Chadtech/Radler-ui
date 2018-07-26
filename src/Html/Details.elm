@@ -1,4 +1,4 @@
-module Details
+module Html.Details
     exposing
         ( Msg(..)
         , Payload

@@ -1,4 +1,4 @@
-module Note
+module Html.Note
     exposing
         ( Msg(..)
         , update
