@@ -1,4 +1,4 @@
-module Row
+module Beat
     exposing
         ( Msg(..)
         , update
@@ -6,10 +6,9 @@ module Row
         )
 
 import Array exposing (Array)
-import Cell
 import Colors
 import Css exposing (..)
-import Data.Sheet as Sheet
+import Data.Part as Part
 import Data.Tracker as Tracker
 import Html.Buttons as Buttons
 import Html.Grid as Grid
@@ -25,6 +24,7 @@ import Html.Styled.Attributes as Attrs
 import Html.Styled.Events exposing (onClick)
 import Html.Styled.Lazy
 import Model exposing (Model)
+import Note
 import Return2 as R2
 import Style
 
@@ -33,7 +33,7 @@ import Style
 
 
 type Msg
-    = CellMsg Int Cell.Msg
+    = NoteMsg Int Note.Msg
     | DeleteClicked
     | AddBelowClicked
 
@@ -43,23 +43,23 @@ type Msg
 
 
 update : Int -> Int -> Int -> Msg -> Model -> ( Model, Cmd Msg )
-update ti si ri msg model =
+update ti si bi msg model =
     case msg of
-        CellMsg ci subMsg ->
-            Cell.update ti si ri ci subMsg model
-                |> R2.mapCmd (CellMsg ci)
+        NoteMsg ni subMsg ->
+            Note.update ti si bi ni subMsg model
+                |> R2.mapCmd (NoteMsg ni)
 
         DeleteClicked ->
-            Model.mapSheet
+            Model.mapPart
                 si
-                (Sheet.removeRow ri)
+                (Part.removeBeat bi)
                 model
                 |> R2.withNoCmd
 
         AddBelowClicked ->
-            Model.mapSheet
+            Model.mapPart
                 si
-                (Sheet.addRow ri)
+                (Part.addBeat bi)
                 model
                 |> R2.withNoCmd
 
@@ -69,28 +69,28 @@ update ti si ri msg model =
 
 
 view : Int -> Int -> Style.Size -> Int -> Int -> Array String -> Html Msg
-view majorMark minorMark size ti ri row =
-    row
+view majorMark minorMark size ti bi beat =
+    beat
         |> Array.toIndexedList
-        |> List.map (wrapCell majorMark minorMark size ti ri)
-        |> (::) (numberView size majorMark ri)
+        |> List.map (wrapNote majorMark minorMark size ti bi)
+        |> (::) (numberView size majorMark bi)
         |> (::) (Buttons.plus AddBelowClicked [] size)
         |> (::) (Buttons.delete DeleteClicked size)
         |> Grid.row []
 
 
-wrapCell : Int -> Int -> Style.Size -> Int -> Int -> ( Int, String ) -> Html Msg
-wrapCell majorMark minorMark size ti ri ( ci, str ) =
+wrapNote : Int -> Int -> Style.Size -> Int -> Int -> ( Int, String ) -> Html Msg
+wrapNote majorMark minorMark size ti bi ( ni, str ) =
     Html.Styled.Lazy.lazy7
-        Cell.view
+        Note.view
         majorMark
         minorMark
         size
         ti
-        ri
-        ci
+        bi
+        ni
         str
-        |> Html.map (CellMsg ci)
+        |> Html.map (NoteMsg ni)
 
 
 numberView : Style.Size -> Int -> Int -> Html Msg
@@ -124,8 +124,8 @@ numberStyle size =
     [ Style.outdent
     , Style.font size
     , margin (px 1)
-    , width (px (Style.cellWidth size))
-    , height (px (Style.cellHeight size))
+    , width (px (Style.noteWidth size))
+    , height (px (Style.noteHeight size))
     , backgroundColor Colors.ignorable2
     , color Colors.point0
     , Style.fontSmoothingNone

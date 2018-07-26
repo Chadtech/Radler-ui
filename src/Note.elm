@@ -1,4 +1,4 @@
-module Cell
+module Note
     exposing
         ( Msg(..)
         , update
@@ -9,7 +9,8 @@ import Array exposing (Array)
 import Browser.Dom as Dom
 import Colors
 import Css exposing (..)
-import Data.Sheet as Sheet
+import Data.Beat as Beat
+import Data.Part as Part
 import Data.Tracker as Tracker
 import Html.Custom exposing (Arrow(..), onArrowKey, onEnter)
 import Html.Grid as Grid
@@ -32,7 +33,7 @@ type Msg
     = Updated String
     | ArrowPressed Arrow
     | EnterPressed
-    | CellFocused
+    | NoteFocused
 
 
 
@@ -40,53 +41,48 @@ type Msg
 
 
 update : Int -> Int -> Int -> Int -> Msg -> Model -> ( Model, Cmd Msg )
-update ti si ri ci msg model =
+update ti si bi ni msg model =
     case msg of
         Updated str ->
-            setCell ci str
-                |> Sheet.mapRow ri
-                |> Model.mapSheet si
-                |> (|>) model
+            Beat.setNote ni str
+                |> Part.mapBeat bi
+                |> Model.mapPart si
+                |> Model.apply model
                 |> R2.withNoCmd
 
         ArrowPressed Up ->
-            cellId ti (ri - 1) ci
-                |> focusOnCell
+            noteId ti (bi - 1) ni
+                |> focusOnNote
                 |> R2.withModel model
 
         ArrowPressed Down ->
-            cellId ti (ri + 1) ci
-                |> focusOnCell
+            noteId ti (bi + 1) ni
+                |> focusOnNote
                 |> R2.withModel model
 
         ArrowPressed Left ->
-            cellId ti ri (ci - 1)
-                |> focusOnCell
+            noteId ti bi (ni - 1)
+                |> focusOnNote
                 |> R2.withModel model
 
         ArrowPressed Right ->
-            cellId ti ri (ci + 1)
-                |> focusOnCell
+            noteId ti bi (ni + 1)
+                |> focusOnNote
                 |> R2.withModel model
 
-        CellFocused ->
+        NoteFocused ->
             model
                 |> R2.withNoCmd
 
         EnterPressed ->
-            cellId ti (ri + 1) ci
-                |> focusOnCell
+            noteId ti (bi + 1) ni
+                |> focusOnNote
                 |> R2.withModel model
 
 
-focusOnCell : String -> Cmd Msg
-focusOnCell id =
-    Task.attempt (always CellFocused) (Dom.focus id)
-
-
-setCell : Int -> String -> Array String -> Array String
-setCell index str row =
-    Array.set index str row
+focusOnNote : String -> Cmd Msg
+focusOnNote id =
+    Task.attempt (always NoteFocused) (Dom.focus id)
 
 
 
@@ -94,7 +90,7 @@ setCell index str row =
 
 
 view : Int -> Int -> Style.Size -> Int -> Int -> Int -> String -> Html Msg
-view majorMark minorMark size ti ri ci str =
+view majorMark minorMark size ti bi ni str =
     Grid.column
         [ margin (px 1)
         , marginBottom (px 0)
@@ -105,38 +101,38 @@ view majorMark minorMark size ti ri ci str =
                     majorMark
                     minorMark
                     size
-                    ri
+                    bi
                 ]
             , Attrs.value str
             , Attrs.spellcheck False
             , onInput Updated
             , onArrowKey ArrowPressed
             , onEnter EnterPressed
-            , Attrs.id (cellId ti ri ci)
+            , Attrs.id (noteId ti bi ni)
             ]
             []
         ]
 
 
 style : Int -> Int -> Style.Size -> Int -> Style
-style majorMark minorMark size rowIndex =
+style majorMark minorMark size beatIndex =
     [ Style.basicInput
-    , determineCellBgColor
+    , determineNoteBgColor
         majorMark
         minorMark
-        rowIndex
+        beatIndex
         |> backgroundColor
     , Style.font size
     , color Colors.point0
-    , width (px (Style.cellWidth size))
+    , width (px (Style.noteWidth size))
     , Style.fontSmoothingNone
     ]
         |> Css.batch
 
 
-determineCellBgColor : Int -> Int -> Int -> Color
-determineCellBgColor majorMark minorMark rowIndex =
-    case remainderBy majorMark rowIndex of
+determineNoteBgColor : Int -> Int -> Int -> Color
+determineNoteBgColor majorMark minorMark beatIndex =
+    case remainderBy majorMark beatIndex of
         0 ->
             Colors.highlight1
 
@@ -147,13 +143,13 @@ determineCellBgColor majorMark minorMark rowIndex =
                 Colors.background3
 
 
-cellId : Int -> Int -> Int -> String
-cellId ti ri ci =
+noteId : Int -> Int -> Int -> String
+noteId ti bi ni =
     [ "t"
     , String.fromInt ti
-    , "r"
-    , String.fromInt ri
-    , "c"
-    , String.fromInt ci
+    , "b"
+    , String.fromInt bi
+    , "n"
+    , String.fromInt ni
     ]
         |> String.concat

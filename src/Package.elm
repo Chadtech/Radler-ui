@@ -49,9 +49,31 @@ view model =
             , Style.basicSpacing
             , width (pct 100)
             , Style.hfnss
+            , maybeInvalidBorders model
+            , maybeInvalidBackground model
             ]
         , Attrs.spellcheck False
         , Attrs.value model.package.jsonStrField
         , onInput PackageUpdated
         ]
         []
+
+
+maybeInvalidBackground : Model -> Style
+maybeInvalidBackground { package } =
+    if package.validJson then
+        Css.batch []
+    else
+        backgroundColor Colors.lowWarning
+            |> List.singleton
+            |> Css.batch
+
+
+maybeInvalidBorders : Model -> Style
+maybeInvalidBorders { package } =
+    if package.validJson then
+        Css.batch []
+    else
+        border3 (px 2) solid Colors.critical
+            |> List.singleton
+            |> Css.batch

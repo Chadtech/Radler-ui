@@ -1,13 +1,10 @@
 module Update exposing (update)
 
-import Cell
-import Data.Sheet as Sheet
 import Header
 import Model exposing (Model)
 import Msg exposing (Msg(..))
 import Package
 import Return2 as R2
-import Row
 import Tracker
 
 
@@ -19,7 +16,7 @@ update msg model =
                 |> R2.withNoCmd
 
         TrackerMsg ti subMsg ->
-            case Model.getThreadsSheetIndex ti model of
+            case Model.getTrackersPartIndex ti model of
                 Just si ->
                     Tracker.update ti si subMsg model
                         |> R2.mapCmd (TrackerMsg ti)

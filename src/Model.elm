@@ -3,19 +3,19 @@ module Model
         ( Model
         , Page(..)
         , apply
-        , getThreadsSheetIndex
+        , getTrackersPartIndex
         , init
         , mapPackage
-        , mapSheet
+        , mapPart
         , mapTracker
         , removeTracker
-        , save
+        , saveToDisk
         )
 
 import Array exposing (Array)
 import Data.Flags as Flags exposing (Flags)
-import Data.Package exposing (Package)
-import Data.Sheet as Sheet exposing (Sheet)
+import Data.Package as Package exposing (Package)
+import Data.Part as Part exposing (Part)
 import Data.Tracker as Tracker
     exposing
         ( Tracker
@@ -28,7 +28,7 @@ import Style
 
 
 type alias Model =
-    { sheets : Array Sheet
+    { parts : Array Part
     , trackers : Array Tracker
     , page : Page
     , package : Package
@@ -42,15 +42,9 @@ type Page
 
 init : Flags -> Model
 init flags =
-    { sheets =
-        [ Sheet.empty
-        , Sheet.empty
-        , Sheet.empty
-        ]
-            |> Array.fromList
+    { parts = flags.parts
     , trackers =
-        [ Tracker.init Style.Small 0
-        ]
+        [ Tracker.init Style.Small 0 ]
             |> Array.fromList
     , page = Trackers
     , package = flags.package
@@ -71,16 +65,16 @@ mapPackage f model =
     { model | package = f model.package }
 
 
-mapSheet : Int -> (Sheet -> Sheet) -> Model -> Model
-mapSheet index f model =
-    case Array.get index model.sheets of
-        Just sheet ->
+mapPart : Int -> (Part -> Part) -> Model -> Model
+mapPart index f model =
+    case Array.get index model.parts of
+        Just part ->
             { model
-                | sheets =
+                | parts =
                     Array.set
                         index
-                        (f sheet)
-                        model.sheets
+                        (f part)
+                        model.parts
             }
 
         Nothing ->
@@ -116,34 +110,20 @@ removeTracker index model =
     }
 
 
-getThreadsSheetIndex : Int -> Model -> Maybe Int
-getThreadsSheetIndex threadIndex model =
+getTrackersPartIndex : Int -> Model -> Maybe Int
+getTrackersPartIndex threadIndex model =
     model.trackers
         |> Array.get threadIndex
-        |> Maybe.map .sheetIndex
+        |> Maybe.map .partIndex
 
 
-save : Model -> Cmd msg
-save model =
-    [ model.sheets
+saveToDisk : Model -> Cmd msg
+saveToDisk model =
+    [ model.parts
         |> Array.toList
-        |> List.map saveSheet
+        |> List.map Part.saveToDisk
         |> Cmd.batch
-
-    -- , model.package
-    -- |> savePackage
+    , model.package
+        |> Package.saveToDisk
     ]
         |> Cmd.batch
-
-
-savePackage : String -> Cmd msg
-savePackage =
-    Ports.SavePackage >> Ports.send
-
-
-saveSheet : Sheet -> Cmd msg
-saveSheet sheet =
-    sheet
-        |> Sheet.toFile
-        |> Ports.SaveSheet
-        |> Ports.send

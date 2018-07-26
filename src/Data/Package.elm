@@ -2,11 +2,14 @@ module Data.Package
     exposing
         ( Package
         , decoder
+        , saveToDisk
         , setJsonStrField
         )
 
 import Json.Decode as D exposing (Decoder)
 import Json.Decode.Pipeline as JDP
+import Ports
+import Random exposing (Seed)
 
 
 -- TYPES --
@@ -15,9 +18,11 @@ import Json.Decode.Pipeline as JDP
 type alias Package =
     { jsonStr : String
     , jsonStrField : String
+    , validJson : Bool
     , name : String
     , beatLength : Int
     , timingVariance : Int
+    , seed : Seed
     }
 
 
@@ -25,8 +30,14 @@ type alias Package =
 -- DECODER --
 
 
-decoder : String -> Decoder Package
-decoder jsonStr =
+decoder : Decoder Package
+decoder =
+    D.string
+        |> D.andThen toDecoder
+
+
+toDecoder : String -> Decoder Package
+toDecoder jsonStr =
     case decode jsonStr of
         Ok package ->
             D.succeed package
@@ -38,19 +49,21 @@ decoder jsonStr =
                 |> D.fail
 
 
+decode : String -> Result D.Error Package
+decode jsonStr =
+    D.decodeString (fromStringDecoder jsonStr) jsonStr
+
+
 fromStringDecoder : String -> Decoder Package
 fromStringDecoder jsonStr =
     D.succeed Package
         |> JDP.hardcoded jsonStr
         |> JDP.hardcoded jsonStr
+        |> JDP.hardcoded True
         |> JDP.required "name" D.string
         |> JDP.required "beat-length" D.int
         |> JDP.required "timing-variance" D.int
-
-
-decode : String -> Result D.Error Package
-decode jsonStr =
-    D.decodeString (fromStringDecoder jsonStr) jsonStr
+        |> JDP.required "seed" (D.map Random.initialSeed D.int)
 
 
 
@@ -64,4 +77,14 @@ setJsonStrField str package =
             newPackage
 
         Err _ ->
-            { package | jsonStrField = str }
+            { package
+                | jsonStrField = str
+                , validJson = False
+            }
+
+
+saveToDisk : Package -> Cmd msg
+saveToDisk { jsonStr } =
+    jsonStr
+        |> Ports.SavePackageToDisk
+        |> Ports.send

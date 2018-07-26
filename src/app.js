@@ -1,11 +1,35 @@
 var fs = get('fs');
 
+function projectDir(path) {
+	return './project/' + path;
+}
+
+function partsDir(path) {
+	if (typeof path === 'undefined') {
+		return projectDir('parts');
+	}
+	return projectDir('parts/' + path);
+}
+
 var app = Elm.Main.init({
 	flags: {
-		package: fs.readFileSync(
-			'./project/package.json',
-			'utf-8'
-		)
+		package:
+			fs.readFileSync(
+				projectDir('package.json'),
+				'utf-8'
+			),
+		sheets:
+			fs.readdirSync(partsDir())
+				.map(function (sheetName) {
+					return {
+						name: sheetName,
+						data:
+							fs.readFileSync(
+								partsDir(sheetName),
+								'utf-8'
+							)
+					};
+				})
 	}
 });
 
@@ -17,11 +41,17 @@ function toElm(type, payload) {
 }
 
 var actions = {
-	saveSheet: function (payload) {
-		console.log(payload);
+	saveSheetToDisk: function (payload) {
+		fs.writeFileSync(
+			partsDir(payload.name),
+			payload.data
+		);
 	},
-	savePackage: function (payload) {
-		console.log('SAVE PACKAGE', payload);
+	savePackageToDisk: function (payload) {
+		fs.writeFileSync(
+			projectDir('package.json'),
+			payload
+		);
 	}
 }
 

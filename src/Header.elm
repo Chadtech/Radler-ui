@@ -8,7 +8,7 @@ module Header
 import Array
 import Colors
 import Css exposing (..)
-import Data.Sheet as Sheet
+import Data.Part as Part
 import Data.Tracker as Tracker
 import Html.Custom exposing (p)
 import Html.Grid as Grid
@@ -51,8 +51,8 @@ update msg model =
 
         NewSheetClicked ->
             { model
-                | sheets =
-                    Array.push Sheet.empty model.sheets
+                | parts =
+                    Array.push Part.empty model.parts
             }
                 |> R2.withNoCmd
 
@@ -66,8 +66,10 @@ update msg model =
                 |> R2.withNoCmd
 
         SaveClicked ->
-            model
-                |> Model.save
+            [ model
+                |> Model.saveToDisk
+            ]
+                |> Cmd.batch
                 |> R2.withModel model
 
 
@@ -143,7 +145,7 @@ newSheetButton =
         [ css [ buttonStyle ]
         , onClick NewSheetClicked
         ]
-        [ Html.text "new sheet" ]
+        [ Html.text "new part" ]
 
 
 newTrackerButton : Html Msg
@@ -151,7 +153,7 @@ newTrackerButton =
     button
         [ css
             [ buttonStyle
-            , width (px (Style.cellWidth Style.Big * 2))
+            , width (px (Style.noteWidth Style.Big * 2))
             ]
         , onClick NewTrackerClicked
         ]
@@ -162,8 +164,8 @@ buttonStyle : Style
 buttonStyle =
     [ Style.hfnss
     , margin (px 1)
-    , width (px (Style.cellWidth Style.Big * 1.5))
-    , height (px (Style.cellHeight Style.Big + 4))
+    , width (px (Style.noteWidth Style.Big * 1.5))
+    , height (px (Style.noteHeight Style.Big + 4))
     , backgroundColor Colors.ignorable2
     , color Colors.point0
     , Style.fontSmoothingNone

@@ -6,10 +6,10 @@ module Tracker
         )
 
 import Array exposing (Array)
-import Cell
+import Beat
 import Colors
 import Css exposing (..)
-import Data.Sheet as Sheet exposing (Sheet)
+import Data.Part as Part exposing (Part)
 import Data.Tracker as Tracker exposing (Tracker)
 import Details
 import Html.Buttons as Buttons
@@ -27,8 +27,8 @@ import Html.Styled.Events exposing (onClick, onMouseLeave)
 import Html.Styled.Keyed
 import Html.Styled.Lazy
 import Model exposing (Model)
+import Note
 import Return2 as R2
-import Row
 import Set exposing (Set)
 import Style
 import Util
@@ -38,22 +38,22 @@ import Util
 
 
 type alias Payload =
-    { sheet : Sheet
+    { part : Part
     , majorMark : Int
     , minorMark : Int
     , size : Style.Size
-    , sheetDetails : Maybe (List ( Int, String ))
+    , partDetails : Maybe (List ( Int, String ))
     , toggledColumns : Set Int
     , trackerIndex : Int
     }
 
 
 type Msg
-    = RowMsg Int Row.Msg
+    = BeatMsg Int Beat.Msg
     | DetailsMsg Details.Msg
     | NameClicked
     | DeleteTrackerClicked
-    | AddRowBelowClicked
+    | AddBeatBelowClicked
     | ColumnNumberClicked Int
     | ColumnNumberExited Int
     | DeleteColumnClicked Int
@@ -75,16 +75,16 @@ update ti si msg model =
                 |> R2.withNoCmd
 
         DetailsMsg (Details.NameFieldUpdated str) ->
-            Model.mapSheet
+            Model.mapPart
                 si
-                (Sheet.setName str)
+                (Part.setName str)
                 model
                 |> R2.withNoCmd
 
-        DetailsMsg (Details.SheetClicked index) ->
+        DetailsMsg (Details.PartClicked index) ->
             Model.mapTracker
                 ti
-                (Tracker.setSheetIndex index)
+                (Tracker.setPartIndex index)
                 model
                 |> R2.withNoCmd
 
@@ -135,18 +135,18 @@ update ti si msg model =
                     model
                         |> R2.withNoCmd
 
-        RowMsg ri subMsg ->
-            Row.update ti si ri subMsg model
-                |> R2.mapCmd (RowMsg ri)
+        BeatMsg bi subMsg ->
+            Beat.update ti si bi subMsg model
+                |> R2.mapCmd (BeatMsg bi)
 
         DeleteTrackerClicked ->
             Model.removeTracker ti model
                 |> R2.withNoCmd
 
-        AddRowBelowClicked ->
-            Model.mapSheet
+        AddBeatBelowClicked ->
+            Model.mapPart
                 si
-                (Sheet.addRow -1)
+                (Part.addBeat -1)
                 model
                 |> R2.withNoCmd
 
@@ -165,15 +165,15 @@ update ti si msg model =
                 |> R2.withNoCmd
 
         AddColumnClicked index ->
-            Model.mapSheet
+            Model.mapPart
                 si
-                (Sheet.addColumn index)
+                (Part.addColumn index)
                 model
                 |> R2.withNoCmd
 
         DeleteColumnClicked index ->
             model
-                |> Model.mapSheet si (Sheet.removeColumn index)
+                |> Model.mapPart si (Part.removeColumn index)
                 |> Model.mapTracker ti Tracker.clearToggledColumns
                 |> R2.withNoCmd
 
@@ -184,15 +184,15 @@ update ti si msg model =
 
 view : Model -> Int -> Tracker -> Html Msg
 view model trackerIndex tracker =
-    case Array.get tracker.sheetIndex model.sheets of
-        Just sheet ->
-            { sheet = sheet
+    case Array.get tracker.partIndex model.parts of
+        Just part ->
+            { part = part
             , majorMark = tracker.majorMark
             , minorMark = tracker.minorMark
             , size = tracker.size
-            , sheetDetails =
-                if tracker.sheetDetails then
-                    model.sheets
+            , partDetails =
+                if tracker.partDetails then
+                    model.parts
                         |> Array.toIndexedList
                         |> List.map (Tuple.mapSecond .name)
                         |> Just
@@ -238,8 +238,8 @@ contentView payload =
     , Grid.row
         []
         [ Html.Styled.Lazy.lazy5
-            rowsView
-            payload.sheet
+            beatsView
+            payload.part
             payload.majorMark
             payload.minorMark
             payload.size
@@ -250,10 +250,10 @@ contentView payload =
 
 detailsContainerView : Payload -> Html Msg
 detailsContainerView payload =
-    case payload.sheetDetails of
-        Just sheetNames ->
-            { sheetNameField = payload.sheet.name
-            , sheets = sheetNames
+    case payload.partDetails of
+        Just partNames ->
+            { partNameField = payload.part.name
+            , parts = partNames
             , size = payload.size
             , majorMark = payload.majorMark
             , minorMark = payload.minorMark
@@ -278,31 +278,31 @@ detailsContainerStyle =
         |> Css.batch
 
 
-rowsView : Sheet -> Int -> Int -> Style.Size -> Int -> Html Msg
-rowsView sheet majorMark minorMark size ti =
+beatsView : Part -> Int -> Int -> Style.Size -> Int -> Html Msg
+beatsView part majorMark minorMark size ti =
     Grid.container
         [ overflow auto ]
-        (rowsContentView sheet majorMark minorMark size ti)
+        (beatsContentView part majorMark minorMark size ti)
 
 
-rowsContentView : Sheet -> Int -> Int -> Style.Size -> Int -> List (Html Msg)
-rowsContentView sheet majorMark minorMark size ti =
-    sheet.rows
+beatsContentView : Part -> Int -> Int -> Style.Size -> Int -> List (Html Msg)
+beatsContentView part majorMark minorMark size ti =
+    part.beats
         |> Array.toIndexedList
-        |> List.map (wrapRow majorMark minorMark size ti)
+        |> List.map (wrapBeat majorMark minorMark size ti)
 
 
-wrapRow : Int -> Int -> Style.Size -> Int -> ( Int, Array String ) -> Html Msg
-wrapRow majorMark minorMark size ti ( ri, row ) =
+wrapBeat : Int -> Int -> Style.Size -> Int -> ( Int, Array String ) -> Html Msg
+wrapBeat majorMark minorMark size ti ( bi, beat ) =
     Html.Styled.Lazy.lazy6
-        Row.view
+        Beat.view
         majorMark
         minorMark
         size
         ti
-        ri
-        row
-        |> Html.map (RowMsg ri)
+        bi
+        beat
+        |> Html.map (BeatMsg bi)
 
 
 
@@ -313,14 +313,14 @@ trackerOptions : Payload -> List (Html Msg)
 trackerOptions payload =
     [ Grid.column
         [ flex none
-        , flexBasis (px (Style.cellWidth payload.size + 4))
+        , flexBasis (px (Style.noteWidth payload.size + 4))
         , position relative
         ]
         [ button
             [ css
                 [ Style.basicButton payload.size
-                , width (px (Style.cellWidth payload.size + 2))
-                , height (px ((Style.cellHeight payload.size * 2) + 2))
+                , width (px (Style.noteWidth payload.size + 2))
+                , height (px ((Style.noteHeight payload.size * 2) + 2))
                 , position absolute
                 , top (px 0)
                 , left (px 0)
@@ -333,7 +333,7 @@ trackerOptions payload =
         ]
     , Grid.column
         []
-        [ sheetNameView payload.sheet payload.size ]
+        [ partNameView payload.part payload.size ]
     ]
 
 
@@ -342,8 +342,8 @@ trackerOptions payload =
 
 
 columnOptions : Payload -> List (Html Msg)
-columnOptions { sheet, toggledColumns, size } =
-    List.range 0 (Sheet.columnCount sheet - 1)
+columnOptions { part, toggledColumns, size } =
+    List.range 0 (Part.columnCount part - 1)
         |> List.map (columnOption toggledColumns size)
         |> (::) (addColumnZero size)
 
@@ -355,7 +355,7 @@ columnOption toggledColumns size i =
             [ position absolute
             , top (px 0)
             , left (px 0)
-            , width (px (Style.cellWidth size + 6))
+            , width (px (Style.noteWidth size + 6))
             , minHeight fitContent
             , displayFlex
             ]
@@ -363,7 +363,7 @@ columnOption toggledColumns size i =
         [ button
             [ css
                 [ Style.basicButton size
-                , width (px (Style.cellWidth size / 2 + 2))
+                , width (px (Style.noteWidth size / 2 + 2))
                 , minHeight fitContent
                 , active [ Style.indent ]
                 , cursor pointer
@@ -376,7 +376,7 @@ columnOption toggledColumns size i =
         , button
             [ css
                 [ Style.basicButton size
-                , width (px (Style.cellWidth size / 2 + 2))
+                , width (px (Style.noteWidth size / 2 + 2))
                 , minHeight fitContent
                 , active [ Style.indent ]
                 , cursor pointer
@@ -399,10 +399,10 @@ addColumnZero size =
         [ button
             [ css
                 [ Style.basicButton size
-                , width (px (Style.cellWidth size))
+                , width (px (Style.noteWidth size))
                 , minHeight fitContent
                 , active [ Style.indent ]
-                , marginLeft (px (Style.cellWidth size + 5))
+                , marginLeft (px (Style.noteWidth size + 5))
                 , cursor pointer
                 , hover [ color Colors.point1 ]
                 ]
@@ -418,19 +418,19 @@ addColumnZero size =
 
 
 columnNumbers : Payload -> List (Html Msg)
-columnNumbers { sheet, toggledColumns, size } =
-    List.range 0 (Sheet.columnCount sheet - 1)
+columnNumbers { part, toggledColumns, size } =
+    List.range 0 (Part.columnCount part - 1)
         |> List.map (columnNumber toggledColumns size)
-        |> (::) (addRowButton size)
+        |> (::) (addBeatButton size)
 
 
-addRowButton : Style.Size -> Html Msg
-addRowButton size =
+addBeatButton : Style.Size -> Html Msg
+addBeatButton size =
     Buttons.plus
-        AddRowBelowClicked
+        AddBeatBelowClicked
         [ margin (px 0)
-        , marginRight (px (Style.cellWidth size + 4))
-        , marginLeft (px ((Style.cellWidth size / 2) + 3))
+        , marginRight (px (Style.noteWidth size + 4))
+        , marginLeft (px ((Style.noteWidth size / 2) + 3))
         ]
         size
 
@@ -440,7 +440,7 @@ columnNumber toggledColumns size i =
     [ button
         [ css
             [ Style.basicButton size
-            , width (px (Style.cellWidth size + 6))
+            , width (px (Style.noteWidth size + 6))
             , minHeight fitContent
             , position absolute
             , margin (px 0)
@@ -452,17 +452,17 @@ columnNumber toggledColumns size i =
         |> Grid.column [ position relative ]
 
 
-sheetNameView : Sheet -> Style.Size -> Html Msg
-sheetNameView sheet size =
+partNameView : Part -> Style.Size -> Html Msg
+partNameView part size =
     button
-        [ css [ sheetNameStyle size ]
+        [ css [ partNameStyle size ]
         , onClick NameClicked
         ]
-        [ Html.text sheet.name ]
+        [ Html.text part.name ]
 
 
-sheetNameStyle : Style.Size -> Style
-sheetNameStyle size =
+partNameStyle : Style.Size -> Style
+partNameStyle size =
     [ Style.basicButton size
     , width (pct 100)
     , hover [ color Colors.point1 ]
@@ -487,5 +487,5 @@ notFoundView =
                 , margin (px 4)
                 ]
             ]
-            [ Html.text "Error : Sheet not found" ]
+            [ Html.text "Error : Part not found" ]
         ]

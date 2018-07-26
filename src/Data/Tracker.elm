@@ -9,7 +9,7 @@ module Data.Tracker
         , removeToggledColumn
         , setMajorMark
         , setMinorMark
-        , setSheetIndex
+        , setPartIndex
         , setSize
         )
 
@@ -24,19 +24,19 @@ import Style
 type alias Tracker =
     { size : Style.Size
     , toggledColumns : Set Int
-    , sheetIndex : Int
-    , sheetDetails : Bool
+    , partIndex : Int
+    , partDetails : Bool
     , majorMark : Int
     , minorMark : Int
     }
 
 
 init : Style.Size -> Int -> Tracker
-init size sheetIndex =
+init size partIndex =
     { size = size
     , toggledColumns = Set.empty
-    , sheetIndex = sheetIndex
-    , sheetDetails = False
+    , partIndex = partIndex
+    , partDetails = False
     , majorMark = 16
     , minorMark = 4
     }
@@ -82,16 +82,16 @@ setSize size tracker =
     { tracker | size = size }
 
 
-setSheetIndex : Int -> Tracker -> Tracker
-setSheetIndex index tracker =
-    { tracker | sheetIndex = index }
+setPartIndex : Int -> Tracker -> Tracker
+setPartIndex index tracker =
+    { tracker | partIndex = index }
 
 
 openDetails : Tracker -> Tracker
 openDetails tracker =
-    { tracker | sheetDetails = True }
+    { tracker | partDetails = True }
 
 
 closeDetails : Tracker -> Tracker
 closeDetails tracker =
-    { tracker | sheetDetails = False }
+    { tracker | partDetails = False }

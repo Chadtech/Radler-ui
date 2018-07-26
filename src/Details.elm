@@ -35,8 +35,8 @@ import Style
 
 
 type alias Payload =
-    { sheetNameField : String
-    , sheets : List ( Int, String )
+    { partNameField : String
+    , parts : List ( Int, String )
     , size : Style.Size
     , majorMark : Int
     , minorMark : Int
@@ -45,7 +45,7 @@ type alias Payload =
 
 type Msg
     = NameFieldUpdated String
-    | SheetClicked Int
+    | PartClicked Int
     | BackClicked
     | SmallClicked
     | BigClicked
@@ -72,12 +72,12 @@ view payload =
             []
             [ Grid.row
                 [ margin (px 5) ]
-                (sheetNameInput payload)
+                (partNameInput payload)
             , Grid.row
                 [ margin (px 5) ]
                 [ Grid.column
                     []
-                    [ sheetOptions payload ]
+                    [ partOptions payload ]
                 ]
             , Grid.row
                 [ margin (px 5) ]
@@ -102,7 +102,7 @@ view payload =
                 [ margin (px 5)
                 , justifyContent spaceAround
                 ]
-                [ sheetBackButton ]
+                [ partBackButton ]
             ]
         ]
 
@@ -184,8 +184,8 @@ indentIf condition =
         Css.batch []
 
 
-sheetOptions : Payload -> Html Msg
-sheetOptions payload =
+partOptions : Payload -> Html Msg
+partOptions payload =
     div
         [ css
             [ Style.indent
@@ -195,27 +195,27 @@ sheetOptions payload =
         ]
         [ Grid.container
             []
-            (List.map sheetOptionView payload.sheets)
+            (List.map partOptionView payload.parts)
         ]
 
 
-sheetOptionView : ( Int, String ) -> Html Msg
-sheetOptionView ( index, name ) =
+partOptionView : ( Int, String ) -> Html Msg
+partOptionView ( index, name ) =
     Grid.row
         [ Style.basicSpacing ]
         [ Grid.column
             []
             [ p
-                [ css [ sheetOptionStyle ]
-                , onClick (SheetClicked index)
+                [ css [ partOptionStyle ]
+                , onClick (PartClicked index)
                 ]
                 [ Html.text name ]
             ]
         ]
 
 
-sheetOptionStyle : Style
-sheetOptionStyle =
+partOptionStyle : Style
+partOptionStyle =
     [ Style.hfnss
     , marginLeft (px 10)
     , cursor pointer
@@ -227,8 +227,8 @@ sheetOptionStyle =
         |> Css.batch
 
 
-sheetNameInput : Payload -> List (Html Msg)
-sheetNameInput payload =
+partNameInput : Payload -> List (Html Msg)
+partNameInput payload =
     [ Grid.column
         [ lineHeight (px 26)
         , Style.basicSpacing
@@ -241,7 +241,7 @@ sheetNameInput payload =
                 , whiteSpace noWrap
                 ]
             ]
-            [ Html.text "sheet name" ]
+            [ Html.text "part name" ]
         ]
     , Grid.column
         [ Style.basicSpacing ]
@@ -252,7 +252,7 @@ sheetNameInput payload =
                 , color Colors.point0
                 , Style.fontSmoothingNone
                 ]
-            , Attrs.value payload.sheetNameField
+            , Attrs.value payload.partNameField
             , Attrs.spellcheck False
             , onInput NameFieldUpdated
             ]
@@ -261,8 +261,8 @@ sheetNameInput payload =
     ]
 
 
-sheetBackButton : Html Msg
-sheetBackButton =
+partBackButton : Html Msg
+partBackButton =
     Grid.column
         [ flex none ]
         [ button
@@ -276,7 +276,7 @@ sheetBackButton =
 buttonStyle : Style
 buttonStyle =
     [ Style.basicButton Style.Big
-    , width (px (Style.cellWidth Style.Big * 2))
+    , width (px (Style.noteWidth Style.Big * 2))
     , cursor pointer
     , hover [ color Colors.point1 ]
     , active [ Style.indent ]

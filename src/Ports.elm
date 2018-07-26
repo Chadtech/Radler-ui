@@ -9,8 +9,9 @@ import Json.Encode as E exposing (Value)
 
 
 type JsMsg
-    = SaveSheet (String, String)
-    | SavePackage String
+    = SavePartToDisk ( String, String )
+    | SavePackageToDisk String
+
 
 toCmd : String -> Value -> Cmd msg
 toCmd type_ payload =
@@ -29,18 +30,17 @@ noPayload type_ =
 send : JsMsg -> Cmd msg
 send msg =
     case msg of
-        SaveSheet (name, data) ->
+        SavePartToDisk ( name, data ) ->
             [ Tuple.pair "name" (E.string name)
             , Tuple.pair "data" (E.string data)
             ]
                 |> E.object
-                |> toCmd "saveSheet"
+                |> toCmd "savePartToDisk"
 
-        SavePackage package ->
+        SavePackageToDisk package ->
             package
                 |> E.string
-                |> toCmd "savePackage"
-
+                |> toCmd "savePackageToDisk"
 
 
 port toJs : Value -> Cmd msg

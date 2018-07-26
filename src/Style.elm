@@ -99,8 +99,8 @@ basicButton size =
     [ outdent
     , font size
     , margin (px 1)
-    , width (px (cellWidth size / 2))
-    , height (px (cellHeight size))
+    , width (px (noteWidth size / 2))
+    , height (px (noteHeight size))
     , backgroundColor Colors.ignorable2
     , color Colors.point0
     , fontSmoothingNone
@@ -114,8 +114,8 @@ basicButton size =
 -- HELPERS --
 
 
-cellWidth : Size -> Float
-cellWidth size =
+noteWidth : Size -> Float
+noteWidth size =
     case size of
         Big ->
             90
@@ -124,8 +124,8 @@ cellWidth size =
             60
 
 
-cellHeight : Size -> Float
-cellHeight size =
+noteHeight : Size -> Float
+noteHeight size =
     case size of
         Big ->
             26
