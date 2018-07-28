@@ -14,6 +14,18 @@ import Json.Decode.Pipeline as JDP
 -- TYPES --
 
 
+{-|
+
+    Flags :=
+        Flags are the values that the
+        application is initialized from.
+
+        They are decoded from json given
+        to the Elm application. If that
+        decoding fails the application is
+        in big trouble.
+
+-}
 type alias Flags =
     { package : Package
     , parts : Array Part

@@ -9,15 +9,11 @@ import Header
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Html, div)
 import Html.Styled.Attributes as Attrs
-import Json.Decode as D
 import Model exposing (Model)
 import Msg exposing (Msg(..))
 import Package
 import Style
 import Tracker
-
-
--- VIEW --
 
 
 view : Model -> List (Html Msg)

@@ -46,6 +46,11 @@ outdent =
         |> Css.batch
 
 
+flush : Style
+flush =
+    border3 (px 2) solid Colors.ignorable3
+
+
 hfnss : Style
 hfnss =
     [ fontFamilies [ "HFNSS" ]

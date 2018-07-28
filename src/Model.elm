@@ -29,6 +29,22 @@ import Style
 -- TYPES --
 
 
+{-|
+
+    This whole app is basically spreadsheet
+    software. A Part is basically a sheet,
+    and it contains an Array of Beats. A Beat
+    basically a Row and it contains an Array
+    of Notes. A Note is just a cell. When
+    refering to a Column of Notes, its called
+    a Voice
+
+    Trackers are views that show a part.
+    The number of trackers and parts are
+    both dynamic. The user can have multiple
+    trackers showing the same part simultaneously.
+
+-}
 type alias Model =
     { parts : Array Part
     , trackers : Array Tracker
@@ -47,7 +63,9 @@ init : Flags -> Model
 init flags =
     { parts = flags.parts
     , trackers =
-        [ Tracker.init Style.Small 0 ]
+        [ Tracker.init Style.Small 0
+        , Tracker.init Style.Big 0
+        ]
             |> Array.fromList
     , page = Trackers
     , package = flags.package
@@ -125,6 +143,14 @@ getTrackersPartIndex threadIndex model =
 -- SAVING -
 
 
+{-|
+
+    Save the human-readable-ish parts
+    to the disk. These are basically
+    just csv files that contain strings
+    of whats in the UI.
+
+-}
 saveParts : Model -> Cmd msg
 saveParts model =
     model.parts
@@ -133,6 +159,27 @@ saveParts model =
         |> Cmd.batch
 
 
+{-|
+
+    If we save this project and it works
+    we want a 'Cmd msg' that will execute
+    the save. If we save this project and
+    it failed, we want a new 'Model' which
+    contains the fail information that should
+    be displayed in the UI
+
+    saving the score is like saving parts
+    (read the parts documentation above),
+    with a few exceptions
+    0 The score is just one file that is
+    constructed from the parts (see the
+    documantion in Data/Package.elm for more
+    information)
+    1 The Score contains timing information
+    for each note. Parts dont contain any
+    timing information
+
+-}
 saveScore : Model -> Result Model (Cmd msg)
 saveScore ({ package, parts } as model) =
     case Package.saveScoreToDisk package parts of

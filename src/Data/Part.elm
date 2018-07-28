@@ -25,6 +25,22 @@ import Ports
 -- TYPES --
 
 
+{-|
+
+    Part :=
+        as in a part of a piece of music
+        like what would be called the chorus
+        section, or the 'A' in a ABCBA structured
+        song.
+
+    Voice :=
+        One sound making entity in a song.
+        A duet has two voices, for example
+
+        In this software, one voice is one
+        column in the spreadsheet.
+
+-}
 type alias Part =
     { name : String
     , beats : Array Beat

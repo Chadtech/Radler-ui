@@ -22,6 +22,47 @@ import Util
 -- TYPES --
 
 
+{-|
+
+    This package is mostly used to turn
+    the parts into a musical score. Its like
+    a config file that says how the different
+    parts are to be organized, and then
+    converted into a machine readable score
+    to be compiled into audio.
+
+    Some tricky stuff is going on with the
+    jsonStr and jsonStrField fields of this
+    data type. We get the package from a json
+    file, but we also sometimes edit that
+    json within this software and save it again.
+    jsonStr is the last known valid json, and
+    jsonStrField is just whatever string is
+    in the json field in the UI. Whenever the
+    jsonStrField is updated, we try and decode
+    into a package, and if that works we store
+    that string, and replace the whole package
+    with the value we successfully decoded. If
+    decoding didnt work, then we just update
+    jsonStrField.
+
+    Besides jsonStr and jsonStrField, beatLength
+    is the duration of one beat in the piece of
+    music. timingVariance is random variance off
+    the exact time the beat is supposed to occur
+    that each note should have. This helps sounds
+    sound like they are 'real' instead of just
+    recordings. timingVariance is a super short
+    duration of time, but its nonetheless
+    relevant to whether, for example, two
+    frequencies are in phase, or out of phase;
+    a phenomenon easily detectable by human ears.
+
+    All timing information is stored as an Int
+    that represents the number of samples in a
+    44,100 hertz audio file, so 0.0226ms
+
+-}
 type alias Package =
     { jsonStr : String
     , jsonStrField : String

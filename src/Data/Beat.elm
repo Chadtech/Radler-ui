@@ -20,6 +20,17 @@ import Data.Note as Note exposing (Note)
 -- TYPES --
 
 
+{-|
+
+    Beat :=
+        One index of time in a piece of music
+
+        In this software a beat is treated as
+        a row, and each row contains what note
+        each voice in the music is meant to play
+        (or not play, if there is no note)
+
+-}
 type Beat
     = Beat (Array Note)
 

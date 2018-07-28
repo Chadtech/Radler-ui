@@ -48,14 +48,14 @@ module Colors
 import Css exposing (Color, hex)
 
 
-highlight1 : Color
-highlight1 =
-    hex "#494a2d"
-
-
 highlight0 : Color
 highlight0 =
-    hex "#333e22"
+    hex "#142909"
+
+
+highlight1 : Color
+highlight1 =
+    hex "#30371a"
 
 
 background4 : Color
