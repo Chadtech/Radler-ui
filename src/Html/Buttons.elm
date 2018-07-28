@@ -12,9 +12,6 @@ import Html.Styled as Html
         , button
         )
 import Html.Styled.Attributes as Attrs
-    exposing
-        ( css
-        )
 import Html.Styled.Events exposing (onClick)
 import Style exposing (Size)
 
@@ -22,7 +19,7 @@ import Style exposing (Size)
 delete : msg -> Size -> Html msg
 delete handler size =
     button
-        [ css [ buttonStyleClickable size ]
+        [ Attrs.css [ buttonStyleClickable size ]
         , onClick handler
         ]
         [ Html.text "x" ]
@@ -31,7 +28,7 @@ delete handler size =
 plus : msg -> List Style -> Size -> Html msg
 plus handler extraStyles size =
     button
-        [ css
+        [ Attrs.css
             [ buttonStyleClickable size
             , Css.batch extraStyles
             ]

@@ -84,6 +84,14 @@ basicSpacing =
         |> Css.batch
 
 
+bigSpacing : Style
+bigSpacing =
+    [ padding (px 5)
+    , margin (px 5)
+    ]
+        |> Css.batch
+
+
 card : Style
 card =
     [ outdent

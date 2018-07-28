@@ -1,11 +1,11 @@
 module Update exposing (update)
 
-import Html.Header as Header
-import Html.Package as Package
-import Html.Tracker as Tracker
+import Header
 import Model exposing (Model)
 import Msg exposing (Msg(..))
+import Package
 import Return2 as R2
+import Tracker
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -17,8 +17,8 @@ update msg model =
 
         TrackerMsg ti subMsg ->
             case Model.getTrackersPartIndex ti model of
-                Just si ->
-                    Tracker.update ti si subMsg model
+                Just pi ->
+                    Tracker.update ti pi subMsg model
                         |> R2.mapCmd (TrackerMsg ti)
 
                 Nothing ->

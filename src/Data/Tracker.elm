@@ -1,12 +1,9 @@
 module Data.Tracker
     exposing
         ( Tracker
-        , addToggledColumn
-        , clearToggledColumns
         , closeDetails
         , init
         , openDetails
-        , removeToggledColumn
         , setMajorMark
         , setMinorMark
         , setPartIndex
@@ -14,7 +11,6 @@ module Data.Tracker
         )
 
 import Css exposing (Style)
-import Set exposing (Set)
 import Style
 
 
@@ -23,7 +19,6 @@ import Style
 
 type alias Tracker =
     { size : Style.Size
-    , toggledColumns : Set Int
     , partIndex : Int
     , partDetails : Bool
     , majorMark : Int
@@ -34,7 +29,6 @@ type alias Tracker =
 init : Style.Size -> Int -> Tracker
 init size partIndex =
     { size = size
-    , toggledColumns = Set.empty
     , partIndex = partIndex
     , partDetails = False
     , majorMark = 16
@@ -54,27 +48,6 @@ setMajorMark majorMark tracker =
 setMinorMark : Int -> Tracker -> Tracker
 setMinorMark minorMark tracker =
     { tracker | minorMark = minorMark }
-
-
-addToggledColumn : Int -> Tracker -> Tracker
-addToggledColumn index tracker =
-    { tracker
-        | toggledColumns =
-            Set.insert index tracker.toggledColumns
-    }
-
-
-removeToggledColumn : Int -> Tracker -> Tracker
-removeToggledColumn index tracker =
-    { tracker
-        | toggledColumns =
-            Set.remove index tracker.toggledColumns
-    }
-
-
-clearToggledColumns : Tracker -> Tracker
-clearToggledColumns tracker =
-    { tracker | toggledColumns = Set.empty }
 
 
 setSize : Style.Size -> Tracker -> Tracker

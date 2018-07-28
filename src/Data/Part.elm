@@ -2,19 +2,21 @@ module Data.Part
     exposing
         ( Part
         , addBeat
-        , addColumn
-        , columnCount
+        , addVoice
         , decoder
         , empty
         , mapBeat
         , removeBeat
-        , removeColumn
+        , removeVoice
         , saveToDisk
         , setName
+        , toDict
+        , voiceCount
         )
 
 import Array exposing (Array)
-import Data.Beat as Beat
+import Data.Beat as Beat exposing (Beat)
+import Dict exposing (Dict)
 import Json.Decode as D exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Ports
@@ -25,7 +27,7 @@ import Ports
 
 type alias Part =
     { name : String
-    , beats : Array (Array String)
+    , beats : Array Beat
     }
 
 
@@ -49,7 +51,7 @@ decoder =
         |> JDP.required "data" (D.map beatsFromString D.string)
 
 
-beatsFromString : String -> Array (Array String)
+beatsFromString : String -> Array Beat
 beatsFromString str =
     str
         |> String.split "\n"
@@ -61,35 +63,35 @@ beatsFromString str =
 -- HELPERS --
 
 
-addColumn : Int -> Part -> Part
-addColumn index part =
+toDict : Array Part -> Dict String (Array Beat)
+toDict parts =
+    parts
+        |> Array.toList
+        |> List.map toKeyValue
+        |> Dict.fromList
+
+
+toKeyValue : Part -> ( String, Array Beat )
+toKeyValue { name, beats } =
+    ( name, beats )
+
+
+addVoice : Int -> Part -> Part
+addVoice index part =
     { part
         | beats =
-            Array.map (addColumnToBeat index) part.beats
+            Array.map (Beat.addNote index) part.beats
     }
 
 
-addColumnToBeat : Int -> Array String -> Array String
-addColumnToBeat index beat =
-    beat
-        |> Array.slice (index + 1) (Array.length beat)
-        |> Array.append
-            (Array.push "" (Array.slice 0 (index + 1) beat))
-
-
-removeColumn : Int -> Part -> Part
-removeColumn index part =
+removeVoice : Int -> Part -> Part
+removeVoice index part =
     { part
         | beats =
-            Array.map (removeColumnFromBeat index) part.beats
+            Array.map
+                (Beat.removeNote index)
+                part.beats
     }
-
-
-removeColumnFromBeat : Int -> Array String -> Array String
-removeColumnFromBeat index beat =
-    beat
-        |> Array.slice (index + 1) (Array.length beat)
-        |> Array.append (Array.slice 0 index beat)
 
 
 setName : String -> Part -> Part
@@ -97,11 +99,11 @@ setName str part =
     { part | name = str }
 
 
-columnCount : Part -> Int
-columnCount { beats } =
+voiceCount : Part -> Int
+voiceCount { beats } =
     beats
         |> Array.get 0
-        |> Maybe.map Array.length
+        |> Maybe.map Beat.length
         |> Maybe.withDefault 0
 
 
@@ -120,7 +122,7 @@ removeBeat index part =
 
 addBeat : Int -> Part -> Part
 addBeat index part =
-    case Maybe.map Array.length <| Array.get 0 part.beats of
+    case Maybe.map Beat.length <| Array.get 0 part.beats of
         Just beatLength ->
             let
                 ni =
@@ -138,12 +140,12 @@ addBeat index part =
             part
 
 
-pushEmptyBeat : Int -> Array (Array String) -> Array (Array String)
+pushEmptyBeat : Int -> Array Beat -> Array Beat
 pushEmptyBeat columnNumber =
     Array.push (Beat.empty columnNumber)
 
 
-mapBeat : Int -> (Array String -> Array String) -> Part -> Part
+mapBeat : Int -> (Beat -> Beat) -> Part -> Part
 mapBeat index f part =
     case Array.get index part.beats of
         Just beat ->

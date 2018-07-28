@@ -3,6 +3,8 @@ module Main exposing (..)
 import Browser
 import Browser.Navigation
 import Data.Flags as Flags
+import Error exposing (initializationErrorView)
+import Html.Styled
 import Json.Decode as D
 import Model exposing (Model)
 import Msg exposing (Msg(..))
@@ -19,22 +21,10 @@ main : Program D.Value (Result D.Error Model) Msg
 main =
     { init = init
     , subscriptions = subscriptions
-    , update = updateOk
+    , update = update
     , view = view
     }
         |> Browser.document
-
-
-updateOk : Msg -> Result D.Error Model -> ( Result D.Error Model, Cmd Msg )
-updateOk msg result =
-    case result of
-        Ok model ->
-            update msg model
-                |> R2.mapModel Ok
-
-        Err err ->
-            Err err
-                |> R2.withNoCmd
 
 
 init : D.Value -> ( Result D.Error Model, Cmd Msg )
@@ -45,10 +35,6 @@ init json =
         |> R2.withNoCmd
 
 
-
--- SUBSCRIPTIONS --
-
-
 subscriptions : Result D.Error Model -> Sub Msg
 subscriptions result =
     case result of
@@ -57,3 +43,35 @@ subscriptions result =
 
         Err _ ->
             Sub.none
+
+
+update : Msg -> Result D.Error Model -> ( Result D.Error Model, Cmd Msg )
+update msg result =
+    case result of
+        Ok model ->
+            Update.update msg model
+                |> R2.mapModel Ok
+
+        Err err ->
+            Err err
+                |> R2.withNoCmd
+
+
+view : Result D.Error Model -> Browser.Document Msg
+view result =
+    case result of
+        Ok model ->
+            { title = "Radler"
+            , body =
+                View.view model
+                    |> List.map
+                        Html.Styled.toUnstyled
+            }
+
+        Err err ->
+            { title = "Error"
+            , body =
+                [ initializationErrorView err
+                    |> Html.Styled.toUnstyled
+                ]
+            }

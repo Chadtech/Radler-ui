@@ -9,10 +9,12 @@ module Model
         , mapPart
         , mapTracker
         , removeTracker
-        , saveToDisk
+        , saveParts
+        , saveScore
         )
 
 import Array exposing (Array)
+import Data.Error exposing (Error(..))
 import Data.Flags as Flags exposing (Flags)
 import Data.Package as Package exposing (Package)
 import Data.Part as Part exposing (Part)
@@ -32,6 +34,7 @@ type alias Model =
     , trackers : Array Tracker
     , page : Page
     , package : Package
+    , error : Maybe Error
     }
 
 
@@ -48,6 +51,7 @@ init flags =
             |> Array.fromList
     , page = Trackers
     , package = flags.package
+    , error = Nothing
     }
 
 
@@ -117,13 +121,27 @@ getTrackersPartIndex threadIndex model =
         |> Maybe.map .partIndex
 
 
-saveToDisk : Model -> Cmd msg
-saveToDisk model =
-    [ model.parts
+
+-- SAVING -
+
+
+saveParts : Model -> Cmd msg
+saveParts model =
+    model.parts
         |> Array.toList
         |> List.map Part.saveToDisk
         |> Cmd.batch
-    , model.package
-        |> Package.saveToDisk
-    ]
-        |> Cmd.batch
+
+
+saveScore : Model -> Result Model (Cmd msg)
+saveScore ({ package, parts } as model) =
+    case Package.saveScoreToDisk package parts of
+        Just scoreSaveCmd ->
+            Ok scoreSaveCmd
+
+        Nothing ->
+            { model
+                | error =
+                    Just ScoreDidNotSave
+            }
+                |> Err

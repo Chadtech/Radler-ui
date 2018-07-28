@@ -3,7 +3,6 @@ module Html.Custom
         ( Arrow(..)
         , onArrowKey
         , onEnter
-        , p
         )
 
 import Html.Styled as Html
@@ -15,11 +14,6 @@ import Html.Styled.Attributes exposing (css)
 import Html.Styled.Events exposing (keyCode, on)
 import Json.Decode as D exposing (Decoder)
 import Style
-
-
-p : List (Attribute msg) -> List (Html msg) -> Html msg
-p attrs =
-    Html.p (css [ Style.basicP ] :: attrs)
 
 
 type Arrow

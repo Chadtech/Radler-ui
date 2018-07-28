@@ -1,14 +1,14 @@
 {
     "name": "alternation-piece-11",
     "parts-src": "./parts",
-    "parts": [
+    "score": [
         {
             "name": "part-a",
-            "length": 48
+            "length": 16
         },
         {
             "name": "part-b",
-            "length": 48
+            "length": 16
         }
     ],
     "voices": [

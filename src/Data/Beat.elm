@@ -1,41 +1,93 @@
 module Data.Beat
     exposing
         ( Beat
+        , addNote
         , empty
+        , fromList
         , fromString
+        , length
+        , removeNote
         , setNote
+        , toIndexedList
+        , toList
         , toString
         )
 
 import Array exposing (Array)
+import Data.Note as Note exposing (Note)
 
 
 -- TYPES --
 
 
-type alias Beat =
-    Array String
+type Beat
+    = Beat (Array Note)
 
 
 
 -- HELPERS --
 
 
-toString : Array String -> String
-toString =
-    Array.toList >> String.join ","
+toList : Beat -> List Note
+toList (Beat beat) =
+    Array.toList beat
 
 
-fromString : String -> Array String
-fromString =
-    String.split "," >> Array.fromList
+toIndexedList : Beat -> List ( Int, Note )
+toIndexedList (Beat beat) =
+    Array.toIndexedList beat
 
 
-empty : Int -> Array String
-empty length =
-    Array.repeat length ""
+fromList : List Note -> Beat
+fromList =
+    Array.fromList >> Beat
 
 
-setNote : Int -> String -> Beat -> Beat
-setNote =
-    Array.set
+length : Beat -> Int
+length (Beat beat) =
+    Array.length beat
+
+
+addNote : Int -> Beat -> Beat
+addNote index (Beat beat) =
+    Array.append
+        (Array.push Note.empty (Array.slice 0 (index + 1) beat))
+        (Array.slice (index + 1) (Array.length beat) beat)
+        |> Beat
+
+
+removeNote : Int -> Beat -> Beat
+removeNote index (Beat beat) =
+    beat
+        |> Array.slice (index + 1) (Array.length beat)
+        |> Array.append (Array.slice 0 index beat)
+        |> Beat
+
+
+toString : Beat -> String
+toString (Beat beat) =
+    beat
+        |> Array.toList
+        |> List.map Note.toString
+        |> String.join ","
+
+
+fromString : String -> Beat
+fromString str =
+    str
+        |> String.split ","
+        |> List.map Note.fromString
+        |> Array.fromList
+        |> Beat
+
+
+empty : Int -> Beat
+empty thisLength =
+    Array.repeat thisLength Note.empty
+        |> Beat
+
+
+setNote : Int -> Note -> Beat -> Beat
+setNote index note (Beat beat) =
+    Array.set index note beat
+        |> Beat

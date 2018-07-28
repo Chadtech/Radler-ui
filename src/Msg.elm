@@ -4,10 +4,10 @@ module Msg
         , decode
         )
 
-import Html.Header as Header
-import Html.Package as Package
-import Html.Tracker as Tracker
+import Header
 import Json.Decode as D exposing (Decoder)
+import Package
+import Tracker
 
 
 type Msg

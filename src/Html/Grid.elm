@@ -6,12 +6,6 @@ module Html.Grid
         )
 
 import Css exposing (..)
-import Css.Media as Media
-    exposing
-        ( only
-        , screen
-        , withMedia
-        )
 import Html.Styled as Html
     exposing
         ( Attribute

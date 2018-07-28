@@ -11,6 +11,7 @@ import Json.Encode as E exposing (Value)
 type JsMsg
     = SavePartToDisk ( String, String )
     | SavePackageToDisk String
+    | SaveScoreToDisk String
 
 
 toCmd : String -> Value -> Cmd msg
@@ -41,6 +42,11 @@ send msg =
             package
                 |> E.string
                 |> toCmd "savePackageToDisk"
+
+        SaveScoreToDisk score ->
+            score
+                |> E.string
+                |> toCmd "saveScoreToDisk"
 
 
 port toJs : Value -> Cmd msg
