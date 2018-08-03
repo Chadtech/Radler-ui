@@ -4,3 +4,7 @@ public/style.css
 node_modules
 elm-stuff
 elm
+
+#.cabal-sandbox/
+#cabal.sandbox.config
+#dist
