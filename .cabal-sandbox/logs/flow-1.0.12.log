@@ -1,0 +1,219 @@
+cabal: Entering directory '/var/folders/_s/w174n77x71v_5f9g_hx05w880000gn/T/cabal-tmp-66182/flow-1.0.12'
+Configuring flow-1.0.12...
+Building flow-1.0.12...
+Preprocessing library flow-1.0.12...
+[1 of 2] Compiling Paths_flow       ( dist/dist-sandbox-4899918e/build/autogen/Paths_flow.hs, dist/dist-sandbox-4899918e/build/Paths_flow.o )
+
+dist/dist-sandbox-4899918e/build/autogen/Paths_flow.hs: warning:
+    Could not specialise imported function ‘Exception.catch’
+    Probable fix: add INLINEABLE pragma on ‘Exception.catch’
+[2 of 2] Compiling Flow             ( library/Flow.hs, dist/dist-sandbox-4899918e/build/Flow.o )
+[1 of 2] Compiling Paths_flow       ( dist/dist-sandbox-4899918e/build/autogen/Paths_flow.hs, dist/dist-sandbox-4899918e/build/Paths_flow.p_o )
+
+dist/dist-sandbox-4899918e/build/autogen/Paths_flow.hs: warning:
+    Could not specialise imported function ‘Exception.catch’
+    Probable fix: add INLINEABLE pragma on ‘Exception.catch’
+
+In file included from /var/folders/_s/w174n77x71v_5f9g_hx05w880000gn/T/ghc66256_0/ghc_5.c:2:0: error:
+    
+
+In file included from /Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/Rts.h:217:0: error:
+    
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:505:5: error:
+     warning: macro expansion producing 'defined' has undefined behavior [-Wexpansion-to-defined]
+#if ZERO_SLOP_FOR_LDV_PROF || ZERO_SLOP_FOR_SANITY_CHECK
+    ^
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:502:37: error:
+     note: expanded from macro 'ZERO_SLOP_FOR_LDV_PROF'
+#define ZERO_SLOP_FOR_LDV_PROF     (defined(PROFILING))
+                                    ^
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:505:31: error:
+     warning: macro expansion producing 'defined' has undefined behavior [-Wexpansion-to-defined]
+#if ZERO_SLOP_FOR_LDV_PROF || ZERO_SLOP_FOR_SANITY_CHECK
+                              ^
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:503:37: error:
+     note: expanded from macro 'ZERO_SLOP_FOR_SANITY_CHECK'
+#define ZERO_SLOP_FOR_SANITY_CHECK (defined(DEBUG) && !defined(THREADED_RTS))
+                                    ^
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:505:31: error:
+     warning: macro expansion producing 'defined' has undefined behavior [-Wexpansion-to-defined]
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:503:56: error:
+     note: expanded from macro 'ZERO_SLOP_FOR_SANITY_CHECK'
+#define ZERO_SLOP_FOR_SANITY_CHECK (defined(DEBUG) && !defined(THREADED_RTS))
+                                                       ^
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:523:5: error:
+     warning: macro expansion producing 'defined' has undefined behavior [-Wexpansion-to-defined]
+#if ZERO_SLOP_FOR_LDV_PROF && !ZERO_SLOP_FOR_SANITY_CHECK
+    ^
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:502:37: error:
+     note: expanded from macro 'ZERO_SLOP_FOR_LDV_PROF'
+#define ZERO_SLOP_FOR_LDV_PROF     (defined(PROFILING))
+                                    ^
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:523:32: error:
+     warning: macro expansion producing 'defined' has undefined behavior [-Wexpansion-to-defined]
+#if ZERO_SLOP_FOR_LDV_PROF && !ZERO_SLOP_FOR_SANITY_CHECK
+                               ^
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:503:37: error:
+     note: expanded from macro 'ZERO_SLOP_FOR_SANITY_CHECK'
+#define ZERO_SLOP_FOR_SANITY_CHECK (defined(DEBUG) && !defined(THREADED_RTS))
+                                    ^
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:523:32: error:
+     warning: macro expansion producing 'defined' has undefined behavior [-Wexpansion-to-defined]
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:503:56: error:
+     note: expanded from macro 'ZERO_SLOP_FOR_SANITY_CHECK'
+#define ZERO_SLOP_FOR_SANITY_CHECK (defined(DEBUG) && !defined(THREADED_RTS))
+                                                       ^
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:552:5: error:
+     warning: macro expansion producing 'defined' has undefined behavior [-Wexpansion-to-defined]
+#if ZERO_SLOP_FOR_LDV_PROF && !ZERO_SLOP_FOR_SANITY_CHECK
+    ^
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:502:37: error:
+     note: expanded from macro 'ZERO_SLOP_FOR_LDV_PROF'
+#define ZERO_SLOP_FOR_LDV_PROF     (defined(PROFILING))
+                                    ^
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:552:32: error:
+     warning: macro expansion producing 'defined' has undefined behavior [-Wexpansion-to-defined]
+#if ZERO_SLOP_FOR_LDV_PROF && !ZERO_SLOP_FOR_SANITY_CHECK
+                               ^
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:503:37: error:
+     note: expanded from macro 'ZERO_SLOP_FOR_SANITY_CHECK'
+#define ZERO_SLOP_FOR_SANITY_CHECK (defined(DEBUG) && !defined(THREADED_RTS))
+                                    ^
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:552:32: error:
+     warning: macro expansion producing 'defined' has undefined behavior [-Wexpansion-to-defined]
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:503:56: error:
+     note: expanded from macro 'ZERO_SLOP_FOR_SANITY_CHECK'
+#define ZERO_SLOP_FOR_SANITY_CHECK (defined(DEBUG) && !defined(THREADED_RTS))
+                                                       ^
+9 warnings generated.
+[2 of 2] Compiling Flow             ( library/Flow.hs, dist/dist-sandbox-4899918e/build/Flow.p_o )
+
+In file included from /var/folders/_s/w174n77x71v_5f9g_hx05w880000gn/T/ghc66256_0/ghc_14.c:2:0: error:
+    
+
+In file included from /Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/Rts.h:217:0: error:
+    
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:505:5: error:
+     warning: macro expansion producing 'defined' has undefined behavior [-Wexpansion-to-defined]
+#if ZERO_SLOP_FOR_LDV_PROF || ZERO_SLOP_FOR_SANITY_CHECK
+    ^
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:502:37: error:
+     note: expanded from macro 'ZERO_SLOP_FOR_LDV_PROF'
+#define ZERO_SLOP_FOR_LDV_PROF     (defined(PROFILING))
+                                    ^
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:505:31: error:
+     warning: macro expansion producing 'defined' has undefined behavior [-Wexpansion-to-defined]
+#if ZERO_SLOP_FOR_LDV_PROF || ZERO_SLOP_FOR_SANITY_CHECK
+                              ^
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:503:37: error:
+     note: expanded from macro 'ZERO_SLOP_FOR_SANITY_CHECK'
+#define ZERO_SLOP_FOR_SANITY_CHECK (defined(DEBUG) && !defined(THREADED_RTS))
+                                    ^
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:505:31: error:
+     warning: macro expansion producing 'defined' has undefined behavior [-Wexpansion-to-defined]
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:503:56: error:
+     note: expanded from macro 'ZERO_SLOP_FOR_SANITY_CHECK'
+#define ZERO_SLOP_FOR_SANITY_CHECK (defined(DEBUG) && !defined(THREADED_RTS))
+                                                       ^
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:523:5: error:
+     warning: macro expansion producing 'defined' has undefined behavior [-Wexpansion-to-defined]
+#if ZERO_SLOP_FOR_LDV_PROF && !ZERO_SLOP_FOR_SANITY_CHECK
+    ^
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:502:37: error:
+     note: expanded from macro 'ZERO_SLOP_FOR_LDV_PROF'
+#define ZERO_SLOP_FOR_LDV_PROF     (defined(PROFILING))
+                                    ^
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:523:32: error:
+     warning: macro expansion producing 'defined' has undefined behavior [-Wexpansion-to-defined]
+#if ZERO_SLOP_FOR_LDV_PROF && !ZERO_SLOP_FOR_SANITY_CHECK
+                               ^
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:503:37: error:
+     note: expanded from macro 'ZERO_SLOP_FOR_SANITY_CHECK'
+#define ZERO_SLOP_FOR_SANITY_CHECK (defined(DEBUG) && !defined(THREADED_RTS))
+                                    ^
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:523:32: error:
+     warning: macro expansion producing 'defined' has undefined behavior [-Wexpansion-to-defined]
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:503:56: error:
+     note: expanded from macro 'ZERO_SLOP_FOR_SANITY_CHECK'
+#define ZERO_SLOP_FOR_SANITY_CHECK (defined(DEBUG) && !defined(THREADED_RTS))
+                                                       ^
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:552:5: error:
+     warning: macro expansion producing 'defined' has undefined behavior [-Wexpansion-to-defined]
+#if ZERO_SLOP_FOR_LDV_PROF && !ZERO_SLOP_FOR_SANITY_CHECK
+    ^
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:502:37: error:
+     note: expanded from macro 'ZERO_SLOP_FOR_LDV_PROF'
+#define ZERO_SLOP_FOR_LDV_PROF     (defined(PROFILING))
+                                    ^
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:552:32: error:
+     warning: macro expansion producing 'defined' has undefined behavior [-Wexpansion-to-defined]
+#if ZERO_SLOP_FOR_LDV_PROF && !ZERO_SLOP_FOR_SANITY_CHECK
+                               ^
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:503:37: error:
+     note: expanded from macro 'ZERO_SLOP_FOR_SANITY_CHECK'
+#define ZERO_SLOP_FOR_SANITY_CHECK (defined(DEBUG) && !defined(THREADED_RTS))
+                                    ^
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:552:32: error:
+     warning: macro expansion producing 'defined' has undefined behavior [-Wexpansion-to-defined]
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:503:56: error:
+     note: expanded from macro 'ZERO_SLOP_FOR_SANITY_CHECK'
+#define ZERO_SLOP_FOR_SANITY_CHECK (defined(DEBUG) && !defined(THREADED_RTS))
+                                                       ^
+9 warnings generated.
+Running Haddock for flow-1.0.12...
+Preprocessing library flow-1.0.12...
+Haddock coverage:
+   0% (  0 /  8) in 'Paths_flow'
+  Missing documentation for:
+    Module header
+    version (dist/dist-sandbox-4899918e/build/autogen/Paths_flow.hs:28)
+    getBinDir (dist/dist-sandbox-4899918e/build/autogen/Paths_flow.hs:38)
+    getLibDir (dist/dist-sandbox-4899918e/build/autogen/Paths_flow.hs:38)
+    getDataDir (dist/dist-sandbox-4899918e/build/autogen/Paths_flow.hs:38)
+    getLibexecDir (dist/dist-sandbox-4899918e/build/autogen/Paths_flow.hs:38)
+    getDataFileName (dist/dist-sandbox-4899918e/build/autogen/Paths_flow.hs:45)
+    getSysconfDir (dist/dist-sandbox-4899918e/build/autogen/Paths_flow.hs:38)
+ 100% ( 13 / 13) in 'Flow'
+Documentation created: dist/dist-sandbox-4899918e/doc/html/flow/index.html
+Creating package registration file:
+/var/folders/_s/w174n77x71v_5f9g_hx05w880000gn/T/pkgConf-flow-1.0178448449274243042.12
+Installing library in
+/Users/Chadtech/code/radler/.cabal-sandbox/lib/x86_64-osx-ghc-8.0.1/flow-1.0.12-LoZC8DZOdFk55mKi9RPBur
+Registering flow-1.0.12...
+cabal: Leaving directory '/var/folders/_s/w174n77x71v_5f9g_hx05w880000gn/T/cabal-tmp-66182/flow-1.0.12'

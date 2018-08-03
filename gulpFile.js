@@ -9,13 +9,14 @@ var util = require("gulp-util");
 var paths = {
   public: "./public",
   dist: "./dist",
-  mainElm: "./src/Main.elm",
-  elm: "./src/**/*.elm",
-  js: "./src/*.js"
+  mainElm: "./ui-src/Main.elm",
+  elm: "./ui-src/**/*.elm",
+  mainJs: "./ui-src/app.js",
+  js: "./ui-src/*.js"
 };
 
 gulp.task("js", function () {
-  return browserify("./src/app.js")
+  return browserify(paths.mainJs)
     .bundle()
     .pipe(source("app.js"))
     .pipe(buffer())

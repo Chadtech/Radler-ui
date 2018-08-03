@@ -1,0 +1,113 @@
+cabal: Entering directory '.'
+Configuring radler-0.1.0.0...
+Building radler-0.1.0.0...
+Preprocessing executable 'radler' for radler-0.1.0.0...
+[ 3 of 14] Compiling Terminal.Output  ( engine-src/Terminal/Output.hs, dist/dist-sandbox-4899918e/build/radler/radler-tmp/Terminal/Output.o )
+[ 4 of 14] Compiling Result           ( engine-src/Result.hs, dist/dist-sandbox-4899918e/build/radler/radler-tmp/Result.o )
+[ 5 of 14] Compiling Msg              ( engine-src/Msg.hs, dist/dist-sandbox-4899918e/build/radler/radler-tmp/Msg.o )
+[ 6 of 14] Compiling Util             ( engine-src/Util.hs, dist/dist-sandbox-4899918e/build/radler/radler-tmp/Util.o )
+[ 7 of 14] Compiling Data.Part        ( engine-src/Data/Part.hs, dist/dist-sandbox-4899918e/build/radler/radler-tmp/Data/Part.o )
+[ 8 of 14] Compiling Data.Voice       ( engine-src/Data/Voice.hs, dist/dist-sandbox-4899918e/build/radler/radler-tmp/Data/Voice.o )
+[ 9 of 14] Compiling Data.Project     ( engine-src/Data/Project.hs, dist/dist-sandbox-4899918e/build/radler/radler-tmp/Data/Project.o )
+[10 of 14] Compiling Error            ( engine-src/Error.hs, dist/dist-sandbox-4899918e/build/radler/radler-tmp/Error.o )
+[11 of 14] Compiling Model            ( engine-src/Model.hs, dist/dist-sandbox-4899918e/build/radler/radler-tmp/Model.o )
+[12 of 14] Compiling Update           ( engine-src/Update.hs, dist/dist-sandbox-4899918e/build/radler/radler-tmp/Update.o )
+[13 of 14] Compiling Terminal.Input   ( engine-src/Terminal/Input.hs, dist/dist-sandbox-4899918e/build/radler/radler-tmp/Terminal/Input.o )
+[14 of 14] Compiling Main             ( engine-src/Main.hs, dist/dist-sandbox-4899918e/build/radler/radler-tmp/Main.o ) [Error changed]
+Linking dist/dist-sandbox-4899918e/build/radler/radler ...
+
+In file included from /var/folders/_s/w174n77x71v_5f9g_hx05w880000gn/T/ghc66358_0/ghc_1.c:1:0: error:
+    
+
+In file included from /Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/Rts.h:217:0: error:
+    
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:505:5: error:
+     warning: macro expansion producing 'defined' has undefined behavior [-Wexpansion-to-defined]
+#if ZERO_SLOP_FOR_LDV_PROF || ZERO_SLOP_FOR_SANITY_CHECK
+    ^
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:502:37: error:
+     note: expanded from macro 'ZERO_SLOP_FOR_LDV_PROF'
+#define ZERO_SLOP_FOR_LDV_PROF     (defined(PROFILING))
+                                    ^
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:505:31: error:
+     warning: macro expansion producing 'defined' has undefined behavior [-Wexpansion-to-defined]
+#if ZERO_SLOP_FOR_LDV_PROF || ZERO_SLOP_FOR_SANITY_CHECK
+                              ^
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:503:37: error:
+     note: expanded from macro 'ZERO_SLOP_FOR_SANITY_CHECK'
+#define ZERO_SLOP_FOR_SANITY_CHECK (defined(DEBUG) && !defined(THREADED_RTS))
+                                    ^
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:505:31: error:
+     warning: macro expansion producing 'defined' has undefined behavior [-Wexpansion-to-defined]
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:503:56: error:
+     note: expanded from macro 'ZERO_SLOP_FOR_SANITY_CHECK'
+#define ZERO_SLOP_FOR_SANITY_CHECK (defined(DEBUG) && !defined(THREADED_RTS))
+                                                       ^
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:523:5: error:
+     warning: macro expansion producing 'defined' has undefined behavior [-Wexpansion-to-defined]
+#if ZERO_SLOP_FOR_LDV_PROF && !ZERO_SLOP_FOR_SANITY_CHECK
+    ^
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:502:37: error:
+     note: expanded from macro 'ZERO_SLOP_FOR_LDV_PROF'
+#define ZERO_SLOP_FOR_LDV_PROF     (defined(PROFILING))
+                                    ^
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:523:32: error:
+     warning: macro expansion producing 'defined' has undefined behavior [-Wexpansion-to-defined]
+#if ZERO_SLOP_FOR_LDV_PROF && !ZERO_SLOP_FOR_SANITY_CHECK
+                               ^
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:503:37: error:
+     note: expanded from macro 'ZERO_SLOP_FOR_SANITY_CHECK'
+#define ZERO_SLOP_FOR_SANITY_CHECK (defined(DEBUG) && !defined(THREADED_RTS))
+                                    ^
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:523:32: error:
+     warning: macro expansion producing 'defined' has undefined behavior [-Wexpansion-to-defined]
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:503:56: error:
+     note: expanded from macro 'ZERO_SLOP_FOR_SANITY_CHECK'
+#define ZERO_SLOP_FOR_SANITY_CHECK (defined(DEBUG) && !defined(THREADED_RTS))
+                                                       ^
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:552:5: error:
+     warning: macro expansion producing 'defined' has undefined behavior [-Wexpansion-to-defined]
+#if ZERO_SLOP_FOR_LDV_PROF && !ZERO_SLOP_FOR_SANITY_CHECK
+    ^
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:502:37: error:
+     note: expanded from macro 'ZERO_SLOP_FOR_LDV_PROF'
+#define ZERO_SLOP_FOR_LDV_PROF     (defined(PROFILING))
+                                    ^
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:552:32: error:
+     warning: macro expansion producing 'defined' has undefined behavior [-Wexpansion-to-defined]
+#if ZERO_SLOP_FOR_LDV_PROF && !ZERO_SLOP_FOR_SANITY_CHECK
+                               ^
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:503:37: error:
+     note: expanded from macro 'ZERO_SLOP_FOR_SANITY_CHECK'
+#define ZERO_SLOP_FOR_SANITY_CHECK (defined(DEBUG) && !defined(THREADED_RTS))
+                                    ^
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:552:32: error:
+     warning: macro expansion producing 'defined' has undefined behavior [-Wexpansion-to-defined]
+
+/Library/Frameworks/GHC.framework/Versions/8.0.1-x86_64/usr/lib/ghc-8.0.1/include/rts/storage/ClosureMacros.h:503:56: error:
+     note: expanded from macro 'ZERO_SLOP_FOR_SANITY_CHECK'
+#define ZERO_SLOP_FOR_SANITY_CHECK (defined(DEBUG) && !defined(THREADED_RTS))
+                                                       ^
+9 warnings generated.
+Warning: No documentation was generated as this package does not contain a
+library. Perhaps you want to use the --executables, --tests or --benchmarks
+flags.
+Installing executable(s) in /Users/Chadtech/code/radler/.cabal-sandbox/bin
+cabal: Leaving directory '.'
