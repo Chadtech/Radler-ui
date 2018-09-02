@@ -8,7 +8,6 @@ import Data.List.Split (splitOn)
 data Msg
     = Play
     | Build
-    | ShowParts
     | UnrecognizedCmd String
 
 
@@ -20,9 +19,6 @@ fromString str =
 
         "play" : _ ->
             Play
-
-        "show" : "parts" : _ ->
-            ShowParts
 
         _ ->
             UnrecognizedCmd str

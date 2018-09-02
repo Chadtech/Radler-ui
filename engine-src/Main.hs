@@ -18,8 +18,8 @@ import Error (Error)
 
 main :: IO ()
 main = do
-    projectData <- Byte.readFile "./project"
-    awaitIfLoaded (Model.fromProjectData projectData)
+    scoreData <- Byte.readFile "./project/score"
+    awaitIfLoaded (Model.fromScoreData scoreData)
 
 
 awaitIfLoaded :: Result Error Model -> IO ()

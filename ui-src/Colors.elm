@@ -1,25 +1,10 @@
-module Colors
-    exposing
-        ( background0
-        , background1
-        , background2
-        , background3
-        , background4
-        , critical
-        , good
-        , highlight0
-        , highlight1
-        , ignorable0
-        , ignorable1
-        , ignorable2
-        , ignorable3
-        , important0
-        , important1
-        , lowWarning
-        , point0
-        , point1
-        , prettyBlue
-        )
+module Colors exposing
+    ( background2, background1, background3, background0
+    , point0, point1, important0, important1
+    , ignorable0, ignorable1, ignorable2, ignorable3
+    , good, critical, prettyBlue, lowWarning
+    , background4, highlight0, highlight1
+    )
 
 {-| Colors in the Chadtech design standard v1.1
 
@@ -163,7 +148,7 @@ important0 =
     hex "#b39f4b"
 
 
-{-| `point0`, but brighter. Useful for lighting up `poi0 during a hover over.
+{-| `point0`, but brighter. Useful for lighting up \`poi0 during a hover over.
 
 <div style="border: 2px solid #000000; width: 200px; height: 200px; background-color: #e0d6ca"></div>
 

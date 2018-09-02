@@ -1,17 +1,18 @@
-module Data.Tracker
-    exposing
-        ( Tracker
-        , closeOptions
-        , init
-        , openOptions
-        , setMajorMark
-        , setMinorMark
-        , setPartIndex
-        , setSize
-        )
+module Data.Tracker exposing
+    ( OptionsModel
+    , Tracker
+    , closeOptions
+    , init
+    , openOptions
+    , setMajorMark
+    , setMinorMark
+    , setPartIndex
+    , setSize
+    )
 
 import Css exposing (Style)
 import Style
+
 
 
 -- TYPES --
@@ -34,23 +35,30 @@ import Style
 
         Thats what this software is, tracker
         software. This software as a whole
-        manages several tracker UIs, but each
-        one certain UI information. Each
-        tracker is showing a specific part of
-        music ('partIndex'). It shows it in a
-        certain size ('size'). There are major
-        and minor marks, which can represent
-        rythmically important information in
-        the form of certain rows being
-        highlighted
+        manages several tracker UIs. Each tracker
+        is like an independent view into the
+        singular musical score the whole software
+        is modifying. Each tracker is showing a
+        specific part of music ('partIndex').
+        It shows it in a certain size ('size').
+        There are major and minor marks, which
+        represent rythmically important information
+        in the form of certain rows being
+        highlighted.
 
 -}
 type alias Tracker =
     { size : Style.Size
     , partIndex : Int
-    , partOptions : Bool
+    , options : Maybe OptionsModel
     , majorMark : Int
     , minorMark : Int
+    }
+
+
+type alias OptionsModel =
+    { majorMarkField : String
+    , minorMarkField : String
     }
 
 
@@ -58,7 +66,7 @@ init : Style.Size -> Int -> Tracker
 init size partIndex =
     { size = size
     , partIndex = partIndex
-    , partOptions = False
+    , options = Nothing
     , majorMark = 16
     , minorMark = 4
     }
@@ -68,14 +76,36 @@ init size partIndex =
 -- HELPERS --
 
 
-setMajorMark : Int -> Tracker -> Tracker
-setMajorMark majorMark tracker =
-    { tracker | majorMark = majorMark }
+setMajorMark : String -> Tracker -> Tracker
+setMajorMark majorMarkString tracker =
+    let
+        fieldUpdatedTracker =
+            mapOptionsModel
+                (setMajorMarkField majorMarkString)
+                tracker
+    in
+    case String.toInt majorMarkString of
+        Just majorMark ->
+            { fieldUpdatedTracker | majorMark = majorMark }
+
+        Nothing ->
+            fieldUpdatedTracker
 
 
-setMinorMark : Int -> Tracker -> Tracker
-setMinorMark minorMark tracker =
-    { tracker | minorMark = minorMark }
+setMinorMark : String -> Tracker -> Tracker
+setMinorMark minorMarkString tracker =
+    let
+        fieldUpdatedTracker =
+            mapOptionsModel
+                (setMinorMarkField minorMarkString)
+                tracker
+    in
+    case String.toInt minorMarkString of
+        Just minorMark ->
+            { fieldUpdatedTracker | minorMark = minorMark }
+
+        Nothing ->
+            fieldUpdatedTracker
 
 
 setSize : Style.Size -> Tracker -> Tracker
@@ -88,11 +118,34 @@ setPartIndex index tracker =
     { tracker | partIndex = index }
 
 
+mapOptionsModel : (OptionsModel -> OptionsModel) -> Tracker -> Tracker
+mapOptionsModel f tracker =
+    { tracker | options = Maybe.map f tracker.options }
+
+
+setMajorMarkField : String -> OptionsModel -> OptionsModel
+setMajorMarkField str optionsModel =
+    { optionsModel | majorMarkField = str }
+
+
+setMinorMarkField : String -> OptionsModel -> OptionsModel
+setMinorMarkField str optionsModel =
+    { optionsModel | minorMarkField = str }
+
+
 openOptions : Tracker -> Tracker
 openOptions tracker =
-    { tracker | partOptions = True }
+    { tracker
+        | options =
+            { majorMarkField =
+                String.fromInt tracker.majorMark
+            , minorMarkField =
+                String.fromInt tracker.minorMark
+            }
+                |> Just
+    }
 
 
 closeOptions : Tracker -> Tracker
 closeOptions tracker =
-    { tracker | partOptions = False }
+    { tracker | options = Nothing }

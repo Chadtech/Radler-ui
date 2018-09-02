@@ -1,11 +1,10 @@
-module Data.Package
-    exposing
-        ( Package
-        , decoder
-        , saveScoreToDisk
-        , saveToDisk
-        , setJsonStrField
-        )
+module Data.Package exposing
+    ( Package
+    , decoder
+    , saveScoreToDisk
+    , saveToDisk
+    , setJsonStrField
+    )
 
 import Array exposing (Array)
 import Data.Beat as Beat exposing (Beat)
@@ -15,8 +14,9 @@ import Dict exposing (Dict)
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Ports
-import Random exposing (Seed, Generator)
+import Random exposing (Generator, Seed)
 import Util
+
 
 
 -- TYPES --
@@ -159,7 +159,9 @@ saveScoreToDisk package parts =
 
 cmdFromScore : Package -> List Beat -> Cmd msg
 cmdFromScore package score =
-    [ "# VOICES"
+    [ "# NAME"
+    , package.name
+    , "# VOICES"
     , String.join "," package.voices
     , "# NOTES"
     , scoreToString package score
@@ -202,16 +204,17 @@ randomizeTiming variance ( time, beat ) ( seed, beats ) =
 randomizeNoteTiming : Int -> ( Int, Note ) -> ( Seed, List Note ) -> ( Seed, List Note )
 randomizeNoteTiming variance ( time, note ) ( seed, notes ) =
     let
-        ( (timingOffset, noteSeed), newSeed ) =
+        ( ( timingOffset, noteSeed ), newSeed ) =
             Random.step (randomOffsetAndSeed variance) seed
     in
     ( newSeed
     , Note.encode (time + timingOffset) noteSeed note :: notes
     )
 
-randomOffsetAndSeed : Int -> Generator (Int, Int)
+
+randomOffsetAndSeed : Int -> Generator ( Int, Int )
 randomOffsetAndSeed variance =
-    Random.map2 
+    Random.map2
         Tuple.pair
         (Random.int -variance variance)
         (Random.int 0 524288)

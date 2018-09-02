@@ -2,6 +2,7 @@ module Update (update) where
 
 
 import Msg (Msg(..))
+import Model (Model)
 import qualified Model
 import System.Process (callCommand)
 import qualified Terminal.Output as Output
@@ -12,7 +13,7 @@ import qualified Data.Project as Project
 import qualified Data.List as List
 
 
-update :: Msg -> Model.Model -> (Model.Model, Maybe (IO ()))
+update :: Msg -> Model -> (Model, Maybe (IO ()))
 update msg model =
     case msg of
         Play ->
@@ -25,32 +26,21 @@ update msg model =
             , Just buildIo
             )
 
-        ShowParts ->
-            ( model
-            , model
-                |> Model.project
-                |> Project.parts
-                |> List.map Part.file
-                |> show
-                |> putStrLn
-                |> Just
-            )
-
         UnrecognizedCmd cmd ->
             ( model
             , Just notRecognizedIo
             )
 
 
-playIo :: Model.Model -> IO ()
+playIo :: Model -> IO ()
 playIo model = do
     Output.say "playing"
     let audioFileName = getAudioFileName model
-    callCommand ("play " ++ (Model.name model))
+    callCommand "play"
     Output.newLine
 
 
-getAudioFileName :: Model.Model -> String
+getAudioFileName :: Model -> String
 getAudioFileName model =
     Model.name model ++ ".wav"
 

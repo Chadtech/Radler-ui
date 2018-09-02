@@ -12,7 +12,8 @@ var paths = {
   mainElm: "./ui-src/Main.elm",
   elm: "./ui-src/**/*.elm",
   mainJs: "./ui-src/app.js",
-  js: "./ui-src/*.js"
+  js: "./ui-src/*.js",
+  electron: "./main.js",
 };
 
 gulp.task("js", function () {
@@ -26,7 +27,7 @@ gulp.task("js", function () {
 
 gulp.task("elm", function () {
   util.log(util.colors.cyan("Elm"), "starting");
-  cp.spawn("./elm", [
+  cp.spawn("elm", [
     "make",
     paths.mainElm,
     "--output",
@@ -39,10 +40,16 @@ gulp.task("elm", function () {
 });
 
 gulp.task("electron", function () {
-  cp.exec("electron .");
+  cp.spawn("electron", [
+    paths.electron
+  ], {
+      stdio: 'inherit'
+    }).on("close", function (code) {
+      util.log(util.colors.cyan("Electron"), "closed");
+    });
 });
 
 gulp.watch(paths.elm, ["elm"]);
 gulp.watch(paths.js, ["js"]);
 
-gulp.task("default", ["elm", "js", "electron"]);
+gulp.task("default", ["elm", "js"]);

@@ -1,9 +1,8 @@
-module Tracker
-    exposing
-        ( Msg(..)
-        , update
-        , view
-        )
+module Tracker exposing
+    ( Msg(..)
+    , update
+    , view
+    )
 
 import Array exposing (Array)
 import Beat
@@ -11,7 +10,11 @@ import Colors
 import Css exposing (..)
 import Data.Beat as Beat exposing (Beat)
 import Data.Part as Part exposing (Part)
-import Data.Tracker as Tracker exposing (Tracker)
+import Data.Tracker as Tracker
+    exposing
+        ( OptionsModel
+        , Tracker
+        )
 import Html.Buttons as Buttons
 import Html.Grid as Grid
 import Html.Styled as Html
@@ -40,6 +43,7 @@ import Tracker.Options as Options
 import Util
 
 
+
 -- TYPES --
 
 
@@ -48,8 +52,15 @@ type alias Payload =
     , majorMark : Int
     , minorMark : Int
     , size : Style.Size
-    , partOptions : Maybe (List ( Int, String ))
+    , options : Maybe OptionsPayload
     , trackerIndex : Int
+    }
+
+
+type alias OptionsPayload =
+    { partNames : List ( Int, String )
+    , majorMarkField : String
+    , minorMarkField : String
     }
 
 
@@ -95,7 +106,10 @@ update ti pi msg model =
                 |> R2.withNoCmd
 
         OptionsMsg subMsg ->
-            Options.update ti pi subMsg model
+            Model.mapTracker
+                ti
+                (Options.update subMsg)
+                model
                 |> R2.withNoCmd
 
         BeatMsg bi subMsg ->
@@ -140,20 +154,27 @@ view model trackerIndex tracker =
             , majorMark = tracker.majorMark
             , minorMark = tracker.minorMark
             , size = tracker.size
-            , partOptions =
-                if tracker.partOptions then
-                    model.parts
-                        |> Array.toIndexedList
-                        |> List.map (Tuple.mapSecond .name)
-                        |> Just
-                else
-                    Nothing
+            , options =
+                Maybe.map
+                    (toOptionsPayload model.parts)
+                    tracker.options
             , trackerIndex = trackerIndex
             }
                 |> fromPayload
 
         Nothing ->
             notFoundView
+
+
+toOptionsPayload : Array Part -> OptionsModel -> OptionsPayload
+toOptionsPayload parts { majorMarkField, minorMarkField } =
+    { majorMarkField = majorMarkField
+    , minorMarkField = minorMarkField
+    , partNames =
+        parts
+            |> Array.toIndexedList
+            |> List.map (Tuple.mapSecond .name)
+    }
 
 
 fromPayload : Payload -> Html Msg
@@ -199,10 +220,12 @@ contentView payload =
 
 optionsContainerView : Payload -> Html Msg
 optionsContainerView payload =
-    case payload.partOptions of
-        Just partNames ->
-            { parts = partNames
+    case payload.options of
+        Just options ->
+            { parts = options.partNames
             , size = payload.size
+            , majorMarkField = options.majorMarkField
+            , minorMarkField = options.minorMarkField
             , majorMark = payload.majorMark
             , minorMark = payload.minorMark
             }

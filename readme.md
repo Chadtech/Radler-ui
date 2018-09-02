@@ -8,6 +8,10 @@ This is Radler, software for composing and producing music. The UI is a tracker,
 npm install
 gulp
 ```
+then in a separate terminal
+```
+electron .
+```
 
 # Lessons
 

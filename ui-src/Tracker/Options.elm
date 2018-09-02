@@ -1,10 +1,9 @@
-module Tracker.Options
-    exposing
-        ( Msg(..)
-        , Payload
-        , update
-        , view
-        )
+module Tracker.Options exposing
+    ( Msg(..)
+    , Payload
+    , update
+    , view
+    )
 
 --import Row
 
@@ -12,6 +11,9 @@ import Colors
 import Css exposing (..)
 import Data.Part as Part
 import Data.Tracker as Tracker
+    exposing
+        ( Tracker
+        )
 import Html.Grid as Grid
 import Html.Styled as Html
     exposing
@@ -28,8 +30,8 @@ import Html.Styled.Events
         ( onClick
         , onInput
         )
-import Model exposing (Model)
 import Style
+
 
 
 -- TYPES --
@@ -38,6 +40,8 @@ import Style
 type alias Payload =
     { parts : List ( Int, String )
     , size : Style.Size
+    , majorMarkField : String
+    , minorMarkField : String
     , majorMark : Int
     , minorMark : Int
     }
@@ -61,57 +65,28 @@ type Msg
     Theres a lot of indexing going on!
 
         ti := tracker index
-        pi := part index
 
 -}
-update : Int -> Int -> Msg -> Model -> Model
-update ti pi msg model =
+update : Msg -> Tracker -> Tracker
+update msg =
     case msg of
         PartClicked index ->
-            Model.mapTracker
-                ti
-                (Tracker.setPartIndex index)
-                model
+            Tracker.setPartIndex index
 
         BackClicked ->
-            Model.mapTracker
-                ti
-                Tracker.closeOptions
-                model
+            Tracker.closeOptions
 
         SmallClicked ->
-            Model.mapTracker
-                ti
-                (Tracker.setSize Style.Small)
-                model
+            Tracker.setSize Style.Small
 
         BigClicked ->
-            Model.mapTracker
-                ti
-                (Tracker.setSize Style.Big)
-                model
+            Tracker.setSize Style.Big
 
         MajorMarkFieldUpdated field ->
-            case String.toInt field of
-                Just majorMark ->
-                    Model.mapTracker
-                        ti
-                        (Tracker.setMajorMark majorMark)
-                        model
-
-                Nothing ->
-                    model
+            Tracker.setMajorMark field
 
         MinorMarkFieldUpdated field ->
-            case String.toInt field of
-                Just minorMark ->
-                    Model.mapTracker
-                        ti
-                        (Tracker.setMinorMark minorMark)
-                        model
-
-                Nothing ->
-                    model
+            Tracker.setMinorMark field
 
 
 
@@ -141,14 +116,14 @@ view payload =
                 [ margin (px 5) ]
                 [ markLabel "major mark"
                 , markField
-                    payload.majorMark
+                    payload.majorMarkField
                     MajorMarkFieldUpdated
                 ]
             , Grid.row
                 [ margin (px 5) ]
                 [ markLabel "minor mark"
                 , markField
-                    payload.minorMark
+                    payload.minorMarkField
                     MinorMarkFieldUpdated
                 ]
             , Grid.row
@@ -181,7 +156,7 @@ markLabel labelText =
         ]
 
 
-markField : Int -> (String -> Msg) -> Html Msg
+markField : String -> (String -> Msg) -> Html Msg
 markField mark msgCtor =
     Grid.column
         [ paddingLeft (px 5) ]
@@ -194,7 +169,7 @@ markField mark msgCtor =
                 , width (pct 100)
                 ]
             , onInput msgCtor
-            , Attrs.defaultValue (String.fromInt mark)
+            , Attrs.value mark
             ]
             []
         ]
@@ -238,6 +213,7 @@ indentIf : Bool -> Style
 indentIf condition =
     if condition then
         Style.indent
+
     else
         Css.batch []
 

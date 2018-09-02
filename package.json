@@ -4,18 +4,17 @@
   "description": "a UI for music composition and audio generation software",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron ./main.js"
   },
   "repository": "https://github.com/chadtech/radler-ui",
   "keywords": [],
   "author": "GitHub",
   "license": "CC0-1.0",
-  "devDependencies": {
-    "electron": "^2.0.0"
-  },
+  "devDependencies": {},
   "dependencies": {
     "body-parser": "^1.18.3",
     "browserify": "^16.2.2",
+    "electron": "^2.0.8",
     "gulp": "^3.9.1",
     "gulp-autowatch": "^1.0.2",
     "vinyl-buffer": "^1.0.1",
