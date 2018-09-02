@@ -1,11 +1,10 @@
-module Data.Note
-    exposing
-        ( Note
-        , empty
-        , encode
-        , fromString
-        , toString
-        )
+module Data.Note exposing
+    ( Note
+    , empty
+    , encode
+    , fromString
+    , toString
+    )
 
 {-|
 
@@ -47,18 +46,24 @@ fromString =
 
 
 encode : Int -> Int -> Note -> Note
-encode time seed ( Note str ) =
+encode time seed (Note str) =
     [ String.fromInt time
     , String.fromInt seed
     , encodeString str
     ]
-        |> String.join ";"
+        |> String.join dataDelimiter
         |> fromString
+
+
+dataDelimiter : String
+dataDelimiter =
+    ","
 
 
 encodeString : String -> String
 encodeString str =
     if String.isEmpty str then
         "X"
+
     else
         str

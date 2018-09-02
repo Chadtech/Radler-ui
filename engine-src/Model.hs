@@ -17,14 +17,14 @@ import qualified Data.List as List
 import qualified Data.ByteString.Char8 as Char
 import Flow
 import Error (Error(ProjectError))
-
+import Elmy (List)
 
 data Model
     = Model
         { lastScoreStr :: String 
         , name :: String
         }
-        -- { project :: Project.Model
+        -- { -project :: Project.Model
         -- }
 
 
@@ -38,6 +38,8 @@ fromScoreData byteString =
         -- |> Result.mapError ProjectError
         -- |> Result.map fromProject
 
+
+stringToChunks :: String -> Li
 
 fromScoreString :: String -> Model
 fromScoreString scoreStr =

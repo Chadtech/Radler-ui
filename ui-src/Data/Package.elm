@@ -159,10 +159,14 @@ saveScoreToDisk package parts =
 
 cmdFromScore : Package -> List Beat -> Cmd msg
 cmdFromScore package score =
-    [ "# NAME"
+    [ "# READ ME"
+    , readme
+    , "# NAME"
     , package.name
+    , ":"
     , "# VOICES"
     , String.join "," package.voices
+    , ":"
     , "# NOTES"
     , scoreToString package score
     ]
@@ -231,3 +235,36 @@ cropPart parts ( name, length ) =
         |> Dict.get name
         |> Maybe.map
             (Array.toList << Array.slice 0 length)
+
+
+readme : String
+readme =
+    """
+The Haskell side of this project separates
+this file by the colon character. 
+
+It reads each block separately, in different ways, 
+and expects the blocks to be in a certain order.
+
+The content it expects is..
+0 Read me (which it ignores)
+1 The name, which it just pulls in as a string
+2 The voices, which is just a list of voice names 
+separated by commas.
+3 The actual notes of the score, which is reads as 
+rows and columns. Each cell is the following 
+information separated by commas
+    3.0 The time the note occurs
+    3.1 A seed of randomness, so that random variations
+    in timing, or whatever else, can be generated. Note
+    these seeds are deterministic, and are the same 
+    every time the score is compiled. Its random 
+    relative to everything else about the note, but not 
+    random relative to its initial conditions (a master
+    seed for the whole project and its position in the rows 
+    and columns)
+    3.1 The note content, which usually includes information
+    like tone, volume, duration, and decay.
+
+Also, it ignores content following number sign characters.
+"""

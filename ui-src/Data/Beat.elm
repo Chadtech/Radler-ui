@@ -1,20 +1,20 @@
-module Data.Beat
-    exposing
-        ( Beat
-        , addNote
-        , empty
-        , fromList
-        , fromString
-        , length
-        , removeNote
-        , setNote
-        , toIndexedList
-        , toList
-        , toString
-        )
+module Data.Beat exposing
+    ( Beat
+    , addNote
+    , empty
+    , fromList
+    , fromString
+    , length
+    , removeNote
+    , setNote
+    , toIndexedList
+    , toList
+    , toString
+    )
 
 import Array exposing (Array)
 import Data.Note as Note exposing (Note)
+
 
 
 -- TYPES --
@@ -80,16 +80,21 @@ toString (Beat beat) =
     beat
         |> Array.toList
         |> List.map Note.toString
-        |> String.join ","
+        |> String.join noteDelimiter
 
 
 fromString : String -> Beat
 fromString str =
     str
-        |> String.split ","
+        |> String.split noteDelimiter
         |> List.map Note.fromString
         |> Array.fromList
         |> Beat
+
+
+noteDelimiter : String
+noteDelimiter =
+    ";"
 
 
 empty : Int -> Beat
