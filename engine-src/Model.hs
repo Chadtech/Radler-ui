@@ -6,23 +6,28 @@ module Model
     )
     where
 
+{-# LANGUAGE OverloadedStrings #-}
 
 import qualified Data.Part as Part
 import qualified Data.Project as Project
 import Data.ByteString (ByteString)
 import qualified Data.ByteString as Byte
-import Result (Result(Ok))
+import Result (Result(Ok, Err))
 import qualified Result
 import qualified Data.List as List
 import qualified Data.ByteString.Char8 as Char
 import Flow
-import Error (Error(ProjectError))
+import Error (Error(ProjectError, UnexpectedChunkStructure))
 import Elmy (List)
+import Data.List.Split (splitOn)
+import qualified Data.Text as T
+import Data.Text (Text)
+import qualified Data.Text.Encoding as TE
 
 data Model
     = Model
-        { lastScoreStr :: String 
-        , name :: String
+        { lastScoreData :: Text
+        , name :: Text
         }
         -- { -project :: Project.Model
         -- }
@@ -30,23 +35,45 @@ data Model
 
 fromScoreData :: ByteString -> Result Error Model
 fromScoreData byteString =
-    byteString
-        |> getScoreString
-        |> fromScoreString
-        |> Ok
-        -- |> Project.fromString
-        -- |> Result.mapError ProjectError
-        -- |> Result.map fromProject
+    let
+        scoreData =
+            TE.decodeASCII byteString
+    in
+    scoreData
+        |> T.splitOn "\n"
+        |> List.filter isntCommentLine
+        |> T.unlines
+        |> T.splitOn ":"
+        |> buildFromChunks scoreData
 
 
-stringToChunks :: String -> Li
+isntCommentLine :: Text -> Bool
+isntCommentLine =
+    T.isPrefixOf "#"
+        
 
-fromScoreString :: String -> Model
-fromScoreString scoreStr =
-    Model
-        { lastScoreStr = scoreStr 
-        , name = "WOW"
-        }
+buildFromChunks :: Text -> List Text -> Result Error Model
+buildFromChunks scoreData chunks =
+    case chunks of
+        name : rest ->
+            Model 
+                { lastScoreData = scoreData
+                , name = name
+                }
+                |> Ok
+
+        [] ->
+            Err UnexpectedChunkStructure
+
+
+
+
+-- fromScoreString :: String -> Model
+-- fromScoreString scoreStr =
+--     Model
+--         { lastScoreStr = scoreStr 
+--         , name = "WOW"
+--         }
 
 
 getScoreString :: ByteString -> String
