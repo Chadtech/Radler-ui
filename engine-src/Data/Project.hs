@@ -17,7 +17,7 @@ import Data.List.Split (splitOn)
 import Text.Regex.Posix
 import Flow
 import qualified Util
-import Elmy ((<<))
+import Prelude.Extra ((<<))
 
 
 -- TYPES --

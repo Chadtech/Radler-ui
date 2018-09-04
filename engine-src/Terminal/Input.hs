@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Terminal.Input where
 
 
@@ -6,13 +8,14 @@ import qualified Data.ByteString as Byte
     , ByteString
     )
 import qualified Data.ByteString.Char8 as Char
+import Data.Text (Text)
+import qualified Data.Text as T
 import Prelude (IO, String, getLine, putStrLn)
 import Flow
 import System.Process (callCommand)
 import Data.List as List
 import qualified Data.Project as Project
 import Terminal.Output as Output
-import Elmy
 import qualified Model
 import Model (Model)
 import Update (update)
@@ -20,10 +23,10 @@ import Data.Maybe
 import qualified Msg
 
 
-enterCommand :: String -> IO ()
+enterCommand :: Text -> IO ()
 enterCommand projectName = do
     Output.separator
-    putStrLn projectName
+    putStrLn (T.unpack projectName)
     putStrLn "Radler Engine"
     putStrLn "Enter Command"
     Output.separator

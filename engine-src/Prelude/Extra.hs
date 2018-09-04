@@ -1,4 +1,4 @@
-module Elmy where
+module Prelude.Extra where
 
 
 head :: [ a ] -> Maybe a

@@ -1,3 +1,6 @@
+{-# LANGUAGE OverloadedStrings #-}
+
+
 module Update (update) where
 
 
@@ -11,6 +14,8 @@ import Flow
 import qualified Data.Part as Part
 import qualified Data.Project as Project
 import qualified Data.List as List
+import Data.Text (Text)
+import qualified Data.Text as T
 
 
 update :: Msg -> Model -> (Model, Maybe (IO ()))
@@ -36,13 +41,22 @@ playIo :: Model -> IO ()
 playIo model = do
     Output.say "playing"
     let audioFileName = getAudioFileName model
-    callCommand "play"
+    playCmd model
     Output.newLine
 
 
-getAudioFileName :: Model -> String
+playCmd :: Model -> IO ()
+playCmd model =
+    model
+        |> Model.name
+        |> T.append "play "
+        |> T.unpack
+        |> callCommand
+
+
+getAudioFileName :: Model -> Text
 getAudioFileName model =
-    Model.name model ++ ".wav"
+    T.append (Model.name model) ".wav"
 
 
 buildIo :: IO ()
