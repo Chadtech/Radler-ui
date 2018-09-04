@@ -21,3 +21,5 @@ infixl 0 <<
 leftCompose :: (b -> c) -> (a -> b) -> a -> c
 leftCompose f g v =
     f (g v)
+
+    

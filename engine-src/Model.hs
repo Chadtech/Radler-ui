@@ -1,10 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-
 module Model 
     ( Model
     , name
-    -- , project
     , fromScoreData
     )
     where
@@ -48,8 +46,9 @@ fromScoreData byteString =
 
 
 isntCommentLine :: Text -> Bool
-isntCommentLine =
-    T.isPrefixOf "#"
+isntCommentLine line =
+    T.isPrefixOf "#" line 
+        |> not
         
 
 buildFromChunks :: Text -> List Text -> Result Error Model
