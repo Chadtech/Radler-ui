@@ -1,3 +1,6 @@
+{-# LANGUAGE OverloadedStrings #-}
+
+
 module Data.Voice 
     ( Model
     , Error
@@ -9,13 +12,13 @@ module Data.Voice
 
 import Data.Int (Int16)
 import Data.Note (Note)
+import Prelude.Extra (List)
 import qualified Result
 import Result (Result(Ok, Err))
 import Flow
 import Data.List as List
-import Data.List.Split (splitOn)
-import qualified Util
-
+import Data.Text (Text)
+import qualified Data.Text as T
 
 -- TYPES -- 
 
@@ -23,16 +26,11 @@ import qualified Util
 data Model 
     = P
     | N
-    -- Model
-    --     { name :: String }
-    -- -- { compileNote :: Note -> [ Int16 ]
-    -- -- -- , lineMaker :: [ (Int, Note) ] -> (Note -> [ Int16 ]) -> [ Int16 ]
-    -- -- }
 
 
-fromString :: String -> Result Error Model
-fromString str =
-    case Util.trim str of
+fromString :: Text -> Result Error Model
+fromString txt =
+    case T.strip txt of
         "p" ->
             Ok P
 
@@ -40,14 +38,16 @@ fromString str =
             Ok N
 
         _ ->
-            UnrecognizedVoiceType str
+            txt
+                |> T.unpack
+                |> UnrecognizedVoiceType
                 |> Err
 
 
-readMany :: String -> Result Error [ Model ]
-readMany str =
-    str
-        |> splitOn ","
+readMany :: Text -> Result Error (List Model)
+readMany txt =
+    txt
+        |> T.splitOn ","
         |> List.map fromString
         |> Result.join
 

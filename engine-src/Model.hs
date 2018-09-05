@@ -1,5 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
+
 module Model 
     ( Model
     , name
@@ -12,13 +13,15 @@ import qualified Data.ByteString as Byte
 import qualified Data.ByteString.Char8 as Char
 import qualified Data.List as List
 import Data.List.Split (splitOn)
-import qualified Data.Part as Part
+-- import qualified Data.Part as Part
 import qualified Data.Project as Project
 import Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
+import qualified Data.Voice as Voice
+import Parsing (Parser)
 import Prelude.Extra (List)
-import Error (Error(ProjectError, UnexpectedChunkStructure))
+import Error (Error(VoiceError, UnexpectedChunkStructure))
 import Flow
 import Result (Result(Ok, Err))
 import qualified Result
@@ -34,8 +37,8 @@ data Model
 fromScoreData :: ByteString -> Result Error Model
 fromScoreData byteString =
     let
-        scoreData =
-            TE.decodeASCII byteString
+    scoreData =
+        TE.decodeUtf8 byteString
     in
     scoreData
         |> T.splitOn "\n"
@@ -54,13 +57,34 @@ isntCommentLine line =
 buildFromChunks :: Text -> List Text -> Result Error Model
 buildFromChunks scoreData chunks =
     case chunks of
-        name : rest ->
+        name : voices : notes : [] ->
             Model 
-                { lastScoreData = scoreData
-                , name = name
-                }
                 |> Ok
+                |> applyText scoreData
+                |> applyText name
+                |> applyVoices voices
 
         [] ->
             Err UnexpectedChunkStructure
 
+
+applyVoices :: Text -> Parser Error (List Voice.Model) b
+applyVoices txt ctorResult =
+    case Voice.readMany txt of
+        Ok voices ->
+            Result.map 
+                ((|>) voices) 
+                ctorResult
+
+        Err err ->
+            Err (VoiceError err)
+
+
+applyText :: Text -> Parser Error Text b
+applyText txt =
+    Result.map ((|>) txt)
+
+        
+
+-- construct :: Text -> Parser Error a b
+-- construct txt =

@@ -9,7 +9,6 @@ module Data.Project
 
 
 import qualified Data.Voice as Voice
-import qualified Data.Part as Part
 import qualified Result
 import Result (Result(Ok, Err))
 import qualified Data.List as List
@@ -26,7 +25,7 @@ import Prelude.Extra ((<<))
 data Model =
     Model
     { name :: String
-    , parts :: [ Part.Model ]
+    -- , parts :: [ Part.Model ]
     , voices :: [ Voice.Model ] 
     , seed :: Int
     , timingVariance :: Int
@@ -66,7 +65,7 @@ parse fields =
     in
     Ok Model
         |> ctor "name" readName
-        |> ctor "parts" (Result.mapError PartError << Part.readMany)
+        -- |> ctor "parts" (Result.mapError PartError << Part.readMany)
         |> ctor "voices" (Result.mapError VoiceError << Voice.readMany)
         |> ctor "seed" (useInt CouldNotParseSeed)
         |> ctor "timing-variance" (useInt CouldNotParseTimingVariance)
@@ -142,7 +141,7 @@ data Error
     | CouldNotParseSeed String
     | CouldNotParseTimingVariance String
     | CouldNotParseBeatLength String
-    | PartError Part.Error
+    -- | PartError Part.Error
     | VoiceError Voice.Error
 
 

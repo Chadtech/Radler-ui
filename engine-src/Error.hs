@@ -11,14 +11,14 @@ import qualified Data.Voice as Voice
 
 data Error
     = UnexpectedChunkStructure
-    | ProjectError Project.Error
+    | VoiceError Voice.Error
 
 
 throw :: Error -> String
 throw error =
     case error of
-        ProjectError subError ->
-            Project.throw subError
+        VoiceError err ->
+            Voice.throw err
 
         UnexpectedChunkStructure ->
             "I could not parse the score. The chunks werent what I expected."

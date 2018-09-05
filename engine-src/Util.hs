@@ -1,22 +1,21 @@
+{-# LANGUAGE OverloadedStrings #-}
+
+
 module Util 
-    ( trim
-    , dropLast
+    ( dropLast
     , readInt
     , log_
     )
     where
 
 import qualified Data.List as List
+import Data.Text (Text)
+import qualified Data.Text as T
 import qualified Data.Char as Char
 import Flow
 import qualified Debug.Trace as Debug
 import Text.Read (readMaybe)
 
-
-trim :: String -> String
-trim = 
-    List.dropWhileEnd Char.isSpace
-        >> List.dropWhile Char.isSpace
 
 isntLetter :: Char -> Bool
 isntLetter c =
