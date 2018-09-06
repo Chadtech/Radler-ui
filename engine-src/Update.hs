@@ -11,8 +11,6 @@ import System.Process (callCommand)
 import qualified Terminal.Output as Output
 import Data.Maybe
 import Flow
-import qualified Data.Part as Part
-import qualified Data.Project as Project
 import qualified Data.List as List
 import Data.Text (Text)
 import qualified Data.Text as T

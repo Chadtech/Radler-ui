@@ -13,8 +13,6 @@ import qualified Data.ByteString as Byte
 import qualified Data.ByteString.Char8 as Char
 import qualified Data.List as List
 import Data.List.Split (splitOn)
--- import qualified Data.Part as Part
-import qualified Data.Project as Project
 import Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
@@ -31,14 +29,15 @@ data Model
     = Model
         { lastScoreData :: Text
         , name :: Text
+        , voices :: List Voice.Model
         }
 
 
 fromScoreData :: ByteString -> Result Error Model
 fromScoreData byteString =
     let
-    scoreData =
-        TE.decodeUtf8 byteString
+        scoreData =
+            TE.decodeUtf8 byteString
     in
     scoreData
         |> T.splitOn "\n"
@@ -85,6 +84,3 @@ applyText txt =
     Result.map ((|>) txt)
 
         
-
--- construct :: Text -> Parser Error a b
--- construct txt =

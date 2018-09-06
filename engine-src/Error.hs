@@ -4,8 +4,6 @@ module Error
     )
     where
 
-import qualified Data.Project as Project
-import qualified Data.Part as Part
 import qualified Data.Voice as Voice
 
 

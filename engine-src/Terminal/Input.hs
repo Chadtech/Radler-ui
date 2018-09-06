@@ -14,7 +14,6 @@ import Prelude (IO, String, getLine, putStrLn)
 import Flow
 import System.Process (callCommand)
 import Data.List as List
-import qualified Data.Project as Project
 import Terminal.Output as Output
 import qualified Model
 import Model (Model)

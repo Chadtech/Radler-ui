@@ -20,6 +20,7 @@ import Data.List as List
 import Data.Text (Text)
 import qualified Data.Text as T
 
+
 -- TYPES -- 
 
 
@@ -30,11 +31,11 @@ data Model
 
 fromString :: Text -> Result Error Model
 fromString txt =
-    case T.strip txt of
-        "p" ->
+    case T.strip (T.splitOn "," txt) of
+        "p" : [] ->
             Ok P
 
-        "n" ->
+        "n" : [] ->
             Ok N
 
         _ ->
@@ -47,12 +48,12 @@ fromString txt =
 readMany :: Text -> Result Error (List Model)
 readMany txt =
     txt
-        |> T.splitOn ","
-        |> List.map fromString
+        |> T.splitOn ";"
+        |> List.map (fromString
         |> Result.join
 
 
--- Error -- 
+-- ERROR -- 
 
 
 data Error

@@ -165,7 +165,7 @@ cmdFromScore package score =
     , package.name
     , ":"
     , "# VOICES"
-    , String.join "," package.voices
+    , String.join ";" package.voices
     , ":"
     , "# NOTES"
     , scoreToString package score
