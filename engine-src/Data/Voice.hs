@@ -19,7 +19,7 @@ import Flow
 import Data.List as List
 import Data.Text (Text)
 import qualified Data.Text as T
-
+import qualified Util
 
 -- TYPES -- 
 
@@ -29,9 +29,9 @@ data Model
     | N
 
 
-fromString :: Text -> Result Error Model
-fromString txt =
-    case T.strip (T.splitOn "," txt) of
+fromPieces :: Text -> Result Error Model
+fromPieces txt =
+    case T.splitOn "," txt of
         "p" : [] ->
             Ok P
 
@@ -48,8 +48,9 @@ fromString txt =
 readMany :: Text -> Result Error (List Model)
 readMany txt =
     txt
+        |> T.strip
         |> T.splitOn ";"
-        |> List.map (fromString
+        |> List.map fromPieces
         |> Result.join
 
 
