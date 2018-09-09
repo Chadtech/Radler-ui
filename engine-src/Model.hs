@@ -8,8 +8,6 @@ module Model
     )
     where
 
-import Data.ByteString (ByteString)
-import qualified Data.ByteString as Byte
 import qualified Data.ByteString.Char8 as Char
 import qualified Data.List as List
 import Data.Note (Note)
@@ -17,7 +15,6 @@ import qualified Data.Note as Note
 import Data.List.Split (splitOn)
 import Data.Text (Text)
 import qualified Data.Text as T
-import qualified Data.Text.Encoding as TE
 import qualified Data.Voice as Voice
 import Parsing (Parser)
 import Prelude hiding (init)
@@ -43,12 +40,8 @@ data Model
         }
 
 
-init :: ByteString -> Result Error Model
-init byteString =
-    let
-        scoreData =
-            TE.decodeUtf8 byteString
-    in
+init :: Text -> Result Error Model
+init scoreData =
     scoreData
         |> toChunks
         |> buildFromChunks scoreData

@@ -51,8 +51,8 @@ function createWindow() {
         payload: pieces[1]
       })
     });
-    main.engine.on('close', (code) => {
-      console.log(`child process exited with code ${code}`);
+    main.engine.on("close", function (code) {
+      console.log("child process exited with code " + code);
     });
   });
 

@@ -1,24 +1,30 @@
+{-# LANGUAGE OverloadedStrings #-}
+
+
 module Terminal.Output 
-    ( say
-    , newLine
-    , separator
+    ( send
+    , UiMsg(..)
     ) where
 
+import Cmd (Cmd)
+import qualified Cmd
+import Data.Text (Text)
+import qualified Data.Text as T
+import Flow
 import System.Process (callCommand)
 
 
-say :: String -> IO ()
-say str = do
-    callCommand "osascript -e \"set volume 2\" "
-    callCommand ("say " ++ str)
-    callCommand "osascript -e \"set volume 4\" "
+data UiMsg
+    = Ready
+    | EngineMsgNotRecognized Text
 
 
-newLine :: IO ()
-newLine =
-    putStrLn ""
+send :: UiMsg -> Cmd
+send msg =
+    case msg of
+        Ready ->
+            Cmd.withNoPayload "ready"
 
-
-separator :: IO ()
-separator =
-    putStrLn "-------"
+        EngineMsgNotRecognized engineMsg ->
+            "engine msg not recognized"
+                |> Cmd.withPayload engineMsg

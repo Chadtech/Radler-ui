@@ -1,19 +1,34 @@
-module Msg (Msg(..), fromString) where
+{-# LANGUAGE OverloadedStrings #-}
 
 
+module Msg 
+    ( Msg(..)
+    , init
+    , fromText
+    ) 
+    where
+
+import Data.Text (Text)
+import qualified Data.Text as T        
+import Prelude hiding (init)
 import Result (Result(..))
-import Data.List.Split (splitOn)
 
 
 data Msg
     = Play
     | Build
-    | UnrecognizedCmd String
+    | Init
+    | UnrecognizedCmd Text
 
 
-fromString :: String -> Msg
-fromString str =
-    case splitOn " " str of
+init :: Msg
+init =
+    Init
+
+
+fromText :: Text -> Msg
+fromText txt =
+    case T.splitOn " " txt of
         "build" : _ ->
             Build
 
@@ -21,4 +36,4 @@ fromString str =
             Play
 
         _ ->
-            UnrecognizedCmd str
+            UnrecognizedCmd txt
