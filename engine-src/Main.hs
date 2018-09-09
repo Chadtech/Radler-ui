@@ -1,28 +1,29 @@
 module Main where
 
-import qualified Terminal.Output as Output
-import qualified Terminal.Input as Input
 import qualified Data.ByteString as Byte
-import Data.Text (Text)
-import qualified Data.Text as T
-import qualified Model
-import Model (Model)
 import qualified Data.List as List
+import Data.Text (Text)
 import qualified Data.String as String
-import qualified Result
-import Result (Result(Err, Ok))
+import qualified Data.Text as T
 import Error (Error)
 import qualified Error
+import Model (Model)
+import qualified Model
+import Prelude hiding (init)
+import qualified Terminal.Input as Input
+import qualified Terminal.Output as Output
+import Result (Result(Err, Ok))
+import qualified Result
 
 
 main :: IO ()
 main = do
     scoreData <- Byte.readFile "./project/score"
-    awaitIfLoaded (Model.fromScoreData scoreData)
+    init (Model.init scoreData)
 
 
-awaitIfLoaded :: Result Error Model -> IO ()
-awaitIfLoaded result =
+init :: Result Error Model -> IO ()
+init result =
     case result of
         Ok model -> do
             ready (Model.name model)

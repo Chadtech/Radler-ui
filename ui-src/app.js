@@ -1,4 +1,7 @@
 var fs = get('fs');
+var electron = get('electron')
+
+var ipcRenderer = electron.ipcRenderer;
 
 function projectDir(path) {
   return './project/' + path;
@@ -75,6 +78,18 @@ function jsMsgHandler(msg) {
   }
   action(msg.payload);
 }
+
+function engineMsgHandler(msg) {
+  console.log(msg)
+  switch (msg.type) {
+    default:
+      toElm("Unrecognized engine msg type", msg.type);
+  }
+}
+
+ipcRenderer.on("from-engine", function (_, msg) {
+  engineMsgHandler(msg);
+});
 
 app.ports.toJs.subscribe(jsMsgHandler)
 

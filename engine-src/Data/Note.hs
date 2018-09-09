@@ -13,7 +13,7 @@ import qualified Data.List as List
 import Data.Text (Text)
 import qualified Data.Text as T
 import Flow
-import Prelude.Extra (List, textToInt)
+import Prelude.Extra (List, textToInt, debugLog)
 import Result (Result(Ok, Err))
 import qualified Result 
 

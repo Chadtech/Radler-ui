@@ -7,6 +7,7 @@ module Prelude.Extra
     , List
     , (<<)
     , textToInt
+    , debugLog
     ) where
 
 
@@ -16,6 +17,7 @@ import qualified Data.Text as T
 import qualified Data.Text.Read as TR
 import Flow
 import Prelude hiding (head)
+import qualified Debug.Trace as Debug
 
 
 textToInt :: Text -> Maybe Int
@@ -68,4 +70,7 @@ leftCompose :: (b -> c) -> (a -> b) -> a -> c
 leftCompose f g v =
     f (g v)
 
-    
+
+debugLog :: String -> (a -> String) -> a -> a
+debugLog msg toString x =
+    Debug.trace (msg ++ " : " ++ (toString x)) x

@@ -4,7 +4,7 @@
 module Model 
     ( Model
     , name
-    , fromScoreData
+    , init
     )
     where
 
@@ -20,6 +20,7 @@ import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import qualified Data.Voice as Voice
 import Parsing (Parser)
+import Prelude hiding (init)
 import Prelude.Extra (List)
 import Error 
     ( Error
@@ -42,18 +43,24 @@ data Model
         }
 
 
-fromScoreData :: ByteString -> Result Error Model
-fromScoreData byteString =
+init :: ByteString -> Result Error Model
+init byteString =
     let
         scoreData =
             TE.decodeUtf8 byteString
     in
     scoreData
+        |> toChunks
+        |> buildFromChunks scoreData
+
+
+toChunks :: Text -> List Text
+toChunks bs =
+    bs
         |> T.splitOn "\n"
         |> List.filter isntCommentLine
         |> T.unlines
         |> T.splitOn ":"
-        |> buildFromChunks scoreData
 
 
 isntCommentLine :: Text -> Bool
