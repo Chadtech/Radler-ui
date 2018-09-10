@@ -8,9 +8,19 @@ var main = {
   engine: null
 };
 
-function toElm(msg) {
+function toUi(msg) {
   if (main.window !== null) {
     main.window.webContents.send("from-engine", msg);
+  }
+}
+
+function decodeUiMsg(pieces) {
+  switch (pieces[0]) {
+    case "ready":
+      return {
+        type: pieces[0],
+        payload: null
+      };
   }
 }
 
@@ -23,8 +33,8 @@ function toEngine(msg) {
     case "play":
       main.engine.stdin.write([
         "play;",
-        msg.from,
-        msg.to
+        msg.payload.from,
+        msg.payload.to
       ].join(" "));
       break;
   }
@@ -32,9 +42,11 @@ function toEngine(msg) {
 }
 
 function createWindow() {
-  main.window = new BrowserWindow({ width: 800, height: 600 })
+  main.window = new BrowserWindow()
+  main.window.setSimpleFullScreen(true);
 
   main.window.loadFile("public/index.html")
+  main.window.openDevTools()
   main.window.webContents.on("did-finish-load", function () {
     main.engine = cp.spawn("./dist/build/radler/radler", {
       stdio: [
@@ -45,11 +57,8 @@ function createWindow() {
     });
     main.engine.stdin.setEncoding("utf-8");
     main.engine.stdout.on("data", function (data) {
-      var pieces = String(data).split(";");
-      toElm({
-        type: pieces[0],
-        payload: pieces[1]
-      })
+      console.log("DATA", String(data));
+      toUi(decodeUiMsg(String(data).split(";")));
     });
     main.engine.on("close", function (code) {
       console.log("child process exited with code " + code);

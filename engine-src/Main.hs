@@ -14,7 +14,6 @@ import qualified Terminal.Input as Input
 import Result (Result(Err, Ok))
 import qualified Result
 
-
 main :: IO ()
 main = do
     scoreData <- Byte.readFile "./project/score"

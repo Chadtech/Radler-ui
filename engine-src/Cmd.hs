@@ -3,7 +3,6 @@
 
 module Cmd
     ( Cmd
-    , init
     , none
     , toIo
     , withNoPayload
@@ -23,11 +22,6 @@ data Cmd =
 none :: Cmd
 none =
     Cmd Nothing
-
-
-init :: IO ()
-init =
-    putStrLn "ready;"
 
 
 toIo :: Cmd -> Maybe (IO ())

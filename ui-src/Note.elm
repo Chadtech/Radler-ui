@@ -1,9 +1,8 @@
-module Note
-    exposing
-        ( Msg(..)
-        , update
-        , view
-        )
+module Note exposing
+    ( Msg(..)
+    , update
+    , view
+    )
 
 import Array exposing (Array)
 import Browser.Dom as Dom
@@ -13,20 +12,26 @@ import Data.Beat as Beat
 import Data.Note as Note exposing (Note)
 import Data.Part as Part
 import Data.Tracker as Tracker
-import Html.Custom
-    exposing
-        ( Arrow(..)
-        , onArrowKey
-        , onEnter
-        )
 import Html.Grid as Grid
-import Html.Styled as Html exposing (Html, input)
+import Html.Styled as Html
+    exposing
+        ( Attribute
+        , Html
+        , input
+        )
 import Html.Styled.Attributes as Attrs
-import Html.Styled.Events exposing (onInput)
+import Html.Styled.Events
+    exposing
+        ( keyCode
+        , on
+        , onInput
+        )
+import Json.Decode as D exposing (Decoder)
 import Model exposing (Model)
 import Return2 as R2
 import Style
 import Task
+
 
 
 -- TYPES --
@@ -34,8 +39,7 @@ import Task
 
 type Msg
     = Updated Note
-    | ArrowPressed Arrow
-    | EnterPressed
+    | MovementKeyPressed Direction
     | NoteFocused
 
 
@@ -53,22 +57,22 @@ update ti si bi ni msg model =
                 |> Model.apply model
                 |> R2.withNoCmd
 
-        ArrowPressed Up ->
+        MovementKeyPressed Up ->
             noteId ti (bi - 1) ni
                 |> focusOnNote
                 |> R2.withModel model
 
-        ArrowPressed Down ->
+        MovementKeyPressed Down ->
             noteId ti (bi + 1) ni
                 |> focusOnNote
                 |> R2.withModel model
 
-        ArrowPressed Left ->
+        MovementKeyPressed Left ->
             noteId ti bi (ni - 1)
                 |> focusOnNote
                 |> R2.withModel model
 
-        ArrowPressed Right ->
+        MovementKeyPressed Right ->
             noteId ti bi (ni + 1)
                 |> focusOnNote
                 |> R2.withModel model
@@ -77,15 +81,12 @@ update ti si bi ni msg model =
             model
                 |> R2.withNoCmd
 
-        EnterPressed ->
-            noteId ti (bi + 1) ni
-                |> focusOnNote
-                |> R2.withModel model
-
 
 focusOnNote : String -> Cmd Msg
 focusOnNote id =
-    Task.attempt (always NoteFocused) (Dom.focus id)
+    Task.attempt
+        (always NoteFocused)
+        (Dom.focus id)
 
 
 
@@ -109,8 +110,7 @@ view majorMark minorMark size ti bi ni note =
             , Attrs.value (Note.toString note)
             , Attrs.spellcheck False
             , onInput (Updated << Note.fromString)
-            , onArrowKey ArrowPressed
-            , onEnter EnterPressed
+            , onMovementKey MovementKeyPressed
             , Attrs.id (noteId ti bi ni)
             ]
             []
@@ -142,6 +142,7 @@ determineNoteBgColor majorMark minorMark beatIndex =
         moduloMajorMark ->
             if remainderBy minorMark moduloMajorMark == 0 then
                 Colors.highlight0
+
             else
                 Colors.background2
 
@@ -156,3 +157,42 @@ noteId ti bi ni =
     , String.fromInt ni
     ]
         |> String.concat
+
+
+type Direction
+    = Up
+    | Down
+    | Right
+    | Left
+
+
+onMovementKey : (Direction -> msg) -> Attribute msg
+onMovementKey ctor =
+    keyCode
+        |> D.andThen directionDecoder
+        |> D.map ctor
+        |> on "keydown"
+
+
+directionDecoder : Int -> Decoder Direction
+directionDecoder key =
+    case key of
+        -- Arrow keys --
+        37 ->
+            D.succeed Left
+
+        39 ->
+            D.succeed Right
+
+        38 ->
+            D.succeed Up
+
+        40 ->
+            D.succeed Down
+
+        -- Enter Key
+        13 ->
+            D.succeed Down
+
+        _ ->
+            D.fail "Key isnt a direction key (arrows and enter)"

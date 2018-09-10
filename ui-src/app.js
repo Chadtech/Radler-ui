@@ -80,7 +80,7 @@ function jsMsgHandler(msg) {
 }
 
 function engineMsgHandler(msg) {
-  console.log(msg)
+  console.log("!", msg);
   switch (msg.type) {
     default:
       toElm("Unrecognized engine msg type", msg.type);
