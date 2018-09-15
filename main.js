@@ -34,16 +34,19 @@ function toEngine(msg) {
       main.engine.stdin.write([
         "play;",
         msg.payload.from,
-        msg.payload.to
-      ].join(" "));
+        ",",
+        msg.payload.for
+      ].join(""));
       break;
   }
   main.engine.stdin.end();
 }
 
 function createWindow() {
-  main.window = new BrowserWindow()
-  main.window.setSimpleFullScreen(true);
+  main.window = new BrowserWindow({
+    width: 1000,
+    height: 800
+  });
 
   main.window.loadFile("public/index.html")
   main.window.openDevTools()

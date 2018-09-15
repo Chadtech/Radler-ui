@@ -1,9 +1,8 @@
-module Header
-    exposing
-        ( Msg
-        , update
-        , view
-        )
+module Header exposing
+    ( Msg
+    , update
+    , view
+    )
 
 import Array
 import Colors
@@ -19,10 +18,15 @@ import Html.Styled as Html
         , input
         )
 import Html.Styled.Attributes as Attrs
-import Html.Styled.Events exposing (onClick)
+import Html.Styled.Events
+    exposing
+        ( onClick
+        , onInput
+        )
 import Model exposing (Model, Page)
 import Return2 as R2
 import Style
+
 
 
 -- TYPES --
@@ -35,6 +39,8 @@ type Msg
     | PlayClicked
     | OpenClicked
     | SaveClicked
+    | PlayFromFieldUpdated String
+    | PlayForFieldUpdated String
 
 
 
@@ -92,6 +98,16 @@ update msg model =
                     newModel
                         |> R2.withCmds saveCmds
 
+        PlayFromFieldUpdated str ->
+            model
+                |> Model.setPlayFrom str
+                |> R2.withNoCmd
+
+        PlayForFieldUpdated str ->
+            model
+                |> Model.setPlayFor str
+                |> R2.withNoCmd
+
 
 
 -- VIEW --
@@ -109,7 +125,7 @@ view model =
             [ playButton ]
         , Grid.column
             [ flex (int 0) ]
-            [ playFromField ]
+            [ playFromField model.playFromBeatField ]
         , Grid.column
             [ marginLeft (px 10)
             , flex (int 0)
@@ -134,8 +150,8 @@ view model =
         ]
 
 
-playFromField : Html Msg
-playFromField =
+playFromField : String -> Html Msg
+playFromField playFromBeat =
     input
         [ Attrs.css
             [ Style.basicInput
@@ -145,7 +161,9 @@ playFromField =
             , Style.fontSmoothingNone
             , width (px (Style.noteWidth Style.Big * 1.5))
             ]
+        , Attrs.value playFromBeat
         , Attrs.spellcheck False
+        , onInput PlayFromFieldUpdated
         ]
         []
 
@@ -156,7 +174,7 @@ playButton =
         [ Attrs.css [ buttonStyle ]
         , onClick PlayClicked
         ]
-        [ Html.text "play from" ]
+        [ Html.text "play" ]
 
 
 openButton : Html Msg
@@ -242,5 +260,6 @@ dent : Page -> Page -> Style
 dent currentPage thisPage =
     if currentPage == thisPage then
         Style.indent
+
     else
         Style.outdent

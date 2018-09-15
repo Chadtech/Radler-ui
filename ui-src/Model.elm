@@ -1,17 +1,18 @@
-module Model
-    exposing
-        ( Model
-        , Page(..)
-        , apply
-        , getTrackersPartIndex
-        , init
-        , mapPackage
-        , mapPart
-        , mapTracker
-        , removeTracker
-        , saveParts
-        , saveScore
-        )
+module Model exposing
+    ( Model
+    , Page(..)
+    , apply
+    , getTrackersPartIndex
+    , init
+    , mapPackage
+    , mapPart
+    , mapTracker
+    , removeTracker
+    , saveParts
+    , saveScore
+    , setPlayFor
+    , setPlayFrom
+    )
 
 import Array exposing (Array)
 import Data.Error exposing (Error(..))
@@ -24,6 +25,7 @@ import Data.Tracker as Tracker
         )
 import Ports
 import Style
+
 
 
 -- TYPES --
@@ -52,7 +54,9 @@ type alias Model =
     , package : Package
     , error : Maybe Error
     , playFromBeatField : String
+    , playForBeatsField : String
     , playFromBeat : Int
+    , playForBeats : Int
     }
 
 
@@ -64,8 +68,13 @@ type Page
 init : Flags -> Model
 init flags =
     let
+        playFromBeat : Int
         playFromBeat =
             0
+
+        playForBeats : Int
+        playForBeats =
+            32
     in
     { parts = flags.parts
     , trackers =
@@ -76,9 +85,10 @@ init flags =
     , page = Trackers
     , package = flags.package
     , error = Nothing
-    , playFromBeatField = 
-        String.fromInt playFromBeat
+    , playFromBeatField = String.fromInt playFromBeat
+    , playForBeatsField = String.fromInt playForBeats
     , playFromBeat = playFromBeat
+    , playForBeats = playForBeats
     }
 
 
@@ -148,6 +158,38 @@ getTrackersPartIndex threadIndex model =
         |> Maybe.map .partIndex
 
 
+setPlayFrom : String -> Model -> Model
+setPlayFrom str model =
+    case String.toInt str of
+        Just fromBeat ->
+            { model
+                | playFromBeatField = str
+                , playFromBeat = fromBeat
+            }
+
+        Nothing ->
+            { model
+                | playFromBeatField =
+                    str
+            }
+
+
+setPlayFor : String -> Model -> Model
+setPlayFor str model =
+    case String.toInt str of
+        Just fromBeat ->
+            { model
+                | playForBeatsField = str
+                , playForBeats = fromBeat
+            }
+
+        Nothing ->
+            { model
+                | playForBeatsField =
+                    str
+            }
+
+
 
 -- SAVING -
 
@@ -190,8 +232,8 @@ saveParts model =
 
 -}
 saveScore : Model -> Result Model (Cmd msg)
-saveScore ({ package, parts } as model) =
-    case Package.saveScoreToDisk package parts of
+saveScore model =
+    case Package.saveScoreToDisk (buildParams model) of
         Just scoreSaveCmd ->
             Ok scoreSaveCmd
 
@@ -201,3 +243,12 @@ saveScore ({ package, parts } as model) =
                     Just ScoreDidNotSave
             }
                 |> Err
+
+
+buildParams : Model -> Package.ScoreParams
+buildParams model =
+    { package = model.package
+    , parts = model.parts
+    , from = model.playFromBeat
+    , length = model.playForBeats
+    }

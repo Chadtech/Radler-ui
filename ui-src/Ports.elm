@@ -1,9 +1,8 @@
-port module Ports
-    exposing
-        ( JsMsg(..)
-        , fromJs
-        , send
-        )
+port module Ports exposing
+    ( JsMsg(..)
+    , fromJs
+    , send
+    )
 
 import Json.Encode as E exposing (Value)
 
@@ -12,6 +11,7 @@ type JsMsg
     = SavePartToDisk ( String, String )
     | SavePackageToDisk String
     | SaveScoreToDisk String
+    | Play Int Int
 
 
 toCmd : String -> Value -> Cmd msg
@@ -32,8 +32,8 @@ send : JsMsg -> Cmd msg
 send msg =
     case msg of
         SavePartToDisk ( name, data ) ->
-            [ Tuple.pair "name" (E.string name)
-            , Tuple.pair "data" (E.string data)
+            [ def "name" (E.string name)
+            , def "data" (E.string data)
             ]
                 |> E.object
                 |> toCmd "savePartToDisk"
@@ -47,6 +47,18 @@ send msg =
             score
                 |> E.string
                 |> toCmd "saveScoreToDisk"
+
+        Play from for ->
+            [ def "from" (E.int from)
+            , def "for" (E.int for)
+            ]
+                |> E.object
+                |> toCmd "play"
+
+
+def : String -> E.Value -> ( String, E.Value )
+def =
+    Tuple.pair
 
 
 port toJs : Value -> Cmd msg

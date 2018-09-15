@@ -1,5 +1,6 @@
 module Data.Package exposing
     ( Package
+    , ScoreParams
     , decoder
     , saveScoreToDisk
     , saveToDisk
@@ -151,10 +152,19 @@ saveToDisk package =
         |> Ports.send
 
 
-saveScoreToDisk : Package -> Array Part -> Maybe (Cmd msg)
-saveScoreToDisk package parts =
-    buildScore package parts
-        |> Maybe.map (cmdFromScore package)
+type alias ScoreParams =
+    { package : Package
+    , parts : Array Part
+    , from : Int
+    , length : Int
+    }
+
+
+saveScoreToDisk : ScoreParams -> Maybe (Cmd msg)
+saveScoreToDisk params =
+    buildScore params
+        |> Maybe.map
+            (cmdFromScore params.package)
 
 
 cmdFromScore : Package -> List Beat -> Cmd msg
@@ -175,12 +185,20 @@ cmdFromScore package score =
         |> Ports.send
 
 
-buildScore : Package -> Array Part -> Maybe (List Beat)
-buildScore package parts =
+buildScore : ScoreParams -> Maybe (List Beat)
+buildScore { package, parts, from, length } =
     package.score
         |> List.map (cropPart (Part.toDict parts))
         |> Util.allValues
-        |> Maybe.map List.concat
+        |> Maybe.map (cropScore from length)
+
+
+cropScore : Int -> Int -> List (List Beat) -> List Beat
+cropScore from length pieces =
+    pieces
+        |> List.concat
+        |> List.drop from
+        |> List.take length
 
 
 scoreToString : Package -> List Beat -> String
@@ -229,6 +247,19 @@ withBeatTime package index beat =
     ( index * package.beatLength, beat )
 
 
+{-| In the package json, each part is
+list with its length in beats, but the actual
+csv of that part may be longer. This is
+possibility exists because the csv is
+human-facing, and sometimes it makes sense
+either in the UI to give yourself more space
+or in the project UX to write more music
+than is necessary and to crop it down later.
+
+cropPart takes a part, and cuts it down
+to the length specified in the package json.
+
+-}
 cropPart : Dict String (Array Beat) -> ( String, Int ) -> Maybe (List Beat)
 cropPart parts ( name, length ) =
     parts
