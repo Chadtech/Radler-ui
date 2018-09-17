@@ -123,6 +123,9 @@ view model =
         ]
         [ Grid.column
             [ flex (int 0) ]
+            [ saveButton ]
+        , Grid.column
+            [ flex (int 0) ]
             [ playButton ]
         , Grid.column
             [ flex (int 0)
@@ -141,13 +144,8 @@ view model =
             [ flex (int 0) ]
             [ playForField model.playForBeatsField ]
         , Grid.column
-            [ marginLeft (px 10)
-            , flex (int 0)
-            ]
-            [ saveButton ]
-        , Grid.column
             [ flex (int 0)
-            , marginLeft (px 10)
+            , marginLeft (px 15)
             ]
             [ trackersButton model.page ]
         , Grid.column

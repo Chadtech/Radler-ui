@@ -8,3 +8,5 @@ elm
 .cabal-sandbox/
 cabal.sandbox.config
 dist
+
+project/score

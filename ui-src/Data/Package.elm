@@ -205,10 +205,11 @@ scoreToString : Package -> List Beat -> String
 scoreToString package beats =
     beats
         |> List.indexedMap (withBeatTime package)
-        |> List.foldr
+        |> List.foldl
             (randomizeTiming package.timingVariance)
             ( package.seed, [] )
         |> Tuple.second
+        |> List.reverse
         |> List.map Beat.toString
         |> String.join "\n"
 
