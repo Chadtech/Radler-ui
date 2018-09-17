@@ -16,6 +16,7 @@ import Html.Styled as Html
         ( Html
         , button
         , input
+        , p
         )
 import Html.Styled.Attributes as Attrs
 import Html.Styled.Events
@@ -124,8 +125,21 @@ view model =
             [ flex (int 0) ]
             [ playButton ]
         , Grid.column
+            [ flex (int 0)
+            , margin2 (px 0) (px 10)
+            ]
+            [ fromText ]
+        , Grid.column
             [ flex (int 0) ]
             [ playFromField model.playFromBeatField ]
+        , Grid.column
+            [ flex (int 0)
+            , margin2 (px 0) (px 10)
+            ]
+            [ forText ]
+        , Grid.column
+            [ flex (int 0) ]
+            [ playForField model.playForBeatsField ]
         , Grid.column
             [ marginLeft (px 10)
             , flex (int 0)
@@ -150,6 +164,48 @@ view model =
         ]
 
 
+fromText : Html Msg
+fromText =
+    p
+        [ Attrs.css
+            [ Style.basicP
+            , Style.hfnss
+            , lineHeight (px 32)
+            ]
+        ]
+        [ Html.text "from" ]
+
+
+forText : Html Msg
+forText =
+    p
+        [ Attrs.css
+            [ Style.basicP
+            , Style.hfnss
+            , lineHeight (px 32)
+            ]
+        ]
+        [ Html.text "for" ]
+
+
+playForField : String -> Html Msg
+playForField playForBeats =
+    input
+        [ Attrs.css
+            [ Style.basicInput
+            , margin2 (px 1) (px 0)
+            , Style.hfnss
+            , color Colors.point0
+            , Style.fontSmoothingNone
+            , width (px ((Style.noteWidth Style.Big * 1.5) / 2))
+            ]
+        , Attrs.value playForBeats
+        , Attrs.spellcheck False
+        , onInput PlayForFieldUpdated
+        ]
+        []
+
+
 playFromField : String -> Html Msg
 playFromField playFromBeat =
     input
@@ -159,7 +215,7 @@ playFromField playFromBeat =
             , Style.hfnss
             , color Colors.point0
             , Style.fontSmoothingNone
-            , width (px (Style.noteWidth Style.Big * 1.5))
+            , width (px ((Style.noteWidth Style.Big * 1.5) / 2))
             ]
         , Attrs.value playFromBeat
         , Attrs.spellcheck False
