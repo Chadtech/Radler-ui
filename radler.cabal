@@ -27,6 +27,12 @@ executable radler
     split >=0.2 && <0.3, 
     process >=1.4 && <1.5, 
     regex-posix >=0.95 && <0.96,
-    text >=1.2 && <1.3
+    text >=1.2 && <1.3,
+    scotty >=0.11 && <0.12,
+    stm >=2.4 && <2.5,
+    mtl >=2.2 && <2.3,
+    data-default >=0.7 && <0.8,
+    wai-extra >=3.0 && <3.1,
+    data-default-class >=0.1 && <0.2
   -- hs-source-dirs:      
   default-language:    Haskell2010

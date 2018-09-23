@@ -295,7 +295,7 @@ readme =
 #   random relative to its initial conditions (a master
 #   seed for the whole project and its position in the rows 
 #   and columns)
-#   3.1 The note content, which usually includes information
+#   3.2 The note content, which usually includes information
 #   like tone, volume, duration, and decay.
 #
 # Also, it ignores content following "#" characters.

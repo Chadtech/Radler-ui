@@ -1,34 +1,42 @@
-module Main where
+{-# LANGUAGE OverloadedStrings, GeneralizedNewtypeDeriving #-}
 
-import qualified Data.ByteString as Byte
-import Data.Text (Text)
-import qualified Data.Text as T
-import qualified Data.Text.Encoding as TE
-import Error (Error)
-import qualified Error
-import Flow
+
+module Main (main) where
+
+import Data.Text.Lazy (Text)
+import Network.Wai.Middleware.RequestLogger as NWMR
+import Web.Scotty.Trans (ScottyT)
+import qualified Web.Scotty.Trans as Web
+-- import Flow
 import Model (Model)
 import qualified Model
-import Prelude hiding (init)
-import qualified Terminal.Input as Input
-import Result (Result(Err, Ok))
-import qualified Result
+import Program (Program)
+import qualified Program
+
+
+-- MAIN -- 
+
 
 main :: IO ()
-main = do
-    scoreData <- Byte.readFile "./project/score"
-    scoreData
-        |> TE.decodeUtf8
-        |> Model.init
-        |> init
+main = 
+    Program.init Model.init router
 
 
-init :: Result Error Model -> IO ()
-init result =
-    case result of
-        Ok model -> 
-            Input.init model
+-- ROUTER --
 
-        Err err -> do
-            putStrLn (Error.throw err)
+
+router :: ScottyT Text Program ()
+router =
+    Web.middleware NWMR.logStdoutDev 
+    >> Web.get "/" (Web.text "ping!!!!")
+    -- >> (Web.get "/plusone" $ do
+    --         setApp (mapModel addOne)
+    --         Web.redirect "/")
+
+    -- >> (Web.get "/plustwo" $ do
+    --         setApp (mapModel addTwo)
+    --         Web.redirect "/")
+        
+
+
     
