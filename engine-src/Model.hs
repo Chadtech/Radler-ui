@@ -5,6 +5,8 @@ module Model
     ( Model
     , score
     , init
+    , testTxt
+    , setTestTxt
     )
     where
 
@@ -30,3 +32,7 @@ init =
         , testTxt = "Testy text" 
         }    
 
+
+setTestTxt :: Text -> Model -> Model
+setTestTxt t m =
+    m { testTxt = t }

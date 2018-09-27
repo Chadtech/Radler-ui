@@ -54,12 +54,19 @@ set =
     CMR.lift
 
 
-getModel :: (Model -> b) -> Program b
-getModel f = 
+getModel :: Program Model
+getModel = 
     CMR.ask 
         >>= CMR.liftIO . STM.readTVarIO 
-        >>= return . f
+        >>= return
 
+
+-- getModel :: (Model -> Model) -> Program Model
+-- getModel f = 
+--     CMR.ask 
+--         >>= CMR.liftIO . STM.readTVarIO 
+--         >>= return . f
+        
 
 mapModel :: (Model -> Model) -> Program ()
 mapModel f = 

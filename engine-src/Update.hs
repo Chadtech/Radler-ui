@@ -3,8 +3,10 @@
 
 module Update (update) where
 
-import Cmd (Cmd)
-import qualified Cmd
+-- import Cmd (Cmd)
+-- import qualified Cmd
+import Data.Response (Response)
+import qualified Data.Response as Response
 import qualified Data.List as List
 import Data.Text (Text)
 import qualified Data.Text as T
@@ -23,32 +25,35 @@ import qualified Terminal.Output as Output
 
 
 
-update :: Msg -> Model -> (Model, Cmd)
+update :: Msg -> Model -> (Model, Response)
 update msg model =
-    case msg of
-        Play ->
-            ( model
-            , Cmd.none
-            -- , Just (playIo model)
-            )
+    ( model
+    , Response.ping
+    )
+    -- case msg of
+    --     Play ->
+    --         ( model
+    --         , Cmd.none
+    --         -- , Just (playIo model)
+    --         )
 
-        Build ->
-            ( model
-            , Cmd.none
-            -- , Just buildIo
-            )
+    --     Build ->
+    --         ( model
+    --         , Cmd.none
+    --         -- , Just buildIo
+    --         )
 
-        Init ->
-            ( model
-            , Output.send Ready
-            )
+    --     Init ->
+    --         ( model
+    --         , Output.send Ready
+    --         )
 
-        UnrecognizedCmd cmd ->
-            ( model
-            , cmd
-                |> EngineMsgNotRecognized
-                |> Output.send
-            )
+    --     UnrecognizedCmd cmd ->
+    --         ( model
+    --         , cmd
+    --             |> EngineMsgNotRecognized
+    --             |> Output.send
+    --         )
 
 
 -- playIo :: Model -> IO ()

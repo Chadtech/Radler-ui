@@ -1,4 +1,4 @@
-module Main exposing (..)
+module Main exposing (init, main, subscriptions, update, view)
 
 import Browser
 import Browser.Navigation
@@ -12,6 +12,7 @@ import Ports exposing (JsMsg(..))
 import Return2 as R2
 import Update exposing (update)
 import View exposing (view)
+
 
 
 -- MAIN --
