@@ -10,8 +10,8 @@ module Data.Note
     where
 
 import qualified Data.List as List
-import Data.Text (Text)
-import qualified Data.Text as T
+import Data.Text.Lazy (Text)
+import qualified Data.Text.Lazy as T
 import Flow
 import Prelude.Extra (List, textToInt, debugLog)
 import Result (Result(Ok, Err))
@@ -100,25 +100,20 @@ readNote txt =
 
                 (Just _, Nothing) ->
                     randomSeedTxt
-                        |> T.unpack
                         |> CouldntParseRandomSeed
                         |> Err
 
                 (Nothing, Just _) ->
                     timeTxt
-                        |> T.unpack
                         |> CouldntParseTime
                         |> Err
 
                 (Nothing, Nothing) ->
-                    CouldntParseAnything
-                        (T.unpack timeTxt)
-                        (T.unpack randomSeedTxt)
+                    CouldntParseAnything timeTxt randomSeedTxt
                         |> Err
 
         _ ->
             txt
-                |> T.unpack
                 |> NoteStringHadWrongStructure
                 |> Err
 
@@ -128,22 +123,34 @@ readNote txt =
 
 
 data Error 
-    = CouldntParseRandomSeed String
-    | CouldntParseTime String
-    | CouldntParseAnything String String
-    | NoteStringHadWrongStructure String
+    = CouldntParseRandomSeed Text
+    | CouldntParseTime Text
+    | CouldntParseAnything Text Text
+    | NoteStringHadWrongStructure Text
 
-throw :: Error -> String
+
+throw :: Error -> Text
 throw error =
     case error of
-        CouldntParseRandomSeed str ->
-            "I was trying to parse a note, and I had trouble with this random seed : " ++ str
+        CouldntParseRandomSeed txt ->
+            T.append
+                "I was trying to parse a note, and I had trouble with this random seed : "
+                txt
 
-        CouldntParseTime str ->
-            "I was trying to parse a note, and I had trouble with this time : " ++ str
+        CouldntParseTime txt ->
+            T.append
+                "I was trying to parse a note, and I had trouble with this time : "
+                txt
 
-        CouldntParseAnything timeStr randomStr ->
-            "I was trying to parse a note, and I had trouble with this random seed and this time str respectively : " ++ randomStr ++ " " ++ timeStr
+        CouldntParseAnything timeTxt randomTxt ->
+            [ "I was trying to parse a note, and I had trouble with this random seed and this time str respectively : " 
+            , randomTxt 
+            , " " 
+            , timeTxt
+            ]
+                |> T.concat
 
-        NoteStringHadWrongStructure str ->
-            "Notes have three parts separated by \",\". This one was structured differently : " ++ str
+        NoteStringHadWrongStructure txt ->
+            T.append
+                "Notes have three parts separated by \",\". This one was structured differently : "
+                txt

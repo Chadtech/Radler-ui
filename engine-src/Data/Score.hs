@@ -10,8 +10,8 @@ module Data.Score
 import Data.List as List
 import Data.Note (Note)
 import qualified Data.Note as Note
-import Data.Text (Text)
-import qualified Data.Text as T
+import Data.Text.Lazy (Text)
+import qualified Data.Text.Lazy as T
 import qualified Data.Voice as Voice
 import Flow
 import Parsing (Parser)

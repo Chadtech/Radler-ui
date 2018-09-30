@@ -1,3 +1,6 @@
+{-# LANGUAGE OverloadedStrings #-}
+
+
 module Error
     ( Error(..) 
     , throw
@@ -6,6 +9,8 @@ module Error
 
 
 import qualified Data.Note as Note
+import Data.Text.Lazy (Text)
+import qualified Data.Text.Lazy as T
 import qualified Data.Voice as Voice
 
 
@@ -15,7 +20,7 @@ data Error
     | ScoreError Note.Error
 
 
-throw :: Error -> String
+throw :: Error -> Text
 throw error =
     case error of
         ScoreError err ->

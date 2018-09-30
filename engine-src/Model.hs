@@ -5,34 +5,30 @@ module Model
     ( Model
     , score
     , init
-    , testTxt
-    , setTestTxt
+    , setScore
     )
     where
 
 
 import Data.Score (Score)
 import qualified Data.Score as Score
-import Data.Text (Text)
-import qualified Data.Text as T
+import Data.Text.Lazy (Text)
+import qualified Data.Text.Lazy as T
 import Prelude hiding (init)
 
 
 data Model
     = Model 
         { score :: Maybe Score 
-        , testTxt :: Text
         }
 
 
 init :: Model
 init =
     Model
-        { score = Nothing
-        , testTxt = "Testy text" 
-        }    
+        { score = Nothing }    
 
 
-setTestTxt :: Text -> Model -> Model
-setTestTxt t m =
-    m { testTxt = t }
+setScore :: Score -> Model -> Model
+setScore score m =
+    m { score = Just score }

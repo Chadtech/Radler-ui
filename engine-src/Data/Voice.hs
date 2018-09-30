@@ -17,8 +17,8 @@ import qualified Result
 import Result (Result(Ok, Err))
 import Flow
 import Data.List as List
-import Data.Text (Text)
-import qualified Data.Text as T
+import Data.Text.Lazy (Text)
+import qualified Data.Text.Lazy as T
 
 
 -- TYPES -- 
@@ -40,7 +40,6 @@ fromPieces txt =
 
         _ ->
             txt
-                |> T.unpack
                 |> UnrecognizedVoiceType
                 |> Err
 
@@ -58,16 +57,16 @@ readMany txt =
 
 
 data Error
-    = UnrecognizedVoiceType String
+    = UnrecognizedVoiceType Text
 
 
-throw :: Error -> String
+throw :: Error -> Text
 throw error =
-    "Voice Error -> \n    " ++ errorToString error
+    T.append "Voice Error -> \n    " $ errorToText error
 
 
-errorToString :: Error -> String
-errorToString error =
+errorToText :: Error -> Text
+errorToText error =
     case error of
-        UnrecognizedVoiceType str ->
-            "unrecognized voice type -> " ++ str
+        UnrecognizedVoiceType txt ->
+            T.append "unrecognized voice type -> " txt

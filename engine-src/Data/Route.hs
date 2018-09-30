@@ -7,8 +7,8 @@ module Data.Route
     ) where
 
 import Data.Score (Score)
-import Data.Text (Text)
-import qualified Data.Text as T  
+import Data.Text.Lazy (Text)
+import qualified Data.Text.Lazy as T  
 import Error (Error)
 import Result (Result)
 
@@ -16,6 +16,7 @@ import Result (Result)
 
 data Route 
     = Init (Result Error Score)
+    | Echo Text
     | Ping
 
 
@@ -28,3 +29,11 @@ decode routeTxt body =
 
         "/ping" ->
             Just Ping
+
+        "/echo" ->
+            Just (Echo body)
+
+        _ ->
+            Nothing
+
+        

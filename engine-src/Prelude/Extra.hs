@@ -9,13 +9,14 @@ module Prelude.Extra
     , textToInt
     , debugLog
     , mapFirst
+    , mapMaybe
     ) where
 
 
 import qualified Data.List as List
-import Data.Text (Text)
-import qualified Data.Text as T
-import qualified Data.Text.Read as TR
+import Data.Text.Lazy (Text)
+import qualified Data.Text.Lazy as T
+import qualified Data.Text.Lazy.Read as TR
 import Flow
 import Prelude hiding (head)
 import qualified Debug.Trace as Debug
@@ -39,6 +40,16 @@ head list =
 
         first : rest ->
             Just first
+
+
+mapMaybe :: (a -> b) -> Maybe a -> Maybe b
+mapMaybe f maybe =
+    case maybe of
+        Just v ->
+            Just (f v)
+
+        Nothing ->
+            Nothing
 
 
 listMap2 :: List a -> List b -> (a -> b -> c) -> List c

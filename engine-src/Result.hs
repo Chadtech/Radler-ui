@@ -1,15 +1,12 @@
 module Result
     ( Result(..)
-    , map
+    , Result.map
     , mapError
     , map2
     , andThen
     , join
     )
     where
-
-
-import Prelude (String, (++), show)
 
 
 data Result e v

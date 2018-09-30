@@ -3,98 +3,65 @@
 
 module Update (update) where
 
--- import Cmd (Cmd)
--- import qualified Cmd
 import Data.Response (Response)
 import qualified Data.Response as Response
+import Data.Route (Route(..))
+import qualified Data.Route as Route
 import qualified Data.List as List
 import Data.Text (Text)
 import qualified Data.Text as T
+import Error (Error)
+import qualified Error
 import Flow
+import Json (Json)
+import qualified Json
 import Msg (Msg(..))
 import Model (Model)
 import qualified Model
-import System.Process (callCommand)
-import Terminal.Output
-    ( UiMsg
-        ( EngineMsgNotRecognized
-        , Ready
-        )
-    )
-import qualified Terminal.Output as Output
+import Prelude.Extra ((<<))
+import qualified Prelude.Extra as PE
+import Result (Result(Err, Ok))
+import qualified Result
 
 
 update :: Msg -> Model -> ( Model, Response )
 update msg model =
     case msg of
-        ChangeTestTxt ->
-            ( Model.setTestTxt "Yikes" model
-            , Response.ping
-            )
+        Request Nothing ->
+            ( model, Response._404)
 
-        Request maybeRoute ->
+        Request (Just route) ->
+            handleRoute route model
+
+
+handleRoute :: Route -> Model -> ( Model, Response )
+handleRoute route model =
+    case route of
+        Ping ->
             ( model, Response.ping )
 
-    -- model
-    -- , Response.ping
-    -- )
+        Echo body ->
+            ( model, Response.text body )
 
--- update :: Msg -> Model -> (Model, Response)
--- update msg model =
---     ( model
---     , Response.ping
---     )
-    -- case msg of
-    --     Play ->
-    --         ( model
-    --         , Cmd.none
-    --         -- , Just (playIo model)
-    --         )
+        Init (Ok score) ->
+            ( Model.setScore score model
+            , initResponse Nothing
+            )
 
-    --     Build ->
-    --         ( model
-    --         , Cmd.none
-    --         -- , Just buildIo
-    --         )
-
-    --     Init ->
-    --         ( model
-    --         , Output.send Ready
-    --         )
-
-    --     UnrecognizedCmd cmd ->
-    --         ( model
-    --         , cmd
-    --             |> EngineMsgNotRecognized
-    --             |> Output.send
-    --         )
+        Init (Err err) ->
+            ( model
+            , initResponse (Just err)
+            )
 
 
--- playIo :: Model -> IO ()
--- playIo model = do
---     Output.say "playing"
---     let audioFileName = getAudioFileName model
---     playCmd model
---     Output.newLine
-
-
--- playCmd :: Model -> IO ()
--- playCmd model =
---     model
---         |> Model.name
---         |> T.append "play "
---         |> T.unpack
---         |> callCommand
-
-
--- getAudioFileName :: Model -> Text
--- getAudioFileName model =
---     T.append (Model.name model) ".wav"
-
-
--- buildIo :: IO ()
--- buildIo = do
---     putStrLn "-- BUILDING"
---     Output.say "building"
---     Output.newLine
+initResponse :: Maybe Error -> Response
+initResponse maybeError =
+    [ ("type", Json.string "Init") 
+    , maybeError
+        |> PE.mapMaybe (Json.string << Error.throw)
+        |> Json.maybe 
+        |> (,) "payload"
+    ]
+      |> Json.object
+      |> Response.json
 
