@@ -5,9 +5,10 @@ module Program
     ( Program
     , init
     , run
-    , set
-    , getModel
+    -- , set
+    , model
     , mapModel
+    , setModel
     ) where
 
       
@@ -15,6 +16,7 @@ import Control.Applicative
 import qualified Control.Concurrent.STM as STM
 import qualified Control.Monad.Reader as CMR
 import Data.Text.Lazy (Text)
+import Flow
 import Model (Model)
 import Prelude hiding (init)
 import Web.Scotty.Trans (ScottyT)
@@ -54,19 +56,21 @@ set =
     CMR.lift
 
 
-getModel :: Program Model
-getModel = 
+model :: CMR.MonadTrans t => t Program Model
+model = 
     CMR.ask 
         >>= CMR.liftIO . STM.readTVarIO 
         >>= return
+        |> CMR.lift
 
 
--- getModel :: (Model -> Model) -> Program Model
--- getModel f = 
---     CMR.ask 
---         >>= CMR.liftIO . STM.readTVarIO 
---         >>= return . f
-        
+setModel :: CMR.MonadTrans t => Model -> t Program ()
+setModel model =
+    model
+        |> const
+        |> mapModel
+        |> CMR.lift
+
 
 mapModel :: (Model -> Model) -> Program ()
 mapModel f = 

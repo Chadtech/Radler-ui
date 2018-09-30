@@ -24,12 +24,26 @@ import Terminal.Output
 import qualified Terminal.Output as Output
 
 
-
-update :: Msg -> Model -> (Model, Response)
+update :: Msg -> Model -> ( Model, Response )
 update msg model =
-    ( model
-    , Response.ping
-    )
+    case msg of
+        ChangeTestTxt ->
+            ( Model.setTestTxt "Yikes" model
+            , Response.ping
+            )
+
+        Request maybeRoute ->
+            ( model, Response.ping )
+
+    -- model
+    -- , Response.ping
+    -- )
+
+-- update :: Msg -> Model -> (Model, Response)
+-- update msg model =
+--     ( model
+--     , Response.ping
+--     )
     -- case msg of
     --     Play ->
     --         ( model

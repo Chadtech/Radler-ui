@@ -8,6 +8,7 @@ module Prelude.Extra
     , (<<)
     , textToInt
     , debugLog
+    , mapFirst
     ) where
 
 
@@ -74,3 +75,8 @@ leftCompose f g v =
 debugLog :: String -> (a -> String) -> a -> a
 debugLog msg toString x =
     Debug.trace (msg ++ " : " ++ (toString x)) x
+
+
+mapFirst :: (a -> b) -> (a, c) -> (b, c)
+mapFirst f (a, b) =
+    (f a, b)

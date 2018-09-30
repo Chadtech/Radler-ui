@@ -3,8 +3,8 @@
 
 module Msg 
     ( Msg(..)
-    , init
-    , fromText
+    -- , init
+    -- , fromText
     ) 
     where
 
@@ -12,28 +12,36 @@ import Data.Text (Text)
 import qualified Data.Text as T        
 import Prelude hiding (init)
 import Result (Result(..))
+import Data.Route (Route(..))
 
 
 data Msg
-    = Play
-    | Build
-    | Init
-    | UnrecognizedCmd Text
+    = ChangeTestTxt
+    | Request (Maybe Route)
 
 
-init :: Msg
-init =
-    Init
 
 
-fromText :: Text -> Msg
-fromText txt =
-    case T.splitOn " " txt of
-        "build" : _ ->
-            Build
+-- data Msg
+--     = Play
+--     | Build
+--     | Init
+--     | UnrecognizedCmd Text
 
-        "play" : _ ->
-            Play
 
-        _ ->
-            UnrecognizedCmd txt
+-- init :: Msg
+-- init =
+--     Init
+
+
+-- fromText :: Text -> Msg
+-- fromText txt =
+--     case T.splitOn " " txt of
+--         "build" : _ ->
+--             Build
+
+--         "play" : _ ->
+--             Play
+
+--         _ ->
+--             UnrecognizedCmd txt
