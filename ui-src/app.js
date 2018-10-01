@@ -61,12 +61,6 @@ var actions = {
       projectDir('package.json'),
       payload
     );
-  },
-  saveScoreToDisk: function (payload) {
-    fs.writeFileSync(
-      projectDir('score'),
-      payload
-    );
   }
 }
 
@@ -78,18 +72,6 @@ function jsMsgHandler(msg) {
   }
   action(msg.payload);
 }
-
-function engineMsgHandler(msg) {
-  console.log("!", msg);
-  switch (msg.type) {
-    default:
-      toElm("Unrecognized engine msg type", msg.type);
-  }
-}
-
-ipcRenderer.on("from-engine", function (_, msg) {
-  engineMsgHandler(msg);
-});
 
 app.ports.toJs.subscribe(jsMsgHandler)
 

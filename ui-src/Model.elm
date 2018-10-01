@@ -9,7 +9,7 @@ module Model exposing
     , mapTracker
     , removeTracker
     , saveParts
-    , saveScore
+    , score
     , setPlayFor
     , setPlayFrom
     )
@@ -231,11 +231,11 @@ saveParts model =
     timing information
 
 -}
-saveScore : Model -> Result Model (Cmd msg)
-saveScore model =
-    case Package.saveScoreToDisk (buildParams model) of
-        Just scoreSaveCmd ->
-            Ok scoreSaveCmd
+score : Model -> Result Model String
+score model =
+    case Package.scorePayload (buildParams model) of
+        Just scoreStr ->
+            Ok scoreStr
 
         Nothing ->
             { model

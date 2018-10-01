@@ -2,8 +2,8 @@ module Data.Package exposing
     ( Package
     , ScoreParams
     , decoder
-    , saveScoreToDisk
     , saveToDisk
+    , scorePayload
     , setJsonStrField
     )
 
@@ -160,15 +160,15 @@ type alias ScoreParams =
     }
 
 
-saveScoreToDisk : ScoreParams -> Maybe (Cmd msg)
-saveScoreToDisk params =
+scorePayload : ScoreParams -> Maybe String
+scorePayload params =
     buildScore params
         |> Maybe.map
-            (cmdFromScore params.package)
+            (toScoreString params.package)
 
 
-cmdFromScore : Package -> List Beat -> Cmd msg
-cmdFromScore package score =
+toScoreString : Package -> List Beat -> String
+toScoreString package score =
     [ "# READ ME"
     , readme
     , "# NAME"
@@ -181,8 +181,6 @@ cmdFromScore package score =
     , scoreToString package score
     ]
         |> String.join "\n"
-        |> Ports.SaveScoreToDisk
-        |> Ports.send
 
 
 buildScore : ScoreParams -> Maybe (List Beat)

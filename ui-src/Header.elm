@@ -88,10 +88,11 @@ update msg model =
                         model
                     ]
             in
-            case Model.saveScore model of
-                Ok scoreCmd ->
-                    scoreCmd
-                        :: saveCmds
+            case Model.score model of
+                Ok scoreStr ->
+                    -- scoreCmd
+                    -- :: saveCmds
+                    saveCmds
                         |> Cmd.batch
                         |> R2.withModel model
 
