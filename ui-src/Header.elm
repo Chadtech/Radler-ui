@@ -44,7 +44,7 @@ type Msg
     | SaveClicked
     | PlayFromFieldUpdated String
     | PlayForFieldUpdated String
-    | PlayRequested (Result Http.Error String)
+    | PlaySent (Result Http.Error String)
 
 
 
@@ -77,9 +77,9 @@ update msg model =
         PlayClicked ->
             case Model.score model of
                 Ok scoreStr ->
-                    Http.send
-                        PlayRequested
-                        (playRequest model scoreStr)
+                    scoreStr
+                        |> Play
+                        |> sendHttp model
                         |> R2.withModel model
 
                 Err newModel ->
@@ -109,7 +109,7 @@ update msg model =
                 |> Model.setPlayFor str
                 |> R2.withNoCmd
 
-        PlayRequested result ->
+        PlaySent result ->
             let
                 _ =
                     Debug.log "RESULT" result
@@ -118,12 +118,23 @@ update msg model =
                 |> R2.withNoCmd
 
 
-playRequest : Model -> String -> Http.Request String
-playRequest model score =
-    Http.post
-        (Model.urlRoute model "echo")
-        (Http.stringBody "application/json" score)
-        D.string
+
+-- HTTP --
+
+
+type Call
+    = Play String
+
+
+sendHttp : Model -> Call -> Cmd Msg
+sendHttp model call =
+    case call of
+        Play score ->
+            Http.post
+                (Model.urlRoute model "echo")
+                (Http.stringBody "application/json" score)
+                D.string
+                |> Http.send PlaySent
 
 
 
