@@ -70,7 +70,7 @@ buildFromChunks scoreData chunks =
                 |> applyVoices voices
                 |> applyNotes notes
 
-        [] ->
+        _ ->
             Err UnexpectedChunkStructure
 
 

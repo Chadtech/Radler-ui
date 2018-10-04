@@ -43,20 +43,20 @@ handleRoute route model =
         Echo body ->
             ( model, Response.text body )
 
-        Init (Ok score) ->
+        Play (Ok score) ->
             ( Model.setScore score model
-            , initResponse Nothing
+            , playResponse Nothing
             )
 
-        Init (Err err) ->
+        Play (Err err) ->
             ( model
-            , initResponse (Just err)
+            , playResponse (Just err)
             )
 
 
-initResponse :: Maybe Error -> Response
-initResponse maybeError =
-    [ ("type", Json.string "Init") 
+playResponse :: Maybe Error -> Response
+playResponse maybeError =
+    [ ("type", Json.string "PlayReceived") 
     , maybeError
         |> PE.mapMaybe (Json.string << Error.throw)
         |> Json.maybe 

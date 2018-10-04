@@ -7,15 +7,17 @@ module Data.Route
     ) where
 
 import Data.Score (Score)
+import qualified Data.Score as Score
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T  
 import Error (Error)
+import Flow
 import Result (Result)
 
 
 
 data Route 
-    = Init (Result Error Score)
+    = Play (Result Error Score)
     | Echo Text
     | Ping
 
@@ -24,8 +26,11 @@ data Route
 decode :: Text -> Text -> Maybe Route
 decode routeTxt body =
     case routeTxt of
-        "/init" ->
-            Nothing
+        "/play" ->
+            body
+                |> Score.fromText
+                |> Play
+                |> Just
 
         "/ping" ->
             Just Ping
