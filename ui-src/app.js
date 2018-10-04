@@ -35,43 +35,51 @@ function readParts() {
     })
 }
 
-var app = Elm.Main.init({
-  flags: {
-    package: readPackage(),
-    parts: readParts()
+ipcRenderer.on('init', function (event, payload) {
+
+  var app = Elm.Main.init({
+    flags: {
+      package: readPackage(),
+      parts: readParts(),
+      enginePortNumber: payload.port
+    }
+  });
+
+  function toElm(type, payload) {
+    app.ports.fromJs.send({
+      type: type,
+      payload: payload
+    });
   }
+
+  var actions = {
+    savePartToDisk: function (payload) {
+      fs.writeFileSync(
+        partsDir(payload.name),
+        payload.data
+      );
+    },
+    savePackageToDisk: function (payload) {
+      fs.writeFileSync(
+        projectDir('package.json'),
+        payload
+      );
+    }
+  }
+
+  function jsMsgHandler(msg) {
+    var action = actions[msg.type];
+    if (typeof action === "undefined") {
+      console.log("Unrecognized js msg type ->", msg.type);
+      return;
+    }
+    action(msg.payload);
+  }
+
+  app.ports.toJs.subscribe(jsMsgHandler);
+
 });
 
-function toElm(type, payload) {
-  app.ports.fromJs.send({
-    type: type,
-    payload: payload
-  });
-}
 
-var actions = {
-  savePartToDisk: function (payload) {
-    fs.writeFileSync(
-      partsDir(payload.name),
-      payload.data
-    );
-  },
-  savePackageToDisk: function (payload) {
-    fs.writeFileSync(
-      projectDir('package.json'),
-      payload
-    );
-  }
-}
 
-function jsMsgHandler(msg) {
-  var action = actions[msg.type];
-  if (typeof action === "undefined") {
-    console.log("Unrecognized js msg type ->", msg.type);
-    return;
-  }
-  action(msg.payload);
-}
-
-app.ports.toJs.subscribe(jsMsgHandler)
 

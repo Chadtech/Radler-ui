@@ -12,6 +12,7 @@ module Model exposing
     , score
     , setPlayFor
     , setPlayFrom
+    , urlRoute
     )
 
 import Array exposing (Array)
@@ -23,6 +24,7 @@ import Data.Tracker as Tracker
     exposing
         ( Tracker
         )
+import Data.Url as Url exposing (Url)
 import Ports
 import Style
 
@@ -57,6 +59,7 @@ type alias Model =
     , playForBeatsField : String
     , playFromBeat : Int
     , playForBeats : Int
+    , engineUrl : Url
     }
 
 
@@ -89,6 +92,12 @@ init flags =
     , playForBeatsField = String.fromInt playForBeats
     , playFromBeat = playFromBeat
     , playForBeats = playForBeats
+    , engineUrl =
+        [ "http://localhost:"
+        , String.fromInt flags.enginePort
+        ]
+            |> String.concat
+            |> Url.fromString
     }
 
 
@@ -252,3 +261,12 @@ buildParams model =
     , from = model.playFromBeat
     , length = model.playForBeats
     }
+
+
+urlRoute : Model -> String -> String
+urlRoute model route =
+    [ Url.toString model.engineUrl
+    , "/"
+    , route
+    ]
+        |> String.concat

@@ -5,7 +5,6 @@ module Program
     ( Program
     , init
     , run
-    -- , set
     , model
     , mapModel
     , setModel

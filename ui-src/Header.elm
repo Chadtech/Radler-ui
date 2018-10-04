@@ -24,6 +24,8 @@ import Html.Styled.Events
         ( onClick
         , onInput
         )
+import Http
+import Json.Decode as D
 import Model exposing (Model, Page)
 import Return2 as R2
 import Style
@@ -42,6 +44,7 @@ type Msg
     | SaveClicked
     | PlayFromFieldUpdated String
     | PlayForFieldUpdated String
+    | PlayRequested (Result Http.Error String)
 
 
 
@@ -72,33 +75,29 @@ update msg model =
                 |> R2.withNoCmd
 
         PlayClicked ->
-            model
-                |> R2.withNoCmd
+            case Model.score model of
+                Ok scoreStr ->
+                    Http.send
+                        PlayRequested
+                        (playRequest model scoreStr)
+                        |> R2.withModel model
+
+                Err newModel ->
+                    newModel
+                        |> R2.withNoCmd
 
         OpenClicked ->
             model
                 |> R2.withNoCmd
 
         SaveClicked ->
-            let
-                saveCmds =
-                    [ Package.saveToDisk
-                        model.package
-                    , Model.saveParts
-                        model
-                    ]
-            in
-            case Model.score model of
-                Ok scoreStr ->
-                    -- scoreCmd
-                    -- :: saveCmds
-                    saveCmds
-                        |> Cmd.batch
-                        |> R2.withModel model
-
-                Err newModel ->
-                    newModel
-                        |> R2.withCmds saveCmds
+            [ Package.saveToDisk
+                model.package
+            , Model.saveParts
+                model
+            ]
+                |> Cmd.batch
+                |> R2.withModel model
 
         PlayFromFieldUpdated str ->
             model
@@ -109,6 +108,22 @@ update msg model =
             model
                 |> Model.setPlayFor str
                 |> R2.withNoCmd
+
+        PlayRequested result ->
+            let
+                _ =
+                    Debug.log "RESULT" result
+            in
+            model
+                |> R2.withNoCmd
+
+
+playRequest : Model -> String -> Http.Request String
+playRequest model score =
+    Http.post
+        (Model.urlRoute model "echo")
+        (Http.stringBody "application/json" score)
+        D.string
 
 
 

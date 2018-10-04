@@ -1,14 +1,14 @@
-module Data.Flags
-    exposing
-        ( Flags
-        , decoder
-        )
+module Data.Flags exposing
+    ( Flags
+    , decoder
+    )
 
 import Array exposing (Array)
 import Data.Package as Package exposing (Package)
 import Data.Part as Part exposing (Part)
 import Json.Decode as D exposing (Decoder)
 import Json.Decode.Pipeline as JDP
+
 
 
 -- TYPES --
@@ -29,6 +29,7 @@ import Json.Decode.Pipeline as JDP
 type alias Flags =
     { package : Package
     , parts : Array Part
+    , enginePort : Int
     }
 
 
@@ -41,6 +42,7 @@ decoder =
     D.succeed Flags
         |> JDP.required "package" Package.decoder
         |> JDP.required "parts" partsDecoder
+        |> JDP.required "enginePortNumber" D.int
 
 
 partsDecoder : Decoder (Array Part)
@@ -56,5 +58,6 @@ atLeastOnePart parts =
     if Array.isEmpty parts then
         [ Part.empty ]
             |> Array.fromList
+
     else
         parts

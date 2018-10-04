@@ -3,27 +3,31 @@ var cp = require("child_process");
 
 var app = electron.app;
 var BrowserWindow = electron.BrowserWindow;
-var main = {
+
+var model = {
   window: null,
-  engine: null
+  engine: null,
+  port: 3000
 };
 
-main.engine = cp.spawn("./dist/build/radler/radler");
+model.engine = cp.spawn("./dist/build/radler/radler");
 
 function createWindow() {
-  main.window = new BrowserWindow({
+  model.window = new BrowserWindow({
     width: 1000,
     height: 800
   });
 
-  main.window.loadFile("public/index.html")
-  main.window.openDevTools()
-  main.window.webContents.on("did-finish-load", function () {
-
+  model.window.loadFile("public/index.html");
+  model.window.openDevTools();
+  model.window.webContents.on("did-finish-load", function () {
+    model.window.webContents.send('init', {
+      port: model.port
+    });
   });
 
-  main.window.on("closed", function () {
-    main.window = null
+  model.window.on("closed", function () {
+    model.window = null
   });
 }
 
@@ -36,7 +40,7 @@ app.on("window-all-closed", function () {
 });
 
 app.on("activate", function () {
-  if (main.window === null) {
+  if (model.window === null) {
     createWindow();
   }
 });
