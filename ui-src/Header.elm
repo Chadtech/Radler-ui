@@ -132,13 +132,12 @@ sendHttp model call =
         Play score ->
             Http.post
                 (Model.urlRoute model "play")
-                (Http.stringBody "application/json" score)
+                (Http.stringBody "" score)
                 D.string
                 |> Http.send PlaySent
 
 
 
--- playResponseDecoder : Decoder String
 -- VIEW --
 
 

@@ -12,10 +12,12 @@ import qualified Data.Note as Note
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import qualified Data.Voice as Voice
+import Flow
+import Prelude.Extra (List)
 
 
 data Error
-    = UnexpectedChunkStructure
+    = UnexpectedChunkStructure (List Text)
     | VoiceError Voice.Error
     | ScoreError Note.Error
 
@@ -29,5 +31,9 @@ throw error =
         VoiceError err ->
             Voice.throw err
 
-        UnexpectedChunkStructure ->
-            "I could not parse the score. The chunks werent what I expected."
+        UnexpectedChunkStructure chunks ->
+            [ "I could not parse the score. \
+              \The chunks werent what I expected. : ->\n\n"
+            , T.intercalate "chunk\n\n" chunks
+            ]
+                |> T.concat

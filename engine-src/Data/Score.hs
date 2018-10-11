@@ -47,7 +47,8 @@ fromText txt =
 toChunks :: Text -> List Text
 toChunks bs =
     bs
-        |> T.splitOn "\n"
+        |> T.dropAround ((==) '\"')
+        |> T.lines
         |> List.filter isntCommentLine
         |> T.unlines
         |> T.splitOn ":"
@@ -55,7 +56,7 @@ toChunks bs =
 
 isntCommentLine :: Text -> Bool
 isntCommentLine line =
-    T.isPrefixOf "#" line 
+    T.isPrefixOf "#" line
         |> not
 
 
@@ -71,7 +72,7 @@ buildFromChunks scoreData chunks =
                 |> applyNotes notes
 
         _ ->
-            Err UnexpectedChunkStructure
+            Err (UnexpectedChunkStructure chunks)
 
 
 applyNotes :: Text -> Parser Error (List (List Note)) b

@@ -56,12 +56,8 @@ handleRoute route model =
 
 playResponse :: Maybe Error -> Response
 playResponse maybeError =
-    [ ("type", Json.string "PlayReceived") 
-    , maybeError
+    maybeError
         |> PE.mapMaybe (Json.string << Error.throw)
         |> Json.maybe 
-        |> (,) "payload"
-    ]
-      |> Json.object
-      |> Response.json
+        |> Response.json
 

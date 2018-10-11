@@ -10,7 +10,7 @@ var model = {
   port: 3000
 };
 
-model.engine = cp.spawn("./dist/build/radler/radler");
+// model.engine = cp.spawn("./dist/build/radler/radler");
 
 function createWindow() {
   model.window = new BrowserWindow({
