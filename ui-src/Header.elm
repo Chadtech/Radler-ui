@@ -78,6 +78,7 @@ update msg model =
             case Model.score model of
                 Ok scoreStr ->
                     scoreStr
+                        |> Debug.log "SCORE STR"
                         |> Play
                         |> sendHttp model
                         |> R2.withModel model
@@ -132,7 +133,7 @@ sendHttp model call =
         Play score ->
             Http.post
                 (Model.urlRoute model "play")
-                (Http.stringBody "" score)
+                (Http.stringBody "string" score)
                 D.string
                 |> Http.send PlaySent
 

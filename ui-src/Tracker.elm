@@ -1,5 +1,5 @@
 module Tracker exposing
-    ( Msg(..)
+    ( Msg
     , update
     , view
     )

@@ -5,11 +5,9 @@ module Prelude.Extra
     ( head
     , listMap2
     , List
-    , (<<)
     , textToInt
     , debugLog
     , mapFirst
-    , mapMaybe
     ) where
 
 
@@ -42,16 +40,6 @@ head list =
             Just first
 
 
-mapMaybe :: (a -> b) -> Maybe a -> Maybe b
-mapMaybe f maybe =
-    case maybe of
-        Just v ->
-            Just (f v)
-
-        Nothing ->
-            Nothing
-
-
 listMap2 :: List a -> List b -> (a -> b -> c) -> List c
 listMap2 xs ys f =
     listMap2Accumulate xs ys f []
@@ -74,13 +62,9 @@ listMap2Accumulate xs ys f output =
 type List a = [ a ]
 
 
-infixl 0 <<
-(<<) = leftCompose
-
-
-leftCompose :: (b -> c) -> (a -> b) -> a -> c
-leftCompose f g v =
-    f (g v)
+rightCompose :: (a -> b) -> (b -> c) -> a -> c
+rightCompose f g v =
+    g (f v)
 
 
 debugLog :: String -> (a -> String) -> a -> a

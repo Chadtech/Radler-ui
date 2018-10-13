@@ -1,8 +1,7 @@
-module Msg
-    exposing
-        ( Msg(..)
-        , decode
-        )
+module Msg exposing
+    ( Msg(..)
+    , decode
+    )
 
 import Header
 import Json.Decode as D exposing (Decoder)

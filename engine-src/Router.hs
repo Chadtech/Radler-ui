@@ -12,6 +12,7 @@ import qualified Control.Concurrent.STM as STM
 import Control.Monad.IO.Class (liftIO)
 import qualified Control.Monad.Reader as CMR
 import qualified Data.ByteString as BS
+import Data.Function
 import Data.Response (Response)
 import qualified Data.Response as Response
 import qualified Data.Route as Route
@@ -59,10 +60,10 @@ withBody routeTxt = do
                 return acc
     bodyTxt <- liftIO $ step ""
     bodyTxt
-        |> T.pack
-        |> Route.decode routeTxt
-        |> Request
-        |> respond
+        & T.pack
+        & Route.decode routeTxt
+        & Request
+        & respond
 
 
 respond :: Msg -> Response

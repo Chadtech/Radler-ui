@@ -4,25 +4,21 @@
 module Data.Score
     ( Score
     , fromText
+    , Error
+    , throw
     )
     where
 
+import Data.Function
 import Data.List as List
 import Data.Note (Note)
 import qualified Data.Note as Note
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import qualified Data.Voice as Voice
-import Flow
-import Parsing (Parser)
+import Parse (Parser)
+import qualified Parse
 import Prelude.Extra (List)
-import Error 
-    ( Error
-        ( VoiceError
-        , ScoreError
-        , UnexpectedChunkStructure
-        )
-    )
 import Result (Result(Ok, Err))
 import qualified Result
 
@@ -36,28 +32,27 @@ data Score
         }
 
 
-
 fromText :: Text -> Result Error Score
-fromText txt =
+fromText txt = 
     txt
-        |> toChunks
-        |> buildFromChunks txt
+        & toChunks
+        & buildFromChunks txt
+     
 
 
 toChunks :: Text -> List Text
-toChunks bs =
-    bs
-        |> T.dropAround ((==) '\"')
-        |> T.lines
-        |> List.filter isntCommentLine
-        |> T.unlines
-        |> T.splitOn ":"
+toChunks 
+    = T.splitOn ":"
+    . T.unlines
+    . List.filter isntCommentLine
+    . T.splitOn "\\n"
+    . T.dropAround ((==) '"')
 
 
 isntCommentLine :: Text -> Bool
-isntCommentLine line =
-    T.isPrefixOf "#" line
-        |> not
+isntCommentLine 
+    = not
+    . T.isPrefixOf "#"
 
 
 buildFromChunks :: Text -> List Text -> Result Error Score
@@ -65,11 +60,11 @@ buildFromChunks scoreData chunks =
     case chunks of
         name : voices : notes : [] ->
             Score
-                |> Ok
-                |> applyText scoreData
-                |> applyText name
-                |> applyVoices voices
-                |> applyNotes notes
+                & Ok
+                & Parse.construct scoreData
+                & Parse.construct name
+                & applyVoices voices
+                & applyNotes notes
 
         _ ->
             Err (UnexpectedChunkStructure chunks)
@@ -79,26 +74,43 @@ applyNotes :: Text -> Parser Error (List (List Note)) b
 applyNotes txt ctorResult =
     case Note.readScore txt of
         Ok score ->
-            Result.map 
-                ((|>) score)
-                ctorResult
+            Parse.construct score ctorResult
 
         Err err ->
-            Err (ScoreError err)
+            Err (NoteError err)
 
 
 applyVoices :: Text -> Parser Error (List Voice.Model) b
 applyVoices txt ctorResult =
     case Voice.readMany txt of
         Ok voices ->
-            Result.map 
-                ((|>) voices) 
-                ctorResult
+            Parse.construct voices ctorResult
 
         Err err ->
             Err (VoiceError err)
 
 
-applyText :: Text -> Parser Error Text b
-applyText txt =
-    Result.map ((|>) txt)
+-- ERROR --
+
+
+data Error
+    = NoteError Note.Error
+    | VoiceError Voice.Error
+    | UnexpectedChunkStructure (List Text)
+
+
+throw :: Error -> Text
+throw error =
+    case error of
+        NoteError err ->
+            Note.throw err
+
+        VoiceError err ->
+            Voice.throw err
+
+        UnexpectedChunkStructure chunks ->
+            [ "I could not parse the score. \
+                \The chunks werent what I expected. : ->\n\n"
+            , T.intercalate "chunk\n\n" chunks
+            ]
+                & T.concat

@@ -10,6 +10,7 @@ module Data.Response
     ) where
 
 
+import Data.Function
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import Flow
@@ -25,8 +26,7 @@ type Response
 
 ping :: Response
 ping =
-    "PONG"
-        |> Web.text
+    Web.text "PONG"
 
 
 text :: Text -> Response
@@ -35,14 +35,13 @@ text =
 
 
 json :: Json -> Response
-json j =
-    j
-        |> Json.toText
-        |> Data.Response.text
+json 
+    = Data.Response.text
+    . Json.toText
 
 
 _404 :: Response
 _404 =
     [ ( "code", Json.string "404" ) ]
-        |> Json.object
-        |> Data.Response.json
+        & Json.object
+        & Data.Response.json

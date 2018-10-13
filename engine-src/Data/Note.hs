@@ -9,6 +9,7 @@ module Data.Note
     )
     where
 
+import Data.Function
 import qualified Data.List as List
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
@@ -41,13 +42,13 @@ readScoreAccumulate rowTexts output =
     case rowTexts of
         first : rest ->
             first
-                |> readRow
-                |> Result.andThen (addRow rest output)
+                & readRow
+                & Result.andThen (addRow rest output)
 
         [] ->
             output
-                |> List.reverse
-                |> Ok
+                & List.reverse
+                & Ok
 
 
 addRow :: List Text -> List (List Note) -> List Note -> Result Error (List (List Note))
@@ -68,13 +69,13 @@ readRowAccumulate noteTexts output =
     case noteTexts of
         first : rest ->
             first
-                |> readNote
-                |> Result.andThen (addNote rest output)
+                & readNote
+                & Result.andThen (addNote rest output)
 
         [] ->
             output
-                |> List.reverse
-                |> Ok
+                & List.reverse
+                & Ok
 
 
 addNote :: List Text -> List Note -> Note -> Result Error (List Note)
@@ -96,26 +97,26 @@ readNote txt =
                         , randomSeed = randomSeed
                         , content = content
                         }
-                        |> Ok
+                        & Ok
 
                 (Just _, Nothing) ->
                     randomSeedTxt
-                        |> CouldntParseRandomSeed
-                        |> Err
+                        & CouldntParseRandomSeed
+                        & Err
 
                 (Nothing, Just _) ->
                     timeTxt
-                        |> CouldntParseTime
-                        |> Err
+                        & CouldntParseTime
+                        & Err
 
                 (Nothing, Nothing) ->
                     CouldntParseAnything timeTxt randomSeedTxt
-                        |> Err
+                        & Err
 
         _ ->
             txt
-                |> NoteStringHadWrongStructure
-                |> Err
+                & NoteStringHadWrongStructure
+                & Err
 
 
 

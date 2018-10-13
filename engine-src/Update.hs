@@ -18,7 +18,6 @@ import qualified Json
 import Msg (Msg(..))
 import Model (Model)
 import qualified Model
-import Prelude.Extra ((<<))
 import qualified Prelude.Extra as PE
 import Result (Result(Err, Ok))
 import qualified Result
@@ -55,9 +54,8 @@ handleRoute route model =
 
 
 playResponse :: Maybe Error -> Response
-playResponse maybeError =
-    maybeError
-        |> PE.mapMaybe (Json.string << Error.throw)
-        |> Json.maybe 
-        |> Response.json
+playResponse 
+    = Response.json
+    . Json.maybe
+    . fmap (Json.string . Error.throw)
 

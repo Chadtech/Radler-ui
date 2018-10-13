@@ -45,12 +45,11 @@ fromPieces txt =
 
 
 readMany :: Text -> Result Error (List Model)
-readMany txt =
-    txt
-        |> T.strip
-        |> T.splitOn ";"
-        |> List.map fromPieces
-        |> Result.join
+readMany 
+    = Result.join
+    . List.map fromPieces
+    . T.splitOn ";"
+    . T.strip
 
 
 -- ERROR -- 
@@ -61,8 +60,9 @@ data Error
 
 
 throw :: Error -> Text
-throw error =
-    T.append "Voice Error -> \n    " $ errorToText error
+throw 
+    = T.append "Voice Error -> \n    " 
+    . errorToText
 
 
 errorToText :: Error -> Text

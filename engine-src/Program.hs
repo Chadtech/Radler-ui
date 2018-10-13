@@ -14,6 +14,7 @@ module Program
 import Control.Applicative
 import qualified Control.Concurrent.STM as STM
 import qualified Control.Monad.Reader as CMR
+import Data.Function
 import Data.Text.Lazy (Text)
 import Flow
 import Model (Model)
@@ -60,15 +61,14 @@ model =
     CMR.ask 
         >>= CMR.liftIO . STM.readTVarIO 
         >>= return
-        |> CMR.lift
+        & CMR.lift
 
 
 setModel :: CMR.MonadTrans t => Model -> t Program ()
-setModel model =
-    model
-        |> const
-        |> mapModel
-        |> CMR.lift
+setModel 
+    = CMR.lift
+    . mapModel
+    . const
 
 
 mapModel :: (Model -> Model) -> Program ()
