@@ -18,7 +18,22 @@ cabal-version:       >=1.10
 executable radler
   main-is:             Main.hs
   hs-source-dirs:      engine-src
-  -- other-modules:       
+  other-modules:
+    Data.Note
+    Data.Response
+    Data.Route
+    Data.Score
+    Data.Voice
+    Error
+    Json
+    Model
+    Msg
+    Parse
+    Prelude.Extra
+    Program
+    Result
+    Router
+    Update       
   -- other-extensions:    
   build-depends:
     base >=4.11 && <4.12,
