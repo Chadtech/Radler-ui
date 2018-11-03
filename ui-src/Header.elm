@@ -7,6 +7,7 @@ module Header exposing
 import Array
 import Colors
 import Css exposing (..)
+import Data.Error as Error
 import Data.Package as Package
 import Data.Part as Part
 import Data.Tracker as Tracker
@@ -44,7 +45,7 @@ type Msg
     | SaveClicked
     | PlayFromFieldUpdated String
     | PlayForFieldUpdated String
-    | PlaySent (Result Http.Error String)
+    | PlaySent (Result Http.Error ())
 
 
 
@@ -78,7 +79,6 @@ update msg model =
             case Model.score model of
                 Ok scoreStr ->
                     scoreStr
-                        |> Debug.log "SCORE STR"
                         |> Play
                         |> sendHttp model
                         |> R2.withModel model
@@ -110,13 +110,44 @@ update msg model =
                 |> Model.setPlayFor str
                 |> R2.withNoCmd
 
-        PlaySent result ->
-            let
-                _ =
-                    Debug.log "RESULT" result
-            in
+        PlaySent (Ok ()) ->
             model
                 |> R2.withNoCmd
+
+        PlaySent (Err err) ->
+            playFailed (Debug.log "ERROR" err) model
+                |> R2.withNoCmd
+
+
+playFailed : Http.Error -> Model -> Model
+playFailed error =
+    error
+        |> playErrorToString
+        |> Error.BackendHadProblemWithScore
+        |> Model.setError
+
+
+playErrorToString : Http.Error -> String
+playErrorToString error =
+    case error of
+        Http.BadUrl url ->
+            "bad url -> " ++ url
+
+        Http.Timeout ->
+            "time out"
+
+        Http.NetworkError ->
+            "network error"
+
+        Http.BadStatus response ->
+            [ String.fromInt response.status.code
+            , response.status.message
+            , response.body
+            ]
+                |> String.join " - "
+
+        Http.BadPayload decodeError _ ->
+            "Decoder problem -> " ++ decodeError
 
 
 
@@ -134,7 +165,7 @@ sendHttp model call =
             Http.post
                 (Model.urlRoute model "play")
                 (Http.stringBody "string" score)
-                D.string
+                (D.null ())
                 |> Http.send PlaySent
 
 

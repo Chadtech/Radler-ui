@@ -1,14 +1,14 @@
-module Data.Error
-    exposing
-        ( Error(..)
-        , toString
-        )
+module Data.Error exposing
+    ( Error(..)
+    , toString
+    )
 
 -- TYPES --
 
 
 type Error
     = ScoreDidNotSave
+    | BackendHadProblemWithScore String
 
 
 
@@ -24,3 +24,6 @@ toString error =
             This is probably because the score includes
             a part that is not loaded into Radler
             """
+
+        BackendHadProblemWithScore str ->
+            str

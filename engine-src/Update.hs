@@ -26,7 +26,11 @@ update :: Msg -> Model -> ( Model, Response )
 update msg model =
     case msg of
         Request Nothing ->
-            ( model, Response._404)
+            ( model
+            , Response.error
+                404
+                "end point unsupported"
+            )
 
         Request (Just route) ->
             handleRoute route model
@@ -43,12 +47,17 @@ handleRoute route model =
 
         Play (Ok score) ->
             ( Model.setScore score model
-            , playResponse Nothing
+            , Response.json Json.null
             )
 
         Play (Err err) ->
             ( model
-            , playResponse (Just err)
+            , Response.json $ Json.object
+                [ (,) "error"
+                    $ Json.string 
+                    $ Error.throw
+                    $ err
+                ]
             )
 
 

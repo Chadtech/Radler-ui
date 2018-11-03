@@ -1,7 +1,7 @@
 module Model exposing
     ( Model
     , Page(..)
-    , apply
+    , clearError
     , getTrackersPartIndex
     , init
     , mapPackage
@@ -10,6 +10,7 @@ module Model exposing
     , removeTracker
     , saveParts
     , score
+    , setError
     , setPlayFor
     , setPlayFrom
     , urlRoute
@@ -105,9 +106,14 @@ init flags =
 -- HELPERS --
 
 
-apply : Model -> (Model -> Model) -> Model
-apply model f =
-    f model
+setError : Error -> Model -> Model
+setError error model =
+    { model | error = Just error }
+
+
+clearError : Model -> Model
+clearError model =
+    { model | error = Nothing }
 
 
 mapPackage : (Package -> Package) -> Model -> Model

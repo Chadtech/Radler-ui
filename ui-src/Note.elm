@@ -51,10 +51,8 @@ update : Int -> Int -> Int -> Int -> Msg -> Model -> ( Model, Cmd Msg )
 update ti si bi ni msg model =
     case msg of
         Updated note ->
-            Beat.setNote ni note
-                |> Part.mapBeat bi
-                |> Model.mapPart si
-                |> Model.apply model
+            model
+                |> updateBeat si bi ni note
                 |> R2.withNoCmd
 
         MovementKeyPressed Up ->
@@ -80,6 +78,14 @@ update ti si bi ni msg model =
         NoteFocused ->
             model
                 |> R2.withNoCmd
+
+
+updateBeat : Int -> Int -> Int -> Note -> Model -> Model
+updateBeat si bi ni note =
+    note
+        |> Beat.setNote ni
+        |> Part.mapBeat bi
+        |> Model.mapPart si
 
 
 focusOnNote : String -> Cmd Msg

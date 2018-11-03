@@ -1,9 +1,8 @@
-module Package
-    exposing
-        ( Msg
-        , update
-        , view
-        )
+module Package exposing
+    ( Msg
+    , update
+    , view
+    )
 
 import Colors
 import Css exposing (..)
@@ -13,6 +12,7 @@ import Html.Styled.Attributes as Attrs
 import Html.Styled.Events exposing (onInput)
 import Model exposing (Model)
 import Style
+
 
 
 -- TYPES --
@@ -27,12 +27,12 @@ type Msg
 
 
 update : Msg -> Model -> Model
-update msg model =
+update msg =
     case msg of
         PackageUpdated str ->
-            Package.setJsonStrField str
+            str
+                |> Package.setJsonStrField
                 |> Model.mapPackage
-                |> Model.apply model
 
 
 
@@ -63,6 +63,7 @@ maybeInvalidBackground : Model -> Style
 maybeInvalidBackground { package } =
     if package.validJson then
         Css.batch []
+
     else
         backgroundColor Colors.lowWarning
             |> List.singleton
@@ -73,6 +74,7 @@ maybeInvalidBorders : Model -> Style
 maybeInvalidBorders { package } =
     if package.validJson then
         Css.batch []
+
     else
         border3 (px 2) solid Colors.critical
             |> List.singleton
