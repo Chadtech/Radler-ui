@@ -18,7 +18,6 @@ import qualified Data.Response as Response
 import qualified Data.Route as Route
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
-import Flow
 import Model (Model)
 import qualified Model
 import Msg

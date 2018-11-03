@@ -14,7 +14,6 @@ module Json
 import Data.List as List
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
-import Flow
 import Prelude.Extra (List)
 
 
@@ -53,20 +52,20 @@ maybe maybeJson =
 
 object :: List (Text, Json) -> Json
 object fields =
-    [ "{"
-    , fields
-        |> List.map fieldToText
-        |> T.intercalate ","
-    , "}"
-    ]
-        |> T.concat
-        |> Json
+    Json $ T.concat $
+        [ "{"
+        , T.intercalate "," 
+            $ List.map fieldToText
+            $ fields
+        , "}"
+        ]
+
 
 
 fieldToText :: (Text, Json) -> Text
 fieldToText (key, Json value) =
-    [ quote key
-    , ":"
-    , value
-    ]
-        |> T.concat
+    T.concat
+        [ quote key
+        , ":"
+        , value
+        ]

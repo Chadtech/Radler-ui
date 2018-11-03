@@ -14,7 +14,6 @@ import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T  
 import Error (Error)
 import qualified Error
-import Flow
 import Result (Result)
 import qualified Result
 

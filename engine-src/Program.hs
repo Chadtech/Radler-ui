@@ -16,7 +16,6 @@ import qualified Control.Concurrent.STM as STM
 import qualified Control.Monad.Reader as CMR
 import Data.Function
 import Data.Text.Lazy (Text)
-import Flow
 import Model (Model)
 import Prelude hiding (init)
 import Web.Scotty.Trans (ScottyT)

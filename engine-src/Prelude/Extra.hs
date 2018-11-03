@@ -15,7 +15,6 @@ import qualified Data.List as List
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import qualified Data.Text.Lazy.Read as TR
-import Flow
 import Prelude hiding (head)
 import qualified Debug.Trace as Debug
 

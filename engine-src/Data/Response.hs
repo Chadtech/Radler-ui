@@ -13,7 +13,6 @@ module Data.Response
 import Data.Function
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
-import Flow
 import Program (Program)
 import qualified Web.Scotty.Trans as Web
 import Json (Json)

@@ -15,7 +15,6 @@ import Data.Note (Note)
 import Prelude.Extra (List)
 import qualified Result
 import Result (Result(Ok, Err))
-import Flow
 import Data.List as List
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
@@ -39,9 +38,7 @@ fromPieces txt =
             Ok N
 
         _ ->
-            txt
-                |> UnrecognizedVoiceType
-                |> Err
+            Err (UnrecognizedVoiceType txt)
 
 
 readMany :: Text -> Result Error (List Model)

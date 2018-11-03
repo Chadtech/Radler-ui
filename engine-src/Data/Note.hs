@@ -13,7 +13,6 @@ import Data.Function
 import qualified Data.List as List
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
-import Flow
 import Prelude.Extra (List, textToInt, debugLog)
 import Result (Result(Ok, Err))
 import qualified Result 
@@ -144,12 +143,12 @@ throw error =
                 txt
 
         CouldntParseAnything timeTxt randomTxt ->
-            [ "I was trying to parse a note, and I had trouble with this random seed and this time str respectively : " 
-            , randomTxt 
-            , " " 
-            , timeTxt
-            ]
-                |> T.concat
+            T.concat
+                [ "I was trying to parse a note, and I had trouble with this random seed and this time str respectively : " 
+                , randomTxt 
+                , " " 
+                , timeTxt
+                ]
 
         NoteStringHadWrongStructure txt ->
             T.append

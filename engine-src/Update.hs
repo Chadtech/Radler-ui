@@ -12,7 +12,6 @@ import Data.Text (Text)
 import qualified Data.Text as T
 import Error (Error)
 import qualified Error
-import Flow
 import Json (Json)
 import qualified Json
 import Msg (Msg(..))
