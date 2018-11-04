@@ -17,22 +17,9 @@ import Data.Tracker as Tracker
         )
 import Html.Buttons as Buttons
 import Html.Grid as Grid
-import Html.Styled as Html
-    exposing
-        ( Attribute
-        , Html
-        , button
-        , div
-        , input
-        , p
-        )
+import Html.Styled as Html exposing (Attribute, Html)
 import Html.Styled.Attributes as Attrs
-import Html.Styled.Events
-    exposing
-        ( onClick
-        , onInput
-        , onMouseLeave
-        )
+import Html.Styled.Events as Events
 import Html.Styled.Keyed
 import Html.Styled.Lazy
 import Model exposing (Model)
@@ -231,7 +218,7 @@ optionsContainerView payload =
             }
                 |> Options.view
                 |> List.singleton
-                |> div
+                |> Html.div
                     [ Attrs.css [ optionsContainerStyle ] ]
                 |> Html.map OptionsMsg
 
@@ -295,7 +282,7 @@ trackerOptions payload =
         , flexBasis (px (Style.noteWidth payload.size + 4))
         , position relative
         ]
-        [ button
+        [ Html.button
             [ Attrs.css
                 [ Style.basicButton payload.size
                 , width (px (Style.noteWidth payload.size + 2))
@@ -307,7 +294,7 @@ trackerOptions payload =
                 , active [ Style.indent ]
                 , cursor pointer
                 ]
-            , onClick DeleteTrackerClicked
+            , Events.onClick DeleteTrackerClicked
             ]
             [ Html.text "x" ]
         ]
@@ -333,7 +320,7 @@ voiceOptions { part, size } =
 
 voiceOption : Style.Size -> Int -> Html Msg
 voiceOption size i =
-    [ div
+    [ Html.div
         [ Attrs.css
             [ position absolute
             , top (px 0)
@@ -343,7 +330,7 @@ voiceOption size i =
             , displayFlex
             ]
         ]
-        [ button
+        [ Html.button
             [ Attrs.css
                 [ Style.basicButton size
                 , width (px (Style.noteWidth size / 2 + 2))
@@ -352,11 +339,11 @@ voiceOption size i =
                 , cursor pointer
                 , hover [ color Colors.point1 ]
                 ]
-            , onClick (DeleteVoiceClicked i)
+            , Events.onClick (DeleteVoiceClicked i)
             ]
             [ Html.text "x"
             ]
-        , button
+        , Html.button
             [ Attrs.css
                 [ Style.basicButton size
                 , width (px (Style.noteWidth size / 2 + 2))
@@ -366,7 +353,7 @@ voiceOption size i =
                 , hover [ color Colors.point1 ]
                 , marginRight (px 0)
                 ]
-            , onClick (AddVoiceClicked i)
+            , Events.onClick (AddVoiceClicked i)
             ]
             [ Html.text "+>"
             ]
@@ -379,7 +366,7 @@ addVoiceZero : Style.Size -> Html Msg
 addVoiceZero size =
     Grid.column
         []
-        [ button
+        [ Html.button
             [ Attrs.css
                 [ Style.basicButton size
                 , width (px (Style.noteWidth size))
@@ -389,7 +376,7 @@ addVoiceZero size =
                 , cursor pointer
                 , hover [ color Colors.point1 ]
                 ]
-            , onClick (AddVoiceClicked -1)
+            , Events.onClick (AddVoiceClicked -1)
             ]
             [ Html.text "+>"
             ]
@@ -420,7 +407,7 @@ addBeatButton size =
 
 voiceNumber : Style.Size -> Int -> Html Msg
 voiceNumber size i =
-    [ button
+    [ Html.button
         [ Attrs.css
             [ Style.basicButton size
             , width (px (Style.noteWidth size + 6))
@@ -438,10 +425,10 @@ voiceNumber size i =
 
 trackerOptionsButton : Style.Size -> Html Msg
 trackerOptionsButton size =
-    button
+    Html.button
         [ Attrs.css
             [ trackerOptionsButtonStyle size ]
-        , onClick OptionsClicked
+        , Events.onClick OptionsClicked
         ]
         [ Html.text "options" ]
 
@@ -456,19 +443,18 @@ trackerOptionsButtonStyle size =
 
 partNameField : Style.Size -> Part -> Html Msg
 partNameField size part =
-    input
+    Html.input
         [ Attrs.css [ partNameStyle size ]
         , Attrs.value part.name
         , Attrs.spellcheck False
-        , onInput NameFieldUpdated
+        , Events.onInput NameFieldUpdated
         ]
         []
 
 
 partNameStyle : Style.Size -> Style
 partNameStyle size =
-    [ Style.basicInput
-    , Style.font size
+    [ Style.font size
     , color Colors.point0
     , width (pct 100)
     , Style.fontSmoothingNone
@@ -482,12 +468,11 @@ partNameStyle size =
 
 notFoundView : Html Msg
 notFoundView =
-    div
+    Html.div
         [ Attrs.css [ Style.card ] ]
-        [ p
+        [ Html.p
             [ Attrs.css
-                [ Style.basicP
-                , Style.hfnss
+                [ Style.hfnss
                 , whiteSpace noWrap
                 , margin (px 4)
                 ]

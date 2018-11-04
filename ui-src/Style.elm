@@ -1,8 +1,27 @@
-module Style exposing (..)
+module Style exposing
+    ( Size(..)
+    , basicButton
+    , basicSpacing
+    , bigSpacing
+    , card
+    , flush
+    , font
+    , fontSmoothingNone
+    , globals
+    , hfnss
+    , hftin
+    , indent
+    , noteHeight
+    , noteWidth
+    , outdent
+    )
 
 import Colors
 import Css exposing (..)
+import Css.Global exposing (global)
+import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes exposing (css)
+
 
 
 -- TYPES --
@@ -17,13 +36,25 @@ type Size
 -- STYLES --
 
 
-basicInput : Style
-basicInput =
-    [ outline none
-    , backgroundColor Colors.background1
-    , indent
+globals : Html msg
+globals =
+    [ Css.Global.p
+        [ color Colors.point0
+        , margin (px 0)
+        , fontSmoothingNone
+        ]
+    , Css.Global.input
+        [ outline none
+        , backgroundColor Colors.background1
+        , indent
+        ]
+    , Css.Global.everything
+        [ boxSizing borderBox
+        , margin zero
+        , padding zero
+        ]
     ]
-        |> Css.batch
+        |> global
 
 
 indent : Style
@@ -55,15 +86,6 @@ hfnss : Style
 hfnss =
     [ fontFamilies [ "HFNSS" ]
     , fontSize (px 32)
-    ]
-        |> Css.batch
-
-
-basicP : Style
-basicP =
-    [ color Colors.point0
-    , margin (px 0)
-    , fontSmoothingNone
     ]
         |> Css.batch
 

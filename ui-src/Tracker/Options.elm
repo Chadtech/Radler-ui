@@ -5,31 +5,14 @@ module Tracker.Options exposing
     , view
     )
 
---import Row
-
 import Colors
 import Css exposing (..)
 import Data.Part as Part
-import Data.Tracker as Tracker
-    exposing
-        ( Tracker
-        )
+import Data.Tracker as Tracker exposing (Tracker)
 import Html.Grid as Grid
-import Html.Styled as Html
-    exposing
-        ( Attribute
-        , Html
-        , button
-        , div
-        , input
-        , p
-        )
+import Html.Styled as Html exposing (Attribute, Html)
 import Html.Styled.Attributes as Attrs
-import Html.Styled.Events
-    exposing
-        ( onClick
-        , onInput
-        )
+import Html.Styled.Events as Events
 import Style
 
 
@@ -95,7 +78,7 @@ update msg =
 
 view : Payload -> Html Msg
 view payload =
-    div
+    Html.div
         [ Attrs.css
             [ Style.card
             , transform (translate2 (pct -50) (pct -50))
@@ -144,10 +127,9 @@ markLabel : String -> Html Msg
 markLabel labelText =
     Grid.column
         []
-        [ p
+        [ Html.p
             [ Attrs.css
-                [ Style.basicP
-                , Style.hfnss
+                [ Style.hfnss
                 , lineHeight (px 26)
                 , paddingLeft (px 10)
                 ]
@@ -160,15 +142,14 @@ markField : String -> (String -> Msg) -> Html Msg
 markField mark msgCtor =
     Grid.column
         [ paddingLeft (px 5) ]
-        [ input
+        [ Html.input
             [ Attrs.css
-                [ Style.basicInput
-                , Style.hfnss
+                [ Style.hfnss
                 , color Colors.point0
                 , Style.fontSmoothingNone
                 , width (pct 100)
                 ]
-            , onInput msgCtor
+            , Events.onInput msgCtor
             , Attrs.value mark
             ]
             []
@@ -179,14 +160,14 @@ smallViewButton : Style.Size -> Html Msg
 smallViewButton size =
     Grid.column
         []
-        [ button
+        [ Html.button
             [ Attrs.css
                 [ buttonStyle
                 , indentIf (size == Style.Small)
                 , margin (px 0)
                 , width (pct 100)
                 ]
-            , onClick SmallClicked
+            , Events.onClick SmallClicked
             ]
             [ Html.text "small" ]
         ]
@@ -196,14 +177,14 @@ bigViewButton : Style.Size -> Html Msg
 bigViewButton size =
     Grid.column
         [ paddingLeft (px 5) ]
-        [ button
+        [ Html.button
             [ Attrs.css
                 [ buttonStyle
                 , indentIf (size == Style.Big)
                 , margin (px 0)
                 , width (pct 100)
                 ]
-            , onClick BigClicked
+            , Events.onClick BigClicked
             ]
             [ Html.text "big" ]
         ]
@@ -220,7 +201,7 @@ indentIf condition =
 
 partOptionsContainer : Payload -> Html Msg
 partOptionsContainer payload =
-    div
+    Html.div
         [ Attrs.css
             [ Style.indent
             , backgroundColor Colors.background3
@@ -239,9 +220,9 @@ partOptionView ( index, name ) =
         [ Style.basicSpacing ]
         [ Grid.column
             []
-            [ p
+            [ Html.p
                 [ Attrs.css [ partOptionStyle ]
-                , onClick (PartClicked index)
+                , Events.onClick (PartClicked index)
                 ]
                 [ Html.text name ]
             ]
@@ -250,8 +231,7 @@ partOptionView ( index, name ) =
 
 partOptionStyle : Style
 partOptionStyle =
-    [ Style.basicP
-    , Style.hfnss
+    [ Style.hfnss
     , marginLeft (px 10)
     , cursor pointer
     , width (pct 100)
@@ -267,9 +247,9 @@ backButton : Html Msg
 backButton =
     Grid.column
         []
-        [ button
+        [ Html.button
             [ Attrs.css [ buttonStyle ]
-            , onClick BackClicked
+            , Events.onClick BackClicked
             ]
             [ Html.text "back" ]
         ]

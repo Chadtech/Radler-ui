@@ -13,19 +13,9 @@ import Data.Note as Note exposing (Note)
 import Data.Part as Part
 import Data.Tracker as Tracker
 import Html.Grid as Grid
-import Html.Styled as Html
-    exposing
-        ( Attribute
-        , Html
-        , input
-        )
+import Html.Styled as Html exposing (Attribute, Html)
 import Html.Styled.Attributes as Attrs
-import Html.Styled.Events
-    exposing
-        ( keyCode
-        , on
-        , onInput
-        )
+import Html.Styled.Events as Events
 import Json.Decode as D exposing (Decoder)
 import Model exposing (Model)
 import Return2 as R2
@@ -105,7 +95,7 @@ view majorMark minorMark size ti bi ni note =
         [ margin (px 1)
         , marginBottom (px 0)
         ]
-        [ input
+        [ Html.input
             [ Attrs.css
                 [ style
                     majorMark
@@ -115,7 +105,7 @@ view majorMark minorMark size ti bi ni note =
                 ]
             , Attrs.value (Note.toString note)
             , Attrs.spellcheck False
-            , onInput (Updated << Note.fromString)
+            , Events.onInput (Updated << Note.fromString)
             , onMovementKey MovementKeyPressed
             , Attrs.id (noteId ti bi ni)
             ]
@@ -125,8 +115,7 @@ view majorMark minorMark size ti bi ni note =
 
 style : Int -> Int -> Style.Size -> Int -> Style
 style majorMark minorMark size beatIndex =
-    [ Style.basicInput
-    , determineNoteBgColor
+    [ determineNoteBgColor
         majorMark
         minorMark
         beatIndex
@@ -174,10 +163,10 @@ type Direction
 
 onMovementKey : (Direction -> msg) -> Attribute msg
 onMovementKey ctor =
-    keyCode
+    Events.keyCode
         |> D.andThen directionDecoder
         |> D.map ctor
-        |> on "keydown"
+        |> Events.on "keydown"
 
 
 directionDecoder : Int -> Decoder Direction

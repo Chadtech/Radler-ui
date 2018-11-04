@@ -12,19 +12,9 @@ import Data.Package as Package
 import Data.Part as Part
 import Data.Tracker as Tracker
 import Html.Grid as Grid
-import Html.Styled as Html
-    exposing
-        ( Html
-        , button
-        , input
-        , p
-        )
+import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attrs
-import Html.Styled.Events
-    exposing
-        ( onClick
-        , onInput
-        )
+import Html.Styled.Events as Events
 import Http
 import Json.Decode as D
 import Model exposing (Model, Page)
@@ -223,10 +213,9 @@ view model =
 
 fromText : Html Msg
 fromText =
-    p
+    Html.p
         [ Attrs.css
-            [ Style.basicP
-            , Style.hfnss
+            [ Style.hfnss
             , lineHeight (px 32)
             ]
         ]
@@ -235,10 +224,9 @@ fromText =
 
 forText : Html Msg
 forText =
-    p
+    Html.p
         [ Attrs.css
-            [ Style.basicP
-            , Style.hfnss
+            [ Style.hfnss
             , lineHeight (px 32)
             ]
         ]
@@ -247,10 +235,9 @@ forText =
 
 playForField : String -> Html Msg
 playForField playForBeats =
-    input
+    Html.input
         [ Attrs.css
-            [ Style.basicInput
-            , margin2 (px 1) (px 0)
+            [ margin2 (px 1) (px 0)
             , Style.hfnss
             , color Colors.point0
             , Style.fontSmoothingNone
@@ -258,17 +245,16 @@ playForField playForBeats =
             ]
         , Attrs.value playForBeats
         , Attrs.spellcheck False
-        , onInput PlayForFieldUpdated
+        , Events.onInput PlayForFieldUpdated
         ]
         []
 
 
 playFromField : String -> Html Msg
 playFromField playFromBeat =
-    input
+    Html.input
         [ Attrs.css
-            [ Style.basicInput
-            , margin2 (px 1) (px 0)
+            [ margin2 (px 1) (px 0)
             , Style.hfnss
             , color Colors.point0
             , Style.fontSmoothingNone
@@ -276,79 +262,79 @@ playFromField playFromBeat =
             ]
         , Attrs.value playFromBeat
         , Attrs.spellcheck False
-        , onInput PlayFromFieldUpdated
+        , Events.onInput PlayFromFieldUpdated
         ]
         []
 
 
 playButton : Html Msg
 playButton =
-    button
+    Html.button
         [ Attrs.css [ buttonStyle ]
-        , onClick PlayClicked
+        , Events.onClick PlayClicked
         ]
         [ Html.text "play" ]
 
 
 openButton : Html Msg
 openButton =
-    button
+    Html.button
         [ Attrs.css [ buttonStyle ]
-        , onClick OpenClicked
+        , Events.onClick OpenClicked
         ]
         [ Html.text "open" ]
 
 
 saveButton : Html Msg
 saveButton =
-    button
+    Html.button
         [ Attrs.css [ buttonStyle ]
-        , onClick SaveClicked
+        , Events.onClick SaveClicked
         ]
         [ Html.text "save" ]
 
 
 trackersButton : Page -> Html Msg
 trackersButton page =
-    button
+    Html.button
         [ Attrs.css
             [ buttonStyle
             , dent page Model.Trackers
             ]
-        , onClick (PageClicked Model.Trackers)
+        , Events.onClick (PageClicked Model.Trackers)
         ]
         [ Html.text "trackers" ]
 
 
 packageButton : Page -> Html Msg
 packageButton page =
-    button
+    Html.button
         [ Attrs.css
             [ buttonStyle
             , dent page Model.Package
             ]
-        , onClick (PageClicked Model.Package)
+        , Events.onClick (PageClicked Model.Package)
         ]
         [ Html.text "package" ]
 
 
 newSheetButton : Html Msg
 newSheetButton =
-    button
+    Html.button
         [ Attrs.css [ buttonStyle ]
-        , onClick NewSheetClicked
+        , Events.onClick NewSheetClicked
         ]
         [ Html.text "new part" ]
 
 
 newTrackerButton : Html Msg
 newTrackerButton =
-    button
+    Html.button
         [ Attrs.css
             [ buttonStyle
             , width (px (Style.noteWidth Style.Big * 2))
             ]
-        , onClick NewTrackerClicked
+        , Events.onClick NewTrackerClicked
         ]
         [ Html.text "new tracker" ]
 

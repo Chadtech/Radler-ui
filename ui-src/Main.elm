@@ -1,15 +1,16 @@
-module Main exposing (init, main, subscriptions, update, view)
+module Main exposing (main)
 
 import Browser
 import Browser.Navigation
 import Data.Flags as Flags
 import Error exposing (initializationErrorView)
-import Html.Styled
+import Html.Styled as Html
 import Json.Decode as D
 import Model exposing (Model)
-import Msg exposing (Msg(..))
-import Ports exposing (JsMsg(..))
+import Msg exposing (Msg)
+import Ports exposing (JsMsg)
 import Return2 as R2
+import Style
 import Update exposing (update)
 import View exposing (view)
 
@@ -65,14 +66,15 @@ view result =
             { title = "Radler"
             , body =
                 View.view model
-                    |> List.map
-                        Html.Styled.toUnstyled
+                    |> (::) Style.globals
+                    |> List.map Html.toUnstyled
             }
 
         Err err ->
             { title = "Error"
             , body =
-                [ initializationErrorView err
-                    |> Html.Styled.toUnstyled
+                [ Style.globals
+                , initializationErrorView err
                 ]
+                    |> List.map Html.toUnstyled
             }
