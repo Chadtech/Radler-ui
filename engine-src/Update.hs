@@ -3,6 +3,8 @@
 
 module Update (update) where
 
+import Cmd (Cmd)
+import qualified Cmd
 import Data.Response (Response)
 import qualified Data.Response as Response
 import Data.Route (Route(..))
@@ -22,11 +24,12 @@ import Result (Result(Err, Ok))
 import qualified Result
 
 
-update :: Msg -> Model -> ( Model, Response )
+update :: Msg -> Model -> ( Model, Cmd, Response )
 update msg model =
     case msg of
         Request Nothing ->
             ( model
+            , Cmd.none
             , Response.error
                 404
                 "end point unsupported"
@@ -36,22 +39,30 @@ update msg model =
             handleRoute route model
 
 
-handleRoute :: Route -> Model -> ( Model, Response )
+handleRoute :: Route -> Model -> ( Model, Cmd, Response )
 handleRoute route model =
     case route of
         Ping ->
-            ( model, Response.ping )
+            ( model
+            , Cmd.none
+            , Response.ping 
+            )
 
         Echo body ->
-            ( model, Response.text body )
+            ( model
+            , Cmd.none
+            , Response.text body 
+            )
 
         Play (Ok score) ->
             ( Model.setScore score model
+            , Cmd.log "Yep!!!!!!"
             , Response.json Json.null
             )
 
         Play (Err err) ->
             ( model
+            , Cmd.none
             , Response.json $ Json.object
                 [ (,) "error"
                     $ Json.string 

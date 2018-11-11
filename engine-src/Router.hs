@@ -8,6 +8,8 @@ module Router
     ) where
 
 
+import Cmd (Cmd)
+import qualified Cmd
 import qualified Control.Concurrent.STM as STM
 import Control.Monad.IO.Class (liftIO)
 import qualified Control.Monad.Reader as CMR
@@ -74,9 +76,10 @@ respond msg =
 fromModel :: Msg -> Model -> Response
 fromModel msg model =
     let 
-        (newModel, response) = 
+        (newModel, cmd, response) = 
             update msg model
     in
     Program.setModel newModel
+        >> Web.liftAndCatchIO (Cmd.toIO cmd)
         >> response
         
