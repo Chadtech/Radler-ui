@@ -1,22 +1,21 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 
-module Data.Route 
+module Route 
     ( Route(..)
     , decode
     ) where
 
 
 import Data.Function
-import Data.Score (Score)
-import qualified Data.Score as Score
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T  
 import Error (Error)
 import qualified Error
 import Result (Result)
 import qualified Result
-
+import Score (Score)
+import qualified Score
 
 data Route 
     = Play (Result Error Score)

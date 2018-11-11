@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 
-module Data.Voice 
+module Voice 
     ( Model
     , Error
     , readMany
@@ -11,7 +11,6 @@ module Data.Voice
 
 
 import Data.Int (Int16)
-import Data.Note (Note)
 import Prelude.Extra (List)
 import qualified Result
 import Result (Result(Ok, Err))
@@ -26,6 +25,7 @@ import qualified Data.Text.Lazy as T
 data Model 
     = P
     | N
+    | Sin
 
 
 fromPieces :: Text -> Result Error Model
@@ -36,6 +36,9 @@ fromPieces txt =
 
         "n" : [] ->
             Ok N
+
+        "sin" : [] ->
+            Ok Sin
 
         _ ->
             Err (UnrecognizedVoiceType txt)

@@ -8,7 +8,7 @@ module Error
     where
 
 
-import qualified Data.Score as Score
+import qualified Score
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import Prelude.Extra (List)

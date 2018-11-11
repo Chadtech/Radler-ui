@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 
-module Data.Score
+module Score
     ( Score
     , fromText
     , Error
@@ -11,11 +11,11 @@ module Data.Score
 
 import Data.Function
 import Data.List as List
-import Data.Note (Note)
-import qualified Data.Note as Note
+import Note (Note)
+import qualified Note
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
-import qualified Data.Voice as Voice
+import qualified Voice as Voice
 import Parse (Parser)
 import qualified Parse
 import Prelude.Extra (List)

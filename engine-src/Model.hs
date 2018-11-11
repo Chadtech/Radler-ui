@@ -10,11 +10,11 @@ module Model
     where
 
 
-import Data.Score (Score)
-import qualified Data.Score as Score
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import Prelude hiding (init)
+import Score (Score)
+import qualified Score
 
 
 data Model

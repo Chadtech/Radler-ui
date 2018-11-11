@@ -5,10 +5,6 @@ module Update (update) where
 
 import Cmd (Cmd)
 import qualified Cmd
-import Data.Response (Response)
-import qualified Data.Response as Response
-import Data.Route (Route(..))
-import qualified Data.Route as Route
 import qualified Data.List as List
 import Data.Text (Text)
 import qualified Data.Text as T
@@ -20,8 +16,12 @@ import Msg (Msg(..))
 import Model (Model)
 import qualified Model
 import qualified Prelude.Extra as PE
+import Response (Response)
+import qualified Response
 import Result (Result(Err, Ok))
 import qualified Result
+import Route (Route(..))
+import qualified Route
 
 
 update :: Msg -> Model -> ( Model, Cmd, Response )

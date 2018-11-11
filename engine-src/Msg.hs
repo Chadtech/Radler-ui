@@ -6,7 +6,7 @@ module Msg
     ) 
     where
 
-import Data.Route (Route(..))
+import Route (Route(..))
 
 
 data Msg

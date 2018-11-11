@@ -20,11 +20,11 @@ executable radler
   hs-source-dirs:      engine-src
   other-modules:
     Cmd
-    Data.Note
-    Data.Response
-    Data.Route
-    Data.Score
-    Data.Voice
+    Note
+    Response
+    Route
+    Score
+    Voice
     Error
     Json
     Model

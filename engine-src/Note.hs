@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 
-module Data.Note
+module Note
     ( Note
     , readScore
     , Error

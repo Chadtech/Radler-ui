@@ -15,9 +15,6 @@ import Control.Monad.IO.Class (liftIO)
 import qualified Control.Monad.Reader as CMR
 import qualified Data.ByteString as BS
 import Data.Function
-import Data.Response (Response)
-import qualified Data.Response as Response
-import qualified Data.Route as Route
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import Model (Model)
@@ -25,6 +22,9 @@ import qualified Model
 import Msg
 import Program (Program)
 import qualified Program
+import Response (Response)
+import qualified Response
+import qualified Route
 import Update (update)
 import Web.Scotty.Trans (ScottyT)
 import qualified Web.Scotty.Trans as Web

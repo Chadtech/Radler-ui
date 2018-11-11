@@ -1,12 +1,12 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 
-module Data.Response 
+module Response 
     ( Response
     , ping
     , text
     , json
-    , Data.Response.error
+    , Response.error
     ) where
 
 
@@ -46,6 +46,6 @@ text =
 
 json :: Json -> Response
 json 
-    = Data.Response.text
+    = Response.text
     . Json.toText
 
