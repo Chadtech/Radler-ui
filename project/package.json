@@ -12,9 +12,9 @@
         }
     ],
     "voices": [
-        "p",
-        "p",
-        "n"
+        "sin",
+        "sin",
+        "sin"
     ],
     "seed": 19,
     "timing-variance": 100,

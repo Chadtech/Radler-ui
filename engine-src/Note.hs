@@ -2,8 +2,8 @@
 
 
 module Note
-    ( Note
-    , readScore
+    ( Model
+    , Note.read
     , Error
     , throw
     )
@@ -13,89 +13,33 @@ import Data.Function
 import qualified Data.List as List
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
-import Prelude.Extra (List, textToInt, debugLog)
+import Prelude.Extra (List, textToInt)
 import Result (Result(Ok, Err))
 import qualified Result 
 
 
-data Note 
-    = Note
+data Model 
+    = Model
         { time :: Int
         , randomSeed :: Int
-        , content :: Text
         }
-
-
--- READ SCORE --
-
-
-readScore :: Text -> Result Error (List (List Note))
-readScore txt =
-    readScoreAccumulate 
-        (T.splitOn "\n" (T.strip txt)) 
-        []
-
-
-readScoreAccumulate :: List Text -> List (List Note) -> Result Error (List (List Note))
-readScoreAccumulate rowTexts output =
-    case rowTexts of
-        first : rest ->
-            first
-                & readRow
-                & Result.andThen (addRow rest output)
-
-        [] ->
-            output
-                & List.reverse
-                & Ok
-
-
-addRow :: List Text -> List (List Note) -> List Note -> Result Error (List (List Note))
-addRow rowTexts outputRows thisRow =
-    readScoreAccumulate rowTexts (thisRow : outputRows)
-
-
--- READ ROW --
-
-
-readRow :: Text -> Result Error (List Note)
-readRow rowText =
-    readRowAccumulate (T.splitOn ";" rowText) []
-
-
-readRowAccumulate :: List Text -> List Note -> Result Error (List Note)
-readRowAccumulate noteTexts output =
-    case noteTexts of
-        first : rest ->
-            first
-                & readNote
-                & Result.andThen (addNote rest output)
-
-        [] ->
-            output
-                & List.reverse
-                & Ok
-
-
-addNote :: List Text -> List Note -> Note -> Result Error (List Note)
-addNote noteTexts outputNotes thisNote =
-    readRowAccumulate noteTexts (thisNote : outputNotes)
 
 
 -- READ NOTE --
 
 
-readNote :: Text -> Result Error Note
-readNote txt =
+read :: Text -> Result Error (Model, Text)
+read txt =
     case T.splitOn "," txt of
         timeTxt : randomSeedTxt : content : [] ->
             case (textToInt timeTxt, textToInt randomSeedTxt) of
                 (Just time, Just randomSeed) ->
-                    Note
+                    ( Model
                         { time = time
                         , randomSeed = randomSeed
-                        , content = content
                         }
+                    , content
+                    )
                         & Ok
 
                 (Just _, Nothing) ->

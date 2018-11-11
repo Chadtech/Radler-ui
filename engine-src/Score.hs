@@ -11,13 +11,15 @@ module Score
 
 import Data.Function
 import Data.List as List
-import Note (Note)
-import qualified Note
+-- import Note (Note)
+-- import qualified Note
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import qualified Voice as Voice
 import Parse (Parser)
 import qualified Parse
+import Part (Part)
+import qualified Part
 import Prelude.Extra (List)
 import Result (Result(Ok, Err))
 import qualified Result
@@ -27,18 +29,14 @@ data Score
     = Score
         { sourceText :: Text
         , name :: Text
-        , voices :: List Voice.Model
-        , notes :: List (List Note)
+        , parts :: List Part
         }
 
 
 fromText :: Text -> Result Error Score
 fromText txt = 
-    txt
-        & toChunks
-        & buildFromChunks txt
+    buildFromChunks txt $ toChunks txt
      
-
 
 toChunks :: Text -> List Text
 toChunks 
@@ -63,50 +61,38 @@ buildFromChunks scoreData chunks =
                 & Ok
                 & Parse.construct scoreData
                 & Parse.construct name
-                & applyVoices voices
-                & applyNotes notes
+                & applyParts voices notes
+                -- & applyVoices voices
+                -- & applyNotes notes
 
         _ ->
             Err (UnexpectedChunkStructure chunks)
 
 
-applyNotes :: Text -> Parser Error (List (List Note)) b
-applyNotes txt ctorResult =
-    case Note.readScore txt of
-        Ok score ->
-            Parse.construct score ctorResult
+
+applyParts :: Text -> Text -> Parser Error (List Part) b
+applyParts voices notes ctorResult =
+    case Part.readMany voices notes of
+        Ok parts ->
+            Parse.construct parts ctorResult
 
         Err err ->
-            Err (NoteError err)
-
-
-applyVoices :: Text -> Parser Error (List Voice.Model) b
-applyVoices txt ctorResult =
-    case Voice.readMany txt of
-        Ok voices ->
-            Parse.construct voices ctorResult
-
-        Err err ->
-            Err (VoiceError err)
+            Err (PartError err)
 
 
 -- ERROR --
 
 
 data Error
-    = NoteError Note.Error
-    | VoiceError Voice.Error
+    = PartError Part.Error
     | UnexpectedChunkStructure (List Text)
 
 
 throw :: Error -> Text
 throw error =
     case error of
-        NoteError err ->
-            Note.throw err
-
-        VoiceError err ->
-            Voice.throw err
+        PartError err ->
+            Part.throw err
 
         UnexpectedChunkStructure chunks ->
             [ "I could not parse the score. \

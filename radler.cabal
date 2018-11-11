@@ -20,21 +20,23 @@ executable radler
   hs-source-dirs:      engine-src
   other-modules:
     Cmd
-    Note
-    Response
-    Route
-    Score
-    Voice
     Error
     Json
     Model
     Msg
+    Note
     Parse
+    Part
+    Part.Sin
     Prelude.Extra
     Program
+    Response
     Result
+    Route
     Router
+    Score
     Update       
+    Voice
   -- other-extensions:    
   build-depends:
     base >=4.11 && <4.12,

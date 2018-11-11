@@ -10,7 +10,6 @@ module Voice
     where
 
 
-import Data.Int (Int16)
 import Prelude.Extra (List)
 import qualified Result
 import Result (Result(Ok, Err))
