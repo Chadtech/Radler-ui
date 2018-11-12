@@ -1,9 +1,8 @@
-module Beat
-    exposing
-        ( Msg(..)
-        , update
-        , view
-        )
+module Beat exposing
+    ( Msg(..)
+    , update
+    , view
+    )
 
 import Array exposing (Array)
 import Colors
@@ -26,6 +25,7 @@ import Model exposing (Model)
 import Note
 import Return2 as R2
 import Style
+
 
 
 -- TYPES --
@@ -83,9 +83,31 @@ view majorMark minorMark size ti bi beat =
         |> Beat.toIndexedList
         |> List.map (wrapNote majorMark minorMark size ti bi)
         |> (::) (numberView size majorMark bi)
-        |> (::) (Buttons.plus AddBelowClicked [] size)
-        |> (::) (Buttons.delete DeleteClicked size)
+        |> (::) (plusButton size)
+        |> (::) (deleteButton size)
         |> Grid.row []
+
+
+plusButton : Style.Size -> Html Msg
+plusButton size =
+    Grid.column
+        [ margin (px 1) ]
+        [ Buttons.plus
+            AddBelowClicked
+            [ width (px (Style.noteWidth size / 2)) ]
+            size
+        ]
+
+
+deleteButton : Style.Size -> Html Msg
+deleteButton size =
+    Grid.column
+        [ margin (px 1) ]
+        [ Buttons.delete
+            DeleteClicked
+            [ width (px (Style.noteWidth size / 2)) ]
+            size
+        ]
 
 
 wrapNote : Int -> Int -> Style.Size -> Int -> Int -> ( Int, Note ) -> Html Msg
@@ -104,9 +126,12 @@ wrapNote majorMark minorMark size ti bi ( ni, note ) =
 
 numberView : Style.Size -> Int -> Int -> Html Msg
 numberView size majorMark index =
-    button
-        [ Attrs.css [ numberStyle size ] ]
-        [ Html.text (numberStr majorMark index) ]
+    Grid.column
+        [ margin (px 1) ]
+        [ button
+            [ Attrs.css [ numberStyle size ] ]
+            [ Html.text (numberStr majorMark index) ]
+        ]
 
 
 numberStr : Int -> Int -> String
@@ -124,6 +149,7 @@ beatNumber : Int -> String -> String
 beatNumber i str =
     if i == 0 then
         String.left 1 str
+
     else
         beatNumber (i - 1) (String.dropLeft 1 str)
 
@@ -132,7 +158,6 @@ numberStyle : Style.Size -> Style
 numberStyle size =
     [ Style.outdent
     , Style.font size
-    , margin (px 1)
     , width (px (Style.noteWidth size))
     , height (px (Style.noteHeight size))
     , backgroundColor Colors.ignorable2

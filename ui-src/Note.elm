@@ -92,9 +92,7 @@ focusOnNote id =
 view : Int -> Int -> Style.Size -> Int -> Int -> Int -> Note -> Html Msg
 view majorMark minorMark size ti bi ni note =
     Grid.column
-        [ margin (px 1)
-        , marginBottom (px 0)
-        ]
+        [ margin (px 1) ]
         [ Html.input
             [ Attrs.css
                 [ style
@@ -122,6 +120,7 @@ style majorMark minorMark size beatIndex =
         |> backgroundColor
     , Style.font size
     , color Colors.point0
+    , height (px (Style.noteHeight size))
     , width (px (Style.noteWidth size))
     , Style.fontSmoothingNone
     ]

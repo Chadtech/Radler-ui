@@ -279,17 +279,17 @@ trackerOptions : Payload -> List (Html Msg)
 trackerOptions payload =
     [ Grid.column
         [ flex none
-        , flexBasis (px (Style.noteWidth payload.size + 4))
+        , flexBasis (px (Style.noteWidth payload.size))
         , position relative
         ]
         [ Html.button
             [ Attrs.css
                 [ Style.basicButton payload.size
-                , width (px (Style.noteWidth payload.size + 2))
+                , width (px (Style.noteWidth payload.size))
                 , height (px ((Style.noteHeight payload.size * 2) + 2))
                 , position absolute
-                , top (px 0)
-                , left (px 0)
+                , top (px 1)
+                , left (px 1)
                 , hover [ color Colors.point1 ]
                 , active [ Style.indent ]
                 , cursor pointer
@@ -299,10 +299,13 @@ trackerOptions payload =
             [ Html.text "x" ]
         ]
     , Grid.column
-        [ flex (int 0) ]
+        [ flex (int 0)
+        , padding (px 1)
+        , marginLeft (px 2)
+        ]
         [ trackerOptionsButton payload.size ]
     , Grid.column
-        [ padding2 (px 1) (px 2) ]
+        [ padding (px 1) ]
         [ partNameField payload.size payload.part ]
     ]
 
@@ -320,24 +323,24 @@ voiceOptions { part, size } =
 
 voiceOption : Style.Size -> Int -> Html Msg
 voiceOption size i =
-    [ Html.div
-        [ Attrs.css
-            [ position absolute
-            , top (px 0)
-            , left (px 0)
-            , width (px (Style.noteWidth size + 6))
-            , minHeight fitContent
-            , displayFlex
-            ]
+    let
+        buttonWidth : Float
+        buttonWidth =
+            Style.noteWidth size / 2 + 1
+    in
+    Grid.column
+        [ position relative
+        , padding (px 1)
         ]
         [ Html.button
             [ Attrs.css
                 [ Style.basicButton size
-                , width (px (Style.noteWidth size / 2 + 2))
+                , width (px buttonWidth)
                 , minHeight fitContent
                 , active [ Style.indent ]
                 , cursor pointer
                 , hover [ color Colors.point1 ]
+                , marginRight (px 2)
                 ]
             , Events.onClick (DeleteVoiceClicked i)
             ]
@@ -346,33 +349,31 @@ voiceOption size i =
         , Html.button
             [ Attrs.css
                 [ Style.basicButton size
-                , width (px (Style.noteWidth size / 2 + 2))
+                , width (px (buttonWidth + 1))
                 , minHeight fitContent
                 , active [ Style.indent ]
                 , cursor pointer
                 , hover [ color Colors.point1 ]
-                , marginRight (px 0)
                 ]
             , Events.onClick (AddVoiceClicked i)
             ]
             [ Html.text "+>"
             ]
         ]
-    ]
-        |> Grid.column [ position relative ]
 
 
 addVoiceZero : Style.Size -> Html Msg
 addVoiceZero size =
     Grid.column
-        []
+        [ padding (px 1)
+        , paddingLeft (px (Style.noteWidth size + 3))
+        ]
         [ Html.button
             [ Attrs.css
                 [ Style.basicButton size
                 , width (px (Style.noteWidth size))
                 , minHeight fitContent
                 , active [ Style.indent ]
-                , marginLeft (px (Style.noteWidth size + 5))
                 , cursor pointer
                 , hover [ color Colors.point1 ]
                 ]

@@ -48,6 +48,11 @@ globals =
         , backgroundColor Colors.background1
         , indent
         ]
+    , Css.Global.textarea
+        [ outline none
+        , backgroundColor Colors.background1
+        , indent
+        ]
     , Css.Global.everything
         [ boxSizing borderBox
         , margin zero
@@ -133,7 +138,6 @@ basicButton : Size -> Style
 basicButton size =
     [ outdent
     , font size
-    , margin (px 1)
     , width (px (noteWidth size / 2))
     , height (px (noteHeight size))
     , backgroundColor Colors.ignorable2
