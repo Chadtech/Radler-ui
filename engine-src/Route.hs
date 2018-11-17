@@ -17,6 +17,7 @@ import qualified Result
 import Score (Score)
 import qualified Score
 
+
 data Route 
     = Play (Result Error Score)
     | Echo Text

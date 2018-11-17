@@ -3,6 +3,7 @@
 
 module Part
     ( Part
+    , toAudio
     , Error
     , readMany
     , throw
@@ -10,7 +11,9 @@ module Part
     where
 
 
-import Data.Function
+import Audio (Audio)
+import qualified Audio
+import Data.Function ((&))
 import Data.List as List
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
@@ -19,11 +22,15 @@ import Prelude.Extra (List)
 import qualified Result
 import Result (Result(Ok, Err))
 
+
 -- TYPES --
 
 
 data Part
     = Sin Sin.Model
+
+
+-- HELPERS --
 
 
 fromPieces :: (Text, List Text) -> Result Error Part
@@ -42,6 +49,7 @@ fromPieces (voiceNameTxt, noteTxts) =
 readMany :: Text -> Text -> Result Error (List Part)
 readMany voiceNameTxts noteTxts =
     let
+
         voiceNames :: List Text
         voiceNames 
             = T.splitOn ";" 
@@ -68,7 +76,6 @@ readMany voiceNameTxts noteTxts =
         voicesLength =
             List.length voiceNames
 
-
     in
     if notesLength == voicesLength then
         notes
@@ -81,6 +88,13 @@ readMany voiceNameTxts noteTxts =
             voicesLength 
             notesLength
             & Err
+
+
+toAudio :: Part -> Audio
+toAudio part =
+    case part of
+        Sin sinModel ->
+            Sin.toAudio sinModel
 
 
 -- ERROR -- 

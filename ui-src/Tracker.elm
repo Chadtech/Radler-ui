@@ -401,12 +401,11 @@ addBeatButton : Style.Size -> Html Msg
 addBeatButton size =
     Grid.column
         [ margin (px 1)
-        , paddingLeft (px ((Style.noteWidth size / 2) + 3))
         , paddingRight (px (Style.noteWidth size + 2))
         ]
         [ Buttons.plus
             AddBeatBelowClicked
-            []
+            [ width (pct 100) ]
             size
         ]
 

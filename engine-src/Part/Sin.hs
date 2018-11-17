@@ -4,12 +4,15 @@
 module Part.Sin
     ( Model
     , Part.Sin.read
+    , toAudio
     , Error
     , throw
     ) where
 
-
-import Data.Function
+        
+import Audio (Audio)
+import qualified Audio
+import Data.Function ((&))
 import qualified Data.List as List
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
@@ -17,6 +20,9 @@ import qualified Note
 import Prelude.Extra (List)
 import Result (Result(Ok, Err))
 import qualified Result 
+
+
+-- TYPES --
 
 
 data Model
@@ -29,6 +35,9 @@ data Note
         { note :: Note.Model
         , content :: Text
         }
+
+
+-- HELPERS --
 
 
 read :: List Text -> Result Error Model
@@ -48,6 +57,11 @@ readNoteTxts noteTxt =
             error
                 & NoteError
                 & Err
+
+
+toAudio :: Model -> Audio
+toAudio model =
+    Audio.silence 100
 
 
 -- ERROR --

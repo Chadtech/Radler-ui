@@ -3,11 +3,12 @@
 
 module Update (update) where
 
+import qualified Audio
 import Cmd (Cmd)
 import qualified Cmd
+import Data.Function ((&))
 import qualified Data.List as List
-import Data.Text (Text)
-import qualified Data.Text as T
+import qualified Data.Text.Lazy as T
 import Error (Error)
 import qualified Error
 import Json (Json)
@@ -15,13 +16,14 @@ import qualified Json
 import Msg (Msg(..))
 import Model (Model)
 import qualified Model
-import qualified Prelude.Extra as PE
 import Response (Response)
 import qualified Response
 import Result (Result(Err, Ok))
 import qualified Result
 import Route (Route(..))
 import qualified Route
+import Score (Score)
+import qualified Score
 
 
 update :: Msg -> Model -> ( Model, Cmd, Response )
@@ -56,7 +58,7 @@ handleRoute route model =
 
         Play (Ok score) ->
             ( Model.setScore score model
-            , Cmd.log "Yep!!!!!!"
+            , playScore score model
             , Response.json Json.null
             )
 
@@ -71,6 +73,22 @@ handleRoute route model =
                 ]
             )
 
+
+playScore :: Score -> Model -> Cmd
+playScore incomingScore model =
+    case Model.score model of
+        Just existingScore ->
+            Cmd.log "Score exists"
+            
+        Nothing ->
+            incomingScore
+                & Score.toAudio
+                & Audio.toVector
+                & show
+                & T.pack
+                & Cmd.log
+            
+            
 
 playResponse :: Maybe Error -> Response
 playResponse 

@@ -4,15 +4,17 @@
 module Score
     ( Score
     , fromText
+    , toAudio
     , Error
     , throw
     )
     where
 
-import Data.Function
+        
+import Audio (Audio)
+import qualified Audio
+import Data.Function ((&))
 import Data.List as List
--- import Note (Note)
--- import qualified Note
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import qualified Voice as Voice
@@ -25,12 +27,18 @@ import Result (Result(Ok, Err))
 import qualified Result
 
 
+-- TYPES --
+
+
 data Score
     = Score
         { sourceText :: Text
         , name :: Text
         , parts :: List Part
         }
+
+
+-- HELPERS --
 
 
 fromText :: Text -> Result Error Score
@@ -62,8 +70,6 @@ buildFromChunks scoreData chunks =
                 & Parse.construct scoreData
                 & Parse.construct name
                 & applyParts voices notes
-                -- & applyVoices voices
-                -- & applyNotes notes
 
         _ ->
             Err (UnexpectedChunkStructure chunks)
@@ -78,6 +84,13 @@ applyParts voices notes ctorResult =
 
         Err err ->
             Err (PartError err)
+
+
+toAudio :: Score -> Audio
+toAudio 
+    = Audio.mixMany
+    . List.map Part.toAudio
+    . parts 
 
 
 -- ERROR --
