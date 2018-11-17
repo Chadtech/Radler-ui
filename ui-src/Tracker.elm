@@ -183,14 +183,10 @@ contentView payload =
         [ minHeight fitContent ]
         (trackerOptions payload)
     , Grid.row
-        [ minHeight fitContent
-        , marginBottom (px 1)
-        ]
+        [ minHeight fitContent ]
         (voiceOptions payload)
     , Grid.row
-        [ minHeight fitContent
-        , marginBottom (px 1)
-        ]
+        [ minHeight fitContent ]
         (voiceNumbers payload)
     , Grid.row
         []
@@ -277,19 +273,25 @@ wrapBeat majorMark minorMark size ti ( bi, beat ) =
 -}
 trackerOptions : Payload -> List (Html Msg)
 trackerOptions payload =
+    let
+        buttonWidth : Float
+        buttonWidth =
+            Style.noteWidth payload.size + 3
+    in
     [ Grid.column
         [ flex none
-        , flexBasis (px (Style.noteWidth payload.size))
+        , flexBasis (px buttonWidth)
         , position relative
+        , margin (px 1)
         ]
         [ Html.button
             [ Attrs.css
                 [ Style.basicButton payload.size
-                , width (px (Style.noteWidth payload.size))
+                , width (px buttonWidth)
                 , height (px ((Style.noteHeight payload.size * 2) + 2))
                 , position absolute
-                , top (px 1)
-                , left (px 1)
+                , top (px 0)
+                , left (px 0)
                 , hover [ color Colors.point1 ]
                 , active [ Style.indent ]
                 , cursor pointer
@@ -300,12 +302,11 @@ trackerOptions payload =
         ]
     , Grid.column
         [ flex (int 0)
-        , padding (px 1)
-        , marginLeft (px 2)
+        , margin (px 1)
         ]
         [ trackerOptionsButton payload.size ]
     , Grid.column
-        [ padding (px 1) ]
+        [ margin (px 1) ]
         [ partNameField payload.size payload.part ]
     ]
 
@@ -326,11 +327,12 @@ voiceOption size i =
     let
         buttonWidth : Float
         buttonWidth =
-            Style.noteWidth size / 2 + 1
+            Style.noteWidth size / 2 - 1
     in
     Grid.column
         [ position relative
-        , padding (px 1)
+        , width (px (Style.noteWidth size))
+        , margin (px 1)
         ]
         [ Html.button
             [ Attrs.css
@@ -349,7 +351,7 @@ voiceOption size i =
         , Html.button
             [ Attrs.css
                 [ Style.basicButton size
-                , width (px (buttonWidth + 1))
+                , width (px buttonWidth)
                 , minHeight fitContent
                 , active [ Style.indent ]
                 , cursor pointer
@@ -365,8 +367,8 @@ voiceOption size i =
 addVoiceZero : Style.Size -> Html Msg
 addVoiceZero size =
     Grid.column
-        [ padding (px 1)
-        , paddingLeft (px (Style.noteWidth size + 3))
+        [ margin (px 1)
+        , paddingLeft (px (Style.noteWidth size + 5))
         ]
         [ Html.button
             [ Attrs.css
@@ -397,49 +399,49 @@ voiceNumbers { part, size } =
 
 addBeatButton : Style.Size -> Html Msg
 addBeatButton size =
-    Buttons.plus
-        AddBeatBelowClicked
-        [ margin (px 0)
-        , marginRight (px (Style.noteWidth size + 4))
-        , marginLeft (px ((Style.noteWidth size / 2) + 3))
+    Grid.column
+        [ margin (px 1)
+        , paddingLeft (px ((Style.noteWidth size / 2) + 3))
+        , paddingRight (px (Style.noteWidth size + 2))
         ]
-        size
+        [ Buttons.plus
+            AddBeatBelowClicked
+            []
+            size
+        ]
 
 
 voiceNumber : Style.Size -> Int -> Html Msg
 voiceNumber size i =
-    [ Html.button
-        [ Attrs.css
-            [ Style.basicButton size
-            , width (px (Style.noteWidth size + 6))
-            , minHeight fitContent
-            , position absolute
-            , margin (px 0)
-            , zIndex (int 1)
-            , Style.flush
-            ]
+    Grid.column
+        [ width (px (Style.noteWidth size))
+        , flex none
+        , margin (px 1)
         ]
-        [ Html.text (String.fromInt i) ]
-    ]
-        |> Grid.column [ position relative ]
+        [ Html.button
+            [ Attrs.css
+                [ Style.basicButton size
+                , width (px (Style.noteWidth size))
+                , minHeight fitContent
+                , margin (px 0)
+                , zIndex (int 1)
+                , Style.flush
+                ]
+            ]
+            [ Html.text (String.fromInt i) ]
+        ]
 
 
 trackerOptionsButton : Style.Size -> Html Msg
 trackerOptionsButton size =
     Html.button
         [ Attrs.css
-            [ trackerOptionsButtonStyle size ]
+            [ Style.basicButton size
+            , width (px ((Style.noteWidth size * 2) + 2))
+            ]
         , Events.onClick OptionsClicked
         ]
         [ Html.text "options" ]
-
-
-trackerOptionsButtonStyle : Style.Size -> Style
-trackerOptionsButtonStyle size =
-    [ Style.basicButton size
-    , width (px ((Style.noteWidth size * 2) + 7))
-    ]
-        |> Css.batch
 
 
 partNameField : Style.Size -> Part -> Html Msg
