@@ -85,6 +85,7 @@ view payload =
             , position absolute
             , top (pct 50)
             , left (pct 50)
+            , minWidth (px 300)
             ]
         ]
         [ Grid.container
