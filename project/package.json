@@ -18,5 +18,6 @@
     ],
     "seed": 19,
     "timing-variance": 100,
-    "beat-length": 5000
+    "beat-length": 5000,
+    "scale": "major 7 tone jit"
 }

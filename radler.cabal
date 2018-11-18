@@ -19,6 +19,8 @@ executable radler
   main-is:             Main.hs
   hs-source-dirs:      engine-src
   other-modules:
+    Audio
+    Config
     Cmd
     Error
     Json
@@ -34,6 +36,9 @@ executable radler
     Result
     Route
     Router
+    Scale
+    Scale.Data
+    Scale.Major7ToneJit
     Score
     Update       
     Voice

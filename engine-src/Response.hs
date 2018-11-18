@@ -45,7 +45,13 @@ text =
 
 
 json :: Json -> Response
-json 
-    = Response.text
-    . Json.toText
+json json_ =
+    Web.setHeader "Content-Type" "application/json; charset=utf-8"
+        >> encodeJson json_
 
+
+encodeJson :: Json -> Response
+encodeJson 
+    = Web.raw
+    . TE.encodeUtf8
+    . Json.toText

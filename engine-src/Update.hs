@@ -65,12 +65,15 @@ handleRoute route model =
         Play (Err err) ->
             ( model
             , Cmd.none
-            , Response.json $ Json.object
-                [ (,) "error"
-                    $ Json.string 
-                    $ Error.throw
-                    $ err
-                ]
+            , Response.error
+                400
+                $ Error.throw err
+            -- , Response.json $ Json.object
+            --     [ (,) "error"
+            --         $ Json.string 
+            --         $ Error.throw
+            --         $ err
+            --     ]
             )
 
 

@@ -17,9 +17,10 @@ import qualified Data.List as List
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import qualified Note
-import Prelude.Extra (List)
+import Prelude.Extra (List, debugLog)
 import Result (Result(Ok, Err))
 import qualified Result 
+import qualified Debug.Trace as Debug
 
 
 -- TYPES --
@@ -51,7 +52,7 @@ readNoteTxts :: Text -> Result Error Note
 readNoteTxts noteTxt =
     case Note.read noteTxt of
         Ok (noteBase, contentTxt) ->
-            Ok (Note noteBase contentTxt)
+            Ok $ Note noteBase contentTxt
 
         Err error ->
             error

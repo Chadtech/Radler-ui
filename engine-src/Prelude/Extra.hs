@@ -61,11 +61,6 @@ listMap2Accumulate xs ys f output =
 type List a = [ a ]
 
 
-rightCompose :: (a -> b) -> (b -> c) -> a -> c
-rightCompose f g v =
-    g (f v)
-
-
 debugLog :: String -> (a -> String) -> a -> a
 debugLog msg toString x =
     Debug.trace (msg ++ " : " ++ (toString x)) x
@@ -74,3 +69,4 @@ debugLog msg toString x =
 mapFirst :: (a -> b) -> (a, c) -> (b, c)
 mapFirst f (a, b) =
     (f a, b)
+    

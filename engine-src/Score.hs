@@ -13,11 +13,12 @@ module Score
         
 import Audio (Audio)
 import qualified Audio
+import Config (Config)
+import qualified Config
 import Data.Function ((&))
 import Data.List as List
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
-import qualified Voice as Voice
 import Parse (Parser)
 import qualified Parse
 import Part (Part)
@@ -35,6 +36,7 @@ data Score
         { sourceText :: Text
         , name :: Text
         , parts :: List Part
+        , config :: Config
         }
 
 
@@ -64,16 +66,26 @@ isntCommentLine
 buildFromChunks :: Text -> List Text -> Result Error Score
 buildFromChunks scoreData chunks =
     case chunks of
-        name : voices : notes : [] ->
+        name : voices : notes : config : [] ->
             Score
                 & Ok
                 & Parse.construct scoreData
                 & Parse.construct name
                 & applyParts voices notes
+                & applyConfig config
 
         _ ->
             Err (UnexpectedChunkStructure chunks)
 
+
+applyConfig :: Text -> Parser Error Config b
+applyConfig text ctorResult =
+    case Config.read text of
+        Ok config ->
+            Parse.construct config ctorResult
+
+        Err err ->
+            Err (ConfigError err)
 
 
 applyParts :: Text -> Text -> Parser Error (List Part) b
@@ -98,6 +110,7 @@ toAudio
 
 data Error
     = PartError Part.Error
+    | ConfigError Config.Error
     | UnexpectedChunkStructure (List Text)
 
 
@@ -113,3 +126,6 @@ throw error =
             , T.intercalate "chunk\n\n" chunks
             ]
                 & T.concat
+
+        ConfigError configError ->
+            Config.throw configError

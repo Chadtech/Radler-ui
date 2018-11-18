@@ -74,6 +74,7 @@ type alias Package =
     , seed : Seed
     , score : List ( String, Int )
     , voices : List String
+    , scale : String
     }
 
 
@@ -117,6 +118,7 @@ fromStringDecoder jsonStr =
         |> JDP.required "seed" (JD.map Random.initialSeed JD.int)
         |> JDP.required "score" partsListDecoder
         |> JDP.required "voices" (JD.list JD.string)
+        |> JDP.required "scale" JD.string
 
 
 partsListDecoder : Decoder (List ( String, Int ))
@@ -177,6 +179,9 @@ toScoreString package score =
     , ":"
     , "# NOTES"
     , scoreToString package score
+    , ":"
+    , "# CONFIG"
+    , package.scale
     ]
         |> String.join "\n"
 
