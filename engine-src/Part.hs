@@ -12,6 +12,8 @@ module Part
 
 
 import Audio (Audio)
+import Config (Config)
+import qualified Config
 import qualified Audio
 import Data.Function ((&))
 import Data.List as List
@@ -33,12 +35,12 @@ data Part
 -- HELPERS --
 
 
-fromPieces :: (Text, List Text) -> Result Error Part
-fromPieces (voiceNameTxt, noteTxts) =
+fromPieces :: Config -> (Text, List Text) -> Result Error Part
+fromPieces config (voiceNameTxt, noteTxts) =
     case T.splitOn "," voiceNameTxt of
         "sin" : [] ->
             noteTxts
-                & Sin.read
+                & Sin.read config
                 & Result.map Sin
                 & Result.mapError SinError
 
@@ -46,10 +48,9 @@ fromPieces (voiceNameTxt, noteTxts) =
             Err (UnrecognizedPartType voiceNameTxt)
 
 
-readMany :: Text -> Text -> Result Error (List Part)
-readMany voiceNameTxts noteTxts =
+readMany :: Config -> Text -> Text -> Result Error (List Part)
+readMany config voiceNameTxts noteTxts =
     let
-
         voiceNames :: List Text
         voiceNames 
             = T.splitOn ";" 
@@ -75,12 +76,11 @@ readMany voiceNameTxts noteTxts =
         voicesLength :: Int
         voicesLength =
             List.length voiceNames
-
     in
     if notesLength == voicesLength then
         notes
             & List.zip voiceNames
-            & List.map fromPieces
+            & List.map (fromPieces config)
             & Result.join
 
     else

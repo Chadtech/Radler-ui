@@ -4,6 +4,7 @@
 module Config
     ( Config
     , Config.read
+    , scale
     , Error
     , throw
     )
@@ -11,14 +12,14 @@ module Config
 
 
 import Data.Function ((&))
-import Scale (Scale)
-import qualified Scale
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import Parse (Parser)
 import qualified Parse
 import Result (Result(Ok, Err))
 import qualified Result
+import Scale (Scale)
+import qualified Scale
 
 
 -- TYPES --

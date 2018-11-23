@@ -66,31 +66,26 @@ isntCommentLine
 buildFromChunks :: Text -> List Text -> Result Error Score
 buildFromChunks scoreData chunks =
     case chunks of
-        name : voices : notes : config : [] ->
-            Score
-                & Ok
-                & Parse.construct scoreData
-                & Parse.construct name
-                & applyParts voices notes
-                & applyConfig config
+        name : voices : notes : configTxt : [] ->
+            case Config.read configTxt of
+                Ok config ->
+                    Score
+                        & Ok
+                        & Parse.construct scoreData
+                        & Parse.construct name
+                        & applyParts config voices notes
+                        & Parse.construct config
+
+                Err err ->
+                    Err (ConfigError err)
 
         _ ->
             Err (UnexpectedChunkStructure chunks)
 
 
-applyConfig :: Text -> Parser Error Config b
-applyConfig text ctorResult =
-    case Config.read text of
-        Ok config ->
-            Parse.construct config ctorResult
-
-        Err err ->
-            Err (ConfigError err)
-
-
-applyParts :: Text -> Text -> Parser Error (List Part) b
-applyParts voices notes ctorResult =
-    case Part.readMany voices notes of
+applyParts :: Config -> Text -> Text -> Parser Error (List Part) b
+applyParts config voices notes ctorResult =
+    case Part.readMany config voices notes of
         Ok parts ->
             Parse.construct parts ctorResult
 
@@ -102,7 +97,7 @@ toAudio :: Score -> Audio
 toAudio 
     = Audio.mixMany
     . List.map Part.toAudio
-    . parts 
+    . parts
 
 
 -- ERROR --

@@ -12,15 +12,20 @@ module Part.Sin
         
 import Audio (Audio)
 import qualified Audio
+import Config (Config)
+import qualified Config
 import Data.Function ((&))
 import qualified Data.List as List
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import qualified Note
-import Prelude.Extra (List, debugLog)
+import Parse (Parser)
+import qualified Parse
+import Prelude.Extra (List)
 import Result (Result(Ok, Err))
 import qualified Result 
-import qualified Debug.Trace as Debug
+import Scale (Scale)
+import qualified Scale
 
 
 -- TYPES --
@@ -34,30 +39,73 @@ data Model
 data Note 
     = Note
         { note :: Note.Model
-        , content :: Text
+        , freq :: Float
         }
 
 
 -- HELPERS --
 
 
-read :: List Text -> Result Error Model
-read 
+read :: Config -> List Text -> Result Error Model
+read config 
     = Result.map Model
-    . Result.join
-    . List.map readNoteTxts
+    . readManyNoteTexts config
 
 
-readNoteTxts :: Text -> Result Error Note
-readNoteTxts noteTxt =
+readManyNoteTexts :: Config -> List Text -> Result Error (List Note)
+readManyNoteTexts config noteTexts =
+    readManyNoteTextsAccumulate config noteTexts []
+
+
+readManyNoteTextsAccumulate :: Config -> List Text -> List Note -> Result Error (List Note)
+readManyNoteTextsAccumulate config noteTexts notes =
+    case noteTexts of
+        first : rest ->
+            case readNoteText config first of
+                Ok (Just note) ->
+                    readManyNoteTextsAccumulate config rest (note : notes)
+
+                Ok Nothing ->
+                    readManyNoteTextsAccumulate config rest notes
+
+                Err err ->
+                    Err err
+
+        [] ->
+            Ok (List.reverse notes)
+
+
+readNoteText :: Config -> Text -> Result Error (Maybe Note)
+readNoteText config noteTxt =
     case Note.read noteTxt of
         Ok (noteBase, contentTxt) ->
-            Ok $ Note noteBase contentTxt
+            case contentTxt of
+                "X" ->
+                    Ok Nothing
+
+                _ ->
+                    Note
+                        & Ok
+                        & Parse.construct noteBase
+                        & applyFreq config contentTxt
+                        & Result.map Just
 
         Err error ->
             error
                 & NoteError
                 & Err
+
+
+applyFreq :: Config -> Text -> Parser Error Float b
+applyFreq config noteTxt resultCtor =
+    case Scale.toFreq (Config.scale config) noteTxt of
+        Ok freq ->
+            Parse.construct freq resultCtor
+
+        Err err ->
+            Err (ScaleError err)            
+
+
 
 
 toAudio :: Model -> Audio
@@ -70,6 +118,7 @@ toAudio model =
 
 data Error 
     = NoteError Note.Error
+    | ScaleError Scale.Error
 
 
 throw :: Error -> Text
@@ -77,3 +126,6 @@ throw error =
     case error of
         NoteError noteError ->
             Note.throw noteError
+
+        ScaleError scaleError ->
+            Scale.throw scaleError
