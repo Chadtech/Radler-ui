@@ -90,11 +90,11 @@ readMany config voiceNameTxts noteTxts =
             & Err
 
 
-toAudio :: Part -> Audio
-toAudio part =
+toAudio :: Config -> Part -> Audio
+toAudio config part =
     case part of
         Sin sinModel ->
-            Sin.toAudio sinModel
+            Sin.toAudio config sinModel
 
 
 -- ERROR -- 

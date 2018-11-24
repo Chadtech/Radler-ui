@@ -181,9 +181,17 @@ toScoreString package score =
     , scoreToString package score
     , ":"
     , "# CONFIG"
-    , package.scale
+    , configString package
     ]
         |> String.join "\n"
+
+
+configString : Package -> String
+configString package =
+    [ package.scale
+    , String.fromInt package.beatLength
+    ]
+        |> String.join ";"
 
 
 buildScore : ScoreParams -> Maybe (List Beat)

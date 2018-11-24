@@ -5,6 +5,7 @@ module Config
     ( Config
     , Config.read
     , scale
+    , beatLength
     , Error
     , throw
     )
@@ -16,6 +17,7 @@ import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import Parse (Parser)
 import qualified Parse
+import Prelude.Extra (textToInt)
 import Result (Result(Ok, Err))
 import qualified Result
 import Scale (Scale)
@@ -27,7 +29,9 @@ import qualified Scale
 
 data Config
     = Config
-        { scale :: Scale }
+        { scale :: Scale 
+        , beatLength :: Int
+        }
 
 
 -- HELPERS --
@@ -35,16 +39,31 @@ data Config
 
 read :: Text -> Result Error Config
 read txt =
+    let
+        trimmedText :: Text
+        trimmedText =
+            T.strip txt
+    in
     case T.splitOn ";" $ T.strip txt of
-        scale : [] ->
+        scale : beatLength : [] ->
             Config
                 & Ok
                 & applyScale scale
-
+                & applyBeatLength beatLength
 
         _ ->
-            UnexpectedConfigStructure txt
+            UnexpectedConfigStructure trimmedText
                 & Err
+
+
+applyBeatLength :: Text -> Parser Error Int b
+applyBeatLength txt ctorResult =
+    case textToInt txt of
+        Just beatLength ->
+            Parse.construct beatLength ctorResult
+
+        Nothing ->
+            Err (BeatLengthIsntInt txt)
 
 
 applyScale :: Text -> Parser Error Scale b
@@ -61,22 +80,22 @@ applyScale txt ctorResult =
 
 
 data Error 
-    = UnrecognizedScale Text
-    | UnexpectedConfigStructure Text
+    = UnexpectedConfigStructure Text
+    | BeatLengthIsntInt Text
     | ScaleError Scale.Error
 
 
 throw :: Error -> Text
 throw error =
     case error of
-        UnrecognizedScale text ->
-            [ "I did not recognize this as an existing scale ->"
+        UnexpectedConfigStructure text ->
+            [ "The structure of the config was not what I expected -> "
             , text
             ]
                 & T.concat
 
-        UnexpectedConfigStructure text ->
-            [ "The structure of the config was not what I expected -> "
+        BeatLengthIsntInt text ->
+            [ "This value isnt a valid beat length, its not an int ->"
             , text
             ]
                 & T.concat

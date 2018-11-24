@@ -33,8 +33,7 @@ import qualified Result
 
 data Score
     = Score
-        { sourceText :: Text
-        , name :: Text
+        { name :: Text
         , parts :: List Part
         , config :: Config
         }
@@ -44,8 +43,9 @@ data Score
 
 
 fromText :: Text -> Result Error Score
-fromText txt = 
-    buildFromChunks txt $ toChunks txt
+fromText 
+    = buildFromChunks 
+    . toChunks 
      
 
 toChunks :: Text -> List Text
@@ -63,15 +63,14 @@ isntCommentLine
     . T.isPrefixOf "#"
 
 
-buildFromChunks :: Text -> List Text -> Result Error Score
-buildFromChunks scoreData chunks =
+buildFromChunks :: List Text -> Result Error Score
+buildFromChunks chunks =
     case chunks of
         name : voices : notes : configTxt : [] ->
             case Config.read configTxt of
                 Ok config ->
                     Score
                         & Ok
-                        & Parse.construct scoreData
                         & Parse.construct name
                         & applyParts config voices notes
                         & Parse.construct config
@@ -94,10 +93,11 @@ applyParts config voices notes ctorResult =
 
 
 toAudio :: Score -> Audio
-toAudio 
-    = Audio.mixMany
-    . List.map Part.toAudio
-    . parts
+toAudio score =
+    score
+        & parts
+        & List.map (Part.toAudio (config score))
+        & Audio.mixMany
 
 
 -- ERROR --

@@ -106,11 +106,11 @@ applyFreq config noteTxt resultCtor =
             Err (ScaleError err)            
 
 
-
-
-toAudio :: Model -> Audio
-toAudio model =
-    Audio.silence 100
+toAudio :: Config -> Model -> Audio
+toAudio config model =
+    Audio.sin 
+        400
+        (Config.beatLength config)
 
 
 -- ERROR --

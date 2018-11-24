@@ -6,20 +6,22 @@ module Audio
     , toVector
     , mixMany
     , silence
+    , Audio.sin
     ) where
 
 
-import Data.Int (Int32)
+import Data.Function ((&))
+import Data.Int (Int16)
 import Data.Vector (Vector)
 import qualified Data.Vector as Vector
 import Prelude.Extra (List)
 
 
 data Audio
-    = Audio (Vector Int32)
+    = Audio (Vector Int16)
 
 
-toVector :: Audio -> Vector Int32
+toVector :: Audio -> Vector Int16
 toVector (Audio vector) =
     vector
 
@@ -32,6 +34,20 @@ empty =
 silence :: Int -> Audio
 silence duration =
     Audio $ Vector.replicate duration 0
+
+
+sin :: Float -> Int -> Audio
+sin freq duration =
+    Vector.generate 
+        duration 
+        (sinAtSample freq)
+        & Audio
+
+
+sinAtSample :: Float -> Int -> Int16
+sinAtSample freq index =
+    32767 * Prelude.sin (2 * pi * freq / 44100 * fromIntegral index) 
+        & round        
 
 
 mixMany :: List Audio -> Audio
