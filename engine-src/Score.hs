@@ -97,6 +97,7 @@ toAudio score =
     score
         & parts
         & List.map (Part.toAudio (config score))
+        & Audio.normalizeVolumes
         & Audio.mixMany
 
 

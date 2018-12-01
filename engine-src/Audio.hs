@@ -5,6 +5,7 @@ module Audio
     ( Audio
     , toVector
     , mixMany
+    , normalizeVolumes
     , silence
     , Audio.sin
     ) where
@@ -12,16 +13,17 @@ module Audio
 
 import Data.Function ((&))
 import Data.Int (Int16)
+import qualified Data.List as List
 import Data.Vector (Vector)
 import qualified Data.Vector as Vector
-import Prelude.Extra (List)
+import Prelude.Extra (List, debugLog)
 
 
 data Audio
-    = Audio (Vector Int16)
+    = Audio (Vector Float)
 
 
-toVector :: Audio -> Vector Int16
+toVector :: Audio -> Vector Float
 toVector (Audio vector) =
     vector
 
@@ -44,10 +46,14 @@ sin freq duration =
         & Audio
 
 
-sinAtSample :: Float -> Int -> Int16
+sinAtSample :: Float -> Int -> Float
 sinAtSample freq index =
-    32767 * Prelude.sin (2 * pi * freq / 44100 * fromIntegral index) 
-        & round        
+    Prelude.sin (2 * pi * (freq / 44100) * toFloat index) 
+
+
+toFloat :: Int -> Float
+toFloat =
+    fromIntegral
 
 
 mixMany :: List Audio -> Audio
@@ -63,6 +69,18 @@ mixMany audios =
 
         [] ->
             empty
+
+
+normalizeVolumes :: List Audio -> List Audio
+normalizeVolumes audios =
+    List.map 
+        (setVolume (1 / (debugLog "VOLUME" show (toFloat (List.length audios)))))
+        audios
+
+
+setVolume :: Float -> Audio -> Audio
+setVolume newRelativeVolume (Audio vector) =
+    Audio (Vector.map ((*) newRelativeVolume) vector)
 
 
 mix :: Audio -> Audio -> Audio
