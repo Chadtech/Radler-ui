@@ -18,10 +18,12 @@ import Data.Function ((&))
 import qualified Data.List as List
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
+import Data.Vector (Vector)
+import qualified Data.Vector as Vector
 import qualified Note
 import Parse (Parser)
 import qualified Parse
-import Prelude.Extra (List)
+import Prelude.Extra (List, debugLog)
 import Result (Result(Ok, Err))
 import qualified Result 
 import Scale (Scale)
@@ -33,12 +35,12 @@ import qualified Scale
 
 data Model
     = Model
-        { notes :: List Note }
+        { notes :: Vector Note }
 
 
 data Note 
     = Note
-        { note :: Note.Model
+        { noteModel :: Note.Model
         , freq :: Float
         }
 
@@ -48,7 +50,7 @@ data Note
 
 read :: Config -> List Text -> Result Error Model
 read config 
-    = Result.map Model
+    = Result.map (Model . Vector.fromList)
     . readManyNoteTexts config
 
 
@@ -108,9 +110,21 @@ applyFreq config noteTxt resultCtor =
 
 toAudio :: Config -> Model -> Audio
 toAudio config model =
-    Audio.sin 
-        400
+    model
+        & notes
+        & Vector.map (noteToAudio config)
+        & Audio.fromTimeline
+
+
+noteToAudio :: Config -> Note -> (Int, Audio)
+noteToAudio config note =
+    ( Note.time 
+        (noteModel note)
+    , Audio.sin 
+        (freq note)
         (Config.beatLength config)
+    )
+
 
 
 -- ERROR --

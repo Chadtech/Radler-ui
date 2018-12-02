@@ -3,6 +3,7 @@
 
 module Note
     ( Model
+    , time
     , Note.read
     , Error
     , throw

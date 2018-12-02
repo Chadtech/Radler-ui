@@ -32,3 +32,4 @@ init =
 setScore :: Score -> Model -> Model
 setScore score m =
     m { score = Just score }
+

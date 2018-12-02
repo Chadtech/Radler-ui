@@ -68,28 +68,19 @@ handleRoute route model =
             , Response.error
                 400
                 $ Error.throw err
-            -- , Response.json $ Json.object
-            --     [ (,) "error"
-            --         $ Json.string 
-            --         $ Error.throw
-            --         $ err
-            --     ]
             )
 
 
 playScore :: Score -> Model -> Cmd
 playScore incomingScore model =
-    case Model.score model of
-        Just existingScore ->
-            Cmd.log "Score exists"
+    -- case Model.score model of
+    --     Just existingScore ->
+    --         Cmd.log "Score exists"
             
-        Nothing ->
+    --     Nothing ->
             incomingScore
                 & Score.toAudio
-                & Audio.toVector
-                & show
-                & T.pack
-                & Cmd.log
+                & Audio.write (Score.name incomingScore)
             
             
 

@@ -7,16 +7,25 @@ module Audio
     , mixMany
     , normalizeVolumes
     , silence
+    , fromTimeline
+    , write
     , Audio.sin
     ) where
 
 
+import Cmd (Cmd)
+import qualified Cmd
+import qualified Control.Monad as CM
 import Data.Function ((&))
-import Data.Int (Int16)
+import Data.Int (Int32)
 import qualified Data.List as List
+import Data.Text.Lazy (Text)
+import qualified Data.Text.Lazy as T
 import Data.Vector (Vector)
 import qualified Data.Vector as Vector
-import Prelude.Extra (List, debugLog)
+import Data.WAVE (WAVE)
+import qualified Data.WAVE as W
+import Prelude.Extra (List, mapFirst)
 
 
 data Audio
@@ -74,13 +83,43 @@ mixMany audios =
 normalizeVolumes :: List Audio -> List Audio
 normalizeVolumes audios =
     List.map 
-        (setVolume (1 / (debugLog "VOLUME" show (toFloat (List.length audios)))))
+        (setVolume (1 / (toFloat (List.length audios))))
         audios
 
 
 setVolume :: Float -> Audio -> Audio
 setVolume newRelativeVolume (Audio vector) =
     Audio (Vector.map ((*) newRelativeVolume) vector)
+
+
+fromTimeline :: Vector (Int, Audio) -> Audio
+fromTimeline timeline =
+    if Vector.length timeline == 0 then
+        empty
+
+    else
+        Vector.accumulate 
+            (+)
+            (timelineBasis $ Vector.last timeline)
+            (CM.join $ Vector.map timelineSamples timeline)
+            & Audio
+
+timelineBasis :: (Int, Audio) -> Vector Float 
+timelineBasis (lastStartingPoint, lastAudio) =
+    lastStartingPoint + Audio.length lastAudio
+        & silence
+        & toVector
+
+
+
+timelineSamples :: (Int, Audio) -> Vector (Int, Float)
+timelineSamples (beginningIndex, Audio vector) =
+    vector
+        & Vector.indexed
+        & Vector.map (mapFirst ((+) beginningIndex))
+
+
+
 
 
 mix :: Audio -> Audio -> Audio
@@ -111,11 +150,15 @@ equalizeLengths audio0 audio1 =
     in
     if audio0Length > audio1Length then
         ( audio0
-        , appendSilence (audio0Length - audio1Length) audio1
+        , appendSilence 
+            (audio0Length - audio1Length) 
+            audio1
         )
 
     else
-        ( appendSilence (audio1Length - audio0Length) audio0
+        ( appendSilence 
+            (audio1Length - audio0Length) 
+            audio0
         , audio1
         )
 
@@ -134,3 +177,35 @@ length :: Audio -> Int
 length (Audio vector) =
     Vector.length vector
 
+
+toSamples :: Audio -> List Int32
+toSamples (Audio vector) =
+    vector
+        & Vector.toList
+        & List.map 
+            (toInt32 . (*) 2147483647)
+
+
+toInt32 :: Float -> Int32
+toInt32 =
+    round
+    
+
+write :: Text -> Audio -> Cmd
+write fn audio =
+    W.WAVE
+        { W.waveHeader = header audio
+        , W.waveSamples = [ toSamples audio ]
+        }
+        & W.putWAVEFile (T.unpack (T.append fn ".wav"))
+        & Cmd.fromIO
+
+
+header :: Audio -> W.WAVEHeader
+header audio =
+    W.WAVEHeader
+        { W.waveNumChannels = 1
+        , W.waveFrameRate = 44100
+        , W.waveBitsPerSample = 32
+        , W.waveFrames = Just $ Audio.length audio 
+        }

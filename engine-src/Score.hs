@@ -5,6 +5,7 @@ module Score
     ( Score
     , fromText
     , toAudio
+    , name
     , Error
     , throw
     )
@@ -71,7 +72,7 @@ buildFromChunks chunks =
                 Ok config ->
                     Score
                         & Ok
-                        & Parse.construct name
+                        & Parse.construct (T.strip name)
                         & applyParts config voices notes
                         & Parse.construct config
 

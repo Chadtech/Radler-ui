@@ -33,7 +33,7 @@ toFreq txt =
 
 fundamentalsOctave :: Int -> Float
 fundamentalsOctave int =
-    quot int 10 * fundamental0
+    (2 ^ quot int 10) * fundamental0
         & Prelude.fromIntegral
 
 

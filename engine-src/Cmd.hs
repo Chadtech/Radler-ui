@@ -2,6 +2,7 @@ module Cmd
     ( Cmd
     , none
     , toIO
+    , fromIO
     , Cmd.log
     )
     where
@@ -17,6 +18,11 @@ data Cmd
 none :: Cmd
 none =
     None
+
+
+fromIO :: IO () -> Cmd
+fromIO =
+    Cmd
 
 
 toIO :: Cmd -> IO ()
