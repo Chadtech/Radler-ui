@@ -6,6 +6,7 @@ module Config
     , Config.read
     , scale
     , beatLength
+    , timingVariance
     , Error
     , throw
     )
@@ -31,6 +32,7 @@ data Config
     = Config
         { scale :: Scale 
         , beatLength :: Int
+        , timingVariance :: Int
         }
 
 
@@ -45,15 +47,26 @@ read txt =
             T.strip txt
     in
     case T.splitOn ";" $ T.strip txt of
-        scale : beatLength : [] ->
+        scale : beatLength : timingVariance : [] ->
             Config
                 & Ok
                 & applyScale scale
                 & applyBeatLength beatLength
+                & applyTimingVariance timingVariance
 
         _ ->
             UnexpectedConfigStructure trimmedText
                 & Err
+
+
+applyTimingVariance :: Text -> Parser Error Int b
+applyTimingVariance txt ctorResult =
+    case textToInt txt of
+        Just timingVariance ->
+            Parse.construct timingVariance ctorResult
+
+        Nothing ->
+            Err (TimingVarianceIsntInt txt)
 
 
 applyBeatLength :: Text -> Parser Error Int b
@@ -82,6 +95,7 @@ applyScale txt ctorResult =
 data Error 
     = UnexpectedConfigStructure Text
     | BeatLengthIsntInt Text
+    | TimingVarianceIsntInt Text
     | ScaleError Scale.Error
 
 
@@ -96,6 +110,12 @@ throw error =
 
         BeatLengthIsntInt text ->
             [ "This value isnt a valid beat length, its not an int ->"
+            , text
+            ]
+                & T.concat
+
+        TimingVarianceIsntInt text ->
+            [ "This value isnt a valid timing variance, its not an int ->"
             , text
             ]
                 & T.concat

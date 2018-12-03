@@ -10,6 +10,9 @@ module Note
     )
     where
 
+        
+import Config (Config)
+import qualified Config
 import Data.Function
 import qualified Data.List as List
 import Data.Text.Lazy (Text)
@@ -29,14 +32,14 @@ data Model
 -- READ NOTE --
 
 
-read :: Text -> Result Error (Model, Text)
-read txt =
+read :: Config -> Text -> Result Error (Model, Text)
+read config txt =
     case T.splitOn "," txt of
         timeTxt : randomSeedTxt : content : [] ->
             case (textToInt timeTxt, textToInt randomSeedTxt) of
                 (Just time, Just randomSeed) ->
                     ( Model
-                        { time = time
+                        { time = time + (Config.timingVariance config)
                         , randomSeed = randomSeed
                         }
                     , content

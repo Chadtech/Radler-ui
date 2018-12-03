@@ -43,13 +43,6 @@ type Msg
 -- UPDATE --
 
 
-{-|
-
-    Theres a lot of indexing going on!
-
-        ti := tracker index
-
--}
 update : Msg -> Tracker -> Tracker
 update msg =
     case msg of

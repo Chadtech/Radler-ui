@@ -8,6 +8,7 @@ import Cmd (Cmd)
 import qualified Cmd
 import Data.Function ((&))
 import qualified Data.List as List
+import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import Error (Error)
 import qualified Error
@@ -78,12 +79,21 @@ playScore incomingScore model =
     --         Cmd.log "Score exists"
             
     --     Nothing ->
-            incomingScore
-                & Score.toAudio
-                & Audio.write (Score.name incomingScore)
-            
-            
+    let
+        filename :: Text
+        filename =
+            T.append (Score.name incomingScore) ".wav"
+    in
+    -- Audio.play filename
 
+    [ incomingScore
+        & Score.toAudio
+        & Audio.write filename
+    , Audio.play filename
+    ]
+        & Cmd.batch
+            
+            
 playResponse :: Maybe Error -> Response
 playResponse 
     = Response.json

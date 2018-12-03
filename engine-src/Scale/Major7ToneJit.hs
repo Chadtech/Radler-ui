@@ -84,7 +84,7 @@ throw error =
         NoteIsntInt note ->
             [ "This note is weird -> "
             , note
-            , "Its not an integer. Im expecting something like 34 or 10"
+            , " Its not an integer. Im expecting something like 34 or 10"
             ]
                 & T.concat
 

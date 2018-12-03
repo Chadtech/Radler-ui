@@ -9,6 +9,7 @@ module Audio
     , silence
     , fromTimeline
     , write
+    , play
     , Audio.sin
     ) where
 
@@ -26,6 +27,7 @@ import qualified Data.Vector as Vector
 import Data.WAVE (WAVE)
 import qualified Data.WAVE as W
 import Prelude.Extra (List, mapFirst)
+import qualified System.Process as SP
 
 
 data Audio
@@ -197,8 +199,16 @@ write fn audio =
         { W.waveHeader = header audio
         , W.waveSamples = [ toSamples audio ]
         }
-        & W.putWAVEFile (T.unpack (T.append fn ".wav"))
+        & W.putWAVEFile (T.unpack fn)
         & Cmd.fromIO
+
+
+play :: Text -> Cmd
+play 
+    = Cmd.fromIO
+    . SP.callCommand
+    . T.unpack
+    . T.append "play "
 
 
 header :: Audio -> W.WAVEHeader

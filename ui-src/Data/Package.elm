@@ -190,6 +190,7 @@ configString : Package -> String
 configString package =
     [ package.scale
     , String.fromInt package.beatLength
+    , String.fromInt package.timingVariance
     ]
         |> String.join ";"
 

@@ -23,7 +23,7 @@ import qualified Data.Vector as Vector
 import qualified Note
 import Parse (Parser)
 import qualified Parse
-import Prelude.Extra (List, debugLog)
+import Prelude.Extra (List)
 import Result (Result(Ok, Err))
 import qualified Result 
 import Scale (Scale)
@@ -79,7 +79,7 @@ readManyNoteTextsAccumulate config noteTexts notes =
 
 readNoteText :: Config -> Text -> Result Error (Maybe Note)
 readNoteText config noteTxt =
-    case Note.read noteTxt of
+    case Note.read config noteTxt of
         Ok (noteBase, contentTxt) ->
             case contentTxt of
                 "X" ->
