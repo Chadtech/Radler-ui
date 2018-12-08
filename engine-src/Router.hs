@@ -28,6 +28,7 @@ import qualified Route
 import Update (update)
 import Web.Scotty.Trans (ScottyT)
 import qualified Web.Scotty.Trans as Web
+import Language.Haskell.TH.Ppr (bytesToString)
 
 
 data Router
@@ -56,7 +57,7 @@ withBody routeTxt = do
             chunk <- rd
             let len = BS.length chunk
             if len > 0 then 
-                step $ acc ++ (show chunk)
+                step $ acc ++ (bytesToString $ BS.unpack chunk)
             else 
                 return acc
     bodyTxt <- liftIO $ step ""

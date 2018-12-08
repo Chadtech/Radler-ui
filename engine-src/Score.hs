@@ -54,7 +54,7 @@ toChunks
     = T.splitOn ":"
     . T.unlines
     . List.filter isntCommentLine
-    . T.splitOn "\\n"
+    . T.splitOn "\n"
     . T.dropAround ((==) '"')
 
 
