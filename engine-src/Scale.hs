@@ -60,7 +60,9 @@ throw :: Error -> Text
 throw error =
     case error of
         Major7ToneJitError major7ToneJitError ->
-            Major7ToneJit.throw major7ToneJitError
+            major7ToneJitError
+                & Major7ToneJit.throw
+                & T.append "Major 7 Tone Jit Error ->\n"
 
         UnrecognizedScale txt ->
             [ "This is not a recognized scale -> "

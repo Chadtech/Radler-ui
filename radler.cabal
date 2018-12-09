@@ -29,6 +29,7 @@ executable radler
     Note
     Parse
     Part
+    Part.Duration
     Part.Sin
     Part.Volume
     Prelude.Extra

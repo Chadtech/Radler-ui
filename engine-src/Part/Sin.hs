@@ -23,6 +23,7 @@ import qualified Data.Vector as Vector
 import qualified Note
 import Parse (Parser)
 import qualified Parse
+import qualified Part.Duration as Duration
 import qualified Part.Volume as Volume
 import Prelude.Extra (List, slice)
 import Result (Result(Ok, Err))
@@ -44,6 +45,7 @@ data Note
         { noteModel :: Note.Model
         , freq :: Float
         , volume :: Float
+        , duration :: Int
         }
 
 
@@ -107,6 +109,17 @@ readNonEmptyNoteText config noteBase contentTxt =
         & Parse.construct noteBase
         & applyFreq config (slice 0 2 contentTxt)
         & applyVolume (slice 2 4 contentTxt)
+        & applyDuration config (slice 4 6 contentTxt)
+
+
+applyDuration :: Config ->  Text -> Parser Error Int b
+applyDuration config durationTxt resultCtor =
+    case Duration.read config durationTxt of
+        Ok duration ->
+            Parse.construct duration resultCtor
+
+        Err err ->
+            Err (DurationError err)
 
 
 applyVolume :: Text -> Parser Error Float b
@@ -155,6 +168,7 @@ data Error
     = NoteError Note.Error
     | ScaleError Scale.Error
     | VolumeError Volume.Error
+    | DurationError Duration.Error
 
 
 throw :: Error -> Text
@@ -164,7 +178,12 @@ throw error =
             Note.throw noteError
 
         ScaleError scaleError ->
-            Scale.throw scaleError
+            scaleError
+                & Scale.throw
+                & T.append "Scale Error ->\n"
 
         VolumeError volumeError ->
             Volume.throw volumeError
+
+        DurationError durationError ->
+            Duration.throw durationError

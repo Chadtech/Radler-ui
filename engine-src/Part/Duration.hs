@@ -1,13 +1,15 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 
-module Part.Volume
-    ( Part.Volume.read
+module Part.Duration
+    ( Part.Duration.read
     , Error
     , throw
     ) where
 
 
+import Config (Config)
+import qualified Config
 import Data.Function ((&))
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
@@ -18,11 +20,11 @@ import Result (Result(Ok, Err))
 import qualified Result 
 
 
-read :: Text -> Result Error Float
-read txt =
+read :: Config -> Text -> Result Error Int
+read config txt =
     case TR.hexadecimal txt of
         Right (v, _) ->
-            Ok (fromIntegral v / 255)
+            Ok (v * Config.beatLength config)
 
         Left err ->
             err
@@ -42,7 +44,7 @@ throw :: Error -> Text
 throw error =
     case error of
         TextNotHexadecimal txt ->
-            [ "Volume is not hexadecimal : "
+            [ "Duration is not hexadecimal : "
             , txt
             ]
                 & T.concat

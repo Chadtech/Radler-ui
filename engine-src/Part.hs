@@ -108,7 +108,7 @@ data Error
 
 throw :: Error -> Text
 throw 
-    = T.append "Part Error -> \n    " 
+    = T.append "\nPart Error ->\n" 
     . errorToText
 
 
@@ -116,7 +116,7 @@ errorToText :: Error -> Text
 errorToText error =
     case error of
         UnrecognizedPartType txt ->
-            T.append "unrecognized part type -> " txt
+            T.append "unrecognized part type -> \n" txt
 
         VoicesAndNotesNotOneToOne voicesLength notesLength ->
             [ "There are " 
@@ -130,4 +130,4 @@ errorToText error =
         SinError sinError ->
             sinError
                 & Sin.throw 
-                & T.append "Error in Sin Voice -> " 
+                & T.append "Error in Sin Voice -> \n" 

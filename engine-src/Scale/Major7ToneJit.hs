@@ -82,9 +82,9 @@ throw :: Error -> Text
 throw error =
     case error of
         NoteIsntInt note ->
-            [ "This note is weird -> "
+            [ "This note is weird..\n"
             , note
-            , " Its not an integer. Im expecting something like 34 or 10"
+            , "\nIts not an integer. Im expecting something like 34 or 10"
             ]
                 & T.concat
 
