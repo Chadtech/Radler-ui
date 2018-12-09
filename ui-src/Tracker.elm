@@ -10,11 +10,8 @@ import Colors
 import Css exposing (..)
 import Data.Beat as Beat exposing (Beat)
 import Data.Part as Part exposing (Part)
-import Data.Tracker as Tracker
-    exposing
-        ( OptionsModel
-        , Tracker
-        )
+import Data.Tracker as Tracker exposing (Tracker)
+import Data.Tracker.Options as Options
 import Html.Buttons as Buttons
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Attribute, Html)
@@ -46,8 +43,7 @@ type alias Payload =
 
 type alias OptionsPayload =
     { partNames : List ( Int, String )
-    , majorMarkField : String
-    , minorMarkField : String
+    , model : Options.Model
     }
 
 
@@ -86,18 +82,32 @@ update ti pi msg model =
                 |> R2.withNoCmd
 
         OptionsClicked ->
-            Model.mapTracker
-                ti
-                Tracker.openOptions
-                model
-                |> R2.withNoCmd
+            case Model.getTrackersPart ti model of
+                Just part ->
+                    Model.mapTracker
+                        ti
+                        (Tracker.openOptions part.name)
+                        model
+                        |> R2.withNoCmd
+
+                Nothing ->
+                    model
+                        |> R2.withNoCmd
 
         OptionsMsg subMsg ->
-            Model.mapTracker
-                ti
-                (Options.update subMsg)
-                model
-                |> R2.withNoCmd
+            case Model.getTrackersOptions ti model of
+                Just options ->
+                    Options.update
+                        ti
+                        pi
+                        options
+                        subMsg
+                        model
+                        |> R2.withNoCmd
+
+                Nothing ->
+                    model
+                        |> R2.withNoCmd
 
         BeatMsg bi subMsg ->
             Beat.update ti pi bi subMsg model
@@ -153,10 +163,9 @@ view model trackerIndex tracker =
             notFoundView
 
 
-toOptionsPayload : Array Part -> OptionsModel -> OptionsPayload
-toOptionsPayload parts { majorMarkField, minorMarkField } =
-    { majorMarkField = majorMarkField
-    , minorMarkField = minorMarkField
+toOptionsPayload : Array Part -> Options.Model -> OptionsPayload
+toOptionsPayload parts model =
+    { model = model
     , partNames =
         parts
             |> Array.toIndexedList
@@ -207,8 +216,7 @@ optionsContainerView payload =
         Just options ->
             { parts = options.partNames
             , size = payload.size
-            , majorMarkField = options.majorMarkField
-            , minorMarkField = options.minorMarkField
+            , model = options.model
             , majorMark = payload.majorMark
             , minorMark = payload.minorMark
             }

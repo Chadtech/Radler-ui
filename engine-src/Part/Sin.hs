@@ -23,7 +23,8 @@ import qualified Data.Vector as Vector
 import qualified Note
 import Parse (Parser)
 import qualified Parse
-import Prelude.Extra (List)
+import qualified Part.Volume as Volume
+import Prelude.Extra (List, slice)
 import Result (Result(Ok, Err))
 import qualified Result 
 import Scale (Scale)
@@ -42,6 +43,7 @@ data Note
     = Note
         { noteModel :: Note.Model
         , freq :: Float
+        , volume :: Float
         }
 
 
@@ -86,16 +88,35 @@ readNoteText config noteTxt =
                     Ok Nothing
 
                 _ ->
-                    Note
-                        & Ok
-                        & Parse.construct noteBase
-                        & applyFreq config contentTxt
+                    readNonEmptyNoteText
+                        config
+                        noteBase
+                        contentTxt
                         & Result.map Just
+
 
         Err error ->
             error
                 & NoteError
                 & Err
+
+readNonEmptyNoteText :: Config -> Note.Model -> Text -> Result Error Note
+readNonEmptyNoteText config noteBase contentTxt =
+    Note
+        & Ok
+        & Parse.construct noteBase
+        & applyFreq config (slice 0 2 contentTxt)
+        & applyVolume (slice 2 4 contentTxt)
+
+
+applyVolume :: Text -> Parser Error Float b
+applyVolume volumeTxt resultCtor =
+    case Volume.read volumeTxt of
+        Ok volume ->
+            Parse.construct volume resultCtor
+
+        Err err ->
+            Err (VolumeError err)
 
 
 applyFreq :: Config -> Text -> Parser Error Float b
@@ -133,6 +154,7 @@ noteToAudio config note =
 data Error 
     = NoteError Note.Error
     | ScaleError Scale.Error
+    | VolumeError Volume.Error
 
 
 throw :: Error -> Text
@@ -143,3 +165,6 @@ throw error =
 
         ScaleError scaleError ->
             Scale.throw scaleError
+
+        VolumeError volumeError ->
+            Volume.throw volumeError

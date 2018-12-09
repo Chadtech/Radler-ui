@@ -9,10 +9,12 @@ import Colors
 import Css exposing (..)
 import Data.Part as Part
 import Data.Tracker as Tracker exposing (Tracker)
+import Data.Tracker.Options as Options
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Attribute, Html)
 import Html.Styled.Attributes as Attrs
 import Html.Styled.Events as Events
+import Model exposing (Model)
 import Style
 
 
@@ -23,10 +25,9 @@ import Style
 type alias Payload =
     { parts : List ( Int, String )
     , size : Style.Size
-    , majorMarkField : String
-    , minorMarkField : String
     , majorMark : Int
     , minorMark : Int
+    , model : Options.Model
     }
 
 
@@ -37,32 +38,63 @@ type Msg
     | BigClicked
     | MajorMarkFieldUpdated String
     | MinorMarkFieldUpdated String
+    | CopyWithNameClicked
+    | CopyNameChanged String
 
 
 
 -- UPDATE --
 
 
-update : Msg -> Tracker -> Tracker
-update msg =
+{-|
+
+    Theres a lot of indexing going on!
+
+        ti := tracker index
+        pi := part index
+        bi := beat index
+
+-}
+update : Int -> Int -> Options.Model -> Msg -> Model -> Model
+update ti pi options msg =
     case msg of
         PartClicked index ->
-            Tracker.setPartIndex index
+            index
+                |> Tracker.setPartIndex
+                |> Model.mapTracker ti
 
         BackClicked ->
             Tracker.closeOptions
+                |> Model.mapTracker ti
 
         SmallClicked ->
-            Tracker.setSize Style.Small
+            Style.Small
+                |> Tracker.setSize
+                |> Model.mapTracker ti
 
         BigClicked ->
-            Tracker.setSize Style.Big
+            Style.Big
+                |> Tracker.setSize
+                |> Model.mapTracker ti
 
         MajorMarkFieldUpdated field ->
-            Tracker.setMajorMark field
+            field
+                |> Tracker.setMajorMark
+                |> Model.mapTracker ti
 
         MinorMarkFieldUpdated field ->
-            Tracker.setMinorMark field
+            field
+                |> Tracker.setMinorMark
+                |> Model.mapTracker ti
+
+        CopyWithNameClicked ->
+            Model.copyPart pi options.copyName
+
+        CopyNameChanged copyName ->
+            copyName
+                |> Options.setCopyName
+                |> Tracker.mapOptionsModel
+                |> Model.mapTracker ti
 
 
 
@@ -87,26 +119,88 @@ view payload =
                 [ margin (px 5) ]
                 [ Grid.column
                     []
+                    [ Html.p
+                        [ Attrs.css
+                            [ Style.hfnss
+                            , paddingLeft (px 10)
+                            ]
+                        ]
+                        [ Html.text "options" ]
+                    ]
+                ]
+            , Grid.row
+                [ margin (px 5) ]
+                [ Grid.column
+                    []
+                    [ Html.p
+                        [ Attrs.css
+                            [ Style.hfnss
+                            , paddingLeft (px 10)
+                            ]
+                        ]
+                        [ Html.text "switch to part.." ]
+                    ]
+                ]
+            , Grid.row
+                [ margin (px 5) ]
+                [ Grid.column
+                    []
                     [ partOptionsContainer payload ]
                 ]
             , Grid.row
                 [ margin (px 5) ]
                 [ markLabel "major mark"
                 , markField
-                    payload.majorMarkField
+                    payload.model.majorMarkField
                     MajorMarkFieldUpdated
                 ]
             , Grid.row
                 [ margin (px 5) ]
                 [ markLabel "minor mark"
                 , markField
-                    payload.minorMarkField
+                    payload.model.minorMarkField
                     MinorMarkFieldUpdated
                 ]
             , Grid.row
                 [ margin (px 5) ]
                 [ smallViewButton payload.size
                 , bigViewButton payload.size
+                ]
+            , Grid.row
+                [ margin (px 5)
+                , marginTop (px 10)
+                ]
+                [ Grid.column
+                    []
+                    [ Html.button
+                        [ Attrs.css
+                            [ buttonStyle
+                            , margin (px 0)
+                            , width (pct 100)
+                            ]
+                        , Events.onClick CopyWithNameClicked
+                        ]
+                        [ Html.text "copy with name" ]
+                    ]
+                ]
+            , Grid.row
+                [ margin (px 5)
+                , marginBottom (px 10)
+                ]
+                [ Grid.column
+                    []
+                    [ Html.input
+                        [ Attrs.css
+                            [ Style.hfnss
+                            , color Colors.point0
+                            , Style.fontSmoothingNone
+                            , width (pct 100)
+                            ]
+                        , Events.onInput CopyNameChanged
+                        , Attrs.value payload.model.copyName
+                        ]
+                        []
+                    ]
                 ]
             , Grid.row
                 [ margin (px 5)

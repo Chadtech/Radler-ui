@@ -1,8 +1,8 @@
 module Data.Tracker exposing
-    ( OptionsModel
-    , Tracker
+    ( Tracker
     , closeOptions
     , init
+    , mapOptionsModel
     , openOptions
     , setMajorMark
     , setMinorMark
@@ -11,6 +11,7 @@ module Data.Tracker exposing
     )
 
 import Css exposing (Style)
+import Data.Tracker.Options as Options
 import Style
 
 
@@ -50,15 +51,9 @@ import Style
 type alias Tracker =
     { size : Style.Size
     , partIndex : Int
-    , options : Maybe OptionsModel
+    , options : Maybe Options.Model
     , majorMark : Int
     , minorMark : Int
-    }
-
-
-type alias OptionsModel =
-    { majorMarkField : String
-    , minorMarkField : String
     }
 
 
@@ -81,7 +76,7 @@ setMajorMark majorMarkString tracker =
     let
         fieldUpdatedTracker =
             mapOptionsModel
-                (setMajorMarkField majorMarkString)
+                (Options.setMajorMarkField majorMarkString)
                 tracker
     in
     case String.toInt majorMarkString of
@@ -97,7 +92,7 @@ setMinorMark minorMarkString tracker =
     let
         fieldUpdatedTracker =
             mapOptionsModel
-                (setMinorMarkField minorMarkString)
+                (Options.setMinorMarkField minorMarkString)
                 tracker
     in
     case String.toInt minorMarkString of
@@ -118,29 +113,20 @@ setPartIndex index tracker =
     { tracker | partIndex = index }
 
 
-mapOptionsModel : (OptionsModel -> OptionsModel) -> Tracker -> Tracker
+mapOptionsModel : (Options.Model -> Options.Model) -> Tracker -> Tracker
 mapOptionsModel f tracker =
     { tracker | options = Maybe.map f tracker.options }
 
 
-setMajorMarkField : String -> OptionsModel -> OptionsModel
-setMajorMarkField str optionsModel =
-    { optionsModel | majorMarkField = str }
-
-
-setMinorMarkField : String -> OptionsModel -> OptionsModel
-setMinorMarkField str optionsModel =
-    { optionsModel | minorMarkField = str }
-
-
-openOptions : Tracker -> Tracker
-openOptions tracker =
+openOptions : String -> Tracker -> Tracker
+openOptions partName tracker =
     { tracker
         | options =
             { majorMarkField =
                 String.fromInt tracker.majorMark
             , minorMarkField =
                 String.fromInt tracker.minorMark
+            , copyName = partName ++ "-copy"
             }
                 |> Just
     }

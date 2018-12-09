@@ -2,6 +2,9 @@ module Model exposing
     ( Model
     , Page(..)
     , clearError
+    , copyPart
+    , getTrackersOptions
+    , getTrackersPart
     , getTrackersPartIndex
     , init
     , mapPackage
@@ -21,10 +24,8 @@ import Data.Error exposing (Error(..))
 import Data.Flags as Flags exposing (Flags)
 import Data.Package as Package exposing (Package)
 import Data.Part as Part exposing (Part)
-import Data.Tracker as Tracker
-    exposing
-        ( Tracker
-        )
+import Data.Tracker as Tracker exposing (Tracker)
+import Data.Tracker.Options as Options
 import Data.Url as Url exposing (Url)
 import Ports
 import Style
@@ -166,11 +167,29 @@ removeTracker index model =
     }
 
 
+getTracker : Int -> Model -> Maybe Tracker
+getTracker trackerIndex model =
+    Array.get trackerIndex model.trackers
+
+
+getTrackersOptions : Int -> Model -> Maybe Options.Model
+getTrackersOptions trackerIndex =
+    getTracker trackerIndex >> Maybe.andThen .options
+
+
 getTrackersPartIndex : Int -> Model -> Maybe Int
-getTrackersPartIndex threadIndex model =
-    model.trackers
-        |> Array.get threadIndex
-        |> Maybe.map .partIndex
+getTrackersPartIndex trackerIndex =
+    getTracker trackerIndex >> Maybe.map .partIndex
+
+
+getTrackersPart : Int -> Model -> Maybe Part
+getTrackersPart trackerIndex model =
+    case getTrackersPartIndex trackerIndex model of
+        Just partIndex ->
+            Array.get partIndex model.parts
+
+        Nothing ->
+            Nothing
 
 
 setPlayFrom : String -> Model -> Model
@@ -203,6 +222,21 @@ setPlayFor str model =
                 | playForBeatsField =
                     str
             }
+
+
+copyPart : Int -> String -> Model -> Model
+copyPart partIndex copysName model =
+    case Array.get partIndex model.parts of
+        Just part ->
+            { model
+                | parts =
+                    Array.push
+                        { part | name = copysName }
+                        model.parts
+            }
+
+        Nothing ->
+            model
 
 
 

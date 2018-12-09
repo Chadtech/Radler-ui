@@ -8,6 +8,7 @@ module Prelude.Extra
     , textToInt
     , debugLog
     , mapFirst
+    , slice
     ) where
 
 
@@ -17,6 +18,12 @@ import qualified Data.Text.Lazy as T
 import qualified Data.Text.Lazy.Read as TR
 import Prelude hiding (head)
 import qualified Debug.Trace as Debug
+
+
+slice :: Int -> Int -> Text -> Text
+slice a b 
+    = T.takeEnd (fromIntegral a) 
+    . T.take (fromIntegral b)
 
 
 textToInt :: Text -> Maybe Int
