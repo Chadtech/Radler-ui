@@ -94,12 +94,11 @@ applyParts config voices notes ctorResult =
 
 
 toAudio :: Score -> Audio
-toAudio score =
-    score
-        & parts
-        & List.map (Part.toAudio (config score))
-        & Audio.normalizeVolumes
-        & Audio.mixMany
+toAudio 
+    = Audio.mixMany
+    . Audio.normalizeVolumes
+    . List.map Part.toAudio
+    . parts
 
 
 -- ERROR --

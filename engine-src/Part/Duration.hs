@@ -19,6 +19,8 @@ import qualified Parse
 import Result (Result(Ok, Err))
 import qualified Result 
 
+import Prelude.Extra (debugLog)
+
 
 read :: Config -> Text -> Result Error Int
 read config txt =

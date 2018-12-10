@@ -18,6 +18,8 @@ import Result (Result(Ok, Err))
 import qualified Result 
 
 
+import Prelude.Extra (debugLog)
+
 read :: Text -> Result Error Float
 read txt =
     case TR.hexadecimal txt of

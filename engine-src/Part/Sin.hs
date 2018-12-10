@@ -25,7 +25,7 @@ import Parse (Parser)
 import qualified Parse
 import qualified Part.Duration as Duration
 import qualified Part.Volume as Volume
-import Prelude.Extra (List, slice)
+import Prelude.Extra (List, slice, debugLog)
 import Result (Result(Ok, Err))
 import qualified Result 
 import Scale (Scale)
@@ -96,11 +96,11 @@ readNoteText config noteTxt =
                         contentTxt
                         & Result.map Just
 
-
         Err error ->
             error
                 & NoteError
                 & Err
+
 
 readNonEmptyNoteText :: Config -> Note.Model -> Text -> Result Error Note
 readNonEmptyNoteText config noteBase contentTxt =
@@ -108,11 +108,11 @@ readNonEmptyNoteText config noteBase contentTxt =
         & Ok
         & Parse.construct noteBase
         & applyFreq config (slice 0 2 contentTxt)
-        & applyVolume (slice 2 4 contentTxt)
-        & applyDuration config (slice 4 6 contentTxt)
+        & applyVolume (slice 4 6 contentTxt)
+        & applyDuration config (slice 2 4 contentTxt)
 
 
-applyDuration :: Config ->  Text -> Parser Error Int b
+applyDuration :: Config -> Text -> Parser Error Int b
 applyDuration config durationTxt resultCtor =
     case Duration.read config durationTxt of
         Ok duration ->
@@ -142,21 +142,22 @@ applyFreq config noteTxt resultCtor =
             Err (ScaleError err)            
 
 
-toAudio :: Config -> Model -> Audio
-toAudio config model =
-    model
-        & notes
-        & Vector.map (noteToAudio config)
-        & Audio.fromTimeline
+toAudio :: Model -> Audio
+toAudio 
+    = Audio.fromTimeline
+    . Vector.map noteToAudio
+    . notes
 
 
-noteToAudio :: Config -> Note -> (Int, Audio)
-noteToAudio config note =
+noteToAudio :: Note -> (Int, Audio)
+noteToAudio note =
     ( Note.time 
         (noteModel note)
     , Audio.sin 
         (freq note)
-        (Config.beatLength config)
+        (duration note)
+        & Audio.setVolume (volume note)
+        & Audio.declip
     )
 
 

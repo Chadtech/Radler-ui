@@ -90,11 +90,11 @@ readMany config voiceNameTxts noteTxts =
             & Err
 
 
-toAudio :: Config -> Part -> Audio
-toAudio config part =
+toAudio :: Part -> Audio
+toAudio part =
     case part of
         Sin sinModel ->
-            Sin.toAudio config sinModel
+            Sin.toAudio sinModel
 
 
 -- ERROR -- 
@@ -121,9 +121,9 @@ errorToText error =
         VoicesAndNotesNotOneToOne voicesLength notesLength ->
             [ "There are " 
             , T.pack (show voicesLength)
-            , "voices, but there are "
+            , " voice(s), but there are "
             , T.pack (show notesLength)
-            , "lines of notes. They should be the same"
+            , " line(s) of notes. They should be the same"
             ]
                 & T.concat
 

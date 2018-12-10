@@ -74,25 +74,31 @@ handleRoute route model =
 
 playScore :: Score -> Model -> Cmd
 playScore incomingScore model =
-    -- case Model.score model of
-    --     Just existingScore ->
-    --         Cmd.log "Score exists"
-            
-    --     Nothing ->
     let
         filename :: Text
         filename =
             T.append (Score.name incomingScore) ".wav"
     in
-    -- Audio.play filename
+    case Model.score model of
+        Just existingScore ->
+            if existingScore == incomingScore then
+                Audio.play filename
 
-    [ incomingScore
+            else
+                writeAndPlay filename incomingScore
+            
+        Nothing ->
+            writeAndPlay filename incomingScore
+            
+
+writeAndPlay :: Text -> Score -> Cmd
+writeAndPlay filename score =
+    [ score
         & Score.toAudio
         & Audio.write filename
     , Audio.play filename
     ]
         & Cmd.batch
-            
             
 playResponse :: Maybe Error -> Response
 playResponse 

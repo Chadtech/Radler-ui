@@ -10,6 +10,8 @@ module Audio
     , fromTimeline
     , write
     , play
+    , setVolume
+    , declip
     , Audio.sin
     ) where
 
@@ -26,7 +28,7 @@ import Data.Vector (Vector)
 import qualified Data.Vector as Vector
 import Data.WAVE (WAVE)
 import qualified Data.WAVE as W
-import Prelude.Extra (List, mapFirst)
+import Prelude.Extra (List, mapFirst, debugLog)
 import qualified System.Process as SP
 
 
@@ -91,7 +93,7 @@ normalizeVolumes audios =
 
 setVolume :: Float -> Audio -> Audio
 setVolume newRelativeVolume (Audio vector) =
-    Audio (Vector.map ((*) newRelativeVolume) vector)
+    Audio $ Vector.map ((*) newRelativeVolume) vector
 
 
 fromTimeline :: Vector (Int, Audio) -> Audio
@@ -106,6 +108,51 @@ fromTimeline timeline =
             (CM.join $ Vector.map timelineSamples timeline)
             & Audio
 
+
+declip :: Audio -> Audio
+declip (Audio vector) =
+    Vector.accumulate
+        (*)
+        vector
+        (declipVector (Vector.length vector))
+        & Audio
+
+
+declipVector :: Int -> Vector (Int, Float)
+declipVector length =
+    [ declipIn
+    , declipOut length
+    ]
+        & Vector.concat
+
+
+declipIn :: Vector (Int, Float)
+declipIn =
+    Vector.generate 
+        declipLength 
+        divideIndexBy
+        & Vector.indexed
+
+
+declipOut :: Int -> Vector (Int, Float)
+declipOut length =
+    Vector.generate 
+        declipLength 
+        ((-) 1 . divideIndexBy)
+        & Vector.indexed
+        & Vector.map (mapFirst ((+) (length - declipLength)))
+
+
+declipLength :: Int
+declipLength =
+    30
+
+
+divideIndexBy :: Int -> Float
+divideIndexBy i =
+    (fromIntegral i) / (fromIntegral declipLength)
+
+
 timelineBasis :: (Int, Audio) -> Vector Float 
 timelineBasis (lastStartingPoint, lastAudio) =
     lastStartingPoint + Audio.length lastAudio
@@ -113,15 +160,11 @@ timelineBasis (lastStartingPoint, lastAudio) =
         & toVector
 
 
-
 timelineSamples :: (Int, Audio) -> Vector (Int, Float)
 timelineSamples (beginningIndex, Audio vector) =
     vector
         & Vector.indexed
         & Vector.map (mapFirst ((+) beginningIndex))
-
-
-
 
 
 mix :: Audio -> Audio -> Audio

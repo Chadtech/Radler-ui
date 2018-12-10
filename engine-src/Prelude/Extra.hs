@@ -22,8 +22,8 @@ import qualified Debug.Trace as Debug
 
 slice :: Int -> Int -> Text -> Text
 slice a b 
-    = T.takeEnd (fromIntegral a) 
-    . T.take (fromIntegral b)
+    = T.take (fromIntegral (b - a))
+    . T.drop (fromIntegral a)
 
 
 textToInt :: Text -> Maybe Int

@@ -3,12 +3,48 @@
     "parts-src": "./parts",
     "score": [
         {
+            "name": "part-d",
+            "length": 16
+        },
+        {
             "name": "part-a",
             "length": 16
         },
         {
             "name": "part-a",
             "length": 16
+        },
+        {
+            "name": "part-b",
+            "length": 16
+        },
+        {
+            "name": "part-b",
+            "length": 16
+        },
+        {
+            "name": "part-a-p",
+            "length": 16
+        },
+        {
+            "name": "part-a-p",
+            "length": 16
+        },
+        {
+            "name": "part-b",
+            "length": 16
+        },
+        {
+            "name": "part-b",
+            "length": 16
+        },
+        {
+            "name": "part-c",
+            "length": 56
+        },
+        {
+            "name": "part-c",
+            "length": 56
         }
        
     ],
