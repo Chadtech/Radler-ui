@@ -27,6 +27,7 @@ data Model
         { time :: Int
         , randomSeed :: Int
         }
+        deriving (Eq)
 
 
 -- READ NOTE --

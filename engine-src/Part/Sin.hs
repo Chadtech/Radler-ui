@@ -38,6 +38,7 @@ import qualified Scale
 data Model
     = Model
         { notes :: Vector Note }
+        deriving (Eq)
 
 
 data Note 
@@ -47,6 +48,7 @@ data Note
         , volume :: Float
         , duration :: Int
         }
+        deriving (Eq)
 
 
 -- HELPERS --

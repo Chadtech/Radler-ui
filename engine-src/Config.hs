@@ -34,6 +34,7 @@ data Config
         , beatLength :: Int
         , timingVariance :: Int
         }
+        deriving (Eq)
 
 
 -- HELPERS --

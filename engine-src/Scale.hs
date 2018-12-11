@@ -24,6 +24,7 @@ import qualified Scale.Major7ToneJit as Major7ToneJit
 
 data Scale
     = Major7ToneJit
+    deriving (Eq)
 
 
 -- HELPERS --

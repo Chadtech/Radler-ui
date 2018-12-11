@@ -30,6 +30,7 @@ import Result (Result(Ok, Err))
 
 data Part
     = Sin Sin.Model
+    deriving (Eq)
 
 
 -- HELPERS --

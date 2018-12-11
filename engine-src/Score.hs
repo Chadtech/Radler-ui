@@ -38,6 +38,7 @@ data Score
         , parts :: List Part
         , config :: Config
         }
+        deriving (Eq)
 
 
 -- HELPERS --
