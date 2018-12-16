@@ -3,24 +3,60 @@
     "parts-src": "./parts",
     "score": [
         {
+            "name": "part-9",
+            "length": 16
+        },
+        {
+            "name": "part-a",
+            "length": 16
+        },
+        {
+            "name": "part-a",
+            "length": 16
+        },
+        {
+            "name": "part-b-0",
+            "length": 32
+        },
+        {
+            "name": "part-a-p",
+            "length": 16
+        },
+        {
+            "name": "part-a-p",
+            "length": 16
+        },
+        {
+            "name": "part-b-1",
+            "length": 32
+        },
+        {
+            "name": "part-c-0",
+            "length": 52
+        },
+        {
+            "name": "part-c-1",
+            "length": 56
+        },
+        {
+            "name": "part-c-2",
+            "length": 66
+        },
+        {
             "name": "part-d",
-            "length": 16
+            "length": 8
         },
         {
-            "name": "part-a",
-            "length": 16
+            "name": "part-d",
+            "length": 8
         },
         {
-            "name": "part-a",
-            "length": 16
+            "name": "part-d",
+            "length": 8
         },
         {
-            "name": "part-b",
-            "length": 16
-        },
-        {
-            "name": "part-b",
-            "length": 16
+            "name": "part-d",
+            "length": 8
         },
         {
             "name": "part-a-p",
@@ -29,22 +65,6 @@
         {
             "name": "part-a-p",
             "length": 16
-        },
-        {
-            "name": "part-b",
-            "length": 16
-        },
-        {
-            "name": "part-b",
-            "length": 16
-        },
-        {
-            "name": "part-c",
-            "length": 56
-        },
-        {
-            "name": "part-c",
-            "length": 56
         }
        
     ],

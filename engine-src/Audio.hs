@@ -12,6 +12,7 @@ module Audio
     , play
     , setVolume
     , declip
+    , compress
     , Audio.sin
     ) where
 
@@ -96,6 +97,16 @@ setVolume newRelativeVolume (Audio vector) =
     Audio $ Vector.map ((*) newRelativeVolume) vector
 
 
+compress :: Audio -> Audio
+compress (Audio vector) =
+    Audio $ Vector.map compressSample vector
+
+
+compressSample :: Float -> Float
+compressSample s =
+    s + (s * (1 - s))
+
+
 fromTimeline :: Vector (Int, Audio) -> Audio
 fromTimeline timeline =
     if Vector.length timeline == 0 then
@@ -145,12 +156,16 @@ declipOut length =
 
 declipLength :: Int
 declipLength =
-    30
+    120
+
+
+
+    
 
 
 divideIndexBy :: Int -> Float
 divideIndexBy i =
-    (fromIntegral i) / (fromIntegral declipLength)
+    ((fromIntegral i) / (fromIntegral declipLength)) ^ 2
 
 
 timelineBasis :: (Int, Audio) -> Vector Float 
