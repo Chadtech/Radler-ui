@@ -4,11 +4,11 @@ import Array
 import Colors
 import Css exposing (..)
 import Data.Tracker exposing (Tracker)
-import Error exposing (runtimeErrorView)
 import Header
 import Html.Grid as Grid
-import Html.Styled as Html exposing (Html, div)
+import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attrs
+import Modal
 import Model exposing (Model)
 import Msg exposing (Msg(..))
 import Package
@@ -18,15 +18,27 @@ import Tracker
 
 view : Model -> List (Html Msg)
 view model =
-    case model.error of
-        Just error ->
-            [ runtimeErrorView error ]
+    [ Header.view model
+        |> Html.map HeaderMsg
+    , body model
+    , modalView model
+    ]
 
+
+
+-- MODAL --
+
+
+modalView : Model -> Html Msg
+modalView model =
+    case model.modal of
         Nothing ->
-            [ Header.view model
-                |> Html.map HeaderMsg
-            , body model
-            ]
+            Html.text ""
+
+        Just modal ->
+            modal
+                |> Modal.view
+                |> Html.map ModalMsg
 
 
 
@@ -73,7 +85,7 @@ trackersContainer model =
 
 trackersBody : Model -> Html Msg
 trackersBody model =
-    div
+    Html.div
         [ Attrs.css
             [ Style.indent
             , width (pct 100)

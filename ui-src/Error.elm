@@ -1,6 +1,8 @@
 module Error exposing
-    ( initializationErrorView
-    , runtimeErrorView
+    ( Msg
+    , initializationErrorView
+    , modalView
+    , update
     )
 
 import Css exposing (..)
@@ -8,48 +10,74 @@ import Data.Error as Error exposing (Error(..))
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attrs
+import Html.Styled.Events as Events
 import Json.Decode as D
-import Msg exposing (Msg(..))
+import Model exposing (Model)
 import Style
+
+
+
+-- TYPES --
+
+
+type Msg
+    = IgnoreClicked
+
+
+
+-- UPDATE --
+
+
+update : Msg -> Model -> Model
+update msg =
+    case msg of
+        IgnoreClicked ->
+            Model.clearModal
 
 
 
 -- VIEW --
 
 
+modalView : Error -> Html Msg
+modalView error =
+    Grid.container
+        []
+        [ Grid.row
+            [ marginBottom (px 5) ]
+            [ Grid.column
+                []
+                [ Html.p
+                    [ Attrs.css [ errorPStyle ] ]
+                    [ Html.text (Error.toString error) ]
+                ]
+            ]
+        , Grid.row
+            []
+            [ Grid.column
+                [ justifyContent center ]
+                [ ignoreButton ]
+            ]
+        ]
+
+
+ignoreButton : Html Msg
+ignoreButton =
+    Html.button
+        [ Attrs.css
+            [ Style.basicButton Style.Big
+            , width (px (Style.noteWidth Style.Big))
+            , active [ Style.indent ]
+            ]
+        , Events.onClick IgnoreClicked
+        ]
+        [ Html.text "ignore" ]
+
+
 {-| The view for when the app fails to initialize
 -}
-initializationErrorView : D.Error -> Html Msg
+initializationErrorView : D.Error -> Html msg
 initializationErrorView error =
-    Html.p
-        [ Attrs.css [ errorPStyle ] ]
-        [ Html.text (D.errorToString error) ]
-        |> errorContainer
-
-
-{-| Not a run time error in the sense that
-the code crashed during run time, rather in the
-sense there was a problem during run time
--}
-runtimeErrorView : Error -> Html Msg
-runtimeErrorView error =
-    Html.p
-        [ Attrs.css [ errorPStyle ] ]
-        [ Html.text (Error.toString error) ]
-        |> errorContainer
-
-
-errorPStyle : Style
-errorPStyle =
-    [ Style.hfnss
-    , property "word-wrap" "break-word"
-    , maxWidth (px 500)
-    ]
-        |> Css.batch
-
-
-errorContainer : Html Msg -> Html Msg
-errorContainer child =
     Grid.container
         [ marginTop (pct 50)
         , transform (translateY (pct -50))
@@ -60,6 +88,18 @@ errorContainer child =
                 [ Style.card
                 , Style.bigSpacing
                 ]
-                [ child ]
+                [ Html.p
+                    [ Attrs.css [ errorPStyle ] ]
+                    [ Html.text (D.errorToString error) ]
+                ]
             ]
         ]
+
+
+errorPStyle : Style
+errorPStyle =
+    [ Style.hfnss
+    , property "word-wrap" "break-word"
+    , maxWidth (px 500)
+    ]
+        |> Css.batch

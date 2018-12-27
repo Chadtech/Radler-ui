@@ -1,6 +1,7 @@
 module Update exposing (update)
 
 import Header
+import Modal
 import Model exposing (Model)
 import Msg exposing (Msg(..))
 import Package
@@ -18,7 +19,8 @@ update msg model =
         TrackerMsg ti subMsg ->
             case Model.getTrackersPartIndex ti model of
                 Just pi ->
-                    Tracker.update ti pi subMsg model
+                    model
+                        |> Tracker.update ti pi subMsg
                         |> R2.mapCmd (TrackerMsg ti)
 
                 Nothing ->
@@ -26,9 +28,16 @@ update msg model =
                         |> R2.withNoCmd
 
         HeaderMsg subMsg ->
-            Header.update subMsg model
+            model
+                |> Header.update subMsg
                 |> R2.mapCmd HeaderMsg
 
         PackageMsg subMsg ->
-            Package.update subMsg model
+            model
+                |> Package.update subMsg
                 |> R2.withNoCmd
+
+        ModalMsg subMsg ->
+            model
+                |> Modal.update subMsg
+                |> R2.mapCmd ModalMsg

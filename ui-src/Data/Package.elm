@@ -158,7 +158,11 @@ type alias ScoreParams =
     { package : Package
     , parts : Array Part
     , from : Int
-    , length : Int
+
+    -- Maybe a length, if there is
+    -- no length then it means build
+    -- the score all the way to the end
+    , length : Maybe Int
     }
 
 
@@ -203,12 +207,22 @@ buildScore { package, parts, from, length } =
         |> Maybe.map (cropScore from length)
 
 
-cropScore : Int -> Int -> List (List Beat) -> List Beat
-cropScore from length pieces =
+cropScore : Int -> Maybe Int -> List (List Beat) -> List Beat
+cropScore from maybeLength pieces =
     pieces
         |> List.concat
         |> List.drop from
-        |> List.take length
+        |> takeBeginningOfScore maybeLength
+
+
+takeBeginningOfScore : Maybe Int -> List Beat -> List Beat
+takeBeginningOfScore maybeLength beats =
+    case maybeLength of
+        Just length ->
+            List.take length beats
+
+        Nothing ->
+            beats
 
 
 scoreToString : Package -> List Beat -> String

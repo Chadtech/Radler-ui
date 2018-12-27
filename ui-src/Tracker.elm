@@ -232,7 +232,7 @@ optionsContainerView payload =
 
 optionsContainerStyle : Style
 optionsContainerStyle =
-    [ backgroundColor (rgba 0 0 0 0.5)
+    [ Style.dim
     , width (pct 100)
     , height (pct 100)
     , position absolute

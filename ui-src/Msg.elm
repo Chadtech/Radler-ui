@@ -5,6 +5,7 @@ module Msg exposing
 
 import Header
 import Json.Decode as D exposing (Decoder)
+import Modal
 import Package
 import Tracker
 
@@ -14,6 +15,7 @@ type Msg
     | TrackerMsg Int Tracker.Msg
     | HeaderMsg Header.Msg
     | PackageMsg Package.Msg
+    | ModalMsg Modal.Msg
 
 
 decode : D.Value -> Msg
@@ -28,8 +30,10 @@ decode json =
 
 decoder : Decoder Msg
 decoder =
-    D.field "type" D.string
-        |> D.andThen (D.field "payload" << toMsg)
+    D.string
+        |> D.field "type"
+        |> D.andThen
+            (D.field "payload" << toMsg)
 
 
 toMsg : String -> Decoder Msg

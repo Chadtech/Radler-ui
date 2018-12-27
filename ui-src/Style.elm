@@ -4,6 +4,7 @@ module Style exposing
     , basicSpacing
     , bigSpacing
     , card
+    , dim
     , flush
     , font
     , fontSmoothingNone
@@ -85,6 +86,11 @@ outdent =
 flush : Style
 flush =
     border3 (px 2) solid Colors.ignorable3
+
+
+dim : Style
+dim =
+    backgroundColor (rgba 0 0 0 0.5)
 
 
 hfnss : Style

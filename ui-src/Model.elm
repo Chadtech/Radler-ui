@@ -1,8 +1,9 @@
 module Model exposing
     ( Model
     , Page(..)
-    , clearError
+    , clearModal
     , copyPart
+    , fullScore
     , getTrackersOptions
     , getTrackersPart
     , getTrackersPartIndex
@@ -14,6 +15,7 @@ module Model exposing
     , saveParts
     , score
     , setError
+    , setModal
     , setPlayFor
     , setPlayFrom
     , urlRoute
@@ -22,6 +24,7 @@ module Model exposing
 import Array exposing (Array)
 import Data.Error exposing (Error(..))
 import Data.Flags as Flags exposing (Flags)
+import Data.Modal as Modal exposing (Modal)
 import Data.Package as Package exposing (Package)
 import Data.Part as Part exposing (Part)
 import Data.Tracker as Tracker exposing (Tracker)
@@ -56,12 +59,12 @@ type alias Model =
     , trackers : Array Tracker
     , page : Page
     , package : Package
-    , error : Maybe Error
     , playFromBeatField : String
     , playForBeatsField : String
     , playFromBeat : Int
     , playForBeats : Int
     , engineUrl : Url
+    , modal : Maybe Modal
     }
 
 
@@ -89,7 +92,7 @@ init flags =
             |> Array.fromList
     , page = Trackers
     , package = flags.package
-    , error = Nothing
+    , modal = Nothing
     , playFromBeatField = String.fromInt playFromBeat
     , playForBeatsField = String.fromInt playForBeats
     , playFromBeat = playFromBeat
@@ -108,13 +111,18 @@ init flags =
 
 
 setError : Error -> Model -> Model
-setError error model =
-    { model | error = Just error }
+setError error =
+    setModal (Modal.Error error)
 
 
-clearError : Model -> Model
-clearError model =
-    { model | error = Nothing }
+setModal : Modal -> Model -> Model
+setModal modal model =
+    { model | modal = Just modal }
+
+
+clearModal : Model -> Model
+clearModal model =
+    { model | modal = Nothing }
 
 
 mapPackage : (Package -> Package) -> Model -> Model
@@ -282,25 +290,36 @@ saveParts model =
 -}
 score : Model -> Result Model String
 score model =
-    case Package.scorePayload (buildParams model) of
+    scoreHelper
+        model
+        { package = model.package
+        , parts = model.parts
+        , from = model.playFromBeat
+        , length = Just model.playForBeats
+        }
+
+
+fullScore : Model -> Result Model String
+fullScore model =
+    scoreHelper
+        model
+        { package = model.package
+        , parts = model.parts
+        , from = 0
+        , length = Nothing
+        }
+
+
+scoreHelper : Model -> Package.ScoreParams -> Result Model String
+scoreHelper model scoreParams =
+    case Package.scorePayload scoreParams of
         Just scoreStr ->
             Ok scoreStr
 
         Nothing ->
-            { model
-                | error =
-                    Just ScoreDidNotSave
-            }
+            model
+                |> setError ScoreDidNotSave
                 |> Err
-
-
-buildParams : Model -> Package.ScoreParams
-buildParams model =
-    { package = model.package
-    , parts = model.parts
-    , from = model.playFromBeat
-    , length = model.playForBeats
-    }
 
 
 urlRoute : Model -> String -> String

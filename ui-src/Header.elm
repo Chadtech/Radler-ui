@@ -8,6 +8,7 @@ import Array
 import Colors
 import Css exposing (..)
 import Data.Error as Error
+import Data.Modal as Modal
 import Data.Package as Package
 import Data.Part as Part
 import Data.Tracker as Tracker
@@ -19,6 +20,7 @@ import Http
 import Json.Decode as D
 import Model exposing (Model, Page)
 import Return2 as R2
+import Score
 import Style
 
 
@@ -33,6 +35,7 @@ type Msg
     | PlayClicked
     | OpenClicked
     | SaveClicked
+    | BuildClicked
     | PlayFromFieldUpdated String
     | PlayForFieldUpdated String
     | PlaySent (Result Http.Error ())
@@ -90,6 +93,11 @@ update msg model =
                 |> Cmd.batch
                 |> R2.withModel model
 
+        BuildClicked ->
+            model
+                |> Model.setModal Modal.BuildConfirmation
+                |> R2.withNoCmd
+
         PlayFromFieldUpdated str ->
             model
                 |> Model.setPlayFrom str
@@ -105,39 +113,16 @@ update msg model =
                 |> R2.withNoCmd
 
         PlaySent (Err err) ->
-            playFailed (Debug.log "ERROR" err) model
+            playFailed err model
                 |> R2.withNoCmd
 
 
 playFailed : Http.Error -> Model -> Model
 playFailed error =
     error
-        |> playErrorToString
+        |> Score.errorToString
         |> Error.BackendHadProblemWithScore
         |> Model.setError
-
-
-playErrorToString : Http.Error -> String
-playErrorToString error =
-    case error of
-        Http.BadUrl url ->
-            "bad url -> " ++ url
-
-        Http.Timeout ->
-            "time out"
-
-        Http.NetworkError ->
-            "network error"
-
-        Http.BadStatus response ->
-            [ String.fromInt response.status.code
-            , response.status.message
-            , response.body
-            ]
-                |> String.join " - "
-
-        Http.BadPayload decodeError _ ->
-            "Decoder problem -> " ++ decodeError
 
 
 
@@ -152,11 +137,12 @@ sendHttp : Model -> Call -> Cmd Msg
 sendHttp model call =
     case call of
         Play score ->
-            Http.post
-                (Model.urlRoute model "play")
-                (Http.stringBody "string" score)
-                (D.null ())
-                |> Http.send PlaySent
+            Score.sendHttp
+                { model = model
+                , path = "play"
+                , score = score
+                , msgCtor = PlaySent
+                }
 
 
 
@@ -165,11 +151,21 @@ sendHttp model call =
 
 view : Model -> Html Msg
 view model =
-    Grid.row
+    Grid.container
         [ Style.card
         , displayFlex
         , minHeight minContent
+        , flexDirection column
         ]
+        [ playbackButtons model
+        , uiButtons model
+        ]
+
+
+playbackButtons : Model -> Html Msg
+playbackButtons model =
+    Grid.row
+        []
         [ Grid.column
             [ flex (int 0) ]
             [ saveButton ]
@@ -177,60 +173,87 @@ view model =
             [ flex (int 0) ]
             [ playButton ]
         , Grid.column
-            [ flex (int 0)
-            , margin2 (px 0) (px 10)
-            ]
+            [ flex (int 0) ]
             [ fromText ]
         , Grid.column
             [ flex (int 0) ]
             [ playFromField model.playFromBeatField ]
         , Grid.column
-            [ flex (int 0)
-            , margin2 (px 0) (px 10)
-            ]
+            [ flex (int 0) ]
             [ forText ]
         , Grid.column
             [ flex (int 0) ]
             [ playForField model.playForBeatsField ]
         , Grid.column
+            [ flex (int 0) ]
+            [ buildButton ]
+        ]
+
+
+uiButtons : Model -> Html Msg
+uiButtons model =
+    Grid.row
+        []
+        [ Grid.column
             [ flex (int 0)
-            , marginLeft (px 15)
+            , singleWidth
             ]
+            [ pageText ]
+        , Grid.column
+            [ flex (int 0) ]
             [ trackersButton model.page ]
         , Grid.column
             [ flex (int 0) ]
             [ packageButton model.page ]
+        , horizontalSeparator
         , Grid.column
-            [ marginLeft (px 10)
-            , flex (int 0)
-            ]
-            [ newSheetButton ]
+            [ flex (int 0) ]
+            [ newPartButton ]
         , Grid.column
             [ flex (int 0) ]
             [ newTrackerButton ]
         ]
 
 
+pageText : Html Msg
+pageText =
+    Html.p
+        [ Attrs.css [ textStyle ] ]
+        [ Html.text "page" ]
+
+
 fromText : Html Msg
 fromText =
     Html.p
-        [ Attrs.css
-            [ Style.hfnss
-            , lineHeight (px 32)
-            ]
-        ]
+        [ Attrs.css [ textStyle ] ]
         [ Html.text "from" ]
 
 
 forText : Html Msg
 forText =
     Html.p
-        [ Attrs.css
-            [ Style.hfnss
-            , lineHeight (px 32)
-            ]
-        ]
+        [ Attrs.css [ textStyle ] ]
         [ Html.text "for" ]
+
+
+horizontalSeparator : Html Msg
+horizontalSeparator =
+    Grid.column
+        [ flex (int 0) ]
+        [ Html.div
+            [ Attrs.css [ singleWidth ] ]
+            []
+        ]
+
+
+textStyle : Style
+textStyle =
+    [ Style.hfnss
+    , lineHeight (px 32)
+    , singleWidth
+    , textAlign center
+    ]
+        |> Css.batch
 
 
 playForField : String -> Html Msg
@@ -241,7 +264,7 @@ playForField playForBeats =
             , Style.hfnss
             , color Colors.point0
             , Style.fontSmoothingNone
-            , width (px ((Style.noteWidth Style.Big * 1.5) / 2))
+            , singleWidth
             ]
         , Attrs.value playForBeats
         , Attrs.spellcheck False
@@ -258,7 +281,7 @@ playFromField playFromBeat =
             , Style.hfnss
             , color Colors.point0
             , Style.fontSmoothingNone
-            , width (px ((Style.noteWidth Style.Big * 1.5) / 2))
+            , singleWidth
             ]
         , Attrs.value playFromBeat
         , Attrs.spellcheck False
@@ -285,6 +308,15 @@ openButton =
         [ Html.text "open" ]
 
 
+buildButton : Html Msg
+buildButton =
+    Html.button
+        [ Attrs.css [ buttonStyle ]
+        , Events.onClick BuildClicked
+        ]
+        [ Html.text "build" ]
+
+
 saveButton : Html Msg
 saveButton =
     Html.button
@@ -300,6 +332,7 @@ trackersButton page =
         [ Attrs.css
             [ buttonStyle
             , dent page Model.Trackers
+            , doubleWidth
             ]
         , Events.onClick (PageClicked Model.Trackers)
         ]
@@ -312,16 +345,20 @@ packageButton page =
         [ Attrs.css
             [ buttonStyle
             , dent page Model.Package
+            , doubleWidth
             ]
         , Events.onClick (PageClicked Model.Package)
         ]
         [ Html.text "package" ]
 
 
-newSheetButton : Html Msg
-newSheetButton =
+newPartButton : Html Msg
+newPartButton =
     Html.button
-        [ Attrs.css [ buttonStyle ]
+        [ Attrs.css
+            [ buttonStyle
+            , doubleWidth
+            ]
         , Events.onClick NewSheetClicked
         ]
         [ Html.text "new part" ]
@@ -332,25 +369,31 @@ newTrackerButton =
     Html.button
         [ Attrs.css
             [ buttonStyle
-            , width (px (Style.noteWidth Style.Big * 2))
+            , doubleWidth
             ]
         , Events.onClick NewTrackerClicked
         ]
         [ Html.text "new tracker" ]
 
 
+doubleWidth : Style
+doubleWidth =
+    width (px (Style.noteWidth Style.Big * 2))
+
+
+singleWidth : Style
+singleWidth =
+    width (px (Style.noteWidth Style.Big))
+
+
 buttonStyle : Style
 buttonStyle =
-    [ Style.hfnss
+    [ Style.basicButton Style.Big
+    , Style.hfnss
     , margin (px 1)
-    , width (px (Style.noteWidth Style.Big * 1.5))
+    , singleWidth
     , height (px (Style.noteHeight Style.Big + 4))
-    , backgroundColor Colors.ignorable2
-    , color Colors.point0
-    , Style.fontSmoothingNone
-    , outline none
     , active [ Style.indent ]
-    , Style.outdent
     ]
         |> Css.batch
 
