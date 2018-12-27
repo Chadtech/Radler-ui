@@ -3,7 +3,7 @@
 
 module Part
     ( Part
-    , toAudio
+    , toDevAudio
     , Error
     , readMany
     , throw
@@ -12,9 +12,11 @@ module Part
 
 
 import Audio (Audio)
+import qualified Audio
+import Audio.Mono (Mono)
+import qualified Audio.Mono as Mono
 import Config (Config)
 import qualified Config
-import qualified Audio
 import Data.Function ((&))
 import Data.List as List
 import Data.Text.Lazy (Text)
@@ -91,11 +93,13 @@ readMany config voiceNameTxts noteTxts =
             & Err
 
 
-toAudio :: Part -> Audio
-toAudio part =
+toDevAudio :: Part -> Audio
+toDevAudio part =
     case part of
         Sin sinModel ->
-            Sin.toAudio sinModel
+            sinModel
+                & Sin.toMono
+                & Audio.fromMono
 
 
 -- ERROR -- 
@@ -132,3 +136,4 @@ errorToText error =
             sinError
                 & Sin.throw 
                 & T.append "Error in Sin Voice -> \n" 
+

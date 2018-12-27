@@ -4,16 +4,18 @@
 module Score
     ( Score
     , fromText
-    , toAudio
+    , toDevAudio
     , name
     , Error
     , throw
     )
     where
 
-        
+    
 import Audio (Audio)
 import qualified Audio
+import Audio.Mono (Mono)
+import qualified Audio.Mono as Mono
 import Config (Config)
 import qualified Config
 import Data.Function ((&))
@@ -94,11 +96,11 @@ applyParts config voices notes ctorResult =
             Err (PartError err)
 
 
-toAudio :: Score -> Audio
-toAudio 
+toDevAudio :: Score -> Audio
+toDevAudio 
     = Audio.mixMany
     . Audio.normalizeVolumes
-    . List.map Part.toAudio
+    . List.map Part.toDevAudio
     . parts
 
 

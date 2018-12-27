@@ -4,14 +4,14 @@
 module Part.Sin
     ( Model
     , Part.Sin.read
-    , toAudio
+    , toMono
     , Error
     , throw
     ) where
 
         
-import Audio (Audio)
-import qualified Audio
+import Audio.Mono (Mono)
+import qualified Audio.Mono as Mono
 import Config (Config)
 import qualified Config
 import Data.Function ((&))
@@ -25,7 +25,7 @@ import Parse (Parser)
 import qualified Parse
 import qualified Part.Duration as Duration
 import qualified Part.Volume as Volume
-import Prelude.Extra (List, slice, debugLog)
+import Prelude.Extra (List, slice)
 import Result (Result(Ok, Err))
 import qualified Result 
 import Scale (Scale)
@@ -144,22 +144,22 @@ applyFreq config noteTxt resultCtor =
             Err (ScaleError err)            
 
 
-toAudio :: Model -> Audio
-toAudio 
-    = Audio.fromTimeline
-    . Vector.map noteToAudio
+toMono :: Model -> Mono
+toMono 
+    = Mono.fromTimeline
+    . Vector.map noteToMono
     . notes
 
 
-noteToAudio :: Note -> (Int, Audio)
-noteToAudio note =
+noteToMono :: Note -> (Int, Mono)
+noteToMono note =
     ( Note.time 
         (noteModel note)
-    , Audio.sin 
+    , Mono.sin 
         (freq note)
         (duration note)
-        & Audio.setVolume (volume note)
-        & Audio.declip
+        & Mono.setVolume (volume note)
+        & Mono.declip
     )
 
 

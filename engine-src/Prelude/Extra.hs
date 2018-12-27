@@ -9,6 +9,7 @@ module Prelude.Extra
     , debugLog
     , mapFirst
     , slice
+    , toFloat
     ) where
 
 
@@ -18,6 +19,11 @@ import qualified Data.Text.Lazy as T
 import qualified Data.Text.Lazy.Read as TR
 import Prelude hiding (head)
 import qualified Debug.Trace as Debug
+
+
+toFloat :: Int -> Float
+toFloat =
+    fromIntegral
 
 
 slice :: Int -> Int -> Text -> Text

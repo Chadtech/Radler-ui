@@ -20,6 +20,8 @@ executable radler
   hs-source-dirs:      engine-src
   other-modules:
     Audio
+    Audio.Mono
+    Audio.Stereo
     Config
     Cmd
     Error

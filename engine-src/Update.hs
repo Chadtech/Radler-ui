@@ -105,11 +105,12 @@ playScore incomingScore model =
 writeAndPlay :: Text -> Score -> Cmd
 writeAndPlay filename score =
     [ score
-        & Score.toAudio
+        & Score.toDevAudio
         & Audio.write filename
     , Audio.play filename
     ]
         & Cmd.batch
+
             
 playResponse :: Maybe Error -> Response
 playResponse 
