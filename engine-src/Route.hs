@@ -20,6 +20,7 @@ import qualified Score
 
 data Route 
     = Play (Result Error Score)
+    | Build (Result Error Score)
     | Echo Text
     | Ping
 
@@ -28,11 +29,10 @@ decode :: Text -> Text -> Maybe Route
 decode routeTxt body =
     case routeTxt of
         "/play" ->
-            body
-                & Score.fromText
-                & Result.mapError Error.ScoreError
-                & Play
-                & Just
+            scoreRoute Play body
+
+        "/build" ->
+            scoreRoute Build body
 
         "/ping" ->
             Just Ping
@@ -44,3 +44,9 @@ decode routeTxt body =
             Nothing
 
         
+scoreRoute :: (Result Error Score -> Route) -> Text -> Maybe Route
+scoreRoute routeCtor 
+    = Just
+    . routeCtor
+    . Result.mapError Error.ScoreError
+    . Score.fromText

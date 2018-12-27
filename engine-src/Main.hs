@@ -31,6 +31,7 @@ router =
         >> Router.get "/ping"
         >> Router.post "/echo"
         >> Router.post "/play"
+        >> Router.post "/build"
 
 
 

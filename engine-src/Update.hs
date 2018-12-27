@@ -71,6 +71,17 @@ handleRoute route model =
                 $ Error.throw err
             )
 
+        Build (Ok score) ->
+            ( model, Cmd.none, Response.text "Cool")
+
+        Build (Err err) ->
+            ( model
+            , Cmd.none
+            , Response.error
+                400
+                $ Error.throw err
+            )
+
 
 playScore :: Score -> Model -> Cmd
 playScore incomingScore model =
