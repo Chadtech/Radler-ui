@@ -69,10 +69,10 @@
        
     ],
     "voices": [
-        "sin,x=-5,y=1",
-        "sin,x=-2,y=3",
-        "sin,x=2,y=3",
-        "sin,x=5,y=1"
+        "sin,x=-5y=1",
+        "sin,x=-2y=3",
+        "sin,x=2y=3",
+        "sin,x=5y=1"
     ],
     "seed": 19,
     "timing-variance": 100,

@@ -178,7 +178,7 @@ fromPayload payload =
     Grid.container
         [ Style.card
         , flexDirection Css.column
-        , height (calc (vh 100) minus (px 84))
+        , height (calc (vh 100) minus (px 95))
         , overflow hidden
         , position relative
         ]

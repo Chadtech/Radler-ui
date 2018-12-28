@@ -58,7 +58,7 @@ body model =
 packageContainer : Model -> Html Msg
 packageContainer model =
     Grid.row
-        [ height (calc (vh 100) minus (px 56)) ]
+        [ height (calc (vh 100) minus (px 73)) ]
         [ Grid.column
             [ Style.card
             , Style.basicSpacing
