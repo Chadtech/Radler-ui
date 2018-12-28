@@ -3,9 +3,11 @@
 
 module Score
     ( Score
+    , build
+    , buildFilename
     , fromText
     , toDevAudio
-    , name
+    , devFilename
     , Error
     , throw
     )
@@ -44,6 +46,23 @@ data Score
 
 
 -- HELPERS --
+
+
+buildFilename :: Score -> Int -> Text
+buildFilename score partIndex =
+    [ name score
+    , "-"
+    , T.pack $ show partIndex
+    , ".wav"
+    ]
+        & T.concat
+
+
+devFilename :: Score -> Text
+devFilename score =
+    T.append
+        (name score)
+        "-dev.wav"
 
 
 fromText :: Text -> Result Error Score
@@ -103,6 +122,12 @@ toDevAudio
     . List.map Part.toDevAudio
     . parts
 
+
+build :: Score -> List Audio
+build 
+    = Audio.normalizeVolumes
+    . List.map Part.build
+    . parts
 
 -- ERROR --
 

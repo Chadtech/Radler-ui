@@ -34,6 +34,7 @@ executable radler
     Part.Duration
     Part.Sin
     Part.Volume
+    Position
     Prelude.Extra
     Program
     Response

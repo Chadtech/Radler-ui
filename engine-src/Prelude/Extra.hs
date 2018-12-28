@@ -10,6 +10,8 @@ module Prelude.Extra
     , mapFirst
     , slice
     , toFloat
+    , indexList
+    , replaceChar
     ) where
 
 
@@ -52,8 +54,32 @@ head list =
             Just first
 
 
-listMap2 :: List a -> List b -> (a -> b -> c) -> List c
-listMap2 xs ys f =
+replaceChar :: Char -> Char -> Text -> Text
+replaceChar target replacement 
+    = T.pack 
+    . map (replaceIfTarget target replacement)
+    . T.unpack
+
+
+replaceIfTarget :: Char -> Char -> Char -> Char
+replaceIfTarget target replacement char =
+    if char == target then
+        replacement
+
+    else
+        char
+
+
+indexList :: List a -> List (Int, a)
+indexList xs =
+    listMap2 
+        (,) 
+        ([ 0 .. List.length xs - 1 ]) 
+        xs
+
+
+listMap2 :: (a -> b -> c) -> List a -> List b -> List c
+listMap2 f xs ys =
     listMap2Accumulate xs ys f []
 
 

@@ -3,6 +3,8 @@
 
 module Update (update) where
 
+
+import Audio (Audio)
 import qualified Audio
 import Cmd (Cmd)
 import qualified Cmd
@@ -17,6 +19,7 @@ import qualified Json
 import Msg (Msg(..))
 import Model (Model)
 import qualified Model
+import Prelude.Extra (indexList, replaceChar)
 import Response (Response)
 import qualified Response
 import Result (Result(Err, Ok))
@@ -68,7 +71,10 @@ handleRoute route model =
             , Cmd.none
             , Response.error
                 400
-                $ Error.throw err
+                $ replaceChar 
+                    '\n' 
+                    ' ' 
+                    (Error.throw err)
             )
 
         Build (Ok score) ->
@@ -83,12 +89,28 @@ handleRoute route model =
             )
 
 
+buildScore :: Score -> Cmd
+buildScore incomingScore =
+    incomingScore
+        & Score.build
+        & indexList
+        & List.map (buildPart incomingScore)
+        & Cmd.batch
+
+
+buildPart :: Score -> (Int, Audio) -> Cmd
+buildPart score (index, audio) =
+    Audio.write
+        (Score.buildFilename score index)
+        audio
+
+
 playScore :: Score -> Model -> Cmd
 playScore incomingScore model =
     let
         filename :: Text
         filename =
-            T.append (Score.name incomingScore) ".wav"
+            Score.devFilename incomingScore
     in
     case Model.score model of
         Just existingScore ->

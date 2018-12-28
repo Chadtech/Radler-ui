@@ -25,6 +25,8 @@ import Parse (Parser)
 import qualified Parse
 import qualified Part.Duration as Duration
 import qualified Part.Volume as Volume
+import Position (Position)
+import qualified Position
 import Prelude.Extra (List, slice)
 import Result (Result(Ok, Err))
 import qualified Result 
@@ -37,7 +39,9 @@ import qualified Scale
 
 data Model
     = Model
-        { notes :: Vector Note }
+        { notes :: Vector Note 
+        , position :: Maybe Position
+        }
         deriving (Eq)
 
 
@@ -54,15 +58,40 @@ data Note
 -- HELPERS --
 
 
-read :: Config -> List Text -> Result Error Model
-read config 
-    = Result.map (Model . Vector.fromList)
+read :: Config -> List Text -> List Text -> Result Error Model
+read config detailsText 
+    = Result.andThen (readModel detailsText)
     . readManyNoteTexts config
+
+
+readModel :: List Text -> List Note -> Result Error Model
+readModel detailsText notes =
+    Model (Vector.fromList notes)
+        & Ok
+        & applyPosition detailsText
+
+
+applyPosition :: List Text -> Parser Error (Maybe Position) b
+applyPosition detailsText ctorResult =
+    case detailsText of
+        first : rest ->
+            case Position.read first of
+                Ok position ->
+                    Parse.construct (Just position) ctorResult
+
+                Err _ ->
+                    applyPosition rest ctorResult
+
+        [] ->
+            Parse.construct Nothing ctorResult
 
 
 readManyNoteTexts :: Config -> List Text -> Result Error (List Note)
 readManyNoteTexts config noteTexts =
-    readManyNoteTextsAccumulate config noteTexts []
+    readManyNoteTextsAccumulate 
+        config 
+        noteTexts 
+        []
 
 
 readManyNoteTextsAccumulate :: Config -> List Text -> List Note -> Result Error (List Note)
@@ -71,16 +100,22 @@ readManyNoteTextsAccumulate config noteTexts notes =
         first : rest ->
             case readNoteText config first of
                 Ok (Just note) ->
-                    readManyNoteTextsAccumulate config rest (note : notes)
+                    readManyNoteTextsAccumulate 
+                        config 
+                        rest 
+                        (note : notes)
 
                 Ok Nothing ->
-                    readManyNoteTextsAccumulate config rest notes
+                    readManyNoteTextsAccumulate 
+                        config 
+                        rest 
+                        notes
 
                 Err err ->
                     Err err
 
         [] ->
-            Ok (List.reverse notes)
+            Ok $ List.reverse notes
 
 
 readNoteText :: Config -> Text -> Result Error (Maybe Note)

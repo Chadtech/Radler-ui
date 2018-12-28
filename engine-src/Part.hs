@@ -4,6 +4,7 @@
 module Part
     ( Part
     , toDevAudio
+    , build
     , Error
     , readMany
     , throw
@@ -39,16 +40,16 @@ data Part
 
 
 fromPieces :: Config -> (Text, List Text) -> Result Error Part
-fromPieces config (voiceNameTxt, noteTxts) =
-    case T.splitOn "," voiceNameTxt of
-        "sin" : [] ->
+fromPieces config (partTxt, noteTxts) =
+    case T.splitOn "," partTxt of
+        "sin" : partDetails ->
             noteTxts
-                & Sin.read config
+                & Sin.read config partDetails
                 & Result.map Sin
                 & Result.mapError SinError
 
         _ ->
-            Err (UnrecognizedPartType voiceNameTxt)
+            Err $ UnrecognizedPartType partTxt
 
 
 readMany :: Config -> Text -> Text -> Result Error (List Part)
@@ -95,6 +96,15 @@ readMany config voiceNameTxts noteTxts =
 
 toDevAudio :: Part -> Audio
 toDevAudio part =
+    case part of
+        Sin sinModel ->
+            sinModel
+                & Sin.toMono
+                & Audio.fromMono
+
+
+build :: Part -> Audio
+build part =
     case part of
         Sin sinModel ->
             sinModel
