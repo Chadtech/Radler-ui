@@ -21,6 +21,8 @@ import qualified Parse
 import Prelude.Extra (textToInt)
 import Result (Result(Ok, Err))
 import qualified Result
+import Room (Room)
+import qualified Room
 import Scale (Scale)
 import qualified Scale
 
@@ -33,6 +35,7 @@ data Config
         { scale :: Scale 
         , beatLength :: Int
         , timingVariance :: Int
+        , room :: Maybe Room
         }
         deriving (Eq)
 
@@ -48,16 +51,31 @@ read txt =
             T.strip txt
     in
     case T.splitOn ";" $ T.strip txt of
-        scale : beatLength : timingVariance : [] ->
+        scale : beatLength : timingVariance : room : [] ->
             Config
                 & Ok
                 & applyScale scale
                 & applyBeatLength beatLength
                 & applyTimingVariance timingVariance
+                & applyRoom room
 
         _ ->
             UnexpectedConfigStructure trimmedText
                 & Err
+
+
+applyRoom :: Text -> Parser Error (Maybe Room) b
+applyRoom text ctorResult =
+    if text == "no-room" then
+        Parse.construct Nothing ctorResult
+
+    else
+        case Room.read text of
+            Ok room ->
+                Parse.construct (Just room) ctorResult
+
+            Err err ->
+                Err $ RoomError err
 
 
 applyTimingVariance :: Text -> Parser Error Int b
@@ -98,6 +116,7 @@ data Error
     | BeatLengthIsntInt Text
     | TimingVarianceIsntInt Text
     | ScaleError Scale.Error
+    | RoomError Room.Error
 
 
 throw :: Error -> Text
@@ -123,3 +142,6 @@ throw error =
 
         ScaleError scaleError ->
             Scale.throw scaleError
+
+        RoomError roomError ->
+            Room.throw roomError

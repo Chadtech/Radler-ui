@@ -39,6 +39,7 @@ executable radler
     Program
     Response
     Result
+    Room
     Route
     Router
     Scale

@@ -74,6 +74,18 @@
         "sin,x=2y=3",
         "sin,x=5y=1"
     ],
+    "room": {
+         "size": {
+              "width": 10,
+              "length": 12,
+              "height": 17
+          },
+          "listener-position": {
+              "x": 5,
+              "y": 3,
+              "z": 7 
+          }
+    },
     "seed": 19,
     "timing-variance": 100,
     "beat-length": 5000,

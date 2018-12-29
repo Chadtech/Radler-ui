@@ -11,6 +11,7 @@ import Array exposing (Array)
 import Data.Beat as Beat exposing (Beat)
 import Data.Note as Note exposing (Note)
 import Data.Part as Part exposing (Part)
+import Data.Room as Room exposing (Room)
 import Dict exposing (Dict)
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as JDP
@@ -74,6 +75,7 @@ type alias Package =
     , seed : Seed
     , score : List ( String, Int )
     , voices : List String
+    , room : Maybe Room
     , scale : String
     }
 
@@ -118,6 +120,7 @@ fromStringDecoder jsonStr =
         |> JDP.required "seed" (JD.map Random.initialSeed JD.int)
         |> JDP.required "score" partsListDecoder
         |> JDP.required "voices" (JD.list JD.string)
+        |> JDP.optional "room" (JD.map Just Room.decoder) Nothing
         |> JDP.required "scale" JD.string
 
 
@@ -195,6 +198,9 @@ configString package =
     [ package.scale
     , String.fromInt package.beatLength
     , String.fromInt package.timingVariance
+    , package.room
+        |> Maybe.map Room.toString
+        |> Maybe.withDefault "no-room"
     ]
         |> String.join ";"
 

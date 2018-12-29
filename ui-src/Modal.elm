@@ -75,6 +75,8 @@ modalCard modal =
             , marginTop (pct 50)
             , marginLeft (pct 50)
             , transform (translate2 (pct -50) (pct -50))
+            , maxHeight (px 600)
+            , overflow scroll
             ]
         ]
         (modalContent modal)
