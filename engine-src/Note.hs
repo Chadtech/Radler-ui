@@ -17,7 +17,8 @@ import Data.Function
 import qualified Data.List as List
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
-import Prelude.Extra (List, textToInt)
+import Parse
+import Prelude.Extra (List)
 import Result (Result(Ok, Err))
 import qualified Result 
 
@@ -37,8 +38,8 @@ read :: Config -> Text -> Result Error (Model, Text)
 read config txt =
     case T.splitOn "," txt of
         timeTxt : randomSeedTxt : content : [] ->
-            case (textToInt timeTxt, textToInt randomSeedTxt) of
-                (Just time, Just randomSeed) ->
+            case (Parse.decodeInt timeTxt, Parse.decodeInt randomSeedTxt) of
+                (Ok time, Ok randomSeed) ->
                     ( Model
                         { time = time + (Config.timingVariance config)
                         , randomSeed = randomSeed
@@ -47,17 +48,17 @@ read config txt =
                     )
                         & Ok
 
-                (Just _, Nothing) ->
+                (Ok _, Err _) ->
                     randomSeedTxt
                         & CouldntParseRandomSeed
                         & Err
 
-                (Nothing, Just _) ->
+                (Err _, Ok _) ->
                     timeTxt
                         & CouldntParseTime
                         & Err
 
-                (Nothing, Nothing) ->
+                (Err _, Err _) ->
                     CouldntParseAnything timeTxt randomSeedTxt
                         & Err
 

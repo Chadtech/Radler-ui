@@ -12,7 +12,7 @@ module Room
 import Data.Function ((&))
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
-import Parse (Parser)
+import Parse (parse)
 import qualified Parse
 import Position (Position)
 import qualified Position
@@ -34,22 +34,16 @@ data Room
 -- HELPERS --
 
 
-read :: Text -> Result Error Room
+read :: Text -> Result Error (Maybe Room)
 read roomText =
-    Room
-        & Ok
-        & applyListenerPosition roomText
+    if roomText == "no-room" then
+        Ok Nothing
 
-
-applyListenerPosition :: Text -> Parser Error Position b
-applyListenerPosition roomText ctorResult =
-    case Position.read roomText of
-        Ok position ->
-            Parse.construct position ctorResult
-
-        Err error ->
-            Err $ PositionError error
-
+    else
+        Room
+            & Ok
+            & parse (Position.read roomText) PositionError
+            & Result.map Just
 
 -- ERROR --
 

@@ -69,10 +69,10 @@
        
     ],
     "voices": [
-        "sin,x=-5y=1",
-        "sin,x=-2y=3",
-        "sin,x=2y=3",
-        "sin,x=5y=1"
+        "sin,x=-5y=1z=1",
+        "sin,x=-2y=3z=1",
+        "sin,x=2y=3z=1",
+        "sin,x=5y=1z=1"
     ],
     "room": {
          "size": {

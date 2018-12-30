@@ -14,12 +14,8 @@ import Data.Function ((&))
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import qualified Data.Text.Lazy.Read as TR
-import Parse (Parser)
-import qualified Parse
 import Result (Result(Ok, Err))
 import qualified Result 
-
-import Prelude.Extra (debugLog)
 
 
 read :: Config -> Text -> Result Error Int

@@ -1,3 +1,6 @@
+{-# LANGUAGE OverloadedStrings #-}
+
+
 module Position
     ( Position
     , x
@@ -8,9 +11,13 @@ module Position
     ) where
 
 
+import Data.Attoparsec.Text (Parser)
+import qualified Data.Attoparsec.Text as P
+import Data.Function ((&))
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
-import Text.Regex.Posix ((=~~))
+import qualified Parse
+import Prelude.Extra (List)
 import Result (Result(Ok, Err))
 import qualified Result 
 
@@ -33,37 +40,42 @@ data Part
     | Z
 
 
+
 -- HELPERS --
 
 
 read :: Text -> Result Error Position
 read positionText =
-    case readPart X positionText of
+    positionText
+        & Parse.fields Parse.int
+        & Result.mapError ParsingFailed
+        & Result.andThen 
+            (Result.mapError (MissingPart positionText) . readFields)
+
+
+readFields :: Parse.Fields Int -> Result Part Position
+readFields fields =
+    case Parse.getField "x" fields of
         Just x ->
-            case readPart Y positionText of
+            case Parse.getField "y" fields of
                 Just y ->
-                    case readPart Z positionText of
+                    case Parse.getField "z" fields of
                         Just z ->
                             Ok $ Position x y z
 
                         Nothing ->
-                            Err $ MissingPart Z
+                            Err Z
 
                 Nothing ->
-                    Err $ MissingPart Y
+                    Err Y
 
         Nothing ->
-            Err $ MissingPart Z
+            Err X
 
 
-    
-readPart :: Part -> Text -> Maybe Int
-readPart part positionText =
-    T.unpack positionText =~~ (partToString part ++ "=(-?\\d+)")
 
-
-partToString :: Part -> String
-partToString part =
+partToText :: Part -> Text
+partToText part =
     case part of
         X ->
             "x"
@@ -79,13 +91,20 @@ partToString part =
 
 
 data Error
-    = MissingPart Part
+    = MissingPart Text Part
+    | ParsingFailed Text
 
 
 throw :: Error -> Text
 throw error =
     case error of
-        MissingPart part ->
-            T.append
-                (T.pack "This part is missing -> ")
-                (T.pack $ partToString part)
+        MissingPart text part ->
+            [ "This part is missing -> "
+            , partToText part
+            , " from "
+            , text
+            ]
+                & T.concat
+
+        ParsingFailed error ->
+            T.append "Parsing failed - > " error

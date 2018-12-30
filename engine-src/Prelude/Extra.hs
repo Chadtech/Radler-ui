@@ -5,7 +5,6 @@ module Prelude.Extra
     ( head
     , listMap2
     , List
-    , textToInt
     , debugLog
     , mapFirst
     , slice
@@ -32,16 +31,6 @@ slice :: Int -> Int -> Text -> Text
 slice a b 
     = T.take (fromIntegral (b - a))
     . T.drop (fromIntegral a)
-
-
-textToInt :: Text -> Maybe Int
-textToInt txt =
-    case TR.signed TR.decimal txt of
-        Right (int, _) ->
-            Just int
-
-        Left _ ->
-            Nothing
 
 
 head :: List a -> Maybe a

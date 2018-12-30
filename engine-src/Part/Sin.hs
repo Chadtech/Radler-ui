@@ -21,8 +21,7 @@ import qualified Data.Text.Lazy as T
 import Data.Vector (Vector)
 import qualified Data.Vector as Vector
 import qualified Note
-import Parse (Parser)
-import qualified Parse
+import Parse (parse)
 import qualified Part.Duration as Duration
 import qualified Part.Volume as Volume
 import Position (Position)
@@ -68,22 +67,22 @@ readModel :: List Text -> List Note -> Result Error Model
 readModel detailsText notes =
     Model (Vector.fromList notes)
         & Ok
-        & applyPosition detailsText
+        & Result.apply (applyPosition detailsText)
 
 
-applyPosition :: List Text -> Parser Error (Maybe Position) b
-applyPosition detailsText ctorResult =
+applyPosition :: List Text -> Maybe Position
+applyPosition detailsText =
     case detailsText of
         first : rest ->
             case Position.read first of
                 Ok position ->
-                    Parse.construct (Just position) ctorResult
+                    Just position
 
                 Err _ ->
-                    applyPosition rest ctorResult
+                    applyPosition rest
 
         [] ->
-            Parse.construct Nothing ctorResult
+            Nothing
 
 
 readManyNoteTexts :: Config -> List Text -> Result Error (List Note)
@@ -134,49 +133,17 @@ readNoteText config noteTxt =
                         & Result.map Just
 
         Err error ->
-            error
-                & NoteError
-                & Err
+            Err $ NoteError error
 
 
 readNonEmptyNoteText :: Config -> Note.Model -> Text -> Result Error Note
 readNonEmptyNoteText config noteBase contentTxt =
     Note
         & Ok
-        & Parse.construct noteBase
-        & applyFreq config (slice 0 2 contentTxt)
-        & applyVolume (slice 4 6 contentTxt)
-        & applyDuration config (slice 2 4 contentTxt)
-
-
-applyDuration :: Config -> Text -> Parser Error Int b
-applyDuration config durationTxt resultCtor =
-    case Duration.read config durationTxt of
-        Ok duration ->
-            Parse.construct duration resultCtor
-
-        Err err ->
-            Err (DurationError err)
-
-
-applyVolume :: Text -> Parser Error Float b
-applyVolume volumeTxt resultCtor =
-    case Volume.read volumeTxt of
-        Ok volume ->
-            Parse.construct volume resultCtor
-
-        Err err ->
-            Err (VolumeError err)
-
-
-applyFreq :: Config -> Text -> Parser Error Float b
-applyFreq config noteTxt resultCtor =
-    case Scale.toFreq (Config.scale config) noteTxt of
-        Ok freq ->
-            Parse.construct freq resultCtor
-
-        Err err ->
-            Err (ScaleError err)            
+        & Result.apply noteBase
+        & parse (Scale.toFreq (Config.scale config) (slice 0 2 contentTxt)) ScaleError
+        & parse (Volume.read (slice 4 6 contentTxt)) VolumeError
+        & parse (Duration.read config (slice 2 4 contentTxt)) DurationError
 
 
 toMono :: Model -> Mono

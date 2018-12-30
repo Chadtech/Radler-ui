@@ -24,8 +24,7 @@ import Data.Function ((&))
 import Data.List as List
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
-import Parse (Parser)
-import qualified Parse
+import Parse (parse)
 import Part (Part)
 import qualified Part
 import Prelude.Extra (List)
@@ -92,28 +91,17 @@ buildFromChunks chunks =
         name : voices : notes : configTxt : [] ->
             case Config.read configTxt of
                 Ok config ->
-                    Score
+                    Score (T.strip name)
                         & Ok
-                        & Parse.construct (T.strip name)
-                        & applyParts config voices notes
-                        & Parse.construct config
+                        & parse (Part.readMany config voices notes) PartError
+                        & Result.apply config
 
                 Err err ->
                     Err (ConfigError err)
 
         _ ->
-            Err (UnexpectedChunkStructure chunks)
-
-
-applyParts :: Config -> Text -> Text -> Parser Error (List Part) b
-applyParts config voices notes ctorResult =
-    case Part.readMany config voices notes of
-        Ok parts ->
-            Parse.construct parts ctorResult
-
-        Err err ->
-            Err (PartError err)
-
+            Err $ UnexpectedChunkStructure chunks
+        
 
 toDevAudio :: Score -> Audio
 toDevAudio 

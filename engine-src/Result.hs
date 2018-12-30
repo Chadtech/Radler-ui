@@ -1,6 +1,8 @@
 module Result
     ( Result(..)
     , Result.map
+    , apply
+    , fromEither
     , mapError
     , map2
     , andThen
@@ -12,6 +14,26 @@ module Result
 data Result e v
     = Ok v
     | Err e
+    
+
+fromEither :: Either e v -> Result e v
+fromEither either =
+    case either of
+        Left err ->
+            Err err
+
+        Right value ->
+            Ok value
+
+        
+apply :: a -> Result e (a -> b) -> Result e b
+apply v result =
+    case result of
+        Ok f ->
+            Ok $ f v
+
+        Err err ->
+            Err err
 
 
 map :: (a -> b) -> Result e a -> Result e b

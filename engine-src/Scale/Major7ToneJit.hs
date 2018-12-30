@@ -12,7 +12,8 @@ module Scale.Major7ToneJit
 import Data.Function ((&))
 import Data.Text.Lazy (Text)
 import Data.Text.Lazy as T
-import Prelude.Extra (textToInt)
+import qualified Parse
+import Prelude.Extra (toFloat)
 import Result (Result(Ok, Err))
 import qualified Result
 import Scale.Data (fundamental0)
@@ -20,21 +21,20 @@ import Scale.Data (fundamental0)
 
 toFreq :: Text -> Result Error Float
 toFreq txt = 
-    case textToInt txt of
-        Just int ->
-            int
-                & fundamentalsTone
-                & Result.map 
-                    ((*) (fundamentalsOctave int))
+    case Parse.decode Parse.int txt of
+        Ok int ->
+            Result.map 
+                ((*) (fundamentalsOctave int))
+                (fundamentalsTone int) 
 
-        Nothing ->
-            Err (NoteIsntInt txt)
+        Err _ ->
+            Err $ NoteIsntInt txt
 
 
 fundamentalsOctave :: Int -> Float
 fundamentalsOctave int =
     (2 ^ quot int 10) * fundamental0
-        & Prelude.fromIntegral
+        & toFloat
 
 
 fundamentalsTone :: Int -> Result Error Float
@@ -67,7 +67,7 @@ fundamentalsTone int =
             Ok 1.875
 
         _ ->
-            Err (ToneIsntInScale toneInt)
+            Err $ ToneIsntInScale toneInt
 
 
 -- ERROR --
