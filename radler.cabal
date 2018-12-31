@@ -21,6 +21,7 @@ executable radler
   other-modules:
     Audio
     Audio.Mono
+    Audio.Mono.Position
     Audio.Stereo
     Config
     Cmd

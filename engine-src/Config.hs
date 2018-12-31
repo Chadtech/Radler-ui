@@ -7,6 +7,7 @@ module Config
     , scale
     , beatLength
     , timingVariance
+    , room
     , Error
     , throw
     )

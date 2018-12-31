@@ -78,7 +78,10 @@ handleRoute route model =
             )
 
         Build (Ok score) ->
-            ( model, Cmd.none, Response.text "Cool")
+            ( model
+            , buildScore score
+            , Response.json Json.null
+            )
 
         Build (Err err) ->
             ( model

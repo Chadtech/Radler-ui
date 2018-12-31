@@ -3,6 +3,7 @@
 
 module Part.Sin
     ( Model
+    , build
     , Part.Sin.read
     , toMono
     , Error
@@ -10,8 +11,11 @@ module Part.Sin
     ) where
 
         
+import Audio (Audio)
+import qualified Audio
 import Audio.Mono (Mono)
 import qualified Audio.Mono as Mono
+import Audio.Mono.Position (positionMono)
 import Config (Config)
 import qualified Config
 import Data.Function ((&))
@@ -29,6 +33,8 @@ import qualified Position
 import Prelude.Extra (List, slice)
 import Result (Result(Ok, Err))
 import qualified Result 
+import Room (Room)
+import qualified Room 
 import Scale (Scale)
 import qualified Scale
 
@@ -59,15 +65,15 @@ data Note
 
 read :: Config -> List Text -> List Text -> Result Error Model
 read config detailsText 
-    = Result.andThen (readModel detailsText)
+    = Result.map (readModel detailsText)
     . readManyNoteTexts config
 
 
-readModel :: List Text -> List Note -> Result Error Model
+readModel :: List Text -> List Note -> Model
 readModel detailsText notes =
-    Model (Vector.fromList notes)
-        & Ok
-        & Result.apply (applyPosition detailsText)
+    Model 
+        (Vector.fromList notes)
+        (applyPosition detailsText)
 
 
 applyPosition :: List Text -> Maybe Position
@@ -164,6 +170,21 @@ noteToMono note =
         & Mono.declip
     )
 
+
+build :: Maybe Room -> Model -> Audio
+build maybeRoom model = 
+    let
+        mono :: Mono
+        mono =
+            toMono model
+    in
+    case (maybeRoom, position model) of
+        (Just room, Just position) ->
+            positionMono room position mono
+                & Audio.fromStereo
+
+        _ ->
+            Audio.fromMono mono
 
 
 -- ERROR --

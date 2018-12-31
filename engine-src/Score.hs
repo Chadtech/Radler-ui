@@ -30,6 +30,8 @@ import qualified Part
 import Prelude.Extra (List)
 import Result (Result(Ok, Err))
 import qualified Result
+import Room (Room)
+import qualified Room 
 
 
 -- TYPES --
@@ -112,11 +114,13 @@ toDevAudio
 
 
 build :: Score -> List Audio
-build 
-    = Audio.normalizeVolumes
-    . List.map Part.build
-    . parts
+build score =
+    score 
+        & parts
+        & List.map (Part.build $ Config.room $ config score)
+        & Audio.normalizeVolumes
 
+    
 -- ERROR --
 
 

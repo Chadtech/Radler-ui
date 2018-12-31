@@ -26,6 +26,8 @@ import qualified Part.Sin as Sin
 import Prelude.Extra (List)
 import qualified Result
 import Result (Result(Ok, Err))
+import Room (Room)
+import qualified Room 
 
 
 -- TYPES --
@@ -103,13 +105,12 @@ toDevAudio part =
                 & Audio.fromMono
 
 
-build :: Part -> Audio
-build part =
+build :: Maybe Room -> Part -> Audio
+build maybeRoom part =
     case part of
         Sin sinModel ->
             sinModel
-                & Sin.toMono
-                & Audio.fromMono
+                & Sin.build maybeRoom
 
 
 -- ERROR -- 

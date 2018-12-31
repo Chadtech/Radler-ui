@@ -180,6 +180,42 @@ timelineSamples (beginningIndex, Mono vector) =
         & Vector.map (mapFirst ((+) beginningIndex))
 
 
+lopass :: Float -> Int -> Mono -> Mono
+lopass mixLevel samplesToSpan mono =
+    mono
+        & lopassHelper samplesToSpan
+        & setVolume mixLevel
+        & mix (setVolume (1 - mixLevel) mono)
+
+
+lopassHelper :: Int -> Mono -> Mono
+lopassHelper samplesToSpan mono =
+    mono
+        & append (silence samplesToSpan)
+        & averageSamples samplesToSpan
+
+
+averageSamples :: Int -> Mono -> Mono
+averageSamples samplesToSpan (Mono vector) =
+    vector
+        & Vector.imap (averageSample samplesToSpan vector)
+        & Vector.drop samplesToSpan
+        & Mono
+
+
+averageSample :: Int -> Vector Float -> Int -> Float -> Float
+averageSample samplesToSpan samples index sample =
+    samples
+        & Vector.slice index samplesToSpan
+        & Vector.foldl (+) 0
+        & divideBy samplesToSpan
+
+
+divideBy :: Int -> Float -> Float
+divideBy samplesToSpan sum =
+    sum / toFloat samplesToSpan
+
+
 equalizeLengths :: Mono -> Mono -> (Mono, Mono)
 equalizeLengths mono0 mono1 =
     let

@@ -1,5 +1,5 @@
-module Audio.Position
-    ( position
+module Audio.Mono.Position
+    ( positionMono
     ) where
 
 
@@ -9,10 +9,13 @@ import Audio.Mono (Mono)
 import qualified Audio.Mono as Mono
 import Audio.Stereo (Stereo)
 import qualified Audio.Stereo as Stereo
+import Room (Room)
+import qualified Room 
 
 
-positionMono :: Position -> Mono -> Stereo
-positionMono position mono =
-    
+positionMono :: Room -> Position -> Mono -> Stereo
+positionMono room position mono =
+    Stereo.fromMono mono
+
 
 

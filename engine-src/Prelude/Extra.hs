@@ -7,6 +7,7 @@ module Prelude.Extra
     , List
     , debugLog
     , mapFirst
+    , mixLists
     , slice
     , toFloat
     , indexList
@@ -84,6 +85,21 @@ listMap2Accumulate xs ys f output =
 
         _ ->
             List.reverse output
+
+
+mixLists :: List a -> List a -> List a
+mixLists xs ys =
+    case (xs, ys) of
+        (firstX : restX, firstY : restY) ->
+            firstX : firstY : mixLists restX restY
+
+        (_, []) ->
+            xs
+
+        ([], _) ->
+            ys
+
+
 
 
 type List a = [ a ]

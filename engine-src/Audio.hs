@@ -25,7 +25,7 @@ import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import Data.WAVE (WAVE)
 import qualified Data.WAVE as W
-import Prelude.Extra (List, toFloat)
+import Prelude.Extra (List, toFloat, mixLists)
 import qualified System.Process as SP
 
 
@@ -127,8 +127,9 @@ write fn audio =
                         (left, right) =
                             Stereo.toMonos stereo
                     in
-                    [ Mono.toSamples left
-                    , Mono.toSamples right
+                    [ mixLists
+                        (Mono.toSamples left)
+                        (Mono.toSamples right)
                     ]
 
         }
