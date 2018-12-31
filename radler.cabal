@@ -47,6 +47,7 @@ executable radler
     Scale.Data
     Scale.Major7ToneJit
     Score
+    Size
     Update       
     Voice
   -- other-extensions:    

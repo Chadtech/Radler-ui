@@ -14,7 +14,7 @@ module Result
 data Result e v
     = Ok v
     | Err e
-    
+
 
 fromEither :: Either e v -> Result e v
 fromEither either =
@@ -25,7 +25,7 @@ fromEither either =
         Right value ->
             Ok value
 
-        
+            
 apply :: a -> Result e (a -> b) -> Result e b
 apply v result =
     case result of

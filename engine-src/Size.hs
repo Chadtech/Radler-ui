@@ -1,18 +1,16 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 
-module Position
-    ( Position
-    , x
-    , y
-    , z
-    , Position.read
+module Size
+    ( Size
+    , width
+    , Size.length
+    , height
+    , Size.read
     , Error
     , throw
     ) where
 
-
--- import qualified Data.Attoparsec.Text as P
 import Data.Function ((&))
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
@@ -25,61 +23,60 @@ import qualified Result
 -- TYPES --
 
 
-data Position
-    = Position
-        { x :: Int
-        , y :: Int
-        , z :: Int
+data Size
+    = Size
+        { width :: Int
+        , length :: Int
+        , height :: Int
         }
         deriving (Eq)
 
 
-data Part 
-    = X
-    | Y
-    | Z
-
+data Part
+    = Width
+    | Length
+    | Height
 
 
 -- HELPERS --
 
 
-read :: Parse.Fields Int -> Result Error Position
+read :: Parse.Fields Int -> Result Error Size
 read roomFields =
     Result.mapError MissingPart (readFields roomFields)
 
 
-readFields :: Parse.Fields Int -> Result Part Position
+readFields :: Parse.Fields Int -> Result Part Size
 readFields fields =
-    case Parse.getField "x" fields of
-        Just x ->
-            case Parse.getField "y" fields of
-                Just y ->
-                    case Parse.getField "z" fields of
-                        Just z ->
-                            Ok $ Position x y z
+    case Parse.getField "width" fields of
+        Just width ->
+            case Parse.getField "length" fields of
+                Just length ->
+                    case Parse.getField "height" fields of
+                        Just height ->
+                            Ok $ Size width length height
 
                         Nothing ->
-                            Err Z
+                            Err Height
 
                 Nothing ->
-                    Err Y
+                    Err Length
 
         Nothing ->
-            Err X
+            Err Width
 
 
 partToText :: Part -> Text
 partToText part =
     case part of
-        X ->
-            "x"
+        Width ->
+            "width"
 
-        Y ->
-            "y"
+        Length ->
+            "length"
 
-        Z ->
-            "z"
+        Height ->
+            "height"
 
 
 -- ERROR --

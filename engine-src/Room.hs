@@ -18,6 +18,8 @@ import Position (Position)
 import qualified Position
 import Result (Result(Ok, Err))
 import qualified Result
+import qualified Size
+import Size (Size)
 
 
 -- TYPES --
@@ -26,6 +28,7 @@ import qualified Result
 data Room
     = Room
         { listenerPosition :: Position
+        , size :: Size
         } 
         deriving (Eq)
 
@@ -40,16 +43,30 @@ read roomText =
         Ok Nothing
 
     else
-        Room
-            & Ok
-            & parse (Position.read roomText) PositionError
-            & Result.map Just
+        let
+            fieldsResult :: Result Text (Parse.Fields Int)
+            fieldsResult =
+                Parse.fields Parse.int roomText
+        in
+        case fieldsResult of
+            Ok fields ->
+                Room
+                    & Ok
+                    & parse (Position.read fields) PositionError
+                    & parse (Size.read fields) SizeError
+                    & Result.map Just
+
+            Err err ->
+                Err $ ParsingFailed err
+
 
 -- ERROR --
 
 
 data Error
     = PositionError Position.Error
+    | SizeError Size.Error
+    | ParsingFailed Text
 
 
 throw :: Error -> Text
@@ -57,5 +74,11 @@ throw error =
     case error of
         PositionError error ->
             Position.throw error
+
+        SizeError error ->
+            Size.throw error
+
+        ParsingFailed error ->
+            T.append "Parsing failed - > " error
 
         

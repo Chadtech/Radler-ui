@@ -26,6 +26,7 @@ import Data.Vector (Vector)
 import qualified Data.Vector as Vector
 import qualified Note
 import Parse (parse)
+import qualified Parse
 import qualified Part.Duration as Duration
 import qualified Part.Volume as Volume
 import Position (Position)
@@ -80,9 +81,14 @@ applyPosition :: List Text -> Maybe Position
 applyPosition detailsText =
     case detailsText of
         first : rest ->
-            case Position.read first of
-                Ok position ->
-                    Just position
+            case Parse.fields Parse.int first of
+                Ok fields ->
+                    case Position.read fields of
+                        Ok position ->
+                            Just position
+
+                        Err _ ->
+                            applyPosition rest
 
                 Err _ ->
                     applyPosition rest
