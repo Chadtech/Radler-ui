@@ -30,15 +30,23 @@ type Msg
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg =
+update msg model =
     case msg of
         ErrorMsg subMsg ->
-            Error.update subMsg
-                >> R2.withNoCmd
+            model
+                |> Error.update subMsg
+                |> R2.withNoCmd
 
         BuildMsg subMsg ->
-            Modal.Build.update subMsg
-                >> R2.mapCmd BuildMsg
+            case model.modal of
+                Just (BuildConfirmation buildModel) ->
+                    model
+                        |> Modal.Build.update subMsg buildModel
+                        |> R2.mapCmd BuildMsg
+
+                _ ->
+                    model
+                        |> R2.withNoCmd
 
 
 
@@ -84,13 +92,14 @@ modalCard modal =
 
 modalContent : Modal -> List (Html Msg)
 modalContent modal =
-    case modal of
+    case Debug.log "MODAL" modal of
         Error error ->
             [ Error.modalView error
                 |> Html.map ErrorMsg
             ]
 
-        BuildConfirmation ->
-            [ Modal.Build.view
+        BuildConfirmation model ->
+            [ model
+                |> Modal.Build.view
                 |> Html.map BuildMsg
             ]

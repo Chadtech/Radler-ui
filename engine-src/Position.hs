@@ -6,20 +6,23 @@ module Position
     , x
     , y
     , z
+    , fromCoords
+    , addToX
+    , setX
+    , distanceBetween
     , Position.read
     , Error
     , throw
     ) where
 
 
--- import qualified Data.Attoparsec.Text as P
 import Data.Function ((&))
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import qualified Parse
 import Prelude.Extra (List)
 import Result (Result(Ok, Err))
-import qualified Result 
+import qualified Result
 
 
 -- TYPES --
@@ -27,9 +30,9 @@ import qualified Result
 
 data Position
     = Position
-        { x :: Int
-        , y :: Int
-        , z :: Int
+        { x :: Float
+        , y :: Float
+        , z :: Float
         }
         deriving (Eq)
 
@@ -44,12 +47,17 @@ data Part
 -- HELPERS --
 
 
-read :: Parse.Fields Int -> Result Error Position
+fromCoords :: (Float, Float, Float) -> Position
+fromCoords (x, y, z) =
+    Position x y z
+
+    
+read :: Parse.Fields Float -> Result Error Position
 read roomFields =
     Result.mapError MissingPart (readFields roomFields)
 
 
-readFields :: Parse.Fields Int -> Result Part Position
+readFields :: Parse.Fields Float -> Result Part Position
 readFields fields =
     case Parse.getField "x" fields of
         Just x ->
@@ -80,6 +88,21 @@ partToText part =
 
         Z ->
             "z"
+
+
+addToX :: Float -> Position -> Position
+addToX deltaX position =
+    position { x = (x position) + deltaX }
+
+
+setX :: Float -> Position -> Position
+setX newX position =
+    position { x = newX }
+
+
+distanceBetween :: Position -> Position -> Float
+distanceBetween p0 p1 =
+    sqrt (((x p0 - x p1) ^ 2) + ((y p0 - y p1) ^ 2) + ((z p0 - z p1) ^ 2))
 
 
 -- ERROR --

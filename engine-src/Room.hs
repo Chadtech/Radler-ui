@@ -4,6 +4,8 @@
 module Room
     ( Room
     , Room.read
+    , listenerPosition
+    , size
     , Error
     , throw
     ) where
@@ -25,6 +27,18 @@ import Size (Size)
 -- TYPES --
     
 
+--        |------------|
+--        |            |
+--        |            |
+--        |            |
+--        |            |
+--       ^|            |
+--       ||            |
+--  length|------------|
+--        width ->
+
+
+
 data Room
     = Room
         { listenerPosition :: Position
@@ -44,9 +58,9 @@ read roomText =
 
     else
         let
-            fieldsResult :: Result Text (Parse.Fields Int)
+            fieldsResult :: Result Text (Parse.Fields Float)
             fieldsResult =
-                Parse.fields Parse.int roomText
+                Parse.fields Parse.float roomText
         in
         case fieldsResult of
             Ok fields ->

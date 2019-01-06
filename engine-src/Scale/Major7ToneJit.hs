@@ -16,7 +16,7 @@ import qualified Parse
 import Prelude.Extra (toFloat)
 import Result (Result(Ok, Err))
 import qualified Result
-import Scale.Data (fundamental0)
+import qualified Constants
 
 
 toFreq :: Text -> Result Error Float
@@ -33,7 +33,7 @@ toFreq txt =
 
 fundamentalsOctave :: Int -> Float
 fundamentalsOctave int =
-    (2 ^ quot int 10) * fundamental0
+    (2 ^ quot int 10) * Constants.fundamental0
         & toFloat
 
 

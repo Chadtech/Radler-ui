@@ -6,6 +6,7 @@ module Audio.Mono
     , compress
     , declip
     , empty
+    , singleton
     , fromTimeline
     , fromVector
     , Audio.Mono.length
@@ -15,6 +16,7 @@ module Audio.Mono
     , silence
     , toSamples
     , toVector
+    , delay
     , Audio.Mono.sin
     ) where
 
@@ -40,6 +42,11 @@ toVector (Mono vector) =
 fromVector :: Vector Float -> Mono
 fromVector =
     Mono
+
+
+singleton :: Mono
+singleton =
+    Mono $ Vector.fromList $ [ 1 ]
     
 
 empty :: Mono
@@ -63,6 +70,11 @@ sin freq duration =
 sinAtSample :: Float -> Int -> Float
 sinAtSample freq index =
     Prelude.sin (2 * pi * (freq / 44100) * toFloat index) 
+
+
+delay :: Int -> Mono -> Mono
+delay delayAmount mono =
+    append (silence delayAmount) mono
 
 
 mixMany :: List Mono -> Mono

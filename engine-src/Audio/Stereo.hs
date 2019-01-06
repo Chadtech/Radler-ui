@@ -6,6 +6,7 @@ module Audio.Stereo
     , fromMono
     , mix
     , toMonos
+    , fromMonos
     , setVolume
     , Audio.Stereo.length
     ) where
@@ -38,6 +39,14 @@ fromMono mono =
     mono
         & Mono.toVector
         & Vector.map pairSample
+        & Stereo
+
+
+fromMonos :: (Mono, Mono) -> Stereo
+fromMonos (left, right) =
+    Vector.zip 
+        (Mono.toVector left)
+        (Mono.toVector right)
         & Stereo
 
 

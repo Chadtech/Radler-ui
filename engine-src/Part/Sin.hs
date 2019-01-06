@@ -81,7 +81,7 @@ applyPosition :: List Text -> Maybe Position
 applyPosition detailsText =
     case detailsText of
         first : rest ->
-            case Parse.fields Parse.int first of
+            case Parse.fields Parse.float first of
                 Ok fields ->
                     case Position.read fields of
                         Ok position ->
@@ -158,6 +158,7 @@ readNonEmptyNoteText config noteBase contentTxt =
         & parse (Duration.read config (slice 2 4 contentTxt)) DurationError
 
 
+
 toMono :: Model -> Mono
 toMono 
     = Mono.fromTimeline
@@ -169,6 +170,7 @@ noteToMono :: Note -> (Int, Mono)
 noteToMono note =
     ( Note.time 
         (noteModel note)
+    -- , Mono.singleton
     , Mono.sin 
         (freq note)
         (duration note)

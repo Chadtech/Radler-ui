@@ -30,6 +30,7 @@ gulp.task("elm", function () {
   cp.spawn("elm", [
     "make",
     paths.mainElm,
+    // "--optimize",
     "--output",
     paths.public + "/elm.js",
   ], {

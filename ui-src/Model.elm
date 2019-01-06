@@ -14,6 +14,7 @@ module Model exposing
     , removeTracker
     , saveParts
     , score
+    , setBuildModal
     , setError
     , setModal
     , setPlayFor
@@ -25,6 +26,7 @@ import Array exposing (Array)
 import Data.Error exposing (Error(..))
 import Data.Flags as Flags exposing (Flags)
 import Data.Modal as Modal exposing (Modal)
+import Data.Modal.Build as Build
 import Data.Package as Package exposing (Package)
 import Data.Part as Part exposing (Part)
 import Data.Tracker as Tracker exposing (Tracker)
@@ -118,6 +120,16 @@ setError error =
 setModal : Modal -> Model -> Model
 setModal modal model =
     { model | modal = Just modal }
+
+
+setBuildModal : Build.Model -> Model -> Model
+setBuildModal buildModel model =
+    { model
+        | modal =
+            buildModel
+                |> Modal.BuildConfirmation
+                |> Just
+    }
 
 
 clearModal : Model -> Model

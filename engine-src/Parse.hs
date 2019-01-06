@@ -8,6 +8,7 @@ module Parse
     , getField
     , fields
     , int
+    , float
     , parse
     , decodeInt
     ) where
@@ -18,7 +19,7 @@ import Data.Function ((&))
 import qualified Data.List as List
 import qualified Data.Text.Lazy as TL
 import qualified Data.Text as T
-import Prelude.Extra (List, mapFirst)
+import Prelude.Extra (List, mapFirst, toFloat)
 import Result (Result(Ok, Err))
 import qualified Result
     
@@ -96,3 +97,8 @@ getField key (Fields fields) =
 int :: Decoder Int
 int =
     Decoder $ P.signed P.decimal
+
+
+float :: Decoder Float
+float =
+    Decoder $ toFloat <$> P.signed P.decimal

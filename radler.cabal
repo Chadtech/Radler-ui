@@ -24,6 +24,7 @@ executable radler
     Audio.Mono.Position
     Audio.Stereo
     Config
+    Constants
     Cmd
     Error
     Json
@@ -44,7 +45,6 @@ executable radler
     Route
     Router
     Scale
-    Scale.Data
     Scale.Major7ToneJit
     Score
     Size

@@ -25,9 +25,9 @@ import qualified Result
 
 data Size
     = Size
-        { width :: Int
-        , length :: Int
-        , height :: Int
+        { width :: Float
+        , length :: Float
+        , height :: Float
         }
         deriving (Eq)
 
@@ -41,12 +41,12 @@ data Part
 -- HELPERS --
 
 
-read :: Parse.Fields Int -> Result Error Size
+read :: Parse.Fields Float -> Result Error Size
 read roomFields =
     Result.mapError MissingPart (readFields roomFields)
 
 
-readFields :: Parse.Fields Int -> Result Part Size
+readFields :: Parse.Fields Float -> Result Part Size
 readFields fields =
     case Parse.getField "width" fields of
         Just width ->

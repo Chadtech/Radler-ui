@@ -95,7 +95,7 @@ update msg model =
 
         BuildClicked ->
             model
-                |> Model.setModal Modal.BuildConfirmation
+                |> Model.setModal Modal.initBuild
                 |> R2.withNoCmd
 
         PlayFromFieldUpdated str ->
