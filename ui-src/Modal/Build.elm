@@ -138,7 +138,7 @@ viewContent buildModel =
 finishedView : List (Html Msg)
 finishedView =
     [ Grid.row
-        []
+        [ marginBottom (px 5) ]
         [ Grid.column
             []
             [ Html.p
