@@ -58,11 +58,14 @@ positionRelativeToEar :: Size -> Position -> Position -> Mono -> Mono
 positionRelativeToEar roomSize earPosition soundPosition mono =
     [ directDelay earPosition soundPosition mono
     , delayFromFarWallReflection roomSize earPosition soundPosition mono
+    , delayFromRightWallReflection roomSize earPosition soundPosition mono
+    , delayFromCeilingReflection roomSize earPosition soundPosition mono
     , delayFromBackWallReflection earPosition soundPosition mono
     , delayFromLeftWallReflection earPosition soundPosition mono
     , delayFromFloorReflection earPosition soundPosition mono
     ]
         & Mono.mixMany
+
 
 delayFromBackWallReflection :: Position -> Position -> Mono -> Mono
 delayFromBackWallReflection earPosition soundPosition =
@@ -78,6 +81,7 @@ delayFromBackWallReflection earPosition soundPosition =
             + Position.distanceBetween soundPosition positionOnBackWall
         )
         
+
 reflectionPointOnBackWall :: Position -> Position -> Position
 reflectionPointOnBackWall earPosition soundPosition =
     let
@@ -157,6 +161,84 @@ reflectionPointOnLeftWall earPosition soundPosition =
         * (Position.y soundPosition - Position.y earPosition)
     , Position.z earPosition 
         + relativeXDistanceFromLeftWall
+        * (Position.z soundPosition - Position.z earPosition)
+    )
+        & Position.fromCoords
+
+
+delayFromCeilingReflection :: Size -> Position -> Position -> Mono -> Mono
+delayFromCeilingReflection roomSize earPosition soundPosition =
+    let
+        positionOnCeiling :: Position
+        positionOnCeiling =
+            reflectionPointOnCeiling
+                roomSize
+                earPosition
+                soundPosition
+    in
+    delayAndDecay
+        ( Position.distanceBetween earPosition positionOnCeiling
+            + Position.distanceBetween soundPosition positionOnCeiling
+        )
+
+
+reflectionPointOnCeiling :: Size -> Position -> Position -> Position
+reflectionPointOnCeiling roomSize earPosition soundPosition =
+    let
+        earZPositionFromCeiling :: Float
+        earZPositionFromCeiling =
+            Size.height roomSize - Position.z earPosition
+
+        relativeZDistanceFromCeiling :: Float
+        relativeZDistanceFromCeiling =
+            earZPositionFromCeiling
+                / (earZPositionFromCeiling + (Size.height roomSize - Position.z soundPosition))
+    in
+    ( Position.x earPosition
+        + relativeZDistanceFromCeiling
+        * (Position.x soundPosition - Position.x earPosition)
+    , Position.y earPosition
+        + relativeZDistanceFromCeiling
+        * (Position.z soundPosition - Position.z earPosition)
+    , Size.height roomSize
+    )
+        & Position.fromCoords
+
+
+delayFromRightWallReflection :: Size -> Position -> Position -> Mono -> Mono
+delayFromRightWallReflection roomSize earPosition soundPosition =
+    let
+        positionOnRightWall :: Position
+        positionOnRightWall =
+            reflectionPointOnRightWall
+                roomSize
+                earPosition
+                soundPosition
+    in
+    delayAndDecay 
+        ( Position.distanceBetween earPosition positionOnRightWall
+            + Position.distanceBetween soundPosition positionOnRightWall
+        )
+
+
+reflectionPointOnRightWall :: Size -> Position -> Position -> Position
+reflectionPointOnRightWall roomSize earPosition soundPosition =
+    let
+        earXPositionFromRightWall :: Float
+        earXPositionFromRightWall =
+            Size.width roomSize - Position.x earPosition
+
+        relativeXDistanceFromRightWall :: Float
+        relativeXDistanceFromRightWall =
+            earXPositionFromRightWall
+                / (earXPositionFromRightWall + (Size.length roomSize - Position.x soundPosition))
+    in
+    ( Size.width roomSize
+    , Position.y earPosition
+        + relativeXDistanceFromRightWall
+        * (Position.y soundPosition - Position.y earPosition)
+    , Position.z earPosition 
+        + relativeXDistanceFromRightWall 
         * (Position.z soundPosition - Position.z earPosition)
     )
         & Position.fromCoords
