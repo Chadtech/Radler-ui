@@ -5,6 +5,7 @@ module Header exposing
     )
 
 import Array
+import BackendStatus
 import Colors
 import Css exposing (..)
 import Data.Error as Error
@@ -74,7 +75,8 @@ update msg model =
                     scoreStr
                         |> Play
                         |> sendHttp model
-                        |> R2.withModel model
+                        |> R2.withModel
+                            (Model.setBackendStatusWorking model)
 
                 Err newModel ->
                     newModel
@@ -110,10 +112,12 @@ update msg model =
 
         PlaySent (Ok ()) ->
             model
+                |> Model.setBackendStatusIdle
                 |> R2.withNoCmd
 
         PlaySent (Err err) ->
             playFailed err model
+                |> Model.setBackendStatusIdle
                 |> R2.withNoCmd
 
 
@@ -187,6 +191,11 @@ playbackButtons model =
         , Grid.column
             [ flex (int 0) ]
             [ buildButton ]
+        , Grid.column
+            [ alignItems flexEnd
+            , flexDirection column
+            ]
+            [ BackendStatus.view model.backendStatus ]
         ]
 
 

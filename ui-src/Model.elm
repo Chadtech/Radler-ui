@@ -14,6 +14,8 @@ module Model exposing
     , removeTracker
     , saveParts
     , score
+    , setBackendStatusIdle
+    , setBackendStatusWorking
     , setBuildModal
     , setError
     , setModal
@@ -23,6 +25,7 @@ module Model exposing
     )
 
 import Array exposing (Array)
+import BackendStatus as BackendStatus exposing (BackendStatus)
 import Data.Error exposing (Error(..))
 import Data.Flags as Flags exposing (Flags)
 import Data.Modal as Modal exposing (Modal)
@@ -67,6 +70,7 @@ type alias Model =
     , playForBeats : Int
     , engineUrl : Url
     , modal : Maybe Modal
+    , backendStatus : BackendStatus
     }
 
 
@@ -105,6 +109,7 @@ init flags =
         ]
             |> String.concat
             |> Url.fromString
+    , backendStatus = BackendStatus.Idle
     }
 
 
@@ -130,6 +135,16 @@ setBuildModal buildModel model =
                 |> Modal.BuildConfirmation
                 |> Just
     }
+
+
+setBackendStatusWorking : Model -> Model
+setBackendStatusWorking model =
+    { model | backendStatus = BackendStatus.Working }
+
+
+setBackendStatusIdle : Model -> Model
+setBackendStatusIdle model =
+    { model | backendStatus = BackendStatus.Idle }
 
 
 clearModal : Model -> Model
