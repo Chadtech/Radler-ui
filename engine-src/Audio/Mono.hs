@@ -4,6 +4,7 @@
 module Audio.Mono
     ( Mono
     , compress
+    , convolve_
     , declip
     , empty
     , singleton
@@ -27,7 +28,7 @@ import Data.Int (Int32)
 import qualified Data.List as List
 import Data.Vector (Vector)
 import qualified Data.Vector as Vector
-import Prelude.Extra (List, mapFirst, toFloat)
+import Prelude.Extra (List, mapFirst, mapSecond, toFloat, debugLog)
 
 
 data Mono
@@ -282,3 +283,42 @@ toInt32 :: Float -> Int32
 toInt32 =
     round
 
+
+convolve_ :: Mono -> Mono -> Mono
+convolve_ (Mono seed) (Mono sound) =
+    convolveHelper 
+        (Vector.indexed seed) 
+        (Vector.toList $ Vector.indexed sound) 
+        (newConvolvedBase seed sound)
+        & Mono
+
+
+convolveHelper :: Vector (Int, Float) -> List (Int, Float) -> Vector Float -> Vector Float
+convolveHelper seed sound output =
+    case sound of
+        (index, sample) : rest ->
+            seed
+                & multiplySeed sample
+                & addToIndices index
+                & Vector.accumulate (+) output
+                & seq 1
+                & convolveHelper seed rest
+
+        [] ->
+            output
+
+
+newConvolvedBase :: Vector Float -> Vector Float -> Vector Float
+newConvolvedBase seed audio =
+    Vector.replicate 
+        (Vector.length seed + Vector.length audio)
+        0
+
+addToIndices :: Int -> Vector (Int, Float) -> Vector (Int, Float) 
+addToIndices index seedConvolvement = 
+    Vector.map (mapFirst ((+) index)) seedConvolvement 
+
+
+multiplySeed :: Float -> Vector (Int, Float) -> Vector (Int, Float)
+multiplySeed audioSample seedVector = 
+    Vector.map (mapSecond ((*) audioSample)) seedVector

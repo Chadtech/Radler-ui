@@ -7,6 +7,7 @@ module Prelude.Extra
     , List
     , debugLog
     , mapFirst
+    , mapSecond
     , mixLists
     , slice
     , toFloat
@@ -112,3 +113,7 @@ mapFirst :: (a -> b) -> (a, c) -> (b, c)
 mapFirst f (a, b) =
     (f a, b)
     
+
+mapSecond :: (b -> c) -> (a, b) -> (a, c)
+mapSecond f (a, b) =
+    (a, f b)
