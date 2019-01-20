@@ -20,8 +20,9 @@ import qualified Control.Monad as CM
 import Data.Function ((&))
 import Data.Int (Int32)
 import qualified Data.List as List
-import Data.Vector (Vector)
-import qualified Data.Vector as Vector
+import Data.Vector.Unboxed (Vector)
+import qualified Data.Vector as V
+import qualified Data.Vector.Unboxed as Vector
 import Prelude.Extra (List, mapFirst)
 
 

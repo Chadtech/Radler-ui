@@ -18,7 +18,8 @@ cabal-version:       >=1.10
 executable radler
   main-is:             Main.hs
   hs-source-dirs:      engine-src
-  ghc-options:
+  ghc-options: 
+    -- -prof -fprof-auto -rtsopts
     -O2
   --   -threaded
   --   -fprof-auto

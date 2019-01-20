@@ -26,8 +26,9 @@ import qualified Control.Monad as CM
 import Data.Function ((&))
 import Data.Int (Int32)
 import qualified Data.List as List
-import Data.Vector (Vector)
-import qualified Data.Vector as Vector
+import Data.Vector.Unboxed (Vector)
+import qualified Data.Vector as V
+import qualified Data.Vector.Unboxed as Vector
 import Prelude.Extra (List, mapFirst, mapSecond, toFloat, debugLog)
 
 
@@ -120,16 +121,16 @@ compressSample s =
     s + (s * (1 - s))
 
 
-fromTimeline :: Vector (Int, Mono) -> Mono
+fromTimeline :: V.Vector (Int, Mono) -> Mono
 fromTimeline timeline =
-    if Vector.length timeline == 0 then
+    if V.length timeline == 0 then
         empty
 
     else
         Vector.accumulate 
             (+)
-            (timelineBasis $ Vector.last timeline)
-            (CM.join $ Vector.map timelineSamples timeline)
+            (timelineBasis $ V.last timeline)
+            (Vector.concat $ V.toList $ V.map timelineSamples timeline)
             & Mono
 
 
