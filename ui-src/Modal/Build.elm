@@ -48,10 +48,13 @@ update msg buildModel model =
         BuildSent (Ok ()) ->
             model
                 |> Model.setBuildModal Build.Finished
+                |> Model.setBackendStatusIdle
                 |> R2.withNoCmd
 
         BuildSent (Err err) ->
-            buildFailed err model
+            model
+                |> Model.setBackendStatusIdle
+                |> buildFailed err
                 |> R2.withNoCmd
 
 
@@ -66,9 +69,9 @@ handleBuildClicked buildModel model =
         Build.Ready ->
             case Model.fullScore model of
                 Ok scoreStr ->
-                    ( Model.setBuildModal
-                        Build.Building
-                        model
+                    ( model
+                        |> Model.setBuildModal Build.Building
+                        |> Model.setBackendStatusWorking
                     , scoreStr
                         |> Build
                         |> sendHttp model

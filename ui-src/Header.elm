@@ -116,7 +116,8 @@ update msg model =
                 |> R2.withNoCmd
 
         PlaySent (Err err) ->
-            playFailed err model
+            model
+                |> playFailed err
                 |> Model.setBackendStatusIdle
                 |> R2.withNoCmd
 

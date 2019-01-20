@@ -127,10 +127,13 @@ fromTimeline timeline =
         empty
 
     else
-        Vector.accumulate 
-            (+)
-            (timelineBasis $ V.last timeline)
-            (Vector.concat $ V.toList $ V.map timelineSamples timeline)
+        timeline 
+            & V.map timelineSamples
+            & V.toList
+            & Vector.concat
+            & Vector.accumulate 
+                (+)
+                (timelineBasis $ V.last timeline)
             & Mono
 
 

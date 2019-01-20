@@ -158,7 +158,6 @@ readNonEmptyNoteText config noteBase contentTxt =
         & parse (Duration.read config (slice 2 4 contentTxt)) DurationError
 
 
-
 toMono :: Model -> Mono
 toMono 
     = Mono.fromTimeline
