@@ -168,9 +168,7 @@ toMono
 
 noteToMono :: Note -> (Int, Mono)
 noteToMono note =
-    ( Note.time 
-        (noteModel note)
-    -- , Mono.singleton
+    ( Note.time $ noteModel note
     , Mono.sin 
         (freq note)
         (duration note)

@@ -18,6 +18,13 @@ cabal-version:       >=1.10
 executable radler
   main-is:             Main.hs
   hs-source-dirs:      engine-src
+  ghc-options:
+    -O2
+  --   -threaded
+  --   -fprof-auto
+  --   "-with-rtsopts=-N -p -s -h -i0.1"
+  extensions: BangPatterns
+
   other-modules:
     Audio
     Audio.Mono
@@ -71,4 +78,3 @@ executable radler
   -- hs-source-dirs:      
   default-language:    Haskell2010
 
-  ghc-options: -rtsopts

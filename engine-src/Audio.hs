@@ -67,7 +67,7 @@ setVolume newRelativeVolume audio =
 
 
 mixMany :: List Audio -> Audio
-mixMany audios =
+mixMany !audios =
     case audios of
         Mono mono0 : Mono mono1 : rest ->
             mix

@@ -21,7 +21,7 @@ import qualified Size
 import Prelude.Extra (debugLog)
 
 positionMono :: Room -> Position -> Mono -> Stereo
-positionMono room soundPosition mono =
+positionMono room soundPosition !mono =
     let
         listenerPosition :: Position
         listenerPosition =
@@ -31,19 +31,18 @@ positionMono room soundPosition mono =
         roomSize =
             Room.size room
     in
-    Stereo.fromMonos
-        ( positionRelativeToEar
-            roomSize
-            (leftEarPosition listenerPosition)
-            soundPosition
-            mono
-        , positionRelativeToEar
-            roomSize
-            (rightEarPosition listenerPosition)
-            soundPosition
-            mono
-        )
-
+    ( positionRelativeToEar
+        roomSize
+        (leftEarPosition listenerPosition)
+        soundPosition
+        mono
+    , positionRelativeToEar
+        roomSize
+        (rightEarPosition listenerPosition)
+        soundPosition
+        mono
+    )
+        & Stereo.fromMonos
 
 leftEarPosition :: Position -> Position
 leftEarPosition =
@@ -56,20 +55,19 @@ rightEarPosition =
 
 
 positionRelativeToEar :: Size -> Position -> Position -> Mono -> Mono
-positionRelativeToEar roomSize earPosition soundPosition mono =
-    [ directDelay earPosition soundPosition
-    , delayFromFarWallReflection roomSize earPosition soundPosition
-    , delayFromRightWallReflection roomSize earPosition soundPosition
-    , delayFromCeilingReflection roomSize earPosition soundPosition
-    , delayFromBackWallReflection earPosition soundPosition
-    , delayFromLeftWallReflection earPosition soundPosition
-    , delayFromFloorReflection earPosition soundPosition
+positionRelativeToEar roomSize earPosition soundPosition !mono =
+    [ directDelay earPosition soundPosition mono
+    , delayFromFarWallReflection roomSize earPosition soundPosition mono
+    , delayFromRightWallReflection roomSize earPosition soundPosition mono
+    , delayFromCeilingReflection roomSize earPosition soundPosition mono
+    , delayFromBackWallReflection earPosition soundPosition mono
+    , delayFromLeftWallReflection earPosition soundPosition mono
+    , delayFromFloorReflection earPosition soundPosition mono
     ]
         & Mono.mixMany
-        & Mono.convolve_ mono
 
 
-delayFromBackWallReflection :: Position -> Position -> Mono
+delayFromBackWallReflection :: Position -> Position -> Mono -> Mono
 delayFromBackWallReflection earPosition soundPosition =
     let
         positionOnBackWall :: Position
@@ -101,7 +99,7 @@ reflectionPointOnBackWall earPosition soundPosition =
         & Position.fromCoords
 
 
-delayFromFloorReflection :: Position -> Position -> Mono
+delayFromFloorReflection :: Position -> Position -> Mono -> Mono
 delayFromFloorReflection earPosition soundPosition =
     let
         positionOnFloor :: Position
@@ -133,7 +131,7 @@ reflectionPointOnFloor earPosition soundPosition =
         & Position.fromCoords
 
 
-delayFromLeftWallReflection :: Position -> Position -> Mono
+delayFromLeftWallReflection :: Position -> Position -> Mono -> Mono
 delayFromLeftWallReflection earPosition soundPosition =
     let
         positionOnLeftWall :: Position
@@ -165,7 +163,7 @@ reflectionPointOnLeftWall earPosition soundPosition =
         & Position.fromCoords
 
 
-delayFromCeilingReflection :: Size -> Position -> Position -> Mono
+delayFromCeilingReflection :: Size -> Position -> Position -> Mono -> Mono
 delayFromCeilingReflection roomSize earPosition soundPosition =
     let
         positionOnCeiling :: Position
@@ -203,7 +201,7 @@ reflectionPointOnCeiling roomSize earPosition soundPosition =
         & Position.fromCoords
 
 
-delayFromRightWallReflection :: Size -> Position -> Position -> Mono
+delayFromRightWallReflection :: Size -> Position -> Position -> Mono -> Mono
 delayFromRightWallReflection roomSize earPosition soundPosition =
     let
         positionOnRightWall :: Position
@@ -241,7 +239,7 @@ reflectionPointOnRightWall roomSize earPosition soundPosition =
         & Position.fromCoords
 
 
-delayFromFarWallReflection :: Size -> Position -> Position -> Mono
+delayFromFarWallReflection :: Size -> Position -> Position -> Mono -> Mono
 delayFromFarWallReflection roomSize earPosition soundPosition =
     let
         positionOnFarWall :: Position
@@ -280,16 +278,15 @@ reflectionPointOnFarWall roomSize earPosition soundPosition =
         & Position.fromCoords
 
 
-directDelay :: Position -> Position -> Mono
+directDelay :: Position -> Position -> Mono -> Mono
 directDelay earPosition soundPosition =
-    delayAndDecay $ Position.distanceBetween earPosition soundPosition
+    delayAndDecay 
+        $ Position.distanceBetween earPosition soundPosition
 
 
-delayAndDecay :: Float -> Mono
+delayAndDecay :: Float -> Mono -> Mono
 delayAndDecay distance =
-    Mono.singleton
-        & Mono.setVolume (1 / (distance ^ 2))
-        & Mono.delay (calcDelay distance)
+    Mono.delay (calcDelay distance) . Mono.setVolume (1 / (distance ^ 2))
 
 
 calcDelay :: Float -> Int

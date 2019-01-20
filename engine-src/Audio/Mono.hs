@@ -79,12 +79,10 @@ delay delayAmount mono =
 
 
 mixMany :: List Mono -> Mono
-mixMany monos =
+mixMany !monos =
     case monos of
         first : second : rest ->
-            mix 
-                (mix first second)
-                (mixMany rest)
+            mixMany (mix first second : rest)
 
         first : [] ->
             first
@@ -297,11 +295,13 @@ convolveHelper :: Vector (Int, Float) -> List (Int, Float) -> Vector Float -> Ve
 convolveHelper seed sound output =
     case sound of
         (index, sample) : rest ->
-            seed
-                & multiplySeed sample
+            let
+                seedAtVolume =
+                    multiplySeed sample seed
+            in
+            seedAtVolume
                 & addToIndices index
                 & Vector.accumulate (+) output
-                & seq 1
                 & convolveHelper seed rest
 
         [] ->

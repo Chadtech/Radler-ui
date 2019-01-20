@@ -43,7 +43,7 @@ fromMono mono =
 
 
 fromMonos :: (Mono, Mono) -> Stereo
-fromMonos (left, right) =
+fromMonos (!left, !right) =
     Vector.zip 
         (Mono.toVector left)
         (Mono.toVector right)
