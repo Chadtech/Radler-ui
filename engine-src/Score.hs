@@ -8,6 +8,7 @@ module Score
     , fromText
     , toDevAudio
     , devFilename
+    , numberOfParts
     , Error
     , throw
     )
@@ -47,6 +48,12 @@ data Score
 
 
 -- HELPERS --
+
+
+numberOfParts :: Score -> Int
+numberOfParts 
+    = List.length
+    . parts
 
 
 buildFilename :: Score -> Int -> Text
