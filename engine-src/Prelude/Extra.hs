@@ -6,8 +6,6 @@ module Prelude.Extra
     , listMap2
     , List
     , debugLog
-    , mapFirst
-    , mapSecond
     , mixLists
     , slice
     , toFloat
@@ -108,12 +106,3 @@ debugLog :: String -> (a -> String) -> a -> a
 debugLog msg toString x =
     Debug.trace (msg ++ " : " ++ (toString x)) x
 
-
-mapFirst :: (a -> b) -> (a, c) -> (b, c)
-mapFirst f (a, b) =
-    (f a, b)
-    
-
-mapSecond :: (b -> c) -> (a, b) -> (a, c)
-mapSecond f (a, b) =
-    (a, f b)

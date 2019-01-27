@@ -23,7 +23,7 @@ import qualified Data.List as List
 import Data.Vector.Unboxed (Vector)
 import qualified Data.Vector as V
 import qualified Data.Vector.Unboxed as Vector
-import Prelude.Extra (List, mapFirst)
+import Prelude.Extra (List)
 
 
 data Stereo

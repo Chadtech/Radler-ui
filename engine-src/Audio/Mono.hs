@@ -29,7 +29,8 @@ import qualified Data.List as List
 import Data.Vector.Unboxed (Vector)
 import qualified Data.Vector as V
 import qualified Data.Vector.Unboxed as Vector
-import Prelude.Extra (List, mapFirst, mapSecond, toFloat, debugLog)
+import Prelude.Extra (List, toFloat, debugLog)
+import qualified Data.Tuple.Extra as Tuple
 
 
 data Mono
@@ -168,7 +169,7 @@ declipOut length =
         declipLength 
         ((-) 1 . divideIndexBy)
         & Vector.indexed
-        & Vector.map (mapFirst ((+) (length - declipLength)))
+        & Vector.map (Tuple.first ((+) (length - declipLength)))
 
 
 declipLength :: Int
@@ -192,7 +193,7 @@ timelineSamples :: (Int, Mono) -> Vector (Int, Float)
 timelineSamples (beginningIndex, Mono vector) =
     vector
         & Vector.indexed
-        & Vector.map (mapFirst ((+) beginningIndex))
+        & Vector.map (Tuple.first ((+) beginningIndex))
 
 
 lopass :: Float -> Int -> Mono -> Mono
@@ -318,11 +319,14 @@ newConvolvedBase seed audio =
         (Vector.length seed + Vector.length audio)
         0
 
+        
 addToIndices :: Int -> Vector (Int, Float) -> Vector (Int, Float) 
-addToIndices index seedConvolvement = 
-    Vector.map (mapFirst ((+) index)) seedConvolvement 
+addToIndices index = 
+    Vector.map 
+        (Tuple.first ((+) index))
 
 
 multiplySeed :: Float -> Vector (Int, Float) -> Vector (Int, Float)
-multiplySeed audioSample seedVector = 
-    Vector.map (mapSecond ((*) audioSample)) seedVector
+multiplySeed audioSample = 
+    Vector.map 
+        (Tuple.second ((*) audioSample))

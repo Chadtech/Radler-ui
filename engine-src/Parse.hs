@@ -19,7 +19,8 @@ import Data.Function ((&))
 import qualified Data.List as List
 import qualified Data.Text.Lazy as TL
 import qualified Data.Text as T
-import Prelude.Extra (List, mapFirst, toFloat)
+import qualified Data.Tuple.Extra as Tuple
+import Prelude.Extra (List, toFloat)
 import Result (Result(Ok, Err))
 import qualified Result
     
@@ -69,7 +70,8 @@ fields decoder text =
         (P.many' (fieldsHelper decoder))
         (TL.toStrict text)
         & Result.fromEither
-        & Result.map (Fields . List.map (mapFirst TL.fromStrict))
+        & Result.map 
+            (Fields . List.map (Tuple.first TL.fromStrict))
         & Result.mapError TL.pack
 
 
