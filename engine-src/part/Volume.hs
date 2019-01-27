@@ -8,25 +8,25 @@ module Part.Volume
     ) where
 
 
-import Data.Function ((&))
+import Flow
+
+import qualified Data.Either.Extra as Either
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import qualified Data.Text.Lazy.Read as TR
-import Result (Result(Ok, Err))
-import qualified Result 
 
 
-read :: Text -> Result Error Float
+read :: Text -> Either Error Float
 read txt =
     case TR.hexadecimal txt of
         Right (v, _) ->
-            Ok (fromIntegral v / 255)
+            Right (fromIntegral v / 255)
 
         Left err ->
             err
-                & T.pack
-                & TextNotHexadecimal
-                & Err
+                |> T.pack
+                |> TextNotHexadecimal
+                |> Left
                 
 
 -- ERROR --
@@ -43,4 +43,4 @@ throw error =
             [ "Volume is not hexadecimal : "
             , txt
             ]
-                & T.concat
+                |> T.concat

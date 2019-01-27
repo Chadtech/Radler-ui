@@ -8,27 +8,26 @@ module Part.Duration
     ) where
 
 
+import Flow
+
 import Config (Config)
 import qualified Config
-import Data.Function ((&))
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import qualified Data.Text.Lazy.Read as TR
-import Result (Result(Ok, Err))
-import qualified Result 
 
 
-read :: Config -> Text -> Result Error Int
+read :: Config -> Text -> Either Error Int
 read config txt =
     case TR.hexadecimal txt of
         Right (v, _) ->
-            Ok (v * Config.beatLength config)
+            Right <| v * Config.beatLength config
 
         Left err ->
             err
-                & T.pack
-                & TextNotHexadecimal
-                & Err
+                |> T.pack
+                |> TextNotHexadecimal
+                |> Left
                 
 
 -- ERROR --
@@ -45,4 +44,4 @@ throw error =
             [ "Duration is not hexadecimal : "
             , txt
             ]
-                & T.concat
+                |> T.concat

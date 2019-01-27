@@ -16,13 +16,13 @@ module Position
     ) where
 
 
-import Data.Function ((&))
+import Prelude.Extra
+import Flow
+
+import qualified Data.Either.Extra as Either
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import qualified Parse
-import Prelude.Extra (List)
-import Result (Result(Ok, Err))
-import qualified Result
 
 
 -- TYPES --
@@ -52,12 +52,12 @@ fromCoords (x, y, z) =
     Position x y z
 
     
-read :: Parse.Fields Float -> Result Error Position
+read :: Parse.Fields Float -> Either Error Position
 read roomFields =
-    Result.mapError MissingPart (readFields roomFields)
+    Either.mapLeft MissingPart <| readFields roomFields
 
 
-readFields :: Parse.Fields Float -> Result Part Position
+readFields :: Parse.Fields Float -> Either Part Position
 readFields fields =
     case Parse.getField "x" fields of
         Just x ->
@@ -65,16 +65,16 @@ readFields fields =
                 Just y ->
                     case Parse.getField "z" fields of
                         Just z ->
-                            Ok $ Position x y z
+                            Right <| Position x y z
 
                         Nothing ->
-                            Err Z
+                            Left Z
 
                 Nothing ->
-                    Err Y
+                    Left Y
 
         Nothing ->
-            Err X
+            Left X
 
 
 partToText :: Part -> Text
@@ -119,4 +119,4 @@ throw error =
             [ "This part is missing -> "
             , partToText part
             ]
-                & T.concat
+                |> T.concat

@@ -4,6 +4,7 @@
 module Parse
     ( Decoder
     , Fields
+    , Parse.apply
     , decode
     , getField
     , fields
@@ -13,35 +14,44 @@ module Parse
     , decodeInt
     ) where
 
+import Flow
+import Prelude.Extra
 
 import qualified Data.Attoparsec.Text as P
-import Data.Function ((&))
+import qualified Data.Either.Extra as Either
 import qualified Data.List as List
 import qualified Data.Text.Lazy as TL
 import qualified Data.Text as T
 import qualified Data.Tuple.Extra as Tuple
-import Prelude.Extra (List, toFloat)
-import Result (Result(Ok, Err))
-import qualified Result
     
 
 parse :: 
-    Result subError v
+    Either subError v
     -> (subError -> error)
-    -> Result error (v -> w)
-    -> Result error w
+    -> Either error (v -> w)
+    -> Either error w
 parse result errorCtor resultCtor =
     case resultCtor of
-        Ok ctor ->
+        Right ctor ->
             case result of
-                Ok v ->
-                    Ok $ ctor v
+                Right v ->
+                    Right <| ctor v
 
-                Err err ->
-                    Err $ errorCtor err
+                Left err ->
+                    Left <| errorCtor err
 
-        Err err ->
-            Err err
+        Left err ->
+            Left err
+
+
+apply :: a -> Either e (a -> b) -> Either e b
+apply a either =
+    case either of
+        Right f ->
+            Right <| f a
+
+        Left err ->
+            Left err
 
 
 data Fields a
@@ -51,28 +61,28 @@ data Fields a
 data Decoder a 
     = Decoder (P.Parser a)
 
-decode :: Decoder a -> TL.Text -> Result TL.Text a
+
+decode :: Decoder a -> TL.Text -> Either TL.Text a
 decode (Decoder parser) text =
     text 
-        & TL.toStrict
-        & P.parseOnly parser
-        & Result.fromEither
-        & Result.mapError TL.pack
+        |> TL.toStrict
+        |> P.parseOnly parser
+        |> Either.mapLeft TL.pack
 
 
-decodeInt :: TL.Text -> Result TL.Text Int
+decodeInt :: TL.Text -> Either TL.Text Int
 decodeInt =
     decode int
- 
-fields :: Decoder a -> TL.Text -> Result TL.Text (Fields a)
+
+
+fields :: Decoder a -> TL.Text -> Either TL.Text (Fields a)
 fields decoder text =
-    P.parseOnly 
-        (P.many' (fieldsHelper decoder))
-        (TL.toStrict text)
-        & Result.fromEither
-        & Result.map 
-            (Fields . List.map (Tuple.first TL.fromStrict))
-        & Result.mapError TL.pack
+    text
+        |> TL.toStrict 
+        |> P.parseOnly (P.many' (fieldsHelper decoder))
+        |> Either.mapRight
+            (Fields <. List.map (Tuple.first TL.fromStrict))
+        |> Either.mapLeft TL.pack
 
 
 fieldsHelper :: Decoder a -> P.Parser (T.Text, a)
@@ -98,9 +108,9 @@ getField key (Fields fields) =
 
 int :: Decoder Int
 int =
-    Decoder $ P.signed P.decimal
+    Decoder <| P.signed P.decimal
 
 
 float :: Decoder Float
 float =
-    Decoder $ toFloat <$> P.signed P.decimal
+    Decoder <| toFloat <$> P.signed P.decimal

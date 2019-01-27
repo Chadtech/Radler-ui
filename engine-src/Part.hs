@@ -12,20 +12,21 @@ module Part
     where
 
 
+import Flow
+import Prelude.Extra
+
 import Audio (Audio)
 import qualified Audio
 import Audio.Mono (Mono)
 import qualified Audio.Mono as Mono
 import Config (Config)
 import qualified Config
-import Data.Function ((&))
+import qualified Control.Monad as CM
+import qualified Data.Either.Extra as Either
 import Data.List as List
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import qualified Part.Sin as Sin
-import Prelude.Extra (List)
-import qualified Result
-import Result (Result(Ok, Err))
 import Room (Room)
 import qualified Room 
 
@@ -41,37 +42,37 @@ data Part
 -- HELPERS --
 
 
-fromPieces :: Config -> (Text, List Text) -> Result Error Part
+fromPieces :: Config -> (Text, List Text) -> Either Error Part
 fromPieces config (partTxt, noteTxts) =
     case T.splitOn "," partTxt of
         "sin" : partDetails ->
             noteTxts
-                & Sin.read config partDetails
-                & Result.map Sin
-                & Result.mapError SinError
+                |> Sin.read config partDetails
+                |> Either.mapRight Sin
+                |> Either.mapLeft SinError
 
         _ ->
-            Err $ UnrecognizedPartType partTxt
+            Left <| UnrecognizedPartType partTxt
 
 
-readMany :: Config -> Text -> Text -> Result Error (List Part)
+readMany :: Config -> Text -> Text -> Either Error (List Part)
 readMany config voiceNameTxts noteTxts =
     let
         voiceNames :: List Text
-        voiceNames 
-            = T.splitOn ";" 
-            $ T.strip
-            $ voiceNameTxts
+        voiceNames = 
+            voiceNameTxts
+                |> T.strip
+                |> T.splitOn ";"
 
             
         notes :: List (List Text)
-        notes 
-            = List.reverse
-            $ List.transpose
-            $ List.map (T.splitOn ";") 
-            $ T.splitOn "\n" 
-            $ T.strip
-            $ noteTxts
+        notes =
+            noteTxts
+                |> T.strip
+                |> T.splitOn "\n"
+                |> List.map (T.splitOn ";")
+                |> List.transpose
+                |> List.reverse
 
 
         notesLength :: Int
@@ -85,15 +86,15 @@ readMany config voiceNameTxts noteTxts =
     in
     if notesLength == voicesLength then
         notes
-            & List.zip voiceNames
-            & List.map (fromPieces config)
-            & Result.join
+            |> List.zip voiceNames
+            |> List.map (fromPieces config)
+            |> CM.sequence 
 
     else
         VoicesAndNotesNotOneToOne 
             voicesLength 
             notesLength
-            & Err
+            |> Left
 
 
 toDevAudio :: Part -> Audio
@@ -101,8 +102,8 @@ toDevAudio part =
     case part of
         Sin sinModel ->
             sinModel
-                & Sin.toMono
-                & Audio.fromMono
+                |> Sin.toMono
+                |> Audio.fromMono
 
 
 build :: Maybe Room -> Part -> Audio
@@ -110,7 +111,7 @@ build maybeRoom part =
     case part of
         Sin sinModel ->
             sinModel
-                & Sin.build maybeRoom
+                |> Sin.build maybeRoom
 
 
 -- ERROR -- 
@@ -123,9 +124,9 @@ data Error
 
 
 throw :: Error -> Text
-throw 
-    = T.append "\nPart Error ->\n" 
-    . errorToText
+throw = 
+    T.append "\nPart Error ->\n" 
+        <. errorToText
 
 
 errorToText :: Error -> Text
@@ -141,10 +142,10 @@ errorToText error =
             , T.pack (show notesLength)
             , " line(s) of notes. They should be the same"
             ]
-                & T.concat
+                |> T.concat
 
         SinError sinError ->
             sinError
-                & Sin.throw 
-                & T.append "Error in Sin Voice -> \n" 
+                |> Sin.throw 
+                |> T.append "Error in Sin Voice -> \n" 
 

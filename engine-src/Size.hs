@@ -11,13 +11,14 @@ module Size
     , throw
     ) where
 
-import Data.Function ((&))
+
+import Flow
+import Prelude.Extra
+
+import qualified Data.Either.Extra as Either
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import qualified Parse
-import Prelude.Extra (List)
-import Result (Result(Ok, Err))
-import qualified Result 
 
 
 -- TYPES --
@@ -41,12 +42,12 @@ data Part
 -- HELPERS --
 
 
-read :: Parse.Fields Float -> Result Error Size
+read :: Parse.Fields Float -> Either Error Size
 read roomFields =
-    Result.mapError MissingPart (readFields roomFields)
+    Either.mapLeft MissingPart <| readFields roomFields
 
 
-readFields :: Parse.Fields Float -> Result Part Size
+readFields :: Parse.Fields Float -> Either Part Size
 readFields fields =
     case Parse.getField "width" fields of
         Just width ->
@@ -54,16 +55,17 @@ readFields fields =
                 Just length ->
                     case Parse.getField "height" fields of
                         Just height ->
-                            Ok $ Size width length height
+                            Size width length height
+                                |> Right
 
                         Nothing ->
-                            Err Height
+                            Left Height
 
                 Nothing ->
-                    Err Length
+                    Left Length
 
         Nothing ->
-            Err Width
+            Left Width
 
 
 partToText :: Part -> Text
@@ -93,4 +95,4 @@ throw error =
             [ "This part is missing -> "
             , partToText part
             ]
-                & T.concat
+                |> T.concat

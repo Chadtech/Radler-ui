@@ -9,35 +9,35 @@ module Scale.Major7ToneJit
     where
 
 
-import Data.Function ((&))
+import Flow
+import Prelude.Extra
+
+import qualified Data.Either.Extra as Either
 import Data.Text.Lazy (Text)
 import Data.Text.Lazy as T
 import qualified Parse
-import Prelude.Extra (toFloat)
-import Result (Result(Ok, Err))
-import qualified Result
 import qualified Constants
 
 
-toFreq :: Text -> Result Error Float
+toFreq :: Text -> Either Error Float
 toFreq txt = 
     case Parse.decode Parse.int txt of
-        Ok int ->
-            Result.map 
+        Right int ->
+            Either.mapRight 
                 ((*) (fundamentalsOctave int))
                 (fundamentalsTone int) 
 
-        Err _ ->
-            Err $ NoteIsntInt txt
+        Left _ ->
+            Left <| NoteIsntInt txt
 
 
 fundamentalsOctave :: Int -> Float
 fundamentalsOctave int =
     (2 ^ quot int 10) * Constants.fundamental0
-        & toFloat
+        |> toFloat
 
 
-fundamentalsTone :: Int -> Result Error Float
+fundamentalsTone :: Int -> Either Error Float
 fundamentalsTone int =
     let
         toneInt :: Int
@@ -46,28 +46,28 @@ fundamentalsTone int =
     in
     case toneInt of
         0 ->
-            Ok 1
+            Right 1
 
         1 ->
-            Ok 1.125
+            Right 1.125
 
         2 ->
-            Ok 1.25
+            Right 1.25
 
         3 ->
-            Ok 1.333
+            Right 1.333
 
         4 ->
-            Ok 1.5
+            Right 1.5
 
         5 ->
-            Ok 1.667
+            Right 1.667
 
         6 ->
-            Ok 1.875
+            Right 1.875
 
         _ ->
-            Err $ ToneIsntInScale toneInt
+            Left <| ToneIsntInScale toneInt
 
 
 -- ERROR --
@@ -86,12 +86,12 @@ throw error =
             , note
             , "\nIts not an integer. Im expecting something like 34 or 10"
             ]
-                & T.concat
+                |> T.concat
 
         ToneIsntInScale int ->
             [ "The Major 7 Tone Jit scale only goes from 0 to 6, but I got "
             , T.pack (show int)
             ]
-                & T.concat
+                |> T.concat
 
         

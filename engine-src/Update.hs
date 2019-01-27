@@ -3,12 +3,13 @@
 
 module Update (update) where
 
+import Flow
+import Prelude.Extra
 
 import Audio (Audio)
 import qualified Audio
 import Cmd (Cmd)
 import qualified Cmd
-import Data.Function ((&))
 import qualified Data.List as List
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
@@ -19,11 +20,8 @@ import qualified Json
 import Msg (Msg(..))
 import Model (Model)
 import qualified Model
-import Prelude.Extra (indexList, replaceChar)
 import Response (Response)
 import qualified Response
-import Result (Result(Err, Ok))
-import qualified Result
 import Route (Route(..))
 import qualified Route
 import Score (Score)
@@ -60,13 +58,13 @@ handleRoute route model =
             , Response.text body 
             )
 
-        Play (Ok score) ->
+        Play (Right score) ->
             ( Model.setScore score model
             , playScore score model
             , Response.json Json.null
             )
 
-        Play (Err err) ->
+        Play (Left err) ->
             ( model
             , Cmd.none
             , Response.error
@@ -77,13 +75,13 @@ handleRoute route model =
                     (Error.throw err)
             )
 
-        Build (Ok score) ->
+        Build (Right score) ->
             ( model
             , buildScore score
             , Response.json Json.null
             )
 
-        Build (Err err) ->
+        Build (Left err) ->
             ( model
             , Cmd.none
             , Response.error
@@ -95,10 +93,10 @@ handleRoute route model =
 buildScore :: Score -> Cmd
 buildScore incomingScore =
     incomingScore
-        & Score.build
-        & indexList
-        & List.map (buildPart incomingScore)
-        & Cmd.batch
+        |> Score.build
+        |> indexList
+        |> List.map (buildPart incomingScore)
+        |> Cmd.batch
 
 
 buildPart :: Score -> (Int, Audio) -> Cmd
@@ -130,16 +128,16 @@ playScore incomingScore model =
 writeAndPlay :: Text -> Score -> Cmd
 writeAndPlay filename score =
     [ score
-        & Score.toDevAudio
-        & Audio.write filename
+        |> Score.toDevAudio
+        |> Audio.write filename
     , Audio.play filename
     ]
-        & Cmd.batch
+        |> Cmd.batch
 
             
 playResponse :: Maybe Error -> Response
-playResponse 
-    = Response.json
-    . Json.maybe
-    . fmap (Json.string . Error.throw)
+playResponse = 
+    Response.json
+        <. Json.maybe
+        <. fmap (Json.string . Error.throw)
 

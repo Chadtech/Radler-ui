@@ -7,20 +7,21 @@ module Route
     ) where
 
 
+import Flow
+
 import Data.Function
+import qualified Data.Either.Extra as Either
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T  
 import Error (Error)
 import qualified Error
-import Result (Result)
-import qualified Result
 import Score (Score)
 import qualified Score
 
 
 data Route 
-    = Play (Result Error Score)
-    | Build (Result Error Score)
+    = Play (Either Error Score)
+    | Build (Either Error Score)
     | Echo Text
     | Ping
 
@@ -44,9 +45,10 @@ decode routeTxt body =
             Nothing
 
         
-scoreRoute :: (Result Error Score -> Route) -> Text -> Maybe Route
-scoreRoute routeCtor 
-    = Just
-    . routeCtor
-    . Result.mapError Error.ScoreError
-    . Score.fromText
+scoreRoute :: (Either Error Score -> Route) -> Text -> Maybe Route
+scoreRoute routeCtor body =
+    body
+        |> Score.fromText
+        |> Either.mapLeft Error.ScoreError
+        |> routeCtor
+        |> Just

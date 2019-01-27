@@ -10,6 +10,9 @@ module Part.Sin
     , throw
     ) where
 
+
+import Flow
+import Prelude.Extra
         
 import Audio (Audio)
 import qualified Audio
@@ -18,7 +21,7 @@ import qualified Audio.Mono as Mono
 import Audio.Mono.Position (positionMono)
 import Config (Config)
 import qualified Config
-import Data.Function ((&))
+import qualified Data.Either.Extra as Either
 import qualified Data.List as List
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
@@ -31,9 +34,6 @@ import qualified Part.Duration as Duration
 import qualified Part.Volume as Volume
 import Position (Position)
 import qualified Position
-import Prelude.Extra (List, slice)
-import Result (Result(Ok, Err))
-import qualified Result 
 import Room (Room)
 import qualified Room 
 import Scale (Scale)
@@ -64,10 +64,10 @@ data Note
 -- HELPERS --
 
 
-read :: Config -> List Text -> List Text -> Result Error Model
-read config detailsText 
-    = Result.map (readModel detailsText)
-    . readManyNoteTexts config
+read :: Config -> List Text -> List Text -> Either Error Model
+read config detailsText = 
+    Either.mapRight (readModel detailsText)
+        <. readManyNoteTexts config
 
 
 readModel :: List Text -> List Note -> Model
@@ -82,22 +82,22 @@ applyPosition detailsText =
     case detailsText of
         first : rest ->
             case Parse.fields Parse.float first of
-                Ok fields ->
+                Right fields ->
                     case Position.read fields of
-                        Ok position ->
+                        Right position ->
                             Just position
 
-                        Err _ ->
+                        Left _ ->
                             applyPosition rest
 
-                Err _ ->
+                Left _ ->
                     applyPosition rest
 
         [] ->
             Nothing
 
 
-readManyNoteTexts :: Config -> List Text -> Result Error (List Note)
+readManyNoteTexts :: Config -> List Text -> Either Error (List Note)
 readManyNoteTexts config noteTexts =
     readManyNoteTextsAccumulate 
         config 
@@ -105,64 +105,65 @@ readManyNoteTexts config noteTexts =
         []
 
 
-readManyNoteTextsAccumulate :: Config -> List Text -> List Note -> Result Error (List Note)
+readManyNoteTextsAccumulate :: Config -> List Text -> List Note -> Either Error (List Note)
 readManyNoteTextsAccumulate config noteTexts notes =
     case noteTexts of
         first : rest ->
             case readNoteText config first of
-                Ok (Just note) ->
+                Right (Just note) ->
                     readManyNoteTextsAccumulate 
                         config 
                         rest 
                         (note : notes)
 
-                Ok Nothing ->
+                Right Nothing ->
                     readManyNoteTextsAccumulate 
                         config 
                         rest 
                         notes
 
-                Err err ->
-                    Err err
+                Left err ->
+                    Left err
 
         [] ->
-            Ok $ List.reverse notes
+            Right <| List.reverse notes
 
 
-readNoteText :: Config -> Text -> Result Error (Maybe Note)
+readNoteText :: Config -> Text -> Either Error (Maybe Note)
 readNoteText config noteTxt =
     case Note.read config noteTxt of
-        Ok (noteBase, contentTxt) ->
+        Right (noteBase, contentTxt) ->
             case contentTxt of
                 "X" ->
-                    Ok Nothing
+                    Right Nothing
 
                 _ ->
                     readNonEmptyNoteText
                         config
                         noteBase
                         contentTxt
-                        & Result.map Just
+                        |> Either.mapRight Just
 
-        Err error ->
-            Err $ NoteError error
+        Left error ->
+            Left <| NoteError error
 
 
-readNonEmptyNoteText :: Config -> Note.Model -> Text -> Result Error Note
+readNonEmptyNoteText :: Config -> Note.Model -> Text -> Either Error Note
 readNonEmptyNoteText config noteBase contentTxt =
     Note
-        & Ok
-        & Result.apply noteBase
-        & parse (Scale.toFreq (Config.scale config) (slice 0 2 contentTxt)) ScaleError
-        & parse (Volume.read (slice 4 6 contentTxt)) VolumeError
-        & parse (Duration.read config (slice 2 4 contentTxt)) DurationError
+        |> Right
+        |> Parse.apply noteBase
+        |> parse (Scale.toFreq (Config.scale config) (slice 0 2 contentTxt)) ScaleError
+        |> parse (Volume.read (slice 4 6 contentTxt)) VolumeError
+        |> parse (Duration.read config (slice 2 4 contentTxt)) DurationError
 
 
 toMono :: Model -> Mono
-toMono 
-    = Mono.fromTimeline
-    . Vector.map noteToMono
-    . notes
+toMono model = 
+    model
+        |> notes
+        |> Vector.map noteToMono
+        |> Mono.fromTimeline
 
 
 noteToMono :: Note -> (Int, Mono)
@@ -171,8 +172,8 @@ noteToMono note =
     , Mono.sin 
         (freq note)
         (duration note)
-        & Mono.setVolume (volume note)
-        & Mono.declip
+        |> Mono.setVolume (volume note)
+        |> Mono.declip
     )
 
 
@@ -186,7 +187,7 @@ build maybeRoom model =
     case (maybeRoom, position model) of
         (Just room, Just position) ->
             positionMono room position mono
-                & Audio.fromStereo
+                |> Audio.fromStereo
 
         _ ->
             Audio.fromMono mono
@@ -210,8 +211,8 @@ throw error =
 
         ScaleError scaleError ->
             scaleError
-                & Scale.throw
-                & T.append "Scale Error ->\n"
+                |> Scale.throw
+                |> T.append "Scale Error ->\n"
 
         VolumeError volumeError ->
             Volume.throw volumeError

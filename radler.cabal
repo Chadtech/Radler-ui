@@ -48,7 +48,6 @@ executable radler
     Prelude.Extra
     Program
     Response
-    Result
     Room
     Route
     Router
@@ -62,6 +61,7 @@ executable radler
   build-depends:
     base >=4.11 && <4.12,
     bytestring >=0.10 && <0.11,
+    flow >=1.0 && <2,
     split >=0.2 && <0.3, 
     regex-posix >=0.95 && <0.96,
     text >=1.2 && <1.3,

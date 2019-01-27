@@ -10,7 +10,10 @@ module Note
     )
     where
 
-        
+
+import Flow
+import Prelude.Extra
+
 import Config (Config)
 import qualified Config
 import Data.Function
@@ -18,9 +21,6 @@ import qualified Data.List as List
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import Parse
-import Prelude.Extra (List)
-import Result (Result(Ok, Err))
-import qualified Result 
 
 
 data Model 
@@ -34,38 +34,38 @@ data Model
 -- READ NOTE --
 
 
-read :: Config -> Text -> Result Error (Model, Text)
+read :: Config -> Text -> Either Error (Model, Text)
 read config txt =
     case T.splitOn "," txt of
         timeTxt : randomSeedTxt : content : [] ->
             case (Parse.decodeInt timeTxt, Parse.decodeInt randomSeedTxt) of
-                (Ok time, Ok randomSeed) ->
+                (Right time, Right randomSeed) ->
                     ( Model
                         { time = time + (Config.timingVariance config)
                         , randomSeed = randomSeed
                         }
                     , content
                     )
-                        & Ok
+                        |> Right
 
-                (Ok _, Err _) ->
+                (Right _, Left _) ->
                     randomSeedTxt
-                        & CouldntParseRandomSeed
-                        & Err
+                        |> CouldntParseRandomSeed
+                        |> Left
 
-                (Err _, Ok _) ->
+                (Left _, Right _) ->
                     timeTxt
-                        & CouldntParseTime
-                        & Err
+                        |> CouldntParseTime
+                        |> Left
 
-                (Err _, Err _) ->
+                (Left _, Left _) ->
                     CouldntParseAnything timeTxt randomSeedTxt
-                        & Err
+                        |> Left
 
         _ ->
             txt
-                & NoteStringHadWrongStructure
-                & Err
+                |> NoteStringHadWrongStructure
+                |> Left
 
 
 

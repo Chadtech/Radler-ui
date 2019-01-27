@@ -9,10 +9,10 @@ module Voice
     ) 
     where
 
+import Flow
+import Prelude.Extra
 
-import Prelude.Extra (List)
-import qualified Result
-import Result (Result(Ok, Err))
+import qualified Control.Monad as CM
 import Data.List as List
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
@@ -27,29 +27,30 @@ data Model
     | Sin
 
 
-fromPieces :: Text -> Result Error Model
+fromPieces :: Text -> Either Error Model
 fromPieces txt =
     case T.splitOn "," txt of
         "p" : [] ->
-            Ok P
+            Right P
 
         "n" : [] ->
-            Ok N
+            Right N
 
         "sin" : [] ->
-            Ok Sin
+            Right Sin
 
         _ ->
-            Err (UnrecognizedVoiceType txt)
+            Left <| UnrecognizedVoiceType txt
 
 
-readMany :: Text -> Result Error (List Model)
-readMany 
-    = Result.join
-    . List.map fromPieces
-    . T.splitOn ";"
-    . T.strip
-
+readMany :: Text -> Either Error (List Model)
+readMany voicesTxt = 
+    voicesTxt
+        |> T.strip
+        |> T.splitOn ";"
+        |> List.map fromPieces
+        |> CM.sequence
+        
 
 -- ERROR -- 
 

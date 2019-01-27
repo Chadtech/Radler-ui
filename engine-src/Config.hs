@@ -14,13 +14,13 @@ module Config
     where
 
 
-import Data.Function ((&))
+import Flow
+
+import qualified Data.Either.Extra as Either
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import Parse (parse)
 import qualified Parse
-import Result (Result(Ok, Err))
-import qualified Result
 import Room (Room)
 import qualified Room
 import Scale (Scale)
@@ -43,7 +43,7 @@ data Config
 -- HELPERS --
 
 
-read :: Text -> Result Error Config
+read :: Text -> Either Error Config
 read txt =
     let
         trimmedText :: Text
@@ -53,14 +53,14 @@ read txt =
     case T.splitOn ";" $ trimmedText of
         scale : beatLength : timingVariance : room : [] ->
             Config
-                & Ok
-                & parse (Scale.read scale) ScaleError
-                & parse (Parse.decodeInt beatLength) BeatLengthIsntInt
-                & parse (Parse.decodeInt timingVariance) TimingVarianceIsntInt
-                & parse (Room.read room) RoomError
+                |> Right
+                |> parse (Scale.read scale) ScaleError
+                |> parse (Parse.decodeInt beatLength) BeatLengthIsntInt
+                |> parse (Parse.decodeInt timingVariance) TimingVarianceIsntInt
+                |> parse (Room.read room) RoomError
 
         _ ->
-            Err $ UnexpectedConfigStructure trimmedText
+            Left <| UnexpectedConfigStructure trimmedText
 
 
 -- ERROR --
@@ -81,19 +81,19 @@ throw error =
             [ "The structure of the config was not what I expected -> "
             , text
             ]
-                & T.concat
+                |> T.concat
 
         BeatLengthIsntInt text ->
             [ "This value isnt a valid beat length, its not an int ->"
             , text
             ]
-                & T.concat
+                |> T.concat
 
         TimingVarianceIsntInt text ->
             [ "This value isnt a valid timing variance, its not an int ->"
             , text
             ]
-                & T.concat
+                |> T.concat
 
         ScaleError scaleError ->
             Scale.throw scaleError

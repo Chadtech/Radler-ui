@@ -11,15 +11,15 @@ module Room
     ) where
 
 
-import Data.Function ((&))
+import Flow
+
+import qualified Data.Either.Extra as Either
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import Parse (parse)
 import qualified Parse
 import Position (Position)
 import qualified Position
-import Result (Result(Ok, Err))
-import qualified Result
 import qualified Size
 import Size (Size)
 
@@ -51,27 +51,27 @@ data Room
 -- HELPERS --
 
 
-read :: Text -> Result Error (Maybe Room)
+read :: Text -> Either Error (Maybe Room)
 read roomText =
     if roomText == "no-room" then
-        Ok Nothing
+        Right Nothing
 
     else
         let
-            fieldsResult :: Result Text (Parse.Fields Float)
+            fieldsResult :: Either Text (Parse.Fields Float)
             fieldsResult =
                 Parse.fields Parse.float roomText
         in
         case fieldsResult of
-            Ok fields ->
+            Right fields ->
                 Room
-                    & Ok
-                    & parse (Position.read fields) PositionError
-                    & parse (Size.read fields) SizeError
-                    & Result.map Just
+                    |> Right
+                    |> parse (Position.read fields) PositionError
+                    |> parse (Size.read fields) SizeError
+                    |> Either.mapRight Just
 
-            Err err ->
-                Err $ ParsingFailed err
+            Left err ->
+                Left <| ParsingFailed err
 
 
 -- ERROR --

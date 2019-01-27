@@ -10,12 +10,12 @@ module Scale
     )
     where
 
+        
+import Flow
 
-import Data.Function ((&))
+import qualified Data.Either.Extra as Either
 import Data.Text.Lazy (Text)
 import Data.Text.Lazy as T
-import Result (Result(Ok, Err))
-import qualified Result
 import qualified Scale.Major7ToneJit as Major7ToneJit
 
 
@@ -30,23 +30,23 @@ data Scale
 -- HELPERS --
 
 
-read :: Text -> Result Error Scale
+read :: Text -> Either Error Scale
 read txt =
     case txt of
         "major 7 tone jit" ->
-            Ok Major7ToneJit
+            Right Major7ToneJit
 
         _ ->
-            Err (UnrecognizedScale txt)
+            Left <| UnrecognizedScale txt
 
 
-toFreq :: Scale -> Text -> Result Error Float
+toFreq :: Scale -> Text -> Either Error Float
 toFreq scale =
     case scale of
         Major7ToneJit ->
-            Result.mapError 
+            Either.mapLeft
                 Major7ToneJitError
-                . Major7ToneJit.toFreq 
+                <. Major7ToneJit.toFreq 
 
 
 -- ERROR --
@@ -62,12 +62,12 @@ throw error =
     case error of
         Major7ToneJitError major7ToneJitError ->
             major7ToneJitError
-                & Major7ToneJit.throw
-                & T.append "Major 7 Tone Jit Error ->\n"
+                |> Major7ToneJit.throw
+                |> T.append "Major 7 Tone Jit Error ->\n"
 
         UnrecognizedScale txt ->
             [ "This is not a recognized scale -> "
             , txt
             ]
-                & T.concat
+                |> T.concat
 

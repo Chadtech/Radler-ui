@@ -14,6 +14,8 @@ module Score
     )
     where
 
+import Flow
+import Prelude.Extra
     
 import Audio (Audio)
 import qualified Audio
@@ -21,16 +23,13 @@ import Audio.Mono (Mono)
 import qualified Audio.Mono as Mono
 import Config (Config)
 import qualified Config
-import Data.Function ((&))
 import Data.List as List
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import Parse (parse)
+import qualified Parse
 import Part (Part)
 import qualified Part
-import Prelude.Extra (List)
-import Result (Result(Ok, Err))
-import qualified Result
 import Room (Room)
 import qualified Room 
 
@@ -51,9 +50,8 @@ data Score
 
 
 numberOfParts :: Score -> Int
-numberOfParts 
-    = List.length
-    . parts
+numberOfParts = 
+    List.length <. parts
 
 
 buildFilename :: Score -> Int -> Text
@@ -63,7 +61,7 @@ buildFilename score partIndex =
     , T.pack $ show partIndex
     , ".wav"
     ]
-        & T.concat
+        |> T.concat
 
 
 devFilename :: Score -> Text
@@ -73,61 +71,63 @@ devFilename score =
         "-dev.wav"
 
 
-fromText :: Text -> Result Error Score
-fromText 
-    = buildFromChunks 
-    . toChunks 
+fromText :: Text -> Either Error Score
+fromText = 
+    buildFromChunks <. toChunks 
      
 
 toChunks :: Text -> List Text
-toChunks 
-    = T.splitOn ":"
-    . T.unlines
-    . List.filter isntCommentLine
-    . T.splitOn "\n"
-    . T.dropAround ((==) '"')
+toChunks scoreText = 
+    scoreText
+        |> T.dropAround ((==) '"')
+        |> T.splitOn "\n"
+        |> List.filter isntCommentLine
+        |> T.unlines
+        |> T.splitOn ":"
 
 
 isntCommentLine :: Text -> Bool
-isntCommentLine 
-    = not
-    . T.isPrefixOf "#"
+isntCommentLine = 
+    not <. T.isPrefixOf "#"
 
 
-buildFromChunks :: List Text -> Result Error Score
+buildFromChunks :: List Text -> Either Error Score
 buildFromChunks chunks =
     case chunks of
         name : voices : notes : configTxt : [] ->
             case Config.read configTxt of
-                Ok config ->
+                Right config ->
                     Score (T.strip name)
-                        & Ok
-                        & parse (Part.readMany config voices notes) PartError
-                        & Result.apply config
+                        |> Right
+                        |> parse (Part.readMany config voices notes) PartError
+                        |> Parse.apply config
 
-                Err err ->
-                    Err (ConfigError err)
+                Left err ->
+                    Left <| ConfigError err
 
         _ ->
-            Err $ UnexpectedChunkStructure chunks
+            Left <| UnexpectedChunkStructure chunks
         
 
 toDevAudio :: Score -> Audio
-toDevAudio 
-    = Audio.mixMany
-    . Audio.normalizeVolumes
-    . List.map Part.toDevAudio
-    . parts
+toDevAudio score =
+    score
+        |> parts 
+        |> List.map Part.toDevAudio
+        |> Audio.normalizeVolumes
+        |> Audio.mixMany
 
 
 build :: Score -> List Audio
 build score =
     score 
-        & parts
-        & List.map (Part.build $ Config.room $ config score)
-        & Audio.normalizeVolumes
+        |> parts
+        |> List.map 
+            (Part.build <| Config.room <| config score)
+        |> Audio.normalizeVolumes
 
-    
+
+
 -- ERROR --
 
 
@@ -148,7 +148,7 @@ throw error =
                 \The chunks werent what I expected. : ->\n\n"
             , T.intercalate "chunk\n\n" chunks
             ]
-                & T.concat
+                |> T.concat
 
         ConfigError configError ->
             Config.throw configError
