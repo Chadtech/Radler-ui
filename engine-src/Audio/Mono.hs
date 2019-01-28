@@ -22,14 +22,15 @@ module Audio.Mono
     ) where
 
 
+import Flow
+import Prelude.Extra
+
 import qualified Control.Monad as CM
-import Data.Function ((&))
 import Data.Int (Int32)
 import qualified Data.List as List
 import Data.Vector.Unboxed (Vector)
 import qualified Data.Vector as V
 import qualified Data.Vector.Unboxed as Vector
-import Prelude.Extra (List, toFloat, debugLog)
 import qualified Data.Tuple.Extra as Tuple
 
 
@@ -49,7 +50,7 @@ fromVector =
 
 singleton :: Mono
 singleton =
-    Mono $ Vector.fromList $ [ 1 ]
+    Mono <| Vector.fromList $ [ 1 ]
     
 
 empty :: Mono
@@ -67,7 +68,7 @@ sin freq duration =
     Vector.generate 
         duration 
         (sinAtSample freq)
-        & Mono
+        |> Mono
 
 
 sinAtSample :: Float -> Int -> Float
@@ -104,17 +105,17 @@ mix mono0 mono1 =
             
 zip :: Mono -> Mono -> Mono
 zip (Mono vector0) (Mono vector1) =
-    Mono $ Vector.zipWith (+) vector0 vector1
+    Mono <| Vector.zipWith (+) vector0 vector1
 
         
 setVolume :: Float -> Mono -> Mono
 setVolume newRelativeVolume (Mono vector) =
-    Mono $ Vector.map ((*) newRelativeVolume) vector
+    Mono <| Vector.map ((*) newRelativeVolume) vector
 
 
 compress :: Mono -> Mono
 compress (Mono vector) =
-    Mono $ Vector.map compressSample vector
+    Mono <| Vector.map compressSample vector
 
 
 compressSample :: Float -> Float
@@ -129,13 +130,13 @@ fromTimeline timeline =
 
     else
         timeline 
-            & V.map timelineSamples
-            & V.toList
-            & Vector.concat
-            & Vector.accumulate 
+            |> V.map timelineSamples
+            |> V.toList
+            |> Vector.concat
+            |> Vector.accumulate 
                 (+)
                 (timelineBasis $ V.last timeline)
-            & Mono
+            |> Mono
 
 
 declip :: Mono -> Mono
@@ -144,7 +145,7 @@ declip (Mono vector) =
         (*)
         vector
         (declipVector (Vector.length vector))
-        & Mono
+        |> Mono
 
 
 declipVector :: Int -> Vector (Int, Float)
@@ -152,7 +153,7 @@ declipVector length =
     [ declipIn
     , declipOut length
     ]
-        & Vector.concat
+        |> Vector.concat
 
 
 declipIn :: Vector (Int, Float)
@@ -160,7 +161,7 @@ declipIn =
     Vector.generate 
         declipLength 
         divideIndexBy
-        & Vector.indexed
+        |> Vector.indexed
 
 
 declipOut :: Int -> Vector (Int, Float)
@@ -168,8 +169,8 @@ declipOut length =
     Vector.generate 
         declipLength 
         ((-) 1 . divideIndexBy)
-        & Vector.indexed
-        & Vector.map (Tuple.first ((+) (length - declipLength)))
+        |> Vector.indexed
+        |> Vector.map (Tuple.first ((+) (length - declipLength)))
 
 
 declipLength :: Int
@@ -185,46 +186,46 @@ divideIndexBy i =
 timelineBasis :: (Int, Mono) -> Vector Float 
 timelineBasis (lastStartingPoint, lastMono) =
     lastStartingPoint + Audio.Mono.length lastMono
-        & silence
-        & toVector
+        |> silence
+        |> toVector
 
 
 timelineSamples :: (Int, Mono) -> Vector (Int, Float)
 timelineSamples (beginningIndex, Mono vector) =
     vector
-        & Vector.indexed
-        & Vector.map (Tuple.first ((+) beginningIndex))
+        |> Vector.indexed
+        |> Vector.map (Tuple.first ((+) beginningIndex))
 
 
 lopass :: Float -> Int -> Mono -> Mono
 lopass mixLevel samplesToSpan mono =
     mono
-        & lopassHelper samplesToSpan
-        & setVolume mixLevel
-        & mix (setVolume (1 - mixLevel) mono)
+        |> lopassHelper samplesToSpan
+        |> setVolume mixLevel
+        |> mix (setVolume (1 - mixLevel) mono)
 
 
 lopassHelper :: Int -> Mono -> Mono
 lopassHelper samplesToSpan mono =
     mono
-        & append (silence samplesToSpan)
-        & averageSamples samplesToSpan
+        |> append (silence samplesToSpan)
+        |> averageSamples samplesToSpan
 
 
 averageSamples :: Int -> Mono -> Mono
 averageSamples samplesToSpan (Mono vector) =
     vector
-        & Vector.imap (averageSample samplesToSpan vector)
-        & Vector.drop samplesToSpan
-        & Mono
+        |> Vector.imap (averageSample samplesToSpan vector)
+        |> Vector.drop samplesToSpan
+        |> Mono
 
 
 averageSample :: Int -> Vector Float -> Int -> Float -> Float
 averageSample samplesToSpan samples index sample =
     samples
-        & Vector.slice index samplesToSpan
-        & Vector.foldl (+) 0
-        & divideBy samplesToSpan
+        |> Vector.slice index samplesToSpan
+        |> Vector.foldl (+) 0
+        |> divideBy samplesToSpan
 
 
 divideBy :: Int -> Float -> Float
@@ -266,7 +267,7 @@ appendSilence duration mono =
 
 append :: Mono -> Mono -> Mono
 append (Mono vector0) (Mono vector1) =
-    Mono $ Vector.concat [ vector0, vector1]
+    Mono <| Vector.concat [ vector0, vector1]
 
 
 length :: Mono -> Int
@@ -277,8 +278,8 @@ length (Mono vector) =
 toSamples :: Mono -> List Int32
 toSamples (Mono vector) =
     vector
-        & Vector.toList
-        & List.map 
+        |> Vector.toList
+        |> List.map 
             (toInt32 . (*) 2147483647)
 
 
@@ -293,7 +294,7 @@ convolve_ (Mono seed) (Mono sound) =
         (Vector.indexed seed) 
         (Vector.toList $ Vector.indexed sound) 
         (newConvolvedBase seed sound)
-        & Mono
+        |> Mono
 
 
 convolveHelper :: Vector (Int, Float) -> List (Int, Float) -> Vector Float -> Vector Float
@@ -305,9 +306,9 @@ convolveHelper seed sound output =
                     multiplySeed sample seed
             in
             seedAtVolume
-                & addToIndices index
-                & Vector.accumulate (+) output
-                & convolveHelper seed rest
+                |> addToIndices index
+                |> Vector.accumulate (+) output
+                |> convolveHelper seed rest
 
         [] ->
             output

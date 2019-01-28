@@ -3,7 +3,6 @@
 
 module Note
     ( Model
-    , time
     , Note.read
     , Error
     , throw
@@ -25,25 +24,22 @@ import Parse
 
 data Model 
     = Model
-        { time :: Int
-        , randomSeed :: Int
-        }
+        { randomSeed :: Int }
         deriving (Eq)
 
 
 -- READ NOTE --
 
 
-read :: Config -> Text -> Either Error (Model, Text)
+read :: Config -> Text -> Either Error ((Int, Model), Text)
 read config txt =
     case T.splitOn "," txt of
         timeTxt : randomSeedTxt : content : [] ->
             case (Parse.decodeInt timeTxt, Parse.decodeInt randomSeedTxt) of
                 (Right time, Right randomSeed) ->
-                    ( Model
-                        { time = time + (Config.timingVariance config)
-                        , randomSeed = randomSeed
-                        }
+                    ( ( time + (Config.timingVariance config)
+                      , Model { randomSeed = randomSeed }
+                      )
                     , content
                     )
                         |> Right

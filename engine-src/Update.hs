@@ -115,11 +115,13 @@ playScore incomingScore model =
     in
     case Model.score model of
         Just existingScore ->
-            if existingScore == incomingScore then
-                Audio.play filename
+            case Score.diff incomingScore existingScore of
+                Nothing ->
+                    Audio.play filename
 
-            else
-                writeAndPlay filename incomingScore
+                Just _ ->
+                    -- TO DO
+                    writeAndPlay filename incomingScore
             
         Nothing ->
             writeAndPlay filename incomingScore

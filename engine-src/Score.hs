@@ -5,6 +5,7 @@ module Score
     ( Score
     , build
     , buildFilename
+    , diff
     , fromText
     , toDevAudio
     , devFilename
@@ -47,6 +48,10 @@ data Score
 
 
 -- HELPERS --
+
+diff :: Score -> Score -> Maybe Int
+diff incomingScore existingScore =
+    Just 4
 
 
 numberOfParts :: Score -> Int

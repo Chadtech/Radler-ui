@@ -22,6 +22,8 @@ import Audio.Mono.Position (positionMono)
 import Config (Config)
 import qualified Config
 import qualified Data.Either.Extra as Either
+import Data.IntMap.Strict (IntMap)
+import qualified Data.IntMap.Strict as IntMap
 import qualified Data.List as List
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
@@ -45,7 +47,7 @@ import qualified Scale
 
 data Model
     = Model
-        { notes :: Vector Note 
+        { notes :: IntMap Note 
         , position :: Maybe Position
         }
         deriving (Eq)
@@ -70,10 +72,10 @@ read config detailsText =
         <. readManyNoteTexts config
 
 
-readModel :: List Text -> List Note -> Model
+readModel :: List Text -> List (Int, Note) -> Model
 readModel detailsText notes =
     Model 
-        (Vector.fromList notes)
+        (IntMap.fromList notes)
         (applyPosition detailsText)
 
 
@@ -97,7 +99,7 @@ applyPosition detailsText =
             Nothing
 
 
-readManyNoteTexts :: Config -> List Text -> Either Error (List Note)
+readManyNoteTexts :: Config -> List Text -> Either Error (List (Int, Note))
 readManyNoteTexts config noteTexts =
     readManyNoteTextsAccumulate 
         config 
@@ -105,7 +107,7 @@ readManyNoteTexts config noteTexts =
         []
 
 
-readManyNoteTextsAccumulate :: Config -> List Text -> List Note -> Either Error (List Note)
+readManyNoteTextsAccumulate :: Config -> List Text -> List (Int, Note) -> Either Error (List (Int, Note))
 readManyNoteTextsAccumulate config noteTexts notes =
     case noteTexts of
         first : rest ->
@@ -126,10 +128,10 @@ readManyNoteTextsAccumulate config noteTexts notes =
                     Left err
 
         [] ->
-            Right <| List.reverse notes
+            Right notes
 
 
-readNoteText :: Config -> Text -> Either Error (Maybe Note)
+readNoteText :: Config -> Text -> Either Error (Maybe (Int, Note))
 readNoteText config noteTxt =
     case Note.read config noteTxt of
         Right (noteBase, contentTxt) ->
@@ -148,27 +150,30 @@ readNoteText config noteTxt =
             Left <| NoteError error
 
 
-readNonEmptyNoteText :: Config -> Note.Model -> Text -> Either Error Note
-readNonEmptyNoteText config noteBase contentTxt =
+readNonEmptyNoteText :: Config -> (Int, Note.Model) -> Text -> Either Error (Int, Note)
+readNonEmptyNoteText config (time, noteBase) contentTxt =
     Note
         |> Right
         |> Parse.apply noteBase
         |> parse (Scale.toFreq (Config.scale config) (slice 0 2 contentTxt)) ScaleError
         |> parse (Volume.read (slice 4 6 contentTxt)) VolumeError
         |> parse (Duration.read config (slice 2 4 contentTxt)) DurationError
+        |> Either.mapRight ((,) time)
 
 
 toMono :: Model -> Mono
 toMono model = 
     model
         |> notes
+        |> IntMap.toList        
+        |> Vector.fromList
         |> Vector.map noteToMono
         |> Mono.fromTimeline
 
 
-noteToMono :: Note -> (Int, Mono)
-noteToMono note =
-    ( Note.time $ noteModel note
+noteToMono :: (Int, Note) -> (Int, Mono)
+noteToMono (time, note) =
+    ( time
     , Mono.sin 
         (freq note)
         (duration note)
