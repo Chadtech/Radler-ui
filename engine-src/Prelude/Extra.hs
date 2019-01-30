@@ -14,6 +14,8 @@ module Prelude.Extra
     ) where
 
 
+import Flow
+
 import qualified Data.List as List
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
@@ -28,9 +30,9 @@ toFloat =
 
 
 slice :: Int -> Int -> Text -> Text
-slice a b 
-    = T.take (fromIntegral (b - a))
-    . T.drop (fromIntegral a)
+slice a b = 
+    T.take (fromIntegral (b - a))
+        << T.drop (fromIntegral a)
 
 
 head :: List a -> Maybe a
@@ -44,10 +46,10 @@ head list =
 
 
 replaceChar :: Char -> Char -> Text -> Text
-replaceChar target replacement 
-    = T.pack 
-    . map (replaceIfTarget target replacement)
-    . T.unpack
+replaceChar target replacement = 
+    T.pack 
+        << map (replaceIfTarget target replacement)
+        << T.unpack
 
 
 replaceIfTarget :: Char -> Char -> Char -> Char

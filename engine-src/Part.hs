@@ -39,7 +39,22 @@ data Part
     deriving (Eq)
 
 
+data Difference
+    = NotSame
+
+
+
 -- HELPERS --
+
+
+diff :: Part -> Part -> Either Difference Error
+diff incomingPart existingPart =
+    case (incomingPart, existingPart) of
+        (Sin incomingSinModel, Sin existingSinModel) ->
+            Sin.diff incomingSinModel existingSinModel
+
+        _ ->
+            Nothing
 
 
 fromPieces :: Config -> (Text, List Text) -> Either Error Part
@@ -121,6 +136,7 @@ data Error
     = UnrecognizedPartType Text
     | VoicesAndNotesNotOneToOne Int Int
     | SinError Sin.Error
+    | DiffError
 
 
 throw :: Error -> Text
@@ -148,4 +164,7 @@ errorToText error =
             sinError
                 |> Sin.throw 
                 |> T.append "Error in Sin Voice -> \n" 
+
+        DiffError ->
+            "Diffing parts that arent the same type"
 

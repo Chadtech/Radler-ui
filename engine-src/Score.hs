@@ -47,11 +47,34 @@ data Score
         deriving (Eq)
 
 
+data Difference
+    = NotSameName
+    | NotSameConfig
+    | NotSameNumberOfParts
+    
+
 -- HELPERS --
 
-diff :: Score -> Score -> Maybe Int
+
+diff :: Score -> Score -> Maybe Difference
 diff incomingScore existingScore =
-    Just 4
+    if name incomingScore /= name existingScore then
+        Just NotSameName
+
+    else if config incomingScore /= config existingScore then
+        Just NotSameConfig
+
+    else if not $ sameNumberOfParts incomingScore existingScore then
+        Just NotSameNumberOfParts
+
+    else
+        -- TO DO
+        Nothing  
+
+
+sameNumberOfParts :: Score -> Score -> Bool
+sameNumberOfParts incomingScore existingScore =
+    numberOfParts incomingScore /= numberOfParts existingScore
 
 
 numberOfParts :: Score -> Int
