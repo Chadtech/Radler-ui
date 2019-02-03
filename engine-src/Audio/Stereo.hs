@@ -6,24 +6,28 @@ module Audio.Stereo
     , fromMono
     , mix
     , toMonos
+    , toMono    
     , fromMonos
     , setVolume
+    , Audio.Stereo.subtract 
     , Audio.Stereo.length
     ) where
 
+
+import Flow
+import Prelude.Extra
 
 import Audio.Mono (Mono)
 import qualified Audio.Mono as Mono
 import Cmd (Cmd)
 import qualified Cmd
 import qualified Control.Monad as CM
-import Data.Function ((&))
 import Data.Int (Int32)
 import qualified Data.List as List
+import qualified Data.Tuple.Extra as Tuple
 import Data.Vector.Unboxed (Vector)
 import qualified Data.Vector as V
 import qualified Data.Vector.Unboxed as Vector
-import Prelude.Extra (List)
 
 
 data Stereo
@@ -38,9 +42,9 @@ length (Stereo vector) =
 fromMono :: Mono -> Stereo
 fromMono mono =
     mono
-        & Mono.toVector
-        & Vector.map pairSample
-        & Stereo
+        |> Mono.toVector
+        |> Vector.map pairSample
+        |> Stereo
 
 
 fromMonos :: (Mono, Mono) -> Stereo
@@ -48,7 +52,7 @@ fromMonos (!left, !right) =
     Vector.zip 
         (Mono.toVector left)
         (Mono.toVector right)
-        & Stereo
+        |> Stereo
 
 
 pairSample :: Float -> (Float, Float)
@@ -61,17 +65,36 @@ silence =
     fromMono . Mono.silence
     
 
+subtract :: Stereo -> Stereo -> Stereo
+subtract (Stereo stereoVector) =
+    stereoVector
+        |> Vector.map (Tuple.both ((*) (-1)))
+        |> Stereo
+        |> mix
+
+
 toMonos :: Stereo -> (Mono, Mono)
 toMonos (Stereo vector) =
-    ( Mono.fromVector $ Vector.map fst vector
-    , Mono.fromVector $ Vector.map snd vector
+    ( Mono.fromVector <| Vector.map fst vector
+    , Mono.fromVector <| Vector.map snd vector
     )
+
+
+toMono :: Stereo -> Mono
+toMono (Stereo vector) =
+    Vector.map combineAndHalf vector
+        |> Mono.fromVector
+
+
+combineAndHalf :: (Float, Float) -> Float
+combineAndHalf (left, right) =
+    (left + right) / 2
 
 
 setVolume :: Float -> Stereo -> Stereo
 setVolume newRelativeVolume (Stereo vector) =
     Stereo 
-        $ Vector.map 
+        <| Vector.map 
             (multiplyBothChannelsBy newRelativeVolume)
             vector
 
@@ -94,7 +117,7 @@ mix mono0 mono1 =
             
 zip :: Stereo -> Stereo -> Stereo
 zip (Stereo vector0) (Stereo vector1) =
-    Stereo $ Vector.zipWith addStereoSample vector0 vector1
+    Stereo <| Vector.zipWith addStereoSample vector0 vector1
 
 
 addStereoSample :: (Float, Float) -> (Float, Float) -> (Float, Float)
@@ -136,4 +159,4 @@ appendSilence duration stereo =
 
 append :: Stereo -> Stereo -> Stereo
 append (Stereo vector0) (Stereo vector1) =
-    Stereo $ Vector.concat [ vector0, vector1 ]
+    Stereo <| Vector.concat [ vector0, vector1 ]

@@ -6,12 +6,17 @@ module Audio
     , fromMono
     , fromStereo
     , mixMany
+    , mix 
     , normalizeVolumes
     , play
     , setVolume
+    , Audio.subtract
     , write
     ) where
 
+
+import Flow
+import Prelude.Extra
 
 import Audio.Mono (Mono)
 import qualified Audio.Mono as Mono
@@ -19,13 +24,11 @@ import Audio.Stereo (Stereo)
 import qualified Audio.Stereo as Stereo
 import Cmd (Cmd)
 import qualified Cmd
-import Data.Function ((&))
 import qualified Data.List as List
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import Data.WAVE (WAVE)
 import qualified Data.WAVE as W
-import Prelude.Extra (List, toFloat, mixLists)
 import qualified System.Process as SP
 
 
@@ -60,10 +63,32 @@ setVolume :: Float -> Audio -> Audio
 setVolume newRelativeVolume audio =
     case audio of
         Mono mono ->
-            Mono $ Mono.setVolume newRelativeVolume mono
+            Mono <| Mono.setVolume newRelativeVolume mono
 
         Stereo stereo ->
-            Stereo $ Stereo.setVolume newRelativeVolume stereo
+            Stereo <| Stereo.setVolume newRelativeVolume stereo
+
+
+subtract :: Audio -> Audio -> Audio
+subtract audio subtractFrom =
+    case (audio, subtractFrom) of
+        (Mono mono, Stereo stereo) ->
+            Stereo.subtract (Stereo.fromMono mono) stereo
+                |> Audio.fromStereo
+
+        (Mono m0, Mono m1) ->
+            Mono.subtract m0 m1
+                |> Audio.fromMono
+
+        (Stereo stereo, Mono mono) ->
+            Mono.subtract 
+                (Stereo.toMono stereo)
+                mono
+                |> Audio.fromMono
+
+        (Stereo s0, Stereo s1) ->
+            Stereo.subtract s0 s1
+                |> Audio.fromStereo
 
 
 mixMany :: List Audio -> Audio
@@ -71,17 +96,17 @@ mixMany !audios =
     case audios of
         Mono mono0 : Mono mono1 : rest ->
             mix
-                (fromMono $ Mono.mix mono0 mono1)
+                (fromMono <| Mono.mix mono0 mono1)
                 (mixMany rest)
 
         Stereo stereo : Mono mono : rest ->
             mix 
-                (fromStereo $ Stereo.mix stereo (Stereo.fromMono mono))
+                (fromStereo <| Stereo.mix stereo (Stereo.fromMono mono))
                 (mixMany rest)
 
         Mono mono : Stereo stereo : rest ->
             mix 
-                (fromStereo $ Stereo.mix (Stereo.fromMono mono) stereo)
+                (fromStereo <| Stereo.mix (Stereo.fromMono mono) stereo)
                 (mixMany rest)
 
         audio : [] ->
@@ -95,22 +120,22 @@ mix :: Audio -> Audio -> Audio
 mix audio0 audio1 =
     case (audio0, audio1) of
         (Mono mono0, Mono mono1) ->
-            Mono $ Mono.mix mono0 mono1
+            Mono <| Mono.mix mono0 mono1
 
         (Stereo stereo, Mono mono) ->
             mono
-                & Stereo.fromMono
-                & Stereo.mix stereo
-                & Stereo
+                |> Stereo.fromMono
+                |> Stereo.mix stereo
+                |> Stereo
 
         (Mono mono, Stereo stereo) ->
             Stereo.mix 
                 (Stereo.fromMono mono)
                 stereo
-                & Stereo
+                |> Stereo
 
         (Stereo stereo0, Stereo stereo1) ->
-            Stereo $ Stereo.mix stereo0 stereo1
+            Stereo <| Stereo.mix stereo0 stereo1
 
 
 write :: Text -> Audio -> Cmd
@@ -133,8 +158,8 @@ write fn audio =
                     ]
 
         }
-        & W.putWAVEFile (T.unpack fn)
-        & Cmd.fromIO
+        |> W.putWAVEFile (T.unpack fn)
+        |> Cmd.fromIO
 
 
 header :: Audio -> W.WAVEHeader
@@ -149,7 +174,7 @@ header audio =
                     2
         , W.waveFrameRate = 44100
         , W.waveBitsPerSample = 32
-        , W.waveFrames = Just $ Audio.length audio
+        , W.waveFrames = Just <| Audio.length audio
         }
 
 
@@ -164,9 +189,10 @@ length audio =
 
 
 play :: Text -> Cmd
-play 
-    = Cmd.fromIO
-    . SP.callCommand
-    . T.unpack
-    . T.append "play "
+play fileName =
+    fileName
+        |> T.append "play "
+        |> T.unpack
+        |> SP.callCommand
+        |> Cmd.fromIO
     

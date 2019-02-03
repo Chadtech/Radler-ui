@@ -2,14 +2,14 @@
 
 
 module Model 
-    ( Model
+    ( Model(..)
     , score
     , init
-    , setScore
     )
     where
 
 
+import Audio (Audio)
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import Prelude hiding (init)
@@ -18,18 +18,22 @@ import qualified Score
 
 
 data Model
-    = Model 
-        { score :: Maybe Score 
-        }
+    = Init
+    | HasScore Score Audio
 
 
 init :: Model
 init =
-    Model
-        { score = Nothing }    
+    Init   
 
 
-setScore :: Score -> Model -> Model
-setScore score m =
-    m { score = Just score }
+score :: Model -> Maybe Score
+score model =
+    case model of
+        Init ->
+            Nothing
+
+        HasScore score _ ->
+            Just score
+            
 

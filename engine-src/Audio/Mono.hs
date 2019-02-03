@@ -18,6 +18,7 @@ module Audio.Mono
     , toSamples
     , toVector
     , delay
+    , Audio.Mono.subtract
     , Audio.Mono.sin
     ) where
 
@@ -29,8 +30,8 @@ import qualified Control.Monad as CM
 import Data.Int (Int32)
 import qualified Data.List as List
 import Data.Vector.Unboxed (Vector)
-import qualified Data.Vector as V
 import qualified Data.Vector.Unboxed as Vector
+import qualified Data.Vector as V
 import qualified Data.Tuple.Extra as Tuple
 
 
@@ -331,3 +332,9 @@ multiplySeed :: Float -> Vector (Int, Float) -> Vector (Int, Float)
 multiplySeed audioSample = 
     Vector.map 
         (Tuple.second ((*) audioSample))
+
+
+subtract :: Mono -> Mono -> Mono
+subtract (Mono monoVector) =
+    mix (Mono <| Vector.map ((*) (-1)) monoVector)
+        

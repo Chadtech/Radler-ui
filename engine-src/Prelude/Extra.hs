@@ -3,7 +3,6 @@
 
 module Prelude.Extra 
     ( head
-    , listMap2
     , List
     , debugLog
     , mixLists
@@ -32,7 +31,7 @@ toFloat =
 slice :: Int -> Int -> Text -> Text
 slice a b = 
     T.take (fromIntegral (b - a))
-        << T.drop (fromIntegral a)
+        <. T.drop (fromIntegral a)
 
 
 head :: List a -> Maybe a
@@ -48,8 +47,8 @@ head list =
 replaceChar :: Char -> Char -> Text -> Text
 replaceChar target replacement = 
     T.pack 
-        << map (replaceIfTarget target replacement)
-        << T.unpack
+        <. map (replaceIfTarget target replacement)
+        <. T.unpack
 
 
 replaceIfTarget :: Char -> Char -> Char -> Char
@@ -63,29 +62,10 @@ replaceIfTarget target replacement char =
 
 indexList :: List a -> List (Int, a)
 indexList xs =
-    listMap2 
+    zipWith 
         (,) 
         ([ 0 .. List.length xs - 1 ]) 
         xs
-
-
-listMap2 :: (a -> b -> c) -> List a -> List b -> List c
-listMap2 f xs ys =
-    listMap2Accumulate xs ys f []
-
-
-listMap2Accumulate :: List a -> List b -> (a -> b -> c) -> List c -> List c
-listMap2Accumulate xs ys f output =
-    case (xs, ys) of
-        (x : restXs, y : restYs) ->
-            listMap2Accumulate 
-                restXs 
-                restYs 
-                f 
-                (f x y : output)
-
-        _ ->
-            List.reverse output
 
 
 mixLists :: List a -> List a -> List a

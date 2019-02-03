@@ -10,9 +10,11 @@ import Audio (Audio)
 import qualified Audio
 import Cmd (Cmd)
 import qualified Cmd
+import qualified Data.Either.Extra as Either
 import qualified Data.List as List
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
+import qualified Debug.Trace
 import Error (Error)
 import qualified Error
 import Json (Json)
@@ -20,6 +22,7 @@ import qualified Json
 import Msg (Msg(..))
 import Model (Model)
 import qualified Model
+import qualified Part
 import Response (Response)
 import qualified Response
 import Route (Route(..))
@@ -59,10 +62,7 @@ handleRoute route model =
             )
 
         Play (Right score) ->
-            ( Model.setScore score model
-            , playScore score model
-            , Response.json Json.null
-            )
+            playScore score model
 
         Play (Left err) ->
             ( model
@@ -106,40 +106,79 @@ buildPart score (index, audio) =
         audio
 
 
-playScore :: Score -> Model -> Cmd
+playScore :: Score -> Model -> (Model, Cmd, Response)
 playScore incomingScore model =
     let
         filename :: Text
         filename =
             Score.devFilename incomingScore
+
+
+        writeAndPlayCmd :: Audio -> Cmd
+        writeAndPlayCmd audio =
+            [ Audio.write filename audio
+            , Audio.play filename
+            ]
+                |> Cmd.batch            
+
+
+        writeAndPlayFromScratch :: (Model, Cmd, Response)
+        writeAndPlayFromScratch =
+            let
+                audio :: Audio
+                audio =
+                    Score.toDevAudio incomingScore
+            in
+            ( Model.HasScore incomingScore audio
+            , writeAndPlayCmd audio
+            , Response.json Json.null
+            )            
     in
-    case Model.score model of
-        Just existingScore ->
-            case Score.diff incomingScore existingScore of
-                Nothing ->
-                    Audio.play filename
+    case model of
+        Model.HasScore existingScore existingAudio ->
+            let 
+                diff :: Either Error Score.Resolution   
+                diff =
+                    Score.diff
+                        incomingScore
+                        existingScore
+                        |> Either.mapLeft Error.ScoreError
+            in
+            case diff of 
+                Right (Score.Changes (toRemove, toAdd)) ->
+                    let
+                        newAudio :: Audio
+                        newAudio =
+                            existingAudio
+                                |> Audio.subtract (Part.manyToDevAudio toRemove)
+                                |> Audio.mix (Part.manyToDevAudio toAdd)
+                    in            
+                    ( Model.HasScore incomingScore newAudio 
+                    , writeAndPlayCmd <| Debug.Trace.trace "HERE" newAudio 
+                    , Response.json Json.null
+                    )
 
-                Just _ ->
-                    -- TO DO
-                    writeAndPlay filename incomingScore
-            
-        Nothing ->
-            writeAndPlay filename incomingScore
-            
+                Right Score.Identical ->
+                    ( model
+                    , Audio.play filename
+                    , Response.json Json.null
+                    )
 
-writeAndPlay :: Text -> Score -> Cmd
-writeAndPlay filename score =
-    [ score
-        |> Score.toDevAudio
-        |> Audio.write filename
-    , Audio.play filename
-    ]
-        |> Cmd.batch
+                Right Score.Unresolvable ->
+                    writeAndPlayFromScratch
+                    
+                Left error ->
+                    ( model
+                    , Cmd.none
+                    , Response.error
+                        500
+                        (Error.throw error)
+                    )
 
-            
-playResponse :: Maybe Error -> Response
-playResponse = 
-    Response.json
-        <. Json.maybe
-        <. fmap (Json.string . Error.throw)
+        Model.Init ->
+            writeAndPlayFromScratch
 
+
+
+
+         

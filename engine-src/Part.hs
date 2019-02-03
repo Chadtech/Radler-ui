@@ -3,8 +3,10 @@
 
 module Part
     ( Part
-    , toDevAudio
     , build
+    , diff    
+    , toDevAudio
+    , manyToDevAudio
     , Error
     , readMany
     , throw
@@ -26,6 +28,7 @@ import qualified Data.Either.Extra as Either
 import Data.List as List
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
+import qualified Data.Tuple.Extra as Tuple
 import qualified Part.Sin as Sin
 import Room (Room)
 import qualified Room 
@@ -39,22 +42,25 @@ data Part
     deriving (Eq)
 
 
-data Difference
-    = NotSame
-
-
 
 -- HELPERS --
 
 
-diff :: Part -> Part -> Either Difference Error
-diff incomingPart existingPart =
+manyToDevAudio :: List Part -> Audio
+manyToDevAudio parts =
+    parts
+        |> List.map toDevAudio
+        |> Audio.normalizeVolumes
+        |> Audio.mixMany
+
+
+diff :: (Part, Part) -> Either Error (Part, Part)
+diff (incomingPart, existingPart) =
     case (incomingPart, existingPart) of
         (Sin incomingSinModel, Sin existingSinModel) ->
             Sin.diff incomingSinModel existingSinModel
-
-        _ ->
-            Nothing
+                |> Either.mapRight (Tuple.both Sin) 
+                |> Either.mapLeft SinError
 
 
 fromPieces :: Config -> (Text, List Text) -> Either Error Part

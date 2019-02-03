@@ -3,7 +3,6 @@
 
 module Part.Sin
     ( Model
-    , Difference
     , diff
     , build
     , Part.Sin.read
@@ -65,16 +64,12 @@ data Note
         deriving (Eq)
 
 
-type Difference
-    = NotSame
-
-
 -- HELPERS --
 
 
-diff :: Model -> Model -> Either Error Difference
+diff :: Model -> Model -> Either Error (Model, Model)
 diff incomingModel existingModel =
-    Left NotSame
+    Right (incomingModel, incomingModel)
 
 
 read :: Config -> List Text -> List Text -> Either Error Model

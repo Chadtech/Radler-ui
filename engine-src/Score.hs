@@ -3,6 +3,7 @@
 
 module Score
     ( Score
+    , Resolution(..)
     , build
     , buildFilename
     , diff
@@ -15,6 +16,7 @@ module Score
     )
     where
 
+
 import Flow
 import Prelude.Extra
     
@@ -24,6 +26,8 @@ import Audio.Mono (Mono)
 import qualified Audio.Mono as Mono
 import Config (Config)
 import qualified Config
+import qualified Control.Monad as CM
+import qualified Data.Either.Extra as Either
 import Data.List as List
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
@@ -47,29 +51,40 @@ data Score
         deriving (Eq)
 
 
-data Difference
-    = NotSameName
-    | NotSameConfig
-    | NotSameNumberOfParts
-    
+data Resolution 
+    = Identical
+    | Unresolvable
+    -- Left list is the notes to remove
+    -- Right list is the notes to add
+    | Changes (List Part, List Part)
+
+
 
 -- HELPERS --
 
 
-diff :: Score -> Score -> Maybe Difference
+diff :: Score -> Score -> Either Error Resolution
 diff incomingScore existingScore =
-    if name incomingScore /= name existingScore then
-        Just NotSameName
+    if incomingScore == existingScore then
+        Right Identical
 
+    else if name incomingScore /= name existingScore then
+        Right Unresolvable
+        
     else if config incomingScore /= config existingScore then
-        Just NotSameConfig
+        Right Unresolvable
 
-    else if not $ sameNumberOfParts incomingScore existingScore then
-        Just NotSameNumberOfParts
+    else if not <| sameNumberOfParts incomingScore existingScore then
+        Right Unresolvable
 
     else
-        -- TO DO
-        Nothing  
+        List.zip
+            (parts incomingScore)
+            (parts existingScore)
+            |> List.map Part.diff
+            |> CM.sequence
+            |> Either.mapRight (Changes <. List.unzip)
+            |> Either.mapLeft PartError
 
 
 sameNumberOfParts :: Score -> Score -> Bool
@@ -141,9 +156,7 @@ toDevAudio :: Score -> Audio
 toDevAudio score =
     score
         |> parts 
-        |> List.map Part.toDevAudio
-        |> Audio.normalizeVolumes
-        |> Audio.mixMany
+        |> Part.manyToDevAudio
 
 
 build :: Score -> List Audio
