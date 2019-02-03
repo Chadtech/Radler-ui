@@ -29,12 +29,15 @@ import qualified Config
 import qualified Control.Monad as CM
 import qualified Data.Either.Extra as Either
 import Data.List as List
+import qualified Data.Traversable as Traversable
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import Parse (parse)
 import qualified Parse
 import Part (Part)
 import qualified Part
+import Resolution (Resolution)
+import qualified Resolution
 import Room (Room)
 import qualified Room 
 
@@ -51,31 +54,22 @@ data Score
         deriving (Eq)
 
 
-data Resolution 
-    = Identical
-    | Unresolvable
-    -- Left list is the notes to remove
-    -- Right list is the notes to add
-    | Changes (List Part, List Part)
-
-
-
 -- HELPERS --
 
 
-diff :: Score -> Score -> Either Error Resolution
+diff :: Score -> Score -> Either Error (Resolution (List Part))
 diff incomingScore existingScore =
     if incomingScore == existingScore then
-        Right Identical
+        Right Resolution.Identical
 
     else if name incomingScore /= name existingScore then
-        Right Unresolvable
+        debugLog "NAME" show <| Right Resolution.Unresolvable
         
     else if config incomingScore /= config existingScore then
-        Right Unresolvable
+        debugLog "CONFIG" show <| Right Resolution.Unresolvable
 
     else if not <| sameNumberOfParts incomingScore existingScore then
-        Right Unresolvable
+        debugLog "NUMBER OF PARTS" show <| Right Resolution.Unresolvable
 
     else
         List.zip
@@ -83,13 +77,13 @@ diff incomingScore existingScore =
             (parts existingScore)
             |> List.map Part.diff
             |> CM.sequence
-            |> Either.mapRight (Changes <. List.unzip)
+            |> Either.mapRight Traversable.sequenceA
             |> Either.mapLeft PartError
 
 
 sameNumberOfParts :: Score -> Score -> Bool
 sameNumberOfParts incomingScore existingScore =
-    numberOfParts incomingScore /= numberOfParts existingScore
+    numberOfParts incomingScore == numberOfParts existingScore
 
 
 numberOfParts :: Score -> Int
@@ -177,6 +171,10 @@ data Error
     | ConfigError Config.Error
     | UnexpectedChunkStructure (List Text)
 
+
+instance Show Error where
+    show = T.unpack <. throw 
+    
 
 throw :: Error -> Text
 throw error =

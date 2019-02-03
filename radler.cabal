@@ -47,6 +47,7 @@ executable radler
     Position
     Prelude.Extra
     Program
+    Resolution
     Response
     Room
     Route

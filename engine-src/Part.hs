@@ -30,6 +30,8 @@ import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import qualified Data.Tuple.Extra as Tuple
 import qualified Part.Sin as Sin
+import Resolution (Resolution)
+import qualified Resolution
 import Room (Room)
 import qualified Room 
 
@@ -40,7 +42,6 @@ import qualified Room
 data Part
     = Sin Sin.Model
     deriving (Eq)
-
 
 
 -- HELPERS --
@@ -54,12 +55,12 @@ manyToDevAudio parts =
         |> Audio.mixMany
 
 
-diff :: (Part, Part) -> Either Error (Part, Part)
+diff :: (Part, Part) -> Either Error (Resolution Part)
 diff (incomingPart, existingPart) =
     case (incomingPart, existingPart) of
         (Sin incomingSinModel, Sin existingSinModel) ->
             Sin.diff incomingSinModel existingSinModel
-                |> Either.mapRight (Tuple.both Sin) 
+                |> Either.mapRight (Resolution.map Sin) 
                 |> Either.mapLeft SinError
 
 

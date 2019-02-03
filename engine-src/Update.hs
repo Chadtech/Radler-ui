@@ -23,8 +23,11 @@ import Msg (Msg(..))
 import Model (Model)
 import qualified Model
 import qualified Part
+import Part (Part)
 import Response (Response)
 import qualified Response
+import Resolution (Resolution)
+import qualified Resolution
 import Route (Route(..))
 import qualified Route
 import Score (Score)
@@ -137,12 +140,13 @@ playScore incomingScore model =
     case model of
         Model.HasScore existingScore existingAudio ->
             let 
-                diff :: Either Error Score.Resolution   
+                diff :: Either Error (Resolution (List Part))
                 diff =
                     Score.diff
                         incomingScore
                         existingScore
                         |> Either.mapLeft Error.ScoreError
+                        |> debugLog "Resolution" show
             in
             case diff of 
                 Right (Score.Changes (toRemove, toAdd)) ->
@@ -154,7 +158,7 @@ playScore incomingScore model =
                                 |> Audio.mix (Part.manyToDevAudio toAdd)
                     in            
                     ( Model.HasScore incomingScore newAudio 
-                    , writeAndPlayCmd <| Debug.Trace.trace "HERE" newAudio 
+                    , writeAndPlayCmd newAudio 
                     , Response.json Json.null
                     )
 

@@ -37,6 +37,8 @@ import qualified Part.Duration as Duration
 import qualified Part.Volume as Volume
 import Position (Position)
 import qualified Position
+import Resolution (Resolution)
+import qualified Resolution
 import Room (Room)
 import qualified Room 
 import Scale (Scale)
@@ -67,9 +69,37 @@ data Note
 -- HELPERS --
 
 
-diff :: Model -> Model -> Either Error (Model, Model)
+diff :: Model -> Model -> Either Error (Resolution Model)
 diff incomingModel existingModel =
-    Right (incomingModel, incomingModel)
+    ( mapNotes 
+        (IntMap.filterWithKey (isntNoteOf incomingModel)) 
+        existingModel
+    , mapNotes 
+        (IntMap.filterWithKey (isntNoteOf existingModel)) 
+        incomingModel
+    )
+        |> Resolution.Changes
+        |> Right
+
+
+isntNoteOf :: Model -> Int -> Note -> Bool
+isntNoteOf model key note =
+    case IntMap.lookup key (notes model) of
+        Just modelsNote ->
+            modelsNote /= note
+
+        Nothing ->
+            True
+
+
+mapNotes :: (IntMap Note -> IntMap Note) -> Model -> Model
+mapNotes f model =
+    model { notes = f (notes model) }
+
+
+sameLength :: Model -> Model -> Bool
+sameLength incomingModel existingModel =
+    List.length (notes incomingModel) == List.length (notes existingModel)
 
 
 read :: Config -> List Text -> List Text -> Either Error Model
