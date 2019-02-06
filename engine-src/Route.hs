@@ -19,11 +19,32 @@ import Score (Score)
 import qualified Score
 
 
+-- TYPES --
+
+
 data Route 
     = Play (Either Error Score)
     | Build (Either Error Score)
     | Echo Text
     | Ping
+
+
+instance Show Route where
+    show route =
+        case route of
+            Play result ->
+                "play " ++ show result
+
+            Build result ->
+                "build " ++ show result
+
+            Echo text ->
+                "echo " ++ T.unpack text
+
+            Ping ->
+                "ping"
+
+-- HELPERS --
 
 
 decode :: Text -> Text -> Maybe Route

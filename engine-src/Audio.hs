@@ -32,10 +32,25 @@ import qualified Data.WAVE as W
 import qualified System.Process as SP
 
 
+-- TYPES --
+
+
 data Audio
     = Mono Mono
     | Stereo Stereo
 
+
+instance Show Audio where
+    show audio =
+        case audio of
+            Mono mono ->
+                show mono
+
+            Stereo stereo ->
+                show stereo
+
+
+-- HELPERS --
 
 fromMono :: Mono -> Audio
 fromMono =

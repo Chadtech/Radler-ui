@@ -22,6 +22,16 @@ data Model
     | HasScore Score Audio
 
 
+instance Show Model where
+    show model =
+        case model of
+            Init ->
+                "Model.Init"
+
+            HasScore _ _ ->
+                "Model.HasScore"
+            
+
 init :: Model
 init =
     Init   

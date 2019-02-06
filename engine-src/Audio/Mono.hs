@@ -35,8 +35,19 @@ import qualified Data.Vector as V
 import qualified Data.Tuple.Extra as Tuple
 
 
+-- TYPES --
+
+
 data Mono
     = Mono (Vector Float)
+
+
+instance Show Mono where
+    show (Mono mono) =
+        show mono
+
+
+-- HELPERS --
 
 
 toVector :: Mono -> Vector Float

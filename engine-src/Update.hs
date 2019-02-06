@@ -51,7 +51,7 @@ update msg model =
 
 handleRoute :: Route -> Model -> ( Model, Cmd, Response )
 handleRoute route model =
-    case route of
+    case trace "ROUTE" route of
         Ping ->
             ( model
             , Cmd.none
@@ -131,13 +131,14 @@ playScore incomingScore model =
                 audio :: Audio
                 audio =
                     Score.toDevAudio incomingScore
+                        |> trace "SCORE"
             in
             ( Model.HasScore incomingScore audio
             , writeAndPlayCmd audio
             , Response.json Json.null
             )            
     in
-    case model of
+    case trace "model" model of
         Model.HasScore existingScore existingAudio ->
             let 
                 diff :: Either Error (Resolution (List Part))
@@ -146,7 +147,6 @@ playScore incomingScore model =
                         incomingScore
                         existingScore
                         |> Either.mapLeft Error.ScoreError
-                        |> debugLog "Resolution" show
             in
             case diff of 
                 Right (Score.Changes (toRemove, toAdd)) ->

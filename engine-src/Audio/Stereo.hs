@@ -30,8 +30,19 @@ import qualified Data.Vector as V
 import qualified Data.Vector.Unboxed as Vector
 
 
+-- TYPES --
+
+
 data Stereo
     = Stereo (Vector (Float, Float))
+
+
+instance Show Stereo where
+    show (Stereo stereo) =
+        show stereo
+
+
+-- HELPERS --
 
 
 length :: Stereo -> Int

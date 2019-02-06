@@ -54,6 +54,11 @@ data Score
         deriving (Eq)
 
 
+instance Show Score where
+    show score =
+        "score"
+
+
 -- HELPERS --
 
 
@@ -63,13 +68,13 @@ diff incomingScore existingScore =
         Right Resolution.Identical
 
     else if name incomingScore /= name existingScore then
-        debugLog "NAME" show <| Right Resolution.Unresolvable
+        Right Resolution.Unresolvable
         
     else if config incomingScore /= config existingScore then
-        debugLog "CONFIG" show <| Right Resolution.Unresolvable
+        Right Resolution.Unresolvable
 
     else if not <| sameNumberOfParts incomingScore existingScore then
-        debugLog "NUMBER OF PARTS" show <| Right Resolution.Unresolvable
+        Right Resolution.Unresolvable
 
     else
         List.zip

@@ -4,7 +4,7 @@
 module Prelude.Extra 
     ( head
     , List
-    , debugLog
+    , trace
     , mixLists
     , slice
     , toFloat
@@ -84,7 +84,7 @@ mixLists xs ys =
 type List a = [ a ]
 
 
-debugLog :: String -> (a -> String) -> a -> a
-debugLog msg toString x =
-    Debug.trace (msg ++ " : " ++ (toString x)) x
+trace :: Show a => String -> a -> a
+trace msg x =
+    Debug.trace (msg ++ " : " ++ (show x)) x
 
