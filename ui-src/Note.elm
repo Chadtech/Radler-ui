@@ -37,12 +37,22 @@ type Msg
 -- UPDATE --
 
 
+{-|
+
+    Theres a lot of indexing going on!
+
+        ti := tracker index
+        pi := part index
+        bi := beat index
+        ni := note index
+
+-}
 update : Int -> Int -> Int -> Int -> Msg -> Model -> ( Model, Cmd Msg )
-update ti si bi ni msg model =
+update ti pi bi ni msg model =
     case msg of
         Updated note ->
             model
-                |> updateBeat si bi ni note
+                |> updateBeat pi bi ni note
                 |> R2.withNoCmd
 
         MovementKeyPressed Up ->
@@ -71,11 +81,11 @@ update ti si bi ni msg model =
 
 
 updateBeat : Int -> Int -> Int -> Note -> Model -> Model
-updateBeat si bi ni note =
+updateBeat pi bi ni note =
     note
         |> Beat.setNote ni
         |> Part.mapBeat bi
-        |> Model.mapPart si
+        |> Model.mapPart pi
 
 
 focusOnNote : String -> Cmd Msg
