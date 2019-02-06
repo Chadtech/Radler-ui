@@ -16,7 +16,7 @@ import Html.Grid as Grid
 import Html.Styled as Html exposing (Attribute, Html)
 import Html.Styled.Attributes as Attrs
 import Html.Styled.Events as Events
-import Json.Decode as D exposing (Decoder)
+import Json.Decode as Decode exposing (Decoder)
 import Model exposing (Model)
 import Return2 as R2
 import Style
@@ -162,31 +162,37 @@ type Direction
 
 onMovementKey : (Direction -> msg) -> Attribute msg
 onMovementKey ctor =
-    Events.keyCode
-        |> D.andThen directionDecoder
-        |> D.map ctor
+    Decode.map2 Tuple.pair
+        (Decode.field "metaKey" Decode.bool)
+        Events.keyCode
+        |> Decode.andThen directionDecoder
+        |> Decode.map ctor
         |> Events.on "keydown"
 
 
-directionDecoder : Int -> Decoder Direction
-directionDecoder key =
-    case key of
-        -- Arrow keys --
-        37 ->
-            D.succeed Left
+directionDecoder : ( Bool, Int ) -> Decoder Direction
+directionDecoder ( metaKey, key ) =
+    if metaKey then
+        case key of
+            -- Arrow keys --
+            37 ->
+                Decode.succeed Left
 
-        39 ->
-            D.succeed Right
+            39 ->
+                Decode.succeed Right
 
-        38 ->
-            D.succeed Up
+            38 ->
+                Decode.succeed Up
 
-        40 ->
-            D.succeed Down
+            40 ->
+                Decode.succeed Down
 
-        -- Enter Key
-        13 ->
-            D.succeed Down
+            -- Enter Key
+            13 ->
+                Decode.succeed Down
 
-        _ ->
-            D.fail "Key isnt a direction key (arrows and enter)"
+            _ ->
+                Decode.fail "Key isnt a direction key (arrows and enter)"
+
+    else
+        Decode.fail "MetaKey not pressed"
