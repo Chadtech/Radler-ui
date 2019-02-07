@@ -5,6 +5,7 @@ module Prelude.Extra
     ( head
     , List
     , trace
+    , mapTrace
     , mixLists
     , slice
     , toFloat
@@ -86,5 +87,9 @@ type List a = [ a ]
 
 trace :: Show a => String -> a -> a
 trace msg x =
-    Debug.trace (msg ++ " : " ++ (show x)) x
+    mapTrace msg id x
 
+
+mapTrace :: Show b => String -> (a -> b) -> a -> a
+mapTrace msg f x =
+    Debug.trace (msg ++ " : " ++ (show <| f x)) x

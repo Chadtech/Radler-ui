@@ -131,7 +131,6 @@ playScore incomingScore model =
                 audio :: Audio
                 audio =
                     Score.toDevAudio incomingScore
-                        |> trace "SCORE"
             in
             ( Model.HasScore incomingScore audio
             , writeAndPlayCmd audio

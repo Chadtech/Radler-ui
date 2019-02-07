@@ -145,9 +145,10 @@ fromTimeline timeline =
             |> V.map timelineSamples
             |> V.toList
             |> Vector.concat
+            |> mapTrace "TIME LINES TIMES" (Vector.map fst)
             |> Vector.accumulate 
                 (+)
-                (timelineBasis $ V.last timeline)
+                (timelineBasis <| mapTrace "LAST" fst <| V.last timeline)
             |> Mono
 
 

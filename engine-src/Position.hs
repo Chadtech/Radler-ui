@@ -37,6 +37,17 @@ data Position
         deriving (Eq)
 
 
+instance Show Position where
+    show position =
+        [ T.pack ("x : " ++ show (x position))
+        , T.pack ("y : " ++ show (y position))
+        , T.pack ("z : " ++ show (z position))
+        ]
+            |> T.concat
+            |> T.unpack
+
+
+
 data Part 
     = X
     | Y

@@ -44,6 +44,13 @@ data Part
     deriving (Eq)
 
 
+instance Show Part where
+    show part =
+        case part of
+            Sin sinModel ->
+                "Sin " ++ show sinModel
+
+
 -- HELPERS --
 
 

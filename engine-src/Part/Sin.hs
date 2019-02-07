@@ -28,6 +28,7 @@ import qualified Data.IntMap.Strict as IntMap
 import qualified Data.List as List
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
+import qualified Data.Tuple.Extra as Tuple
 import Data.Vector (Vector)
 import qualified Data.Vector as Vector
 import qualified Note
@@ -43,6 +44,8 @@ import Room (Room)
 import qualified Room 
 import Scale (Scale)
 import qualified Scale
+import Time (Time)
+import qualified Time
 
 
 -- TYPES --
@@ -56,6 +59,19 @@ data Model
         deriving (Eq)
 
 
+instance Show Model where
+    show sin =
+        [ T.append
+            "Number of Notes : " 
+            (T.pack <| show <| IntMap.size <| notes sin)
+        , T.append
+            "Position : " 
+            (T.pack <| show (position sin))
+        ]
+            |> T.concat
+            |> T.unpack
+
+
 data Note 
     = Note
         { noteModel :: Note.Model
@@ -64,6 +80,11 @@ data Note
         , duration :: Int
         }
         deriving (Eq)
+
+    
+instance Show Note where
+    show note =
+        "NoteT.pack "
 
 
 -- HELPERS --
@@ -108,10 +129,17 @@ read config detailsText =
         <. readManyNoteTexts config
 
 
-readModel :: List Text -> List (Int, Note) -> Model
+readModel :: List Text -> List (Time, Note) -> Model
 readModel detailsText notes =
+    let
+        notesByTime :: IntMap Note
+        notesByTime =
+            notes
+                |> List.map (Tuple.first Time.toInt)
+                |> IntMap.fromList 
+    in
     Model 
-        (IntMap.fromList notes)
+        notesByTime
         (applyPosition detailsText)
 
 
@@ -135,7 +163,7 @@ applyPosition detailsText =
             Nothing
 
 
-readManyNoteTexts :: Config -> List Text -> Either Error (List (Int, Note))
+readManyNoteTexts :: Config -> List Text -> Either Error (List (Time, Note))
 readManyNoteTexts config noteTexts =
     readManyNoteTextsAccumulate 
         config 
@@ -143,7 +171,7 @@ readManyNoteTexts config noteTexts =
         []
 
 
-readManyNoteTextsAccumulate :: Config -> List Text -> List (Int, Note) -> Either Error (List (Int, Note))
+readManyNoteTextsAccumulate :: Config -> List Text -> List (Time, Note) -> Either Error (List (Time, Note))
 readManyNoteTextsAccumulate config noteTexts notes =
     case noteTexts of
         first : rest ->
@@ -167,7 +195,7 @@ readManyNoteTextsAccumulate config noteTexts notes =
             Right notes
 
 
-readNoteText :: Config -> Text -> Either Error (Maybe (Int, Note))
+readNoteText :: Config -> Text -> Either Error (Maybe (Time, Note))
 readNoteText config noteTxt =
     case Note.read config noteTxt of
         Right (noteBase, contentTxt) ->
@@ -186,7 +214,7 @@ readNoteText config noteTxt =
             Left <| NoteError error
 
 
-readNonEmptyNoteText :: Config -> (Int, Note.Model) -> Text -> Either Error (Int, Note)
+readNonEmptyNoteText :: Config -> (Time, Note.Model) -> Text -> Either Error (Time, Note)
 readNonEmptyNoteText config (time, noteBase) contentTxt =
     Note
         |> Right

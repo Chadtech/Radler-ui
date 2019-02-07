@@ -20,6 +20,8 @@ import qualified Data.List as List
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import Parse
+import Time (Time)
+import qualified Time
 
 
 data Model 
@@ -31,13 +33,14 @@ data Model
 -- READ NOTE --
 
 
-read :: Config -> Text -> Either Error ((Int, Model), Text)
+read :: Config -> Text -> Either Error ((Time, Model), Text)
 read config txt =
     case T.splitOn "," txt of
         timeTxt : randomSeedTxt : content : [] ->
             case (Parse.decodeInt timeTxt, Parse.decodeInt randomSeedTxt) of
                 (Right time, Right randomSeed) ->
                     ( ( time + (Config.timingVariance config)
+                        |> Time.fromInt
                       , Model { randomSeed = randomSeed }
                       )
                     , content
