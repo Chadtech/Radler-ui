@@ -32,6 +32,8 @@ import Data.List as List
 import qualified Data.Traversable as Traversable
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
+import Index (Index)
+import qualified Index
 import Parse (parse)
 import qualified Parse
 import Part (Part)
@@ -96,7 +98,7 @@ numberOfParts =
     List.length <. parts
 
 
-buildFilename :: Score -> Int -> Text
+buildFilename :: Score -> Index -> Text
 buildFilename score partIndex =
     [ name score
     , "-"

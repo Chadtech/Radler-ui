@@ -9,7 +9,6 @@ module Prelude.Extra
     , mixLists
     , slice
     , toFloat
-    , indexList
     , replaceChar
     ) where
 
@@ -59,14 +58,6 @@ replaceIfTarget target replacement char =
 
     else
         char
-
-
-indexList :: List a -> List (Int, a)
-indexList xs =
-    zipWith 
-        (,) 
-        ([ 0 .. List.length xs - 1 ]) 
-        xs
 
 
 mixLists :: List a -> List a -> List a

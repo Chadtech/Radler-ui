@@ -8,7 +8,6 @@ module Audio.Mono
     , declip
     , empty
     , singleton
-    , fromTimeline
     , fromVector
     , Audio.Mono.length
     , mix
@@ -135,23 +134,6 @@ compressSample s =
     s + (s * (1 - s))
 
 
-fromTimeline :: V.Vector (Int, Mono) -> Mono
-fromTimeline timeline =
-    if V.length timeline == 0 then
-        empty
-
-    else
-        timeline 
-            |> V.map timelineSamples
-            |> V.toList
-            |> Vector.concat
-            |> mapTrace "TIME LINES TIMES" (Vector.map fst)
-            |> Vector.accumulate 
-                (+)
-                (timelineBasis <| mapTrace "LAST" fst <| V.last timeline)
-            |> Mono
-
-
 declip :: Mono -> Mono
 declip (Mono vector) =
     Vector.accumulate
@@ -194,20 +176,6 @@ declipLength =
 divideIndexBy :: Int -> Float
 divideIndexBy i =
     ((fromIntegral i) / (fromIntegral declipLength)) ^ 2
-
-
-timelineBasis :: (Int, Mono) -> Vector Float 
-timelineBasis (lastStartingPoint, lastMono) =
-    lastStartingPoint + Audio.Mono.length lastMono
-        |> silence
-        |> toVector
-
-
-timelineSamples :: (Int, Mono) -> Vector (Int, Float)
-timelineSamples (beginningIndex, Mono vector) =
-    vector
-        |> Vector.indexed
-        |> Vector.map (Tuple.first ((+) beginningIndex))
 
 
 lopass :: Float -> Int -> Mono -> Mono

@@ -23,8 +23,6 @@ import Audio.Mono.Position (positionMono)
 import Config (Config)
 import qualified Config
 import qualified Data.Either.Extra as Either
-import Data.IntMap.Strict (IntMap)
-import qualified Data.IntMap.Strict as IntMap
 import qualified Data.List as List
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
@@ -46,6 +44,8 @@ import Scale (Scale)
 import qualified Scale
 import Time (Time)
 import qualified Time
+import Timeline (Timeline)
+import qualified Timeline
 
 
 -- TYPES --
@@ -53,7 +53,7 @@ import qualified Time
 
 data Model
     = Model
-        { notes :: IntMap Note 
+        { notes :: Timeline Note 
         , position :: Maybe Position
         }
         deriving (Eq)
@@ -63,7 +63,7 @@ instance Show Model where
     show sin =
         [ T.append
             "Number of Notes : " 
-            (T.pack <| show <| IntMap.size <| notes sin)
+            (T.pack <| show <| Timeline.size <| notes sin)
         , T.append
             "Position : " 
             (T.pack <| show (position sin))
@@ -84,7 +84,7 @@ data Note
     
 instance Show Note where
     show note =
-        "NoteT.pack "
+        "Note"
 
 
 -- HELPERS --
@@ -93,19 +93,19 @@ instance Show Note where
 diff :: Model -> Model -> Either Error (Resolution Model)
 diff incomingModel existingModel =
     ( mapNotes 
-        (IntMap.filterWithKey (isntNoteOf incomingModel)) 
+        (Timeline.filterKey (isntNoteOf incomingModel)) 
         existingModel
     , mapNotes 
-        (IntMap.filterWithKey (isntNoteOf existingModel)) 
+        (Timeline.filterKey (isntNoteOf existingModel)) 
         incomingModel
     )
         |> Resolution.Changes
         |> Right
 
 
-isntNoteOf :: Model -> Int -> Note -> Bool
-isntNoteOf model key note =
-    case IntMap.lookup key (notes model) of
+isntNoteOf :: Model -> Time -> Note -> Bool
+isntNoteOf model time note =
+    case Timeline.get time (notes model) of
         Just modelsNote ->
             modelsNote /= note
 
@@ -113,14 +113,14 @@ isntNoteOf model key note =
             True
 
 
-mapNotes :: (IntMap Note -> IntMap Note) -> Model -> Model
+mapNotes :: (Timeline Note -> Timeline Note) -> Model -> Model
 mapNotes f model =
     model { notes = f (notes model) }
 
 
 sameLength :: Model -> Model -> Bool
 sameLength incomingModel existingModel =
-    List.length (notes incomingModel) == List.length (notes existingModel)
+    Timeline.size (notes incomingModel) == Timeline.size (notes existingModel)
 
 
 read :: Config -> List Text -> List Text -> Either Error Model
@@ -131,15 +131,8 @@ read config detailsText =
 
 readModel :: List Text -> List (Time, Note) -> Model
 readModel detailsText notes =
-    let
-        notesByTime :: IntMap Note
-        notesByTime =
-            notes
-                |> List.map (Tuple.first Time.toInt)
-                |> IntMap.fromList 
-    in
     Model 
-        notesByTime
+        (Timeline.fromList notes)
         (applyPosition detailsText)
 
 
@@ -229,21 +222,19 @@ toMono :: Model -> Mono
 toMono model = 
     model
         |> notes
-        |> IntMap.toList        
-        |> Vector.fromList
-        |> Vector.map noteToMono
-        |> Mono.fromTimeline
+        |> Timeline.map noteToMono
+        |> Timeline.toMono
+        -- |> Timeline.toVector
+        -- |> Mono.fromTimeline
 
 
-noteToMono :: (Int, Note) -> (Int, Mono)
-noteToMono (time, note) =
-    ( time
-    , Mono.sin 
+noteToMono :: Note -> Mono
+noteToMono note =
+    Mono.sin 
         (freq note)
         (duration note)
         |> Mono.setVolume (volume note)
         |> Mono.declip
-    )
 
 
 build :: Maybe Room -> Model -> Audio

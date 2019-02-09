@@ -17,6 +17,8 @@ import qualified Data.Text.Lazy as T
 import qualified Debug.Trace
 import Error (Error)
 import qualified Error
+import Index (Index)
+import qualified Index
 import Json (Json)
 import qualified Json
 import Msg (Msg(..))
@@ -97,12 +99,12 @@ buildScore :: Score -> Cmd
 buildScore incomingScore =
     incomingScore
         |> Score.build
-        |> indexList
+        |> Index.list
         |> List.map (buildPart incomingScore)
         |> Cmd.batch
 
 
-buildPart :: Score -> (Int, Audio) -> Cmd
+buildPart :: Score -> (Index, Audio) -> Cmd
 buildPart score (index, audio) =
     Audio.write
         (Score.buildFilename score index)
