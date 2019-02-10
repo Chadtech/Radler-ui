@@ -60,6 +60,9 @@ instance Show Part where
             Saw model ->
                 "Saw " ++ show model
 
+            Harmonics model ->
+                "Harmonics " ++ show model
+
 
 -- HELPERS --
 

@@ -21,6 +21,7 @@ executable radler
   ghc-options: 
     -- -prof -fprof-auto -rtsopts
     -O2
+    -fwarn-incomplete-patterns
   --   -threaded
   --   -fprof-auto
   --   "-with-rtsopts=-N -p -s -h -i0.1"
