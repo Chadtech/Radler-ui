@@ -19,6 +19,7 @@ module Audio.Mono
     , delay
     , Audio.Mono.subtract
     , Audio.Mono.sin
+    , saw
     ) where
 
 
@@ -26,6 +27,7 @@ import Flow
 import Prelude.Extra
 
 import qualified Control.Monad as CM
+import qualified Data.Fixed as Fixed
 import Data.Int (Int32)
 import qualified Data.List as List
 import Data.Vector.Unboxed (Vector)
@@ -82,6 +84,24 @@ sin freq duration =
         |> Mono
 
 
+saw :: Float -> Int -> Mono
+saw freq duration =
+    Vector.generate
+        duration
+        (sawAtSample freq)
+        |> Mono
+
+
+sawAtSample :: Float -> Int -> Float
+sawAtSample freq index =
+    let
+        j :: Float
+        j = 
+            toFloat index / (44100 / freq)
+    in
+    2 * (j - (toFloat <| floor (0.5 + j)))
+
+
 sinAtSample :: Float -> Int -> Float
 sinAtSample freq index =
     Prelude.sin (2 * pi * (freq / 44100) * toFloat index) 
@@ -106,7 +126,7 @@ mixMany !monos =
 
 
 mix :: Mono -> Mono -> Mono
-mix mono0 mono1 =
+mix !mono0 !mono1 =
     let
         ( equalizedMono0, equalizedMono1 ) =
             equalizeLengths mono0 mono1

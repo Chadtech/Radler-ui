@@ -14,7 +14,6 @@ import qualified Data.Either.Extra as Either
 import qualified Data.List as List
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
-import qualified Debug.Trace
 import Error (Error)
 import qualified Error
 import Index (Index)
@@ -53,7 +52,7 @@ update msg model =
 
 handleRoute :: Route -> Model -> ( Model, Cmd, Response )
 handleRoute route model =
-    case trace "ROUTE" route of
+    case route of
         Ping ->
             ( model
             , Cmd.none
@@ -139,7 +138,7 @@ playScore incomingScore model =
             , Response.json Json.null
             )            
     in
-    case trace "model" model of
+    case model of
         Model.HasScore existingScore existingAudio ->
             let 
                 diff :: Either Error (Resolution (List Part))

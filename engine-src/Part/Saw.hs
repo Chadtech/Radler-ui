@@ -1,11 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 
-module Part.Sin
+module Part.Saw
     ( Model
     , diff
     , build
-    , Part.Sin.read
+    , Part.Saw.read
     , toMono
     , Error
     , throw
@@ -60,13 +60,13 @@ data Model
 
 
 instance Show Model where
-    show sin =
+    show saw =
         [ T.append
             "Number of Notes : " 
-            (T.pack <| show <| Timeline.size <| notes sin)
+            (T.pack <| show <| Timeline.size <| notes saw)
         , T.append
             "Position : " 
-            (T.pack <| show (position sin))
+            (T.pack <| show (position saw))
         ]
             |> T.concat
             |> T.unpack
@@ -228,7 +228,7 @@ toMono model =
 
 noteToMono :: Note -> Mono
 noteToMono note =
-    Mono.sin 
+    Mono.saw 
         (freq note)
         (duration note)
         |> Mono.setVolume (volume note)

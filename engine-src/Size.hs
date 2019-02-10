@@ -6,9 +6,11 @@ module Size
     , width
     , Size.length
     , height
+    , multiplyBy
     , Size.read
     , Error
     , throw
+    , multiplyBy
     ) where
 
 
@@ -79,6 +81,14 @@ partToText part =
 
         Height ->
             "height"
+
+
+multiplyBy :: Int -> Size -> Size
+multiplyBy factor size =
+    Size
+        (toFloat factor * width size)
+        (toFloat factor * Size.length size)
+        (toFloat factor * height size)
 
 
 -- ERROR --

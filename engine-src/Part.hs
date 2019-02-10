@@ -30,6 +30,7 @@ import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import qualified Data.Tuple.Extra as Tuple
 import qualified Part.Sin as Sin
+import qualified Part.Saw as Saw
 import Resolution (Resolution)
 import qualified Resolution
 import Room (Room)
@@ -41,6 +42,7 @@ import qualified Room
 
 data Part
     = Sin Sin.Model
+    | Saw Saw.Model
     deriving (Eq)
 
 
@@ -70,6 +72,14 @@ diff (incomingPart, existingPart) =
                 |> Either.mapRight (Resolution.map Sin) 
                 |> Either.mapLeft SinError
 
+        (Saw incomingSinModel, Saw existingSinModel) ->
+            Saw.diff incomingSinModel existingSinModel
+                |> Either.mapRight (Resolution.map Saw) 
+                |> Either.mapLeft SawError
+
+        _ ->
+            Right Resolution.Unresolvable
+
 
 fromPieces :: Config -> (Text, List Text) -> Either Error Part
 fromPieces config (partTxt, noteTxts) =
@@ -79,6 +89,12 @@ fromPieces config (partTxt, noteTxts) =
                 |> Sin.read config partDetails
                 |> Either.mapRight Sin
                 |> Either.mapLeft SinError
+
+        "saw" : partDetails ->
+            noteTxts
+                |> Saw.read config partDetails
+                |> Either.mapRight Saw
+                |> Either.mapLeft SawError
 
         _ ->
             Left <| UnrecognizedPartType partTxt
@@ -134,6 +150,11 @@ toDevAudio part =
                 |> Sin.toMono
                 |> Audio.fromMono
 
+        Saw sawModel ->
+            sawModel
+                |> Saw.toMono
+                |> Audio.fromMono
+
 
 build :: Maybe Room -> Part -> Audio
 build maybeRoom part =
@@ -141,6 +162,10 @@ build maybeRoom part =
         Sin sinModel ->
             sinModel
                 |> Sin.build maybeRoom
+
+        Saw sawModel ->
+            sawModel
+                |> Saw.build maybeRoom
 
 
 -- ERROR -- 
@@ -150,6 +175,7 @@ data Error
     = UnrecognizedPartType Text
     | VoicesAndNotesNotOneToOne Int Int
     | SinError Sin.Error
+    | SawError Saw.Error
     | DiffError
 
 
@@ -178,6 +204,11 @@ errorToText error =
             sinError
                 |> Sin.throw 
                 |> T.append "Error in Sin Voice -> \n" 
+
+        SawError sawError ->
+            sawError
+                |> Saw.throw 
+                |> T.append "Error in Saw Voice -> \n" 
 
         DiffError ->
             "Diffing parts that arent the same type"

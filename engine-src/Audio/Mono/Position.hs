@@ -21,27 +21,17 @@ import qualified Size
 
 positionMono :: Room -> Position -> Mono -> Stereo
 positionMono room soundPosition !mono =
-    let
-        listenerPosition :: Position
-        listenerPosition =
-            Room.listenerPosition room
-
-        roomSize :: Size
-        roomSize =
-            Room.size room
-    in
     ( positionRelativeToEar
-        roomSize
-        (leftEarPosition listenerPosition)
+        (Room.mapListenerPosition leftEarPosition room)
         soundPosition
         mono
     , positionRelativeToEar
-        roomSize
-        (rightEarPosition listenerPosition)
+        (Room.mapListenerPosition rightEarPosition room)
         soundPosition
         mono
     )
         |> Stereo.fromMonos
+
 
 leftEarPosition :: Position -> Position
 leftEarPosition =
@@ -53,8 +43,17 @@ rightEarPosition =
     Position.addToX 0.5
 
 
-positionRelativeToEar :: Size -> Position -> Position -> Mono -> Mono
-positionRelativeToEar roomSize earPosition soundPosition !mono =
+positionRelativeToEar :: Room -> Position -> Mono -> Mono
+positionRelativeToEar room soundPosition !mono =
+    let
+        roomSize :: Size
+        roomSize =
+            Room.size room
+
+        earPosition :: Position
+        earPosition =
+            Room.listenerPosition room
+    in
     [ directDelay earPosition soundPosition mono
     , delayFromFarWallReflection roomSize earPosition soundPosition mono
     , delayFromRightWallReflection roomSize earPosition soundPosition mono
@@ -64,6 +63,7 @@ positionRelativeToEar roomSize earPosition soundPosition !mono =
     , delayFromFloorReflection earPosition soundPosition mono
     ]
         |> Mono.mixMany
+
 
 
 delayFromBackWallReflection :: Position -> Position -> Mono -> Mono

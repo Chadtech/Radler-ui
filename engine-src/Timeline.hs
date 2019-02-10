@@ -81,7 +81,6 @@ toMono (Timeline intMap) =
                         |> IntMap.mapWithKey timelineSamples
                         |> IntMap.elems
                         |> Unboxed.concat
-                        -- |> mapTrace "ELEMENTS" (Unboxed.map fst)
 
             in
             everySample
@@ -91,7 +90,7 @@ toMono (Timeline intMap) =
 
 timelineLength :: Unboxed.Vector (Int, Float) -> Int
 timelineLength =
-    trace "Timeline Length" <. (+) 1 <. fst <. Unboxed.maximumBy laterSample
+    (+) 1 <. fst <. Unboxed.maximumBy laterSample
 
 
 laterSample :: (Int, Float) -> (Int, Float) -> Ordering
