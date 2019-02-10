@@ -31,6 +31,7 @@ import qualified Data.Text.Lazy as T
 import qualified Data.Tuple.Extra as Tuple
 import qualified Part.Sin as Sin
 import qualified Part.Saw as Saw
+import qualified Part.Osc as Osc
 import Resolution (Resolution)
 import qualified Resolution
 import Room (Room)
@@ -41,16 +42,19 @@ import qualified Room
 
 
 data Part
-    = Sin Sin.Model
-    | Saw Saw.Model
+    = Sin Osc.Model
+    | Saw Osc.Model
     deriving (Eq)
 
 
 instance Show Part where
     show part =
         case part of
-            Sin sinModel ->
-                "Sin " ++ show sinModel
+            Sin model ->
+                "Sin " ++ show model
+
+            Saw model ->
+                "Saw " ++ show model
 
 
 -- HELPERS --
@@ -68,12 +72,12 @@ diff :: (Part, Part) -> Either Error (Resolution Part)
 diff (incomingPart, existingPart) =
     case (incomingPart, existingPart) of
         (Sin incomingSinModel, Sin existingSinModel) ->
-            Sin.diff incomingSinModel existingSinModel
+            Osc.diff incomingSinModel existingSinModel
                 |> Either.mapRight (Resolution.map Sin) 
                 |> Either.mapLeft SinError
 
         (Saw incomingSinModel, Saw existingSinModel) ->
-            Saw.diff incomingSinModel existingSinModel
+            Osc.diff incomingSinModel existingSinModel
                 |> Either.mapRight (Resolution.map Saw) 
                 |> Either.mapLeft SawError
 
@@ -86,13 +90,17 @@ fromPieces config (partTxt, noteTxts) =
     case T.splitOn "," partTxt of
         "sin" : partDetails ->
             noteTxts
-                |> Sin.read config partDetails
+                |> Osc.read 
+                    config 
+                    (Osc.Flags Sin.toMono partDetails)
                 |> Either.mapRight Sin
                 |> Either.mapLeft SinError
 
         "saw" : partDetails ->
             noteTxts
-                |> Saw.read config partDetails
+                |> Osc.read 
+                    config 
+                    (Osc.Flags Saw.toMono partDetails)
                 |> Either.mapRight Saw
                 |> Either.mapLeft SawError
 
@@ -145,27 +153,27 @@ readMany config voiceNameTxts noteTxts =
 toDevAudio :: Part -> Audio
 toDevAudio part =
     case part of
-        Sin sinModel ->
-            sinModel
-                |> Sin.toMono
+        Sin model ->
+            model
+                |> Osc.toMono
                 |> Audio.fromMono
 
-        Saw sawModel ->
-            sawModel
-                |> Saw.toMono
+        Saw model ->
+            model
+                |> Osc.toMono
                 |> Audio.fromMono
 
 
 build :: Maybe Room -> Part -> Audio
 build maybeRoom part =
     case part of
-        Sin sinModel ->
-            sinModel
-                |> Sin.build maybeRoom
+        Sin model ->
+            model
+                |> Osc.build maybeRoom
 
-        Saw sawModel ->
-            sawModel
-                |> Saw.build maybeRoom
+        Saw model ->
+            model
+                |> Osc.build maybeRoom
 
 
 -- ERROR -- 
@@ -174,8 +182,8 @@ build maybeRoom part =
 data Error
     = UnrecognizedPartType Text
     | VoicesAndNotesNotOneToOne Int Int
-    | SinError Sin.Error
-    | SawError Saw.Error
+    | SinError Osc.Error
+    | SawError Osc.Error
     | DiffError
 
 
@@ -202,12 +210,12 @@ errorToText error =
 
         SinError sinError ->
             sinError
-                |> Sin.throw 
+                |> Osc.throw 
                 |> T.append "Error in Sin Voice -> \n" 
 
         SawError sawError ->
             sawError
-                |> Saw.throw 
+                |> Osc.throw 
                 |> T.append "Error in Saw Voice -> \n" 
 
         DiffError ->

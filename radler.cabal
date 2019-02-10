@@ -35,6 +35,7 @@ executable radler
     Constants
     Cmd
     Error
+    Index
     Json
     Model
     Msg
@@ -42,6 +43,8 @@ executable radler
     Parse
     Part
     Part.Duration
+    Part.Osc
+    Part.Saw
     Part.Sin
     Part.Volume
     Position
@@ -56,6 +59,8 @@ executable radler
     Scale.Major7ToneJit
     Score
     Size
+    Timeline
+    Time
     Update       
     Voice
   -- other-extensions:    
