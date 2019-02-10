@@ -8,6 +8,7 @@ module Route
 
 
 import Flow
+import Prelude.Extra
 
 import Data.Function
 import qualified Data.Either.Extra as Either

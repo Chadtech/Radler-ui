@@ -2,7 +2,9 @@
 
 
 module Part.Saw
-    ( toMono
+    ( Model
+    , makeFlags
+    , toMono
     ) where
 
 
@@ -11,11 +13,30 @@ import Prelude.Extra
     
 import Audio.Mono (Mono)
 import qualified Audio.Mono as Mono
+import Data.Text.Lazy (Text)
+import Parse (parse)
+import qualified Parse
 import qualified Part.Osc as Osc
 
 
-toMono :: Osc.Note -> Mono
-toMono note = 
+-- TYPES --
+
+
+data Model
+    = Model
+    deriving (Eq)
+
+
+-- HELPERS --
+
+
+makeFlags :: Parse.Fields Text -> Osc.Flags Model
+makeFlags fields =
+    Osc.Flags toMono fields Model
+
+
+toMono :: Model -> Osc.Note -> Mono
+toMono _ note = 
     Mono.saw 
         (Osc.freq note)
         (Osc.duration note)

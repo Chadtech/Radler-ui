@@ -141,7 +141,9 @@ buildFromChunks chunks =
         name : voices : notes : configTxt : [] ->
             case Config.read configTxt of
                 Right config ->
-                    Score (T.strip name)
+                    name
+                        |> T.strip
+                        |> Score
                         |> Right
                         |> parse (Part.readMany config voices notes) PartError
                         |> Parse.apply config

@@ -7,6 +7,9 @@ module Router
     , post
     ) where
 
+        
+import Flow
+import Prelude.Extra
 
 import Cmd (Cmd)
 import qualified Cmd
@@ -14,7 +17,6 @@ import qualified Control.Concurrent.STM as STM
 import Control.Monad.IO.Class (liftIO)
 import qualified Control.Monad.Reader as CMR
 import qualified Data.ByteString as BS
-import Data.Function
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import Model (Model)
@@ -57,21 +59,21 @@ withBody routeTxt = do
             chunk <- rd
             let len = BS.length chunk
             if len > 0 then 
-                step $ acc ++ (bytesToString $ BS.unpack chunk)
+                step <| acc ++ (bytesToString <| BS.unpack chunk)
             else 
                 return acc
-    bodyTxt <- liftIO $ step ""
+    bodyTxt <- liftIO <| step ""
     bodyTxt
-        & T.pack
-        & Route.decode routeTxt
-        & Request
-        & respond
+        |> T.pack
+        |> Route.decode routeTxt
+        |> Request
+        |> respond
 
 
 respond :: Msg -> Response
 respond msg =
     Program.model
-        >>= fromModel msg
+        |> andThen (fromModel msg)
 
 
 fromModel :: Msg -> Model -> Response

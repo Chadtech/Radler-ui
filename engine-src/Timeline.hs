@@ -84,7 +84,7 @@ toMono (Timeline intMap) =
 
             in
             everySample
-                |> Unboxed.accumulate (+) (timelineBasis everySample)
+                |> Unboxed.unsafeAccumulate (+) (timelineBasis everySample)
                 |> Mono.fromVector
 
 

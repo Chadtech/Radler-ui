@@ -10,7 +10,6 @@ module Size
     , Size.read
     , Error
     , throw
-    , multiplyBy
     ) where
 
 
@@ -35,6 +34,16 @@ data Size
         deriving (Eq)
 
 
+instance Show Size where
+    show position =
+        [ T.pack ("width : " ++ show (width position))
+        , T.pack ("length : " ++ show (Size.length position))
+        , T.pack ("height : " ++ show (height position))
+        ]
+            |> T.concat
+            |> T.unpack
+        
+
 data Part
     = Width
     | Length
@@ -51,11 +60,11 @@ read roomFields =
 
 readFields :: Parse.Fields Float -> Either Part Size
 readFields fields =
-    case Parse.getField "width" fields of
+    case Parse.get "width" fields of
         Just width ->
-            case Parse.getField "length" fields of
+            case Parse.get "length" fields of
                 Just length ->
-                    case Parse.getField "height" fields of
+                    case Parse.get "height" fields of
                         Just height ->
                             Size width length height
                                 |> Right

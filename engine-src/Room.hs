@@ -49,6 +49,15 @@ data Room
         deriving (Eq)
 
 
+instance Show Room where
+    show room =
+        [ "Room : "
+        , T.pack <| show (listenerPosition room)
+        , T.pack <| show (size room)
+        ]
+            |> T.concat
+            |> T.unpack
+
 
 -- HELPERS --
 
@@ -62,7 +71,7 @@ read roomText =
         let
             fieldsResult :: Either Text (Parse.Fields Float)
             fieldsResult =
-                Parse.fields Parse.float roomText
+                Parse.fromDelimitedText Parse.float roomText
         in
         case fieldsResult of
             Right fields ->

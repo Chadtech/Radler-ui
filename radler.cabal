@@ -43,6 +43,7 @@ executable radler
     Parse
     Part
     Part.Duration
+    Part.Harmonics
     Part.Osc
     Part.Saw
     Part.Sin

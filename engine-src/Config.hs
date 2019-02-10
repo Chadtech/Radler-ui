@@ -40,6 +40,18 @@ data Config
         deriving (Eq)
 
 
+instance Show Config where
+    show config =
+        [ "Config : "
+        , T.pack <| show (beatLength config)
+        , T.pack <| show (timingVariance config)
+        , T.pack <| show (room config)
+        , T.pack <| show (scale config)
+        ]
+            |> T.concat
+            |> T.unpack
+
+
 -- HELPERS --
 
 
@@ -73,6 +85,10 @@ data Error
     | ScaleError Scale.Error
     | RoomError Room.Error
 
+
+instance Show Error where
+    show error =
+        T.unpack <| throw error 
 
 throw :: Error -> Text
 throw error =

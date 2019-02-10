@@ -53,10 +53,10 @@
        
     ],
     "voices": [
-        "saw,x=-5y=1z=1",
-        "saw,x=-2y=3z=1",
-        "saw,x=2y=3z=1",
-        "saw,x=5y=1z=1"
+        "harmonics | position( x=-5 y=1 z=1 ) harmonics(harmonic=1 vol=1, harmonic=2 vol=1, harmonic=3 vol=0.5)",
+        "harmonics | position( x=-2 y=3 z=1 ) harmonics(harmonic=1 vol=1, harmonic=2 vol=1, harmonic=3 vol=0.5)",
+        "harmonics | position( x=2 y=3 z=1 ) harmonics(harmonic=1 vol=1, harmonic=2 vol=1, harmonic=3 vol=0.5)",
+        "harmonics | position( x=5 y=1 z=1 ) harmonics(harmonic=1 vol=1, harmonic=2 vol=1, harmonic=3 vol=0.5)"
     ],
     "room": {
          "size": {

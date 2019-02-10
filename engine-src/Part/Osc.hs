@@ -57,28 +57,35 @@ import qualified Timeline
 -- TYPES --
 
 
-data Model
+data Model t
     = Model
         { notes :: Timeline Note 
         , position :: Maybe Position
-        , toMonoFromModel :: Note -> Mono
+        , toMonoFromModel :: t -> Note -> Mono
+        , subModel :: t
         }
 
 
-instance Eq Model where
+instance Eq t => Eq (Model t) where
     (==) model0 model1 =
         (notes model0 == notes model1)
             && (position model0 == position model1)
+            && (subModel model0 == subModel model1)
 
 
-instance Show Model where
+instance Show (Model t) where
     show osc =
-        [ T.append
-            "Number of Notes : " 
-            (T.pack <| show <| Timeline.size <| notes osc)
-        , T.append
-            "Position : " 
-            (T.pack <| show (position osc))
+        [ osc 
+            |> notes
+            |> Timeline.size
+            |> show
+            |> T.pack
+            |> T.append "Number of Notes : " 
+        , osc
+            |> position
+            |> show
+            |> T.pack
+            |> T.append "Position : "
         ]
             |> T.concat
             |> T.unpack
@@ -99,10 +106,11 @@ instance Show Note where
         "Note"
 
 
-data Flags 
-    = Flags
-        { toMonoFromFlags :: Note -> Mono
-        , detailsText :: List Text
+data Flags t
+    = Flags 
+        { toMonoFromFlags :: t -> Note -> Mono
+        , fields :: Parse.Fields Text
+        , subModelFromFlags :: t
         }
 
 
@@ -110,7 +118,7 @@ data Flags
 -- HELPERS --
 
 
-diff :: Model -> Model -> Either Error (Resolution Model)
+diff :: Model t -> Model t -> Either Error (Resolution (Model t))
 diff incomingModel existingModel =
     ( mapNotes 
         (Timeline.filterKey (isntNoteOf incomingModel)) 
@@ -123,7 +131,7 @@ diff incomingModel existingModel =
         |> Right
 
 
-isntNoteOf :: Model -> Time -> Note -> Bool
+isntNoteOf :: Model t -> Time -> Note -> Bool
 isntNoteOf model time note =
     case Timeline.get time (notes model) of
         Just modelsNote ->
@@ -133,48 +141,58 @@ isntNoteOf model time note =
             True
 
 
-mapNotes :: (Timeline Note -> Timeline Note) -> Model -> Model
+mapNotes :: (Timeline Note -> Timeline Note) -> Model t -> Model t
 mapNotes f model =
     model { notes = f (notes model) }
 
 
-sameLength :: Model -> Model -> Bool
+sameLength :: Model t -> Model t -> Bool
 sameLength incomingModel existingModel =
     Timeline.size (notes incomingModel) == Timeline.size (notes existingModel)
 
 
-read :: Config -> Flags -> List Text -> Either Error Model
-read config flags = 
-    Either.mapRight (readModel flags)
-        <. readManyNoteTexts config
+read :: Config -> Flags t -> List Text -> Either Error (Model t)
+read config flags noteTexts = 
+    noteTexts
+        |> (readManyNoteTexts config)
+        |> andThen (readModel flags)
 
-
-readModel :: Flags -> List (Time, Note) -> Model
+        
+readModel :: Flags t -> List (Time, Note) -> Either Error (Model t)
 readModel flags notes =
-    Model 
-        (Timeline.fromList notes)
-        (applyPosition <| detailsText flags)
-        (toMonoFromFlags flags)
+    case parsePosition <| fields flags of
+        Right position ->
+            Model 
+                (Timeline.fromList notes)
+                position
+                (toMonoFromFlags flags)
+                (subModelFromFlags flags)
+                |> Right
+
+        Left error ->
+            Left error
 
 
-applyPosition :: List Text -> Maybe Position
-applyPosition detailsText =
-    case detailsText  of
-        first : rest ->
-            case Parse.fields Parse.float first of
+parsePosition :: Parse.Fields Text -> Either Error (Maybe Position)
+parsePosition fields =
+    case Parse.get "position" fields of
+        Nothing ->
+            Right Nothing
+
+        Just positionText ->
+            case
+                Parse.fromDelimitedText 
+                    Parse.float
+                    positionText
+            of
                 Right fields ->
-                    case Position.read fields of
-                        Right position ->
-                            Just position
+                    fields
+                        |> Position.read
+                        |> Either.mapRight Just
+                        |> Either.mapLeft PositionError
 
-                        Left _ ->
-                            applyPosition rest
-
-                Left _ ->
-                    applyPosition rest
-
-        [] ->
-            Nothing
+                Left error ->
+                    Left <| FieldsError error
 
 
 readManyNoteTexts :: Config -> List Text -> Either Error (List (Time, Note))
@@ -239,15 +257,16 @@ readNonEmptyNoteText config (time, noteBase) contentTxt =
         |> Either.mapRight ((,) time)
 
 
-toMono :: Model -> Mono
+toMono :: Model t -> Mono
 toMono model = 
     model
         |> notes
-        |> Timeline.map (toMonoFromModel model)
+        |> Timeline.map 
+            (toMonoFromModel model <| subModel model)
         |> Timeline.toMono
 
 
-build :: Maybe Room -> Model -> Audio
+build :: Maybe Room -> Model t -> Audio
 build maybeRoom model = 
     let
         mono :: Mono
@@ -271,6 +290,8 @@ data Error
     | ScaleError Scale.Error
     | VolumeError Volume.Error
     | DurationError Duration.Error
+    | PositionError Position.Error
+    | FieldsError Text
 
 
 throw :: Error -> Text
@@ -289,3 +310,9 @@ throw error =
 
         DurationError durationError ->
             Duration.throw durationError
+
+        PositionError positionError ->
+            Position.throw positionError
+
+        FieldsError text ->
+            T.append "Fields Error -> " text

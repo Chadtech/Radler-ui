@@ -2,7 +2,7 @@
 
 
 module Prelude.Extra 
-    ( head
+    ( andThen
     , List
     , trace
     , mapTrace
@@ -23,6 +23,11 @@ import Prelude hiding (head)
 import qualified Debug.Trace as Debug
 
 
+andThen :: Monad m => (a -> m b) -> m a -> m b
+andThen f m =
+    m >>= f
+
+
 toFloat :: Int -> Float
 toFloat =
     fromIntegral
@@ -32,16 +37,6 @@ slice :: Int -> Int -> Text -> Text
 slice a b = 
     T.take (fromIntegral (b - a))
         <. T.drop (fromIntegral a)
-
-
-head :: List a -> Maybe a
-head list =
-    case list of
-        [] ->
-            Nothing
-
-        first : rest ->
-            Just first
 
 
 replaceChar :: Char -> Char -> Text -> Text

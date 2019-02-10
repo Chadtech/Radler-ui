@@ -29,6 +29,9 @@ import Data.List as List
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import qualified Data.Tuple.Extra as Tuple
+import Parse (parse)
+import qualified Parse
+import qualified Part.Harmonics as Harmonics
 import qualified Part.Sin as Sin
 import qualified Part.Saw as Saw
 import qualified Part.Osc as Osc
@@ -42,8 +45,9 @@ import qualified Room
 
 
 data Part
-    = Sin Osc.Model
-    | Saw Osc.Model
+    = Sin (Osc.Model Sin.Model)
+    | Saw (Osc.Model Saw.Model)
+    | Harmonics (Osc.Model Harmonics.Model)
     deriving (Eq)
 
 
@@ -87,25 +91,56 @@ diff (incomingPart, existingPart) =
 
 fromPieces :: Config -> (Text, List Text) -> Either Error Part
 fromPieces config (partTxt, noteTxts) =
-    case T.splitOn "," partTxt of
-        "sin" : partDetails ->
+    case trace "NAME AND FIELDS" <| nameAndFields <| trace "PART TEXT" partTxt of
+        Right ("sin", fields) ->
             noteTxts
                 |> Osc.read 
                     config 
-                    (Osc.Flags Sin.toMono partDetails)
+                    (Sin.makeFlags fields)
                 |> Either.mapRight Sin
                 |> Either.mapLeft SinError
 
-        "saw" : partDetails ->
+        Right ("saw", fields) ->
             noteTxts
                 |> Osc.read 
                     config 
-                    (Osc.Flags Saw.toMono partDetails)
+                    (Saw.makeFlags fields)
                 |> Either.mapRight Saw
                 |> Either.mapLeft SawError
 
+        Right ("harmonics", fields) ->
+            case Harmonics.makeFlags fields of
+                Right flags ->
+                    noteTxts
+                        |> Osc.read config flags
+                        |> Either.mapRight Harmonics
+                        |> Either.mapLeft HarmonicsError
+
+                Left error ->
+                    Left <| HarmonicsFlagsError error
+
+        Left error ->
+            Left error
+
         _ ->
             Left <| UnrecognizedPartType partTxt
+
+
+nameAndFields :: Text -> Either Error (Text, Parse.Fields Text)
+nameAndFields partText =
+    case 
+        partText
+            |> T.filter ((/=) ' ')
+            |> T.splitOn "|" 
+    of
+        name : rest : [] ->
+            rest
+                |> Parse.fromParameters
+                |> Either.mapRight ((,) name)
+                |> Either.mapLeft FieldsError
+
+        _ ->
+            Left VoiceInvalidFormat
 
 
 readMany :: Config -> Text -> Text -> Either Error (List Part)
@@ -154,26 +189,33 @@ toDevAudio :: Part -> Audio
 toDevAudio part =
     case part of
         Sin model ->
-            model
-                |> Osc.toMono
-                |> Audio.fromMono
+            oscToDevAudio model
 
         Saw model ->
-            model
-                |> Osc.toMono
-                |> Audio.fromMono
+            oscToDevAudio model
+
+        Harmonics model ->
+            oscToDevAudio model
+
+
+oscToDevAudio :: Osc.Model t -> Audio 
+oscToDevAudio =
+    Osc.toMono .> Audio.fromMono
 
 
 build :: Maybe Room -> Part -> Audio
 build maybeRoom part =
+    let
+        build_ :: Osc.Model t -> Audio
+        build_ =
+            Osc.build maybeRoom
+    in
     case part of
         Sin model ->
-            model
-                |> Osc.build maybeRoom
+            build_ model
 
         Saw model ->
-            model
-                |> Osc.build maybeRoom
+            build_ model
 
 
 -- ERROR -- 
@@ -184,7 +226,15 @@ data Error
     | VoicesAndNotesNotOneToOne Int Int
     | SinError Osc.Error
     | SawError Osc.Error
+    | HarmonicsError Osc.Error
+    | HarmonicsFlagsError Harmonics.Error
     | DiffError
+    | VoiceInvalidFormat
+    | FieldsError Text
+
+
+instance Show Error where
+    show error = T.unpack <| throw error
 
 
 throw :: Error -> Text
@@ -218,6 +268,28 @@ errorToText error =
                 |> Osc.throw 
                 |> T.append "Error in Saw Voice -> \n" 
 
+        HarmonicsError harmonicsError ->
+            harmonicsError
+                |> Osc.throw 
+                |> T.append "Error in Harmonics Voice -> \n" 
+
+        HarmonicsFlagsError harmonicsError ->
+            harmonicsError
+                |> Harmonics.throw
+                |> T.append "Error making Harmonics Flags -> \n"
+
         DiffError ->
             "Diffing parts that arent the same type"
+
+        VoiceInvalidFormat ->
+            "The format of the voice was invalid. \
+            \It should be something like -> \
+            \ name | field(k=v) field(whatever)"
+
+        FieldsError error ->
+            [ "I was not able to parse the the fields in the voice.\ 
+              \ The error was -> "
+            , error
+            ]
+                |> T.concat
 

@@ -6,8 +6,9 @@ module Parse
     , Fields
     , Parse.apply
     , decode
-    , getField
-    , fields
+    , get
+    , fromDelimitedText
+    , fromParameters
     , int
     , float
     , parse
@@ -17,9 +18,12 @@ module Parse
 import Flow
 import Prelude.Extra
 
+import Data.Attoparsec.Text ((<*.), (.*>))
 import qualified Data.Attoparsec.Text as P
 import qualified Data.Either.Extra as Either
 import qualified Data.List as List
+import Data.Map.Lazy (Map)
+import qualified Data.Map.Lazy as Map
 import qualified Data.Text.Lazy as TL
 import qualified Data.Text as T
 import qualified Data.Tuple.Extra as Tuple
@@ -54,8 +58,13 @@ apply a either =
             Left err
 
 
-data Fields a
-    = Fields (List (TL.Text, a))
+data Fields v
+    = Fields (Map TL.Text v)
+
+
+instance Show t => Show (Fields t) where
+    show (Fields fields) =
+        show fields
 
 
 data Decoder a 
@@ -74,36 +83,56 @@ decodeInt :: TL.Text -> Either TL.Text Int
 decodeInt =
     decode int
 
-
-fields :: Decoder a -> TL.Text -> Either TL.Text (Fields a)
-fields decoder text =
+{-| 
+    Creates fields out of a string with key values 
+    delimited by an equal sign
+-}
+fromDelimitedText :: Decoder a -> TL.Text -> Either TL.Text (Fields a)
+fromDelimitedText decoder text =
     text
         |> TL.toStrict 
-        |> P.parseOnly (P.many' (fieldsHelper decoder))
+        |> P.parseOnly (P.many' (delimitedTextHelper decoder))
         |> Either.mapRight
-            (Fields <. List.map (Tuple.first TL.fromStrict))
+            (Fields <. Map.fromList <. List.map (Tuple.first TL.fromStrict))
         |> Either.mapLeft TL.pack
 
 
-fieldsHelper :: Decoder a -> P.Parser (T.Text, a)
-fieldsHelper (Decoder parser) =
+delimitedTextHelper :: Decoder a -> P.Parser (T.Text, a)
+delimitedTextHelper (Decoder parser) =
     (,)
         <$> (P.takeWhile (/= '=') <* "=") 
         <*> parser
 
 
-getField :: TL.Text -> Fields a -> Maybe a
-getField key (Fields fields) =
-    case fields of
-        (firstKey, firstValue) : rest ->
-            if firstKey == key then
-                Just firstValue
+fromParameters :: TL.Text -> Either TL.Text (Fields TL.Text)
+fromParameters text =
+    text
+        |> TL.toStrict 
+        |> P.parseOnly (P.many' fieldsHelper)
+        |> Either.mapRight listToFields
+        |> Either.mapLeft TL.pack
 
-            else
-                getField key (Fields rest)
 
-        [] ->
-            Nothing
+listToFields :: List (T.Text, T.Text) -> Fields TL.Text
+listToFields =
+    Fields <. Map.fromList <. List.map (Tuple.both TL.fromStrict)
+
+
+fieldsHelper :: P.Parser (T.Text, T.Text)
+fieldsHelper =
+    (,)
+        <$> (P.takeWhile isntParen) 
+        <*> (P.string "(" *> P.takeWhile ((/=) ')') <* P.string ")")
+
+
+isntParen :: Char -> Bool
+isntParen c =
+    c /= '(' && c /= ')'
+
+
+get :: TL.Text -> Fields v -> Maybe v
+get key (Fields map) =
+    Map.lookup key map
 
 
 int :: Decoder Int

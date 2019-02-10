@@ -70,11 +70,11 @@ read roomFields =
 
 readFields :: Parse.Fields Float -> Either Part Position
 readFields fields =
-    case Parse.getField "x" fields of
+    case Parse.get "x" fields of
         Just x ->
-            case Parse.getField "y" fields of
+            case Parse.get "y" fields of
                 Just y ->
-                    case Parse.getField "z" fields of
+                    case Parse.get "z" fields of
                         Just z ->
                             Right <| Position x y z
 

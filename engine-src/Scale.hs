@@ -27,9 +27,21 @@ data Scale
     deriving (Eq)
 
 
+instance Show Scale where
+    show scale =
+        "Scale : " ++ (T.unpack <| toText scale)
+
+
 -- HELPERS --
 
 
+toText :: Scale -> Text
+toText scale =
+        case scale of
+            Major7ToneJit ->
+                "Scale : Major 7 Tone Jit"
+
+                
 read :: Text -> Either Error Scale
 read txt =
     case txt of
