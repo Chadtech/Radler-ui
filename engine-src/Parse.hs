@@ -142,4 +142,4 @@ int =
 
 float :: Decoder Float
 float =
-    Decoder <| toFloat <$> P.signed P.decimal
+    Decoder <| realToFrac <$> P.signed P.double

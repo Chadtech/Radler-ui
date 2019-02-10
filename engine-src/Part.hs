@@ -91,7 +91,7 @@ diff (incomingPart, existingPart) =
 
 fromPieces :: Config -> (Text, List Text) -> Either Error Part
 fromPieces config (partTxt, noteTxts) =
-    case trace "NAME AND FIELDS" <| nameAndFields <| trace "PART TEXT" partTxt of
+    case nameAndFields partTxt of
         Right ("sin", fields) ->
             noteTxts
                 |> Osc.read 
@@ -215,6 +215,9 @@ build maybeRoom part =
             build_ model
 
         Saw model ->
+            build_ model
+
+        Harmonics model ->
             build_ model
 
 
