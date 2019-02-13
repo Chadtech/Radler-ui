@@ -35,13 +35,18 @@ import qualified Data.Text.Lazy as T
 import qualified Data.Tuple.Extra as Tuple
 import Data.Vector (Vector)
 import qualified Data.Vector as VectorPap
+import Freq (Freq)
+import qualified Freq
 import qualified Note
 import Parse (parse)
 import qualified Parse
+import Part.Duration (Duration)
 import qualified Part.Duration as Duration
+import Part.Volume (Volume)
 import qualified Part.Volume as Volume
 import Position (Position)
 import qualified Position
+import qualified Random
 import Resolution (Resolution)
 import qualified Resolution
 import Room (Room)
@@ -61,6 +66,7 @@ data Model t
     = Model
         { notes :: Timeline Note 
         , position :: Maybe Position
+        , freqError :: Maybe Freq
         , toMonoFromModel :: t -> Note -> Mono
         , subModel :: t
         }
@@ -93,10 +99,9 @@ instance Show (Model t) where
 
 data Note 
     = Note
-        { noteModel :: Note.Model
-        , freq :: Float
-        , volume :: Float
-        , duration :: Int
+        { freq :: Freq
+        , volume :: Volume
+        , duration :: Duration
         }
         deriving (Eq)
 
@@ -160,17 +165,31 @@ read config flags noteTexts =
         
 readModel :: Flags t -> List (Time, Note) -> Either Error (Model t)
 readModel flags notes =
-    case parsePosition <| fields flags of
-        Right position ->
-            Model 
-                (Timeline.fromList notes)
-                position
-                (toMonoFromFlags flags)
-                (subModelFromFlags flags)
-                |> Right
+    let
+        fields_ :: Parse.Fields Text
+        fields_ =
+            fields flags
+    in
+    Model 
+        |> Right
+        |> Parse.apply (Timeline.fromList notes)
+        |> parse (parsePosition fields_) id
+        |> parse (parseFreqError fields_) id
+        |> Parse.apply (toMonoFromFlags flags)
+        |> Parse.apply (subModelFromFlags flags)
 
-        Left error ->
-            Left error
+
+parseFreqError :: Parse.Fields Text -> Either Error (Maybe Freq)
+parseFreqError fields =
+    case Parse.get "freqError" fields of
+        Nothing ->
+            Right Nothing
+
+        Just freqErrorText ->
+            freqErrorText
+                |> Parse.decode Parse.float
+                |> Either.mapRight (Just <. Freq.fromFloat)
+                |> Either.mapLeft FreqErrorError
 
 
 parsePosition :: Parse.Fields Text -> Either Error (Maybe Position)
@@ -230,7 +249,7 @@ readManyNoteTextsAccumulate config noteTexts notes =
 readNoteText :: Config -> Text -> Either Error (Maybe (Time, Note))
 readNoteText config noteTxt =
     case Note.read config noteTxt of
-        Right (noteBase, contentTxt) ->
+        Right (time, seed, contentTxt) ->
             case contentTxt of
                 "X" ->
                     Right Nothing
@@ -238,23 +257,39 @@ readNoteText config noteTxt =
                 _ ->
                     readNonEmptyNoteText
                         config
-                        noteBase
-                        contentTxt
+                        (time, seed, contentTxt) 
                         |> Either.mapRight Just
 
         Left error ->
             Left <| NoteError error
 
 
-readNonEmptyNoteText :: Config -> (Time, Note.Model) -> Text -> Either Error (Time, Note)
-readNonEmptyNoteText config (time, noteBase) contentTxt =
+readNonEmptyNoteText :: Config -> (Time, Random.Seed, Text) -> Either Error (Time, Note)
+readNonEmptyNoteText config (time, seed, contentTxt) =
+    let
+        -- Something like "34"
+        noteText :: Text
+        noteText =
+            slice 0 2 contentTxt
+
+        -- 00 to FF
+        volumeText :: Text
+        volumeText =
+            slice 4 6 contentTxt
+        
+        -- 00 to FF
+        durationText :: Text
+        durationText =
+            slice 2 4 contentTxt
+    in
     Note
         |> Right
-        |> Parse.apply noteBase
-        |> parse (Scale.toFreq (Config.scale config) (slice 0 2 contentTxt)) ScaleError
-        |> parse (Volume.read (slice 4 6 contentTxt)) VolumeError
-        |> parse (Duration.read config (slice 2 4 contentTxt)) DurationError
+        |> parse (Scale.toFreq (Config.scale config) noteText) ScaleError
+        |> parse (Volume.read volumeText) VolumeError
+        |> parse (Duration.read config durationText) DurationError
         |> Either.mapRight ((,) time)
+
+
 
 
 toMono :: Model t -> Mono
@@ -292,6 +327,7 @@ data Error
     | DurationError Duration.Error
     | PositionError Position.Error
     | FieldsError Text
+    | FreqErrorError Text
 
 
 throw :: Error -> Text
@@ -316,3 +352,6 @@ throw error =
 
         FieldsError text ->
             T.append "Fields Error -> " text
+
+        FreqErrorError text ->
+            T.append "Freq Error parsing failed -> " text

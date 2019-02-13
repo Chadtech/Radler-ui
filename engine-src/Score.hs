@@ -58,7 +58,12 @@ data Score
 
 instance Show Score where
     show score =
-        "score"
+        [ name score
+        , showText <| parts score
+        , showText <| config score
+        ]
+            |> T.concat
+            |> T.unpack
 
 
 -- HELPERS --

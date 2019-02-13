@@ -2,8 +2,7 @@
 
 
 module Note
-    ( Model
-    , Note.read
+    ( Note.read
     , Error
     , throw
     )
@@ -20,29 +19,20 @@ import qualified Data.List as List
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import Parse
+import qualified Random
 import Time (Time)
 import qualified Time
 
 
-data Model 
-    = Model
-        { randomSeed :: Int }
-        deriving (Eq)
-
-
--- READ NOTE --
-
-
-read :: Config -> Text -> Either Error ((Time, Model), Text)
+read :: Config -> Text -> Either Error (Time, Random.Seed, Text)
 read config txt =
     case T.splitOn "," txt of
         timeTxt : randomSeedTxt : content : [] ->
             case (Parse.decodeInt timeTxt, Parse.decodeInt randomSeedTxt) of
                 (Right time, Right randomSeed) ->
-                    ( ( time + (Config.timingVariance config)
+                    ( time + (Config.timingVariance config)
                         |> Time.fromInt
-                      , Model { randomSeed = randomSeed }
-                      )
+                    , Random.fromInt randomSeed
                     , content
                     )
                         |> Right

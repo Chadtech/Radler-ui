@@ -15,20 +15,23 @@ import Prelude.Extra
 import qualified Data.Either.Extra as Either
 import Data.Text.Lazy (Text)
 import Data.Text.Lazy as T
+import Freq (Freq)
+import qualified Freq
 import qualified Parse
 import qualified Constants
 
 
-toFreq :: Text -> Either Error Float
+toFreq :: Text -> Either Error Freq
 toFreq txt = 
     case Parse.decode Parse.int txt of
         Right int ->
             Either.mapRight 
-                ((*) (fundamentalsOctave int))
+                (Freq.fromFloat <. ((*) (fundamentalsOctave int)))
                 (fundamentalsTone int) 
 
         Left _ ->
             Left <| NoteIsntInt txt
+
 
 
 fundamentalsOctave :: Int -> Float

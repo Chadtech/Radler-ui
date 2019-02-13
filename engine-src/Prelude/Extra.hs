@@ -10,6 +10,7 @@ module Prelude.Extra
     , slice
     , toFloat
     , replaceChar
+    , showText
     ) where
 
 
@@ -21,6 +22,11 @@ import qualified Data.Text.Lazy as T
 import qualified Data.Text.Lazy.Read as TR
 import Prelude hiding (head)
 import qualified Debug.Trace as Debug
+
+
+showText :: Show a => a -> Text
+showText =
+    show .> T.pack
 
 
 andThen :: Monad m => (a -> m b) -> m a -> m b

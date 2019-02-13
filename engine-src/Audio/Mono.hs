@@ -34,6 +34,10 @@ import Data.Vector.Unboxed (Vector)
 import qualified Data.Vector.Unboxed as Vector
 import qualified Data.Vector as V
 import qualified Data.Tuple.Extra as Tuple
+import Freq (Freq(Freq))
+import Part.Duration (Duration(Duration))
+import Part.Volume (Volume(Volume))
+import qualified Part.Volume as Volume
 
 
 -- TYPES --
@@ -76,16 +80,16 @@ silence duration =
     Mono $ Vector.replicate duration 0
 
 
-sin :: Float -> Int -> Mono
-sin freq duration =
+sin :: Freq -> Duration -> Mono
+sin (Freq freq) (Duration duration) =
     Vector.generate 
         duration 
         (sinAtSample freq)
         |> Mono
 
 
-saw :: Float -> Int -> Mono
-saw freq duration =
+saw :: Freq -> Duration -> Mono
+saw (Freq freq) (Duration duration) =
     Vector.generate
         duration
         (sawAtSample freq)
@@ -139,8 +143,8 @@ zip (Mono vector0) (Mono vector1) =
     Mono <| Vector.zipWith (+) vector0 vector1
 
         
-setVolume :: Float -> Mono -> Mono
-setVolume newRelativeVolume (Mono vector) =
+setVolume :: Volume -> Mono -> Mono
+setVolume (Volume newRelativeVolume) (Mono vector) =
     Mono <| Vector.map ((*) newRelativeVolume) vector
 
 
@@ -198,12 +202,12 @@ divideIndexBy i =
     ((fromIntegral i) / (fromIntegral declipLength)) ^ 2
 
 
-lopass :: Float -> Int -> Mono -> Mono
+lopass :: Volume -> Int -> Mono -> Mono
 lopass mixLevel samplesToSpan mono =
     mono
         |> lopassHelper samplesToSpan
         |> setVolume mixLevel
-        |> mix (setVolume (1 - mixLevel) mono)
+        |> mix (setVolume (Volume.invert mixLevel) mono)
 
 
 lopassHelper :: Int -> Mono -> Mono

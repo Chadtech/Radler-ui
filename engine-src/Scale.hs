@@ -16,6 +16,8 @@ import Flow
 import qualified Data.Either.Extra as Either
 import Data.Text.Lazy (Text)
 import Data.Text.Lazy as T
+import Freq (Freq)
+import qualified Freq
 import qualified Scale.Major7ToneJit as Major7ToneJit
 
 
@@ -52,7 +54,7 @@ read txt =
             Left <| UnrecognizedScale txt
 
 
-toFreq :: Scale -> Text -> Either Error Float
+toFreq :: Scale -> Text -> Either Error Freq
 toFreq scale =
     case scale of
         Major7ToneJit ->

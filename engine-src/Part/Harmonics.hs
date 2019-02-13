@@ -23,6 +23,9 @@ import qualified Data.Text.Lazy as T
 import Parse (parse)
 import qualified Parse
 import qualified Part.Osc as Osc
+import Part.Volume (Volume(Volume))
+import qualified Part.Volume as Volume
+import qualified Freq
 
 
 -- TYPES --
@@ -36,7 +39,7 @@ data Model
 data Harmonic 
     = Harmonic
         { _harmonic :: Float
-        , volume :: Float
+        , volume :: Volume
         }
         deriving (Eq)
 
@@ -69,7 +72,7 @@ parseHarmonic harmonicText =
                 )
             of
                 (Just vol, Just harmonic) ->
-                    Harmonic harmonic vol 
+                    Harmonic harmonic (Volume vol)
                         |> Right
 
 
@@ -94,9 +97,10 @@ toMono (Model harmonics) note =
 toHarmonicMono :: Osc.Note -> Harmonic -> Mono
 toHarmonicMono note harmonic =
     Mono.sin 
-        (_harmonic harmonic * Osc.freq note)
+        (Freq.map ((*) (_harmonic harmonic)) (Osc.freq note))
         (Osc.duration note)
-        |> Mono.setVolume (volume harmonic * Osc.volume note)
+        |> Mono.setVolume 
+            (Volume.multiply (volume harmonic) (Osc.volume note))
         |> Mono.declip
 
 

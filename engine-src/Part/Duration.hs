@@ -3,6 +3,7 @@
 
 module Part.Duration
     ( Part.Duration.read
+    , Duration(..)
     , Error
     , throw
     ) where
@@ -17,11 +18,24 @@ import qualified Data.Text.Lazy as T
 import qualified Data.Text.Lazy.Read as TR
 
 
-read :: Config -> Text -> Either Error Int
+-- TYPES --
+
+
+newtype Duration 
+    = Duration Int
+    deriving (Eq)
+
+
+-- HELPERS --
+
+
+read :: Config -> Text -> Either Error Duration
 read config txt =
     case TR.hexadecimal txt of
         Right (v, _) ->
-            Right <| v * Config.beatLength config
+            v * Config.beatLength config
+                |> Duration
+                |> Right
 
         Left err ->
             err

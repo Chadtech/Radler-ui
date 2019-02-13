@@ -16,6 +16,7 @@ import Room (Room)
 import qualified Room 
 import Size (Size)
 import qualified Size
+import Part.Volume (Volume(..))
 
 
 
@@ -285,7 +286,9 @@ directDelay earPosition soundPosition =
 
 delayAndDecay :: Float -> Mono -> Mono
 delayAndDecay distance =
-    Mono.delay (calcDelay distance) . Mono.setVolume (1 / (distance ^ 2))
+    Mono.delay 
+        (calcDelay distance) 
+        <. Mono.setVolume (Volume (1 / (distance ^ 2)))
 
 
 calcDelay :: Float -> Int

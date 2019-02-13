@@ -36,6 +36,7 @@ executable radler
     Constants
     Cmd
     Error
+    Freq
     Index
     Json
     Model
@@ -52,6 +53,7 @@ executable radler
     Position
     Prelude.Extra
     Program
+    Random
     Resolution
     Response
     Room

@@ -28,6 +28,8 @@ import qualified Data.Tuple.Extra as Tuple
 import Data.Vector.Unboxed (Vector)
 import qualified Data.Vector as V
 import qualified Data.Vector.Unboxed as Vector
+import Part.Volume (Volume(..))
+import qualified Part.Volume as Volume
 
 
 -- TYPES --
@@ -102,7 +104,7 @@ combineAndHalf (left, right) =
     (left + right) / 2
 
 
-setVolume :: Float -> Stereo -> Stereo
+setVolume :: Volume -> Stereo -> Stereo
 setVolume newRelativeVolume (Stereo vector) =
     Stereo 
         <| Vector.map 
@@ -110,10 +112,10 @@ setVolume newRelativeVolume (Stereo vector) =
             vector
 
 
-multiplyBothChannelsBy :: Float -> (Float, Float) -> (Float, Float)
+multiplyBothChannelsBy :: Volume -> (Float, Float) -> (Float, Float)
 multiplyBothChannelsBy newRelativeVolume (leftSample, rightSample) =
-    ( newRelativeVolume * leftSample
-    , newRelativeVolume * rightSample
+    ( Volume.applyTo newRelativeVolume leftSample
+    , Volume.applyTo newRelativeVolume rightSample
     )
 
 

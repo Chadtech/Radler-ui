@@ -30,6 +30,7 @@ import qualified Data.Text.Lazy as T
 import Data.WAVE (WAVE)
 import qualified Data.WAVE as W
 import qualified System.Process as SP
+import Part.Volume (Volume(..))
 
 
 -- TYPES --
@@ -70,11 +71,11 @@ empty =
 normalizeVolumes :: List Audio -> List Audio
 normalizeVolumes audios =
     List.map 
-        (setVolume (1 / (toFloat (List.length audios))))
+        (setVolume (Volume (1 / (toFloat (List.length audios)))))
         audios
 
 
-setVolume :: Float -> Audio -> Audio
+setVolume :: Volume -> Audio -> Audio
 setVolume newRelativeVolume audio =
     case audio of
         Mono mono ->
@@ -122,6 +123,11 @@ mixMany !audios =
         Mono mono : Stereo stereo : rest ->
             mix 
                 (fromStereo <| Stereo.mix (Stereo.fromMono mono) stereo)
+                (mixMany rest)
+
+        Stereo stereo0 : Stereo stereo1 : rest ->
+            mix
+                (fromStereo <| Stereo.mix stereo0 stereo1)
                 (mixMany rest)
 
         audio : [] ->
