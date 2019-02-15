@@ -66,7 +66,6 @@ data Model t
     = Model
         { notes :: Timeline Note 
         , position :: Maybe Position
-        , freqError :: Maybe Freq
         , toMonoFromModel :: t -> Note -> Mono
         , subModel :: t
         }
@@ -158,28 +157,27 @@ sameLength incomingModel existingModel =
 
 read :: Config -> Flags t -> List Text -> Either Error (Model t)
 read config flags noteTexts = 
-    noteTexts
-        |> (readManyNoteTexts config)
-        |> andThen (readModel flags)
+    case parseFreqError <| fields flags of
+        Right maybeFreqError ->
+            noteTexts
+                |> (readManyNoteTexts config maybeFreqError)
+                |> andThen (readModel flags)
+
+        Left error ->
+            Left error
 
         
 readModel :: Flags t -> List (Time, Note) -> Either Error (Model t)
 readModel flags notes =
-    let
-        fields_ :: Parse.Fields Text
-        fields_ =
-            fields flags
-    in
     Model 
         |> Right
         |> Parse.apply (Timeline.fromList notes)
-        |> parse (parsePosition fields_) id
-        |> parse (parseFreqError fields_) id
+        |> parse (parsePosition <| fields flags) id
         |> Parse.apply (toMonoFromFlags flags)
         |> Parse.apply (subModelFromFlags flags)
 
 
-parseFreqError :: Parse.Fields Text -> Either Error (Maybe Freq)
+parseFreqError :: Parse.Fields Text -> Either Error (Maybe Float)
 parseFreqError fields =
     case Parse.get "freqError" fields of
         Nothing ->
@@ -188,7 +186,7 @@ parseFreqError fields =
         Just freqErrorText ->
             freqErrorText
                 |> Parse.decode Parse.float
-                |> Either.mapRight (Just <. Freq.fromFloat)
+                |> Either.mapRight Just
                 |> Either.mapLeft FreqErrorError
 
 
@@ -214,28 +212,31 @@ parsePosition fields =
                     Left <| FieldsError error
 
 
-readManyNoteTexts :: Config -> List Text -> Either Error (List (Time, Note))
-readManyNoteTexts config noteTexts =
+readManyNoteTexts :: Config -> Maybe Float -> List Text -> Either Error (List (Time, Note))
+readManyNoteTexts config maybeFreqError noteTexts =
     readManyNoteTextsAccumulate 
         config 
+        maybeFreqError
         noteTexts 
         []
 
 
-readManyNoteTextsAccumulate :: Config -> List Text -> List (Time, Note) -> Either Error (List (Time, Note))
-readManyNoteTextsAccumulate config noteTexts notes =
+readManyNoteTextsAccumulate :: Config -> Maybe Float -> List Text -> List (Time, Note) -> Either Error (List (Time, Note))
+readManyNoteTextsAccumulate config maybeFreqError noteTexts notes =
     case noteTexts of
         first : rest ->
-            case readNoteText config first of
+            case readNoteText config maybeFreqError first of
                 Right (Just note) ->
                     readManyNoteTextsAccumulate 
                         config 
+                        maybeFreqError
                         rest 
                         (note : notes)
 
                 Right Nothing ->
                     readManyNoteTextsAccumulate 
                         config 
+                        maybeFreqError
                         rest 
                         notes
 
@@ -246,8 +247,8 @@ readManyNoteTextsAccumulate config noteTexts notes =
             Right notes
 
 
-readNoteText :: Config -> Text -> Either Error (Maybe (Time, Note))
-readNoteText config noteTxt =
+readNoteText :: Config -> Maybe Float -> Text -> Either Error (Maybe (Time, Note))
+readNoteText config maybeFreqError noteTxt =
     case Note.read config noteTxt of
         Right (time, seed, contentTxt) ->
             case contentTxt of
@@ -257,6 +258,7 @@ readNoteText config noteTxt =
                 _ ->
                     readNonEmptyNoteText
                         config
+                        maybeFreqError
                         (time, seed, contentTxt) 
                         |> Either.mapRight Just
 
@@ -264,8 +266,8 @@ readNoteText config noteTxt =
             Left <| NoteError error
 
 
-readNonEmptyNoteText :: Config -> (Time, Random.Seed, Text) -> Either Error (Time, Note)
-readNonEmptyNoteText config (time, seed, contentTxt) =
+readNonEmptyNoteText :: Config -> Maybe Float -> (Time, Random.Seed, Text) -> Either Error (Time, Note)
+readNonEmptyNoteText config maybeFreqError (time, seed, contentTxt) =
     let
         -- Something like "34"
         noteText :: Text
@@ -281,10 +283,36 @@ readNonEmptyNoteText config (time, seed, contentTxt) =
         durationText :: Text
         durationText =
             slice 2 4 contentTxt
+
+        freqResult :: Either Error Freq
+        freqResult =
+            case 
+                ( Scale.toFreq (Config.scale config) noteText 
+                , maybeFreqError 
+                )
+            of
+                (Right freq, Just freqError) ->
+                    let
+                        (freqAdjustment, _) =
+                            Random.float 
+                                ((-1) * freqError) 
+                                freqError
+                                |> Random.generate seed 
+                    in
+                    Freq.map 
+                        ((*) freqAdjustment) 
+                        freq
+                        |> Right
+
+                (Right freq, Nothing) ->
+                    Right <| freq
+
+                (Left error, _) ->
+                    Left <| ScaleError error
     in
     Note
         |> Right
-        |> parse (Scale.toFreq (Config.scale config) noteText) ScaleError
+        |> parse freqResult id
         |> parse (Volume.read volumeText) VolumeError
         |> parse (Duration.read config durationText) DurationError
         |> Either.mapRight ((,) time)
