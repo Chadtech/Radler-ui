@@ -7,6 +7,8 @@ module Audio.Mono
     , convolve_
     , declip
     , empty
+    , fadeIn
+    , fadeOut
     , singleton
     , fromVector
     , Audio.Mono.length
@@ -195,6 +197,44 @@ declipOut length =
 declipLength :: Int
 declipLength =
     120
+
+
+fadeIn :: Mono -> Mono
+fadeIn (Mono mono) =
+    let
+        lengthOfMono :: Float
+        lengthOfMono =
+            mono
+                |> Vector.length
+                |> toFloat
+
+        divideByLength :: Int -> Float -> Float
+        divideByLength index sample =
+            sample * (toFloat index / lengthOfMono)
+    in
+    Vector.imap 
+        divideByLength
+        mono 
+        |> Mono
+
+
+fadeOut :: Mono -> Mono
+fadeOut (Mono mono) =
+    let
+        lengthOfMono :: Float
+        lengthOfMono =
+            mono
+                |> Vector.length
+                |> toFloat
+
+        divideByLength :: Int -> Float -> Float
+        divideByLength index sample =
+            sample * (1 - (toFloat index / lengthOfMono))
+    in
+    Vector.imap 
+        divideByLength
+        mono 
+        |> Mono
 
 
 divideIndexBy :: Int -> Float

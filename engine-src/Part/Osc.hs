@@ -10,6 +10,7 @@ module Part.Osc
     , notes
     , freq
     , duration
+    , contour
     , volume
     , Part.Osc.read
     , toMono
@@ -28,6 +29,8 @@ import qualified Audio.Mono as Mono
 import Audio.Mono.Position (positionMono)
 import Config (Config)
 import qualified Config
+import Contour (Contour)
+import qualified Contour
 import qualified Data.Either.Extra as Either
 import qualified Data.List as List
 import Data.Text.Lazy (Text)
@@ -101,6 +104,7 @@ data Note
         { freq :: Freq
         , volume :: Volume
         , duration :: Duration
+        , contour :: Contour
         }
         deriving (Eq)
 
@@ -284,6 +288,11 @@ readNonEmptyNoteText config maybeFreqError (time, seed, contentTxt) =
         durationText =
             slice 2 4 contentTxt
 
+        -- Something like "n" "o" or "i"
+        contourText :: Text
+        contourText =
+            slice 6 7 contentTxt
+
         freqResult :: Either Error Freq
         freqResult =
             case 
@@ -315,6 +324,7 @@ readNonEmptyNoteText config maybeFreqError (time, seed, contentTxt) =
         |> parse freqResult id
         |> parse (Volume.read volumeText) VolumeError
         |> parse (Duration.read config durationText) DurationError
+        |> parse (Contour.read contourText) ContourError
         |> Either.mapRight ((,) time)
 
 
@@ -356,6 +366,7 @@ data Error
     | PositionError Position.Error
     | FieldsError Text
     | FreqErrorError Text
+    | ContourError Contour.Error
 
 
 throw :: Error -> Text
@@ -383,3 +394,8 @@ throw error =
 
         FreqErrorError text ->
             T.append "Freq Error parsing failed -> " text
+
+        ContourError contourError ->
+            contourError
+                |> Contour.throw
+                |> T.append "Contour Error -> "

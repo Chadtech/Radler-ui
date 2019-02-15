@@ -34,6 +34,7 @@ executable radler
     Audio.Stereo
     Config
     Constants
+    Contour
     Cmd
     Error
     Freq

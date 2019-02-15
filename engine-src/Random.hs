@@ -13,7 +13,8 @@ module Random
 
 import Flow
 import Prelude.Extra
-import qualified System.Random as Random
+-- import qualified System.Random as Random
+
 
 newtype Seed 
     = Seed Int

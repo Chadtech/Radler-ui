@@ -13,6 +13,7 @@ import Prelude.Extra
     
 import Audio.Mono (Mono)
 import qualified Audio.Mono as Mono
+import qualified Contour
 import Data.Text.Lazy (Text)
 import Parse (parse)
 import qualified Parse
@@ -40,6 +41,7 @@ toMono _ note =
     Mono.saw 
         (Osc.freq note)
         (Osc.duration note)
+        |> Contour.apply (Osc.contour note)
         |> Mono.setVolume (Osc.volume note)
         |> Mono.declip
 
