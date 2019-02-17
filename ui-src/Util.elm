@@ -1,6 +1,33 @@
-module Util exposing (allValues, unshift)
+module Util exposing
+    ( allValues
+    , mapCmd
+    , mapModel
+    , unshift
+    , withModel
+    , withNoCmd
+    )
 
-import Html.Styled as Html exposing (Html)
+-- CMD --
+
+
+mapCmd : (a -> b) -> ( model, Cmd a ) -> ( model, Cmd b )
+mapCmd f ( model, cmd ) =
+    ( model, Cmd.map f cmd )
+
+
+withNoCmd : model -> ( model, Cmd msg )
+withNoCmd model =
+    ( model, Cmd.none )
+
+
+withModel : model -> Cmd msg -> ( model, Cmd msg )
+withModel =
+    Tuple.pair
+
+
+mapModel : (a -> b) -> ( a, Cmd msg ) -> ( b, Cmd msg )
+mapModel =
+    Tuple.mapFirst
 
 
 

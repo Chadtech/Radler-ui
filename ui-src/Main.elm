@@ -4,14 +4,14 @@ import Browser
 import Browser.Navigation
 import Data.Flags as Flags
 import Html.Styled as Html
-import Json.Decode as D
+import Json.Decode as Decode
 import Model exposing (Model)
 import Msg exposing (Msg)
 import Ports exposing (JsMsg)
-import Return2 as R2
 import Style
 import Ui.Error exposing (initializationErrorView)
 import Update exposing (update)
+import Util
 import View exposing (view)
 
 
@@ -19,7 +19,7 @@ import View exposing (view)
 -- MAIN --
 
 
-main : Program D.Value (Result D.Error Model) Msg
+main : Program Decode.Value (Result Decode.Error Model) Msg
 main =
     { init = init
     , subscriptions = subscriptions
@@ -29,15 +29,15 @@ main =
         |> Browser.document
 
 
-init : D.Value -> ( Result D.Error Model, Cmd Msg )
+init : Decode.Value -> ( Result Decode.Error Model, Cmd Msg )
 init json =
     json
-        |> D.decodeValue Flags.decoder
+        |> Decode.decodeValue Flags.decoder
         |> Result.map Model.init
-        |> R2.withNoCmd
+        |> Util.withNoCmd
 
 
-subscriptions : Result D.Error Model -> Sub Msg
+subscriptions : Result Decode.Error Model -> Sub Msg
 subscriptions result =
     case result of
         Ok model ->
@@ -47,19 +47,19 @@ subscriptions result =
             Sub.none
 
 
-update : Msg -> Result D.Error Model -> ( Result D.Error Model, Cmd Msg )
+update : Msg -> Result Decode.Error Model -> ( Result Decode.Error Model, Cmd Msg )
 update msg result =
     case result of
         Ok model ->
             Update.update msg model
-                |> R2.mapModel Ok
+                |> Util.mapModel Ok
 
         Err err ->
             Err err
-                |> R2.withNoCmd
+                |> Util.withNoCmd
 
 
-view : Result D.Error Model -> Browser.Document Msg
+view : Result Decode.Error Model -> Browser.Document Msg
 view result =
     case result of
         Ok model ->

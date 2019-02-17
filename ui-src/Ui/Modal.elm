@@ -9,11 +9,11 @@ import Data.Modal exposing (Modal(..))
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attrs
-import Modal.Build
 import Model exposing (Model)
-import Return2 as R2
 import Style
 import Ui.Error as Error
+import Ui.Modal.Build as Build
+import Util
 
 
 
@@ -22,7 +22,7 @@ import Ui.Error as Error
 
 type Msg
     = ErrorMsg Error.Msg
-    | BuildMsg Modal.Build.Msg
+    | BuildMsg Build.Msg
 
 
 
@@ -35,18 +35,18 @@ update msg model =
         ErrorMsg subMsg ->
             model
                 |> Error.update subMsg
-                |> R2.withNoCmd
+                |> Util.withNoCmd
 
         BuildMsg subMsg ->
             case model.modal of
                 Just (BuildConfirmation buildModel) ->
                     model
-                        |> Modal.Build.update subMsg buildModel
-                        |> R2.mapCmd BuildMsg
+                        |> Build.update subMsg buildModel
+                        |> Util.mapCmd BuildMsg
 
                 _ ->
                     model
-                        |> R2.withNoCmd
+                        |> Util.withNoCmd
 
 
 
@@ -92,7 +92,7 @@ modalCard modal =
 
 modalContent : Modal -> List (Html Msg)
 modalContent modal =
-    case Debug.log "MODAL" modal of
+    case modal of
         Error error ->
             [ Error.modalView error
                 |> Html.map ErrorMsg
@@ -100,6 +100,6 @@ modalContent modal =
 
         BuildConfirmation model ->
             [ model
-                |> Modal.Build.view
+                |> Build.view
                 |> Html.map BuildMsg
             ]

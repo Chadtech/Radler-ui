@@ -20,9 +20,9 @@ import Html.Styled.Events as Events
 import Http
 import Json.Decode as D
 import Model exposing (Model, Page)
-import Return2 as R2
 import Score
 import Style
+import Util
 
 
 
@@ -51,12 +51,12 @@ update msg model =
     case msg of
         PageClicked page ->
             { model | page = page }
-                |> R2.withNoCmd
+                |> Util.withNoCmd
 
         NewPartClicked ->
             model
                 |> Model.addNewPart
-                |> R2.withNoCmd
+                |> Util.withNoCmd
 
         NewTrackerClicked ->
             { model
@@ -65,7 +65,7 @@ update msg model =
                         (Tracker.init Style.Small 0)
                         model.trackers
             }
-                |> R2.withNoCmd
+                |> Util.withNoCmd
 
         PlayClicked ->
             case Model.score model of
@@ -73,16 +73,16 @@ update msg model =
                     scoreStr
                         |> Play
                         |> sendHttp model
-                        |> R2.withModel
+                        |> Util.withModel
                             (Model.setBackendStatusWorking model)
 
                 Err newModel ->
                     newModel
-                        |> R2.withNoCmd
+                        |> Util.withNoCmd
 
         OpenClicked ->
             model
-                |> R2.withNoCmd
+                |> Util.withNoCmd
 
         SaveClicked ->
             [ Package.saveToDisk
@@ -91,33 +91,33 @@ update msg model =
                 model
             ]
                 |> Cmd.batch
-                |> R2.withModel model
+                |> Util.withModel model
 
         BuildClicked ->
             model
                 |> Model.setModal Modal.initBuild
-                |> R2.withNoCmd
+                |> Util.withNoCmd
 
         PlayFromFieldUpdated str ->
             model
                 |> Model.setPlayFrom str
-                |> R2.withNoCmd
+                |> Util.withNoCmd
 
         PlayForFieldUpdated str ->
             model
                 |> Model.setPlayFor str
-                |> R2.withNoCmd
+                |> Util.withNoCmd
 
         PlaySent (Ok ()) ->
             model
                 |> Model.setBackendStatusIdle
-                |> R2.withNoCmd
+                |> Util.withNoCmd
 
         PlaySent (Err err) ->
             model
                 |> playFailed err
                 |> Model.setBackendStatusIdle
-                |> R2.withNoCmd
+                |> Util.withNoCmd
 
 
 playFailed : Http.Error -> Model -> Model

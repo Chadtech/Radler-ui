@@ -1,4 +1,4 @@
-module Tracker.Options exposing
+module Ui.Tracker.Options exposing
     ( Msg(..)
     , Payload
     , update

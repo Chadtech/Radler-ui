@@ -22,9 +22,9 @@ import Html.Styled.Attributes as Attrs
 import Html.Styled.Events exposing (onClick)
 import Html.Styled.Lazy
 import Model exposing (Model)
-import Return2 as R2
 import Style
 import Ui.Note as Note
+import Util
 
 
 
@@ -56,21 +56,21 @@ update ti pi bi msg model =
     case msg of
         NoteMsg ni subMsg ->
             Note.update ti pi bi ni subMsg model
-                |> R2.mapCmd (NoteMsg ni)
+                |> Util.mapCmd (NoteMsg ni)
 
         DeleteClicked ->
             Model.mapPart
                 pi
                 (Part.removeBeat bi)
                 model
-                |> R2.withNoCmd
+                |> Util.withNoCmd
 
         AddBelowClicked ->
             Model.mapPart
                 pi
                 (Part.addBeatBelow bi)
                 model
-                |> R2.withNoCmd
+                |> Util.withNoCmd
 
 
 

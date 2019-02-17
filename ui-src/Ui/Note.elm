@@ -18,9 +18,9 @@ import Html.Styled.Attributes as Attrs
 import Html.Styled.Events as Events
 import Json.Decode as Decode exposing (Decoder)
 import Model exposing (Model)
-import Return2 as R2
 import Style
 import Task
+import Util
 
 
 
@@ -53,31 +53,31 @@ update ti pi bi ni msg model =
         Updated note ->
             model
                 |> updateBeat pi bi ni note
-                |> R2.withNoCmd
+                |> Util.withNoCmd
 
         MovementKeyPressed Up ->
             noteId ti (bi - 1) ni
                 |> focusOnNote
-                |> R2.withModel model
+                |> Util.withModel model
 
         MovementKeyPressed Down ->
             noteId ti (bi + 1) ni
                 |> focusOnNote
-                |> R2.withModel model
+                |> Util.withModel model
 
         MovementKeyPressed Left ->
             noteId ti bi (ni - 1)
                 |> focusOnNote
-                |> R2.withModel model
+                |> Util.withModel model
 
         MovementKeyPressed Right ->
             noteId ti bi (ni + 1)
                 |> focusOnNote
-                |> R2.withModel model
+                |> Util.withModel model
 
         NoteFocused ->
             model
-                |> R2.withNoCmd
+                |> Util.withNoCmd
 
 
 updateBeat : Int -> Int -> Int -> Note -> Model -> Model

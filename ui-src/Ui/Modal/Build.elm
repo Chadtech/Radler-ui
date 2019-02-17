@@ -1,4 +1,4 @@
-module Modal.Build exposing
+module Ui.Modal.Build exposing
     ( Msg
     , update
     , view
@@ -13,9 +13,9 @@ import Html.Styled.Attributes as Attrs
 import Html.Styled.Events as Events
 import Http
 import Model exposing (Model)
-import Return2 as R2
 import Score
 import Style
+import Util
 
 
 
@@ -49,18 +49,18 @@ update msg buildModel model =
             model
                 |> Model.setBuildModal Build.Finished
                 |> Model.setBackendStatusIdle
-                |> R2.withNoCmd
+                |> Util.withNoCmd
 
         BuildSent (Err err) ->
             model
                 |> Model.setBackendStatusIdle
                 |> buildFailed err
-                |> R2.withNoCmd
+                |> Util.withNoCmd
 
 
 closeModal : Model -> ( Model, Cmd Msg )
 closeModal =
-    Model.clearModal >> R2.withNoCmd
+    Model.clearModal >> Util.withNoCmd
 
 
 handleBuildClicked : Build.Model -> Model -> ( Model, Cmd Msg )
@@ -79,11 +79,11 @@ handleBuildClicked buildModel model =
 
                 Err newModel ->
                     newModel
-                        |> R2.withNoCmd
+                        |> Util.withNoCmd
 
         _ ->
             model
-                |> R2.withNoCmd
+                |> Util.withNoCmd
 
 
 buildFailed : Http.Error -> Model -> Model

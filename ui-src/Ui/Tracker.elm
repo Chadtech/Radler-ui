@@ -19,10 +19,10 @@ import Html.Styled.Events as Events
 import Html.Styled.Keyed
 import Html.Styled.Lazy
 import Model exposing (Model)
-import Return2 as R2
+
 import Style
-import Tracker.Options as Options
 import Ui.Beat as Beat
+import Ui.Tracker.Options as Options
 import Util
 
 
@@ -78,7 +78,7 @@ update ti pi msg model =
                 pi
                 (Part.setName str)
                 model
-                |> R2.withNoCmd
+                |> Util.withNoCmd
 
         OptionsClicked ->
             case Model.getTrackersPart ti model of
@@ -87,11 +87,11 @@ update ti pi msg model =
                         ti
                         (Tracker.openOptions part.name)
                         model
-                        |> R2.withNoCmd
+                        |> Util.withNoCmd
 
                 Nothing ->
                     model
-                        |> R2.withNoCmd
+                        |> Util.withNoCmd
 
         OptionsMsg subMsg ->
             case Model.getTrackersOptions ti model of
@@ -102,40 +102,40 @@ update ti pi msg model =
                         options
                         subMsg
                         model
-                        |> R2.withNoCmd
+                        |> Util.withNoCmd
 
                 Nothing ->
                     model
-                        |> R2.withNoCmd
+                        |> Util.withNoCmd
 
         BeatMsg bi subMsg ->
             Beat.update ti pi bi subMsg model
-                |> R2.mapCmd (BeatMsg bi)
+                |> Util.mapCmd (BeatMsg bi)
 
         DeleteTrackerClicked ->
             Model.removeTracker ti model
-                |> R2.withNoCmd
+                |> Util.withNoCmd
 
         AddBeatBelowClicked ->
             Model.mapPart
                 pi
                 Part.addBeatToBeginning
                 model
-                |> R2.withNoCmd
+                |> Util.withNoCmd
 
         AddVoiceClicked index ->
             Model.mapPart
                 pi
                 (Part.addVoice index)
                 model
-                |> R2.withNoCmd
+                |> Util.withNoCmd
 
         DeleteVoiceClicked index ->
             Model.mapPart
                 pi
                 (Part.removeVoice index)
                 model
-                |> R2.withNoCmd
+                |> Util.withNoCmd
 
 
 
