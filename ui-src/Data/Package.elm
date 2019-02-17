@@ -198,14 +198,13 @@ scorePayloadTests package =
                 , parts =
                     Array.fromList
                         [ Part.empty "part-a"
-
-                        -- , Part.empty "part-b"
+                        , Part.empty "part-b"
                         ]
                 , from = 0
                 , length = Nothing
                 }
                     |> scorePayload
-                    |> Expect.equal Nothing
+                    |> Expect.equal (Just "# NAME\ntest-song\n:\n# VOICES\nsaw | position( x=-5 y=1 z=1 ) freqerror=(0.01);sin | position( x=-2 y=3 z=1 ) freqerror=(0.01)\n:\n# NOTES\n29,330387,X;68,388166,X;24,521196,X;-25,75633,X;-3,3565,X;-80,349823,X\n4974,420885,X;4914,177705,X;5028,295036,X;5099,8121,X;4948,372517,X;5071,304552,X\n9976,134539,X;10057,386314,X;10055,290476,X;10075,113961,X;9945,433682,X;9903,203817,X\n15044,312370,X;15047,156784,X;14939,424180,X;15054,271311,X;15008,499779,X;15021,349071,X\n:\n# CONFIG\nmajor 7 tone jit;5000;100;x=5y=3z=7width=10length=12height=17")
         ]
 
 
