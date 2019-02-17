@@ -1,25 +1,30 @@
-module Data.Part
-    exposing
-        ( Part
-        , addBeat
-        , addVoice
-        , decoder
-        , empty
-        , mapBeat
-        , removeBeat
-        , removeVoice
-        , saveToDisk
-        , setName
-        , toDict
-        , voiceCount
-        )
+module Data.Part exposing
+    ( Part
+    , addBeatBelow
+    , addBeatToBeginning
+    , addVoice
+    , decoder
+    , empty
+    , mapBeat
+    , removeBeat
+    , removeVoice
+    , saveToDisk
+    , setName
+    , tests
+    , toDict
+    , voiceCount
+    )
 
 import Array exposing (Array)
 import Data.Beat as Beat exposing (Beat)
+import Data.Note as Note
 import Dict exposing (Dict)
-import Json.Decode as D exposing (Decoder)
+import Expect exposing (Expectation)
+import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Ports
+import Test exposing (Test, describe, test)
+
 
 
 -- TYPES --
@@ -47,9 +52,9 @@ type alias Part =
     }
 
 
-empty : Part
-empty =
-    { name = "new-part"
+empty : String -> Part
+empty name =
+    { name = name
     , beats =
         Beat.empty 6
             |> Array.repeat 64
@@ -62,17 +67,17 @@ empty =
 
 decoder : Decoder Part
 decoder =
-    D.succeed Part
-        |> JDP.required "name" D.string
-        |> JDP.required "data" (D.map beatsFromString D.string)
-
-
-beatsFromString : String -> Array Beat
-beatsFromString str =
-    str
-        |> String.split "\n"
-        |> List.map Beat.fromString
-        |> Array.fromList
+    let
+        beatsFromString : String -> Array Beat
+        beatsFromString str =
+            str
+                |> String.split "\n"
+                |> List.map Beat.fromString
+                |> Array.fromList
+    in
+    Decode.succeed Part
+        |> JDP.required "name" Decode.string
+        |> JDP.required "data" (Decode.map beatsFromString Decode.string)
 
 
 
@@ -81,15 +86,15 @@ beatsFromString str =
 
 toDict : Array Part -> Dict String (Array Beat)
 toDict parts =
+    let
+        toKeyValue : Part -> ( String, Array Beat )
+        toKeyValue { name, beats } =
+            ( name, beats )
+    in
     parts
         |> Array.toList
         |> List.map toKeyValue
         |> Dict.fromList
-
-
-toKeyValue : Part -> ( String, Array Beat )
-toKeyValue { name, beats } =
-    ( name, beats )
 
 
 addVoice : Int -> Part -> Part
@@ -136,8 +141,25 @@ removeBeat index part =
     }
 
 
-addBeat : Int -> Part -> Part
-addBeat index part =
+addBeatToBeginning : Part -> Part
+addBeatToBeginning =
+    addBeatBelow -1
+
+
+{-| Below as in, below this beat in the UI, so
+add a beat into the index one higher than the
+index provided.
+
+In the UI, the top most beat is index 0
+
+    *  0
+    |  1
+    |  2
+    v  3
+
+-}
+addBeatBelow : Int -> Part -> Part
+addBeatBelow index part =
     case Maybe.map Beat.length <| Array.get 0 part.beats of
         Just beatLength ->
             let
@@ -154,6 +176,24 @@ addBeat index part =
 
         Nothing ->
             part
+
+
+addBeatBelowTest : Test
+addBeatBelowTest =
+    test "Add beat to beginning" <|
+        \_ ->
+            let
+                expectedResult : Array Beat
+                expectedResult =
+                    testBeats
+                        |> Array.toList
+                        |> (::) (Beat.empty 2)
+                        |> Array.fromList
+            in
+            testPart
+                |> addBeatToBeginning
+                |> .beats
+                |> Expect.equal expectedResult
 
 
 pushEmptyBeat : Int -> Array Beat -> Array Beat
@@ -177,6 +217,26 @@ mapBeat index f part =
             part
 
 
+mapBeatTest : Test
+mapBeatTest =
+    test "mapBeat can remove note" <|
+        \_ ->
+            let
+                expectedResult : Array Beat
+                expectedResult =
+                    [ [ Note.fromString "348080c" ]
+                    , [ Note.fromString "358080c" ]
+                    ]
+                        |> List.map Beat.fromList
+                        |> Array.fromList
+            in
+            testPart
+                |> mapBeat 0 (Beat.removeNote 0)
+                |> mapBeat 1 (Beat.removeNote 0)
+                |> .beats
+                |> Expect.equal expectedResult
+
+
 saveToDisk : Part -> Cmd msg
 saveToDisk part =
     part
@@ -196,3 +256,45 @@ toString part =
         |> Array.map Beat.toString
         |> Array.toList
         |> String.join "\n"
+
+
+toStringTest : Test
+toStringTest =
+    test "To String looks right" <|
+        \_ ->
+            testPart
+                |> toString
+                |> Expect.equal "QQ;348080c\n334040c;358080c"
+
+
+
+-- TESTS --
+
+
+tests : Test
+tests =
+    describe "Data.Part"
+        [ toStringTest
+        , mapBeatTest
+        , addBeatBelowTest
+        ]
+
+
+testPart : Part
+testPart =
+    { name = "part-a"
+    , beats = testBeats
+    }
+
+
+testBeats : Array Beat
+testBeats =
+    [ [ Note.fromString "QQ"
+      , Note.fromString "348080c"
+      ]
+    , [ Note.fromString "334040c"
+      , Note.fromString "358080c"
+      ]
+    ]
+        |> List.map Beat.fromList
+        |> Array.fromList

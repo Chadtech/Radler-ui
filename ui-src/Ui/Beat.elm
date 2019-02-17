@@ -1,4 +1,4 @@
-module Beat exposing
+module Ui.Beat exposing
     ( Msg(..)
     , update
     , view
@@ -22,9 +22,9 @@ import Html.Styled.Attributes as Attrs
 import Html.Styled.Events exposing (onClick)
 import Html.Styled.Lazy
 import Model exposing (Model)
-import Note
 import Return2 as R2
 import Style
+import Ui.Note as Note
 
 
 
@@ -68,7 +68,7 @@ update ti pi bi msg model =
         AddBelowClicked ->
             Model.mapPart
                 pi
-                (Part.addBeat bi)
+                (Part.addBeatBelow bi)
                 model
                 |> R2.withNoCmd
 

@@ -1,11 +1,10 @@
-module Tracker exposing
+module Ui.Tracker exposing
     ( Msg
     , update
     , view
     )
 
 import Array exposing (Array)
-import Beat
 import Colors
 import Css exposing (..)
 import Data.Beat as Beat exposing (Beat)
@@ -20,10 +19,10 @@ import Html.Styled.Events as Events
 import Html.Styled.Keyed
 import Html.Styled.Lazy
 import Model exposing (Model)
-import Note
 import Return2 as R2
 import Style
 import Tracker.Options as Options
+import Ui.Beat as Beat
 import Util
 
 
@@ -120,7 +119,7 @@ update ti pi msg model =
         AddBeatBelowClicked ->
             Model.mapPart
                 pi
-                (Part.addBeat -1)
+                Part.addBeatToBeginning
                 model
                 |> R2.withNoCmd
 

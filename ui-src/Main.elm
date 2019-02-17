@@ -3,7 +3,6 @@ module Main exposing (main)
 import Browser
 import Browser.Navigation
 import Data.Flags as Flags
-import Error exposing (initializationErrorView)
 import Html.Styled as Html
 import Json.Decode as D
 import Model exposing (Model)
@@ -11,6 +10,7 @@ import Msg exposing (Msg)
 import Ports exposing (JsMsg)
 import Return2 as R2
 import Style
+import Ui.Error exposing (initializationErrorView)
 import Update exposing (update)
 import View exposing (view)
 

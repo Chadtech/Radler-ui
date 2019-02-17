@@ -1,4 +1,4 @@
-module Error exposing
+module Ui.Error exposing
     ( Msg
     , initializationErrorView
     , modalView

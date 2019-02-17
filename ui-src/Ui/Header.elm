@@ -1,4 +1,4 @@
-module Header exposing
+module Ui.Header exposing
     ( Msg
     , update
     , view
@@ -31,7 +31,7 @@ import Style
 
 type Msg
     = PageClicked Page
-    | NewSheetClicked
+    | NewPartClicked
     | NewTrackerClicked
     | PlayClicked
     | OpenClicked
@@ -53,11 +53,9 @@ update msg model =
             { model | page = page }
                 |> R2.withNoCmd
 
-        NewSheetClicked ->
-            { model
-                | parts =
-                    Array.push Part.empty model.parts
-            }
+        NewPartClicked ->
+            model
+                |> Model.addNewPart
                 |> R2.withNoCmd
 
         NewTrackerClicked ->
@@ -369,7 +367,7 @@ newPartButton =
             [ buttonStyle
             , doubleWidth
             ]
-        , Events.onClick NewSheetClicked
+        , Events.onClick NewPartClicked
         ]
         [ Html.text "new part" ]
 

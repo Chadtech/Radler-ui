@@ -1,4 +1,4 @@
-module Modal exposing
+module Ui.Modal exposing
     ( Msg
     , update
     , view
@@ -6,7 +6,6 @@ module Modal exposing
 
 import Css exposing (..)
 import Data.Modal exposing (Modal(..))
-import Error
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attrs
@@ -14,6 +13,7 @@ import Modal.Build
 import Model exposing (Model)
 import Return2 as R2
 import Style
+import Ui.Error as Error
 
 
 

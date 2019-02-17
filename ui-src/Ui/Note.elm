@@ -1,4 +1,4 @@
-module Note exposing
+module Ui.Note exposing
     ( Msg(..)
     , update
     , view

@@ -4,16 +4,16 @@ import Array
 import Colors
 import Css exposing (..)
 import Data.Tracker exposing (Tracker)
-import Header
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attrs
-import Modal
 import Model exposing (Model)
 import Msg exposing (Msg(..))
-import Package
 import Style
-import Tracker
+import Ui.Header as Header
+import Ui.Modal as Modal
+import Ui.Package as Package
+import Ui.Tracker as Tracker
 
 
 view : Model -> List (Html Msg)

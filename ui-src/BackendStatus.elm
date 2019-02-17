@@ -10,9 +10,17 @@ import Html.Styled.Attributes as Attrs
 import Style
 
 
+
+-- TYPES --
+
+
 type BackendStatus
     = Idle
     | Working
+
+
+
+-- VIEW --
 
 
 view : BackendStatus -> Html msg

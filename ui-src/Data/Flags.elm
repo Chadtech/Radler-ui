@@ -56,7 +56,7 @@ partsDecoder =
 atLeastOnePart : Array Part -> Array Part
 atLeastOnePart parts =
     if Array.isEmpty parts then
-        [ Part.empty ]
+        [ Part.empty "new-part" ]
             |> Array.fromList
 
     else

@@ -1,6 +1,7 @@
-module Util exposing (..)
+module Util exposing (allValues, unshift)
 
 import Html.Styled as Html exposing (Html)
+
 
 
 -- MAYBE --

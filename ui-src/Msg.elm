@@ -3,24 +3,24 @@ module Msg exposing
     , decode
     )
 
-import Header
-import Json.Decode as D exposing (Decoder)
-import Modal
-import Package
-import Tracker
+import Json.Decode as Decode exposing (Decoder)
+import Ui.Header as Header
+import Ui.Modal as Modal
+import Ui.Package as Package
+import Ui.Tracker as Tracker
 
 
 type Msg
-    = MsgDecodeFailed D.Error
+    = MsgDecodeFailed Decode.Error
     | TrackerMsg Int Tracker.Msg
     | HeaderMsg Header.Msg
     | PackageMsg Package.Msg
     | ModalMsg Modal.Msg
 
 
-decode : D.Value -> Msg
+decode : Decode.Value -> Msg
 decode json =
-    case D.decodeValue decoder json of
+    case Decode.decodeValue decoder json of
         Ok msg ->
             msg
 
@@ -30,10 +30,10 @@ decode json =
 
 decoder : Decoder Msg
 decoder =
-    D.string
-        |> D.field "type"
-        |> D.andThen
-            (D.field "payload" << toMsg)
+    Decode.string
+        |> Decode.field "type"
+        |> Decode.andThen
+            (Decode.field "payload" << toMsg)
 
 
 toMsg : String -> Decoder Msg
@@ -41,4 +41,4 @@ toMsg type_ =
     case type_ of
         _ ->
             ("Unrecognized Msg type -> " ++ type_)
-                |> D.fail
+                |> Decode.fail

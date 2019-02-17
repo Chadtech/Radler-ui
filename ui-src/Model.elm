@@ -1,6 +1,7 @@
 module Model exposing
     ( Model
     , Page(..)
+    , addNewPart
     , clearModal
     , copyPart
     , fullScore
@@ -272,6 +273,30 @@ copyPart partIndex copysName model =
 
         Nothing ->
             model
+
+
+addNewPart : Model -> Model
+addNewPart model =
+    let
+        addNewPartWithName : String -> Model
+        addNewPartWithName newPartName =
+            if
+                model.parts
+                    |> Array.map .name
+                    |> Array.toList
+                    |> List.member newPartName
+            then
+                addNewPartWithName (newPartName ++ "-1")
+
+            else
+                { model
+                    | parts =
+                        Array.push
+                            (Part.empty newPartName)
+                            model.parts
+                }
+    in
+    addNewPartWithName "new-part"
 
 
 

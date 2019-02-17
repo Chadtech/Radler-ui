@@ -1,12 +1,12 @@
 module Update exposing (update)
 
-import Header
-import Modal
 import Model exposing (Model)
 import Msg exposing (Msg(..))
-import Package
 import Return2 as R2
-import Tracker
+import Ui.Header as Header
+import Ui.Modal as Modal
+import Ui.Package as Package
+import Ui.Tracker as Tracker
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
