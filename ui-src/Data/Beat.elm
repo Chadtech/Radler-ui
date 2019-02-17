@@ -13,6 +13,7 @@ module Data.Beat exposing
     )
 
 import Array exposing (Array)
+import Data.Encoding as Encoding
 import Data.Note as Note exposing (Note)
 
 
@@ -31,35 +32,35 @@ import Data.Note as Note exposing (Note)
         (or not play, if there is no note)
 
 -}
-type Beat
-    = Beat (Array Note)
+type Beat encoding
+    = Beat (Array (Note encoding))
 
 
 
 -- HELPERS --
 
 
-toList : Beat -> List Note
+toList : Beat encoding -> List (Note encoding)
 toList (Beat beat) =
     Array.toList beat
 
 
-toIndexedList : Beat -> List ( Int, Note )
+toIndexedList : Beat encoding -> List ( Int, Note encoding )
 toIndexedList (Beat beat) =
     Array.toIndexedList beat
 
 
-fromList : List Note -> Beat
+fromList : List (Note encoding) -> Beat encoding
 fromList =
     Array.fromList >> Beat
 
 
-length : Beat -> Int
+length : Beat encoding -> Int
 length (Beat beat) =
     Array.length beat
 
 
-addNote : Int -> Beat -> Beat
+addNote : Int -> Beat Encoding.None -> Beat Encoding.None
 addNote index (Beat beat) =
     Array.append
         (Array.push Note.empty (Array.slice 0 (index + 1) beat))
@@ -67,7 +68,7 @@ addNote index (Beat beat) =
         |> Beat
 
 
-removeNote : Int -> Beat -> Beat
+removeNote : Int -> Beat Encoding.None -> Beat Encoding.None
 removeNote index (Beat beat) =
     beat
         |> Array.slice (index + 1) (Array.length beat)
@@ -75,7 +76,7 @@ removeNote index (Beat beat) =
         |> Beat
 
 
-toString : Beat -> String
+toString : Beat encoding -> String
 toString (Beat beat) =
     beat
         |> Array.toList
@@ -83,7 +84,7 @@ toString (Beat beat) =
         |> String.join noteDelimiter
 
 
-fromString : String -> Beat
+fromString : String -> Beat encoding
 fromString str =
     str
         |> String.split noteDelimiter
@@ -97,13 +98,13 @@ noteDelimiter =
     ";"
 
 
-empty : Int -> Beat
+empty : Int -> Beat Encoding.None
 empty thisLength =
     Array.repeat thisLength Note.empty
         |> Beat
 
 
-setNote : Int -> Note -> Beat -> Beat
+setNote : Int -> Note Encoding.None -> Beat Encoding.None -> Beat Encoding.None
 setNote index note (Beat beat) =
     Array.set index note beat
         |> Beat

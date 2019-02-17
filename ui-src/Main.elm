@@ -10,9 +10,9 @@ import Msg exposing (Msg)
 import Ports exposing (JsMsg)
 import Style
 import Ui.Error exposing (initializationErrorView)
-import Update exposing (update)
+import Update
 import Util
-import View exposing (view)
+import View
 
 
 

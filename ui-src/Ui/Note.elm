@@ -9,6 +9,7 @@ import Browser.Dom as Dom
 import Colors
 import Css exposing (..)
 import Data.Beat as Beat
+import Data.Encoding as Encoding
 import Data.Note as Note exposing (Note)
 import Data.Part as Part
 import Data.Tracker as Tracker
@@ -28,7 +29,7 @@ import Util
 
 
 type Msg
-    = Updated Note
+    = Updated (Note Encoding.None)
     | MovementKeyPressed Direction
     | NoteFocused
 
@@ -80,7 +81,7 @@ update ti pi bi ni msg model =
                 |> Util.withNoCmd
 
 
-updateBeat : Int -> Int -> Int -> Note -> Model -> Model
+updateBeat : Int -> Int -> Int -> Note Encoding.None -> Model -> Model
 updateBeat pi bi ni note =
     note
         |> Beat.setNote ni
@@ -99,7 +100,7 @@ focusOnNote id =
 -- VIEW --
 
 
-view : Int -> Int -> Style.Size -> Int -> Int -> Int -> Note -> Html Msg
+view : Int -> Int -> Style.Size -> Int -> Int -> Int -> Note Encoding.None -> Html Msg
 view majorMark minorMark size ti bi ni note =
     Grid.column
         [ margin (px 1) ]

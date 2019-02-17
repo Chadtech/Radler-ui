@@ -35,14 +35,19 @@ function readParts() {
     })
 }
 
+
 ipcRenderer.on('init', function (event, payload) {
 
+  var flags = {
+    package: readPackage(),
+    parts: readParts(),
+    enginePortNumber: payload.port
+  };
+
+  console.log(JSON.stringify(flags));
+
   var app = Elm.Main.init({
-    flags: {
-      package: readPackage(),
-      parts: readParts(),
-      enginePortNumber: payload.port
-    }
+    flags: flags
   });
 
   function toElm(type, payload) {

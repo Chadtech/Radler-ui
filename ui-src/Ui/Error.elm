@@ -11,7 +11,7 @@ import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attrs
 import Html.Styled.Events as Events
-import Json.Decode as D
+import Json.Decode as Decode
 import Model exposing (Model)
 import Style
 
@@ -76,7 +76,7 @@ ignoreButton =
 
 {-| The view for when the app fails to initialize
 -}
-initializationErrorView : D.Error -> Html msg
+initializationErrorView : Decode.Error -> Html msg
 initializationErrorView error =
     Grid.container
         [ marginTop (pct 50)
@@ -90,7 +90,7 @@ initializationErrorView error =
                 ]
                 [ Html.p
                     [ Attrs.css [ errorPStyle ] ]
-                    [ Html.text (D.errorToString error) ]
+                    [ Html.text (Decode.errorToString error) ]
                 ]
             ]
         ]

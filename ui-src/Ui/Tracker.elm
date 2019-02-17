@@ -8,6 +8,7 @@ import Array exposing (Array)
 import Colors
 import Css exposing (..)
 import Data.Beat as Beat exposing (Beat)
+import Data.Encoding as Encoding
 import Data.Part as Part exposing (Part)
 import Data.Tracker as Tracker exposing (Tracker)
 import Data.Tracker.Options as Options
@@ -19,7 +20,6 @@ import Html.Styled.Events as Events
 import Html.Styled.Keyed
 import Html.Styled.Lazy
 import Model exposing (Model)
-
 import Style
 import Ui.Beat as Beat
 import Ui.Tracker.Options as Options
@@ -253,7 +253,7 @@ beatsContentView part majorMark minorMark size ti =
         |> List.map (wrapBeat majorMark minorMark size ti)
 
 
-wrapBeat : Int -> Int -> Style.Size -> Int -> ( Int, Beat ) -> Html Msg
+wrapBeat : Int -> Int -> Style.Size -> Int -> ( Int, Beat Encoding.None ) -> Html Msg
 wrapBeat majorMark minorMark size ti ( bi, beat ) =
     Html.Styled.Lazy.lazy6
         Beat.view

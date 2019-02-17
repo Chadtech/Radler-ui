@@ -17,11 +17,12 @@ module Data.Part exposing
 
 import Array exposing (Array)
 import Data.Beat as Beat exposing (Beat)
+import Data.Encoding as Encoding
 import Data.Note as Note
 import Dict exposing (Dict)
 import Expect exposing (Expectation)
 import Json.Decode as Decode exposing (Decoder)
-import Json.Decode.Pipeline as JDP
+import Json.Decode.Pipeline as Pipe
 import Ports
 import Test exposing (Test, describe, test)
 
@@ -48,7 +49,7 @@ import Test exposing (Test, describe, test)
 -}
 type alias Part =
     { name : String
-    , beats : Array Beat
+    , beats : Array (Beat Encoding.None)
     }
 
 
@@ -68,7 +69,7 @@ empty name =
 decoder : Decoder Part
 decoder =
     let
-        beatsFromString : String -> Array Beat
+        beatsFromString : String -> Array (Beat Encoding.None)
         beatsFromString str =
             str
                 |> String.split "\n"
@@ -76,18 +77,18 @@ decoder =
                 |> Array.fromList
     in
     Decode.succeed Part
-        |> JDP.required "name" Decode.string
-        |> JDP.required "data" (Decode.map beatsFromString Decode.string)
+        |> Pipe.required "name" Decode.string
+        |> Pipe.required "data" (Decode.map beatsFromString Decode.string)
 
 
 
 -- HELPERS --
 
 
-toDict : Array Part -> Dict String (Array Beat)
+toDict : Array Part -> Dict String (Array (Beat Encoding.None))
 toDict parts =
     let
-        toKeyValue : Part -> ( String, Array Beat )
+        toKeyValue : Part -> ( String, Array (Beat Encoding.None) )
         toKeyValue { name, beats } =
             ( name, beats )
     in
@@ -183,7 +184,7 @@ addBeatBelowTest =
     test "Add beat to beginning" <|
         \_ ->
             let
-                expectedResult : Array Beat
+                expectedResult : Array (Beat Encoding.None)
                 expectedResult =
                     testBeats
                         |> Array.toList
@@ -196,12 +197,12 @@ addBeatBelowTest =
                 |> Expect.equal expectedResult
 
 
-pushEmptyBeat : Int -> Array Beat -> Array Beat
+pushEmptyBeat : Int -> Array (Beat Encoding.None) -> Array (Beat Encoding.None)
 pushEmptyBeat columnNumber =
     Array.push (Beat.empty columnNumber)
 
 
-mapBeat : Int -> (Beat -> Beat) -> Part -> Part
+mapBeat : Int -> (Beat Encoding.None -> Beat Encoding.None) -> Part -> Part
 mapBeat index f part =
     case Array.get index part.beats of
         Just beat ->
@@ -222,7 +223,7 @@ mapBeatTest =
     test "mapBeat can remove note" <|
         \_ ->
             let
-                expectedResult : Array Beat
+                expectedResult : Array (Beat Encoding.None)
                 expectedResult =
                     [ [ Note.fromString "348080c" ]
                     , [ Note.fromString "358080c" ]
@@ -287,7 +288,7 @@ testPart =
     }
 
 
-testBeats : Array Beat
+testBeats : Array (Beat Encoding.None)
 testBeats =
     [ [ Note.fromString "QQ"
       , Note.fromString "348080c"

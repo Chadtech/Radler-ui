@@ -4,7 +4,7 @@ port module Ports exposing
     , send
     )
 
-import Json.Encode as E exposing (Value)
+import Json.Encode as Encode exposing (Value)
 
 
 type JsMsg
@@ -14,36 +14,36 @@ type JsMsg
 
 toCmd : String -> Value -> Cmd msg
 toCmd type_ payload =
-    [ ( "type", E.string type_ )
-    , ( "payload", payload )
+    [ field "type" <| Encode.string type_
+    , field "payload" <| payload
     ]
-        |> E.object
+        |> Encode.object
         |> toJs
 
 
 noPayload : String -> Cmd msg
 noPayload type_ =
-    toCmd type_ E.null
+    toCmd type_ Encode.null
 
 
 send : JsMsg -> Cmd msg
 send msg =
     case msg of
         SavePartToDisk ( name, data ) ->
-            [ def "name" (E.string name)
-            , def "data" (E.string data)
+            [ field "name" (Encode.string name)
+            , field "data" (Encode.string data)
             ]
-                |> E.object
+                |> Encode.object
                 |> toCmd "savePartToDisk"
 
         SavePackageToDisk package ->
             package
-                |> E.string
+                |> Encode.string
                 |> toCmd "savePackageToDisk"
 
 
-def : String -> E.Value -> ( String, E.Value )
-def =
+field : String -> Encode.Value -> ( String, Encode.Value )
+field =
     Tuple.pair
 
 

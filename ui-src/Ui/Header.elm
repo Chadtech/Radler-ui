@@ -72,7 +72,7 @@ update msg model =
                 Ok scoreStr ->
                     scoreStr
                         |> Play
-                        |> sendHttp model
+                        |> sendHttp
                         |> Util.withModel
                             (Model.setBackendStatusWorking model)
 
@@ -136,13 +136,12 @@ type Call
     = Play String
 
 
-sendHttp : Model -> Call -> Cmd Msg
-sendHttp model call =
+sendHttp : Call -> Cmd Msg
+sendHttp call =
     case call of
         Play score ->
             Score.sendHttp
-                { model = model
-                , path = "play"
+                { path = "play"
                 , score = score
                 , msgCtor = PlaySent
                 }

@@ -5,8 +5,7 @@ module Score exposing
     )
 
 import Http
-import Json.Decode as D
-import Model exposing (Model)
+import Json.Decode as Decode
 
 
 errorToString : Http.Error -> String
@@ -21,29 +20,26 @@ errorToString error =
         Http.NetworkError ->
             "network error"
 
-        Http.BadStatus response ->
-            [ String.fromInt response.status.code
-            , response.status.message
-            , response.body
-            ]
-                |> String.join " - "
+        Http.BadStatus code ->
+            "Bad Status" ++ String.fromInt code
 
-        Http.BadPayload decodeError _ ->
+        Http.BadBody decodeError ->
             "Decoder problem -> " ++ decodeError
 
 
 type alias HttpPayload msg =
-    { model : Model
-    , path : String
+    { path : String
     , score : String
     , msgCtor : Result Http.Error () -> msg
     }
 
 
 sendHttp : HttpPayload msg -> Cmd msg
-sendHttp { model, path, score, msgCtor } =
+sendHttp { path, score, msgCtor } =
     Http.post
-        (Model.urlRoute model path)
-        (Http.stringBody "string" score)
-        (D.null ())
-        |> Http.send msgCtor
+        { url = path
+        , body =
+            Http.stringBody "string" score
+        , expect =
+            Http.expectJson msgCtor <| Decode.null ()
+        }

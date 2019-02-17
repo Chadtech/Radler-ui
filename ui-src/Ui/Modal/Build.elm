@@ -1,12 +1,15 @@
 module Ui.Modal.Build exposing
     ( Msg
+    , tests
     , update
     , view
     )
 
+import BackendStatus as BackendStatus
 import Css exposing (..)
 import Data.Error as Error
 import Data.Modal.Build as Build
+import Expect exposing (Expectation)
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attrs
@@ -15,6 +18,7 @@ import Http
 import Model exposing (Model)
 import Score
 import Style
+import Test exposing (Test, describe, test)
 import Util
 
 
@@ -74,7 +78,7 @@ handleBuildClicked buildModel model =
                         |> Model.setBackendStatusWorking
                     , scoreStr
                         |> Build
-                        |> sendHttp model
+                        |> sendHttp
                     )
 
                 Err newModel ->
@@ -102,12 +106,11 @@ type Call
     = Build String
 
 
-sendHttp : Model -> Call -> Cmd Msg
-sendHttp model call =
+sendHttp : Call -> Cmd Msg
+sendHttp call =
     case call of
         Build score ->
-            { model = model
-            , path = "build"
+            { path = "build"
             , score = score
             , msgCtor = BuildSent
             }
@@ -231,3 +234,25 @@ buttonStyle =
     , active [ Style.indent ]
     ]
         |> Css.batch
+
+
+
+-- TESTS --
+
+
+tests : Model -> Test
+tests testModel =
+    describe "Ui.Modal.Build"
+        [ test "BuildClick leads to the backend status being Working" <|
+            \_ ->
+                update BuildClicked Build.Ready testModel
+                    |> Tuple.first
+                    |> .backendStatus
+                    |> Expect.equal BackendStatus.Working
+        , test "BuildSent leads to the backend status being Idle, under ideal conditions" <|
+            \_ ->
+                update (BuildSent <| Ok ()) Build.Ready testModel
+                    |> Tuple.first
+                    |> .backendStatus
+                    |> Expect.equal BackendStatus.Idle
+        ]

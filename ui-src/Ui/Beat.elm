@@ -8,6 +8,7 @@ import Array exposing (Array)
 import Colors
 import Css exposing (..)
 import Data.Beat as Beat exposing (Beat)
+import Data.Encoding as Encoding
 import Data.Note as Note exposing (Note)
 import Data.Part as Part
 import Data.Tracker as Tracker
@@ -77,7 +78,7 @@ update ti pi bi msg model =
 -- VIEW --
 
 
-view : Int -> Int -> Style.Size -> Int -> Int -> Beat -> Html Msg
+view : Int -> Int -> Style.Size -> Int -> Int -> Beat Encoding.None -> Html Msg
 view majorMark minorMark size ti bi beat =
     beat
         |> Beat.toIndexedList
@@ -110,7 +111,7 @@ deleteButton size =
         ]
 
 
-wrapNote : Int -> Int -> Style.Size -> Int -> Int -> ( Int, Note ) -> Html Msg
+wrapNote : Int -> Int -> Style.Size -> Int -> Int -> ( Int, Note Encoding.None ) -> Html Msg
 wrapNote majorMark minorMark size ti bi ( ni, note ) =
     Html.Styled.Lazy.lazy7
         Note.view

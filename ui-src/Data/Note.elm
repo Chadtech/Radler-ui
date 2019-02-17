@@ -3,8 +3,14 @@ module Data.Note exposing
     , empty
     , encode
     , fromString
+    , tests
     , toString
     )
+
+import Data.Encoding as Encoding
+import Expect exposing (Expectation)
+import Test exposing (Test, describe, test)
+
 
 {-|
 
@@ -19,10 +25,12 @@ module Data.Note exposing
 
 -}
 
+
+
 -- TYPES --
 
 
-type Note
+type Note encoding
     = Note String
 
 
@@ -30,22 +38,22 @@ type Note
 -- HELPERS --
 
 
-empty : Note
+empty : Note Encoding.None
 empty =
     fromString ""
 
 
-toString : Note -> String
+toString : Note a -> String
 toString (Note str) =
     str
 
 
-fromString : String -> Note
+fromString : String -> Note a
 fromString =
     Note
 
 
-encode : Int -> Int -> Note -> Note
+encode : Int -> Int -> Note Encoding.None -> Note Encoding.Backend
 encode time seed (Note str) =
     [ String.fromInt time
     , String.fromInt seed
@@ -53,6 +61,16 @@ encode time seed (Note str) =
     ]
         |> String.join dataDelimiter
         |> fromString
+
+
+encodeTest : Test
+encodeTest =
+    test "Encode looks right" <|
+        \_ ->
+            "348080c"
+                |> fromString
+                |> encode 17 76
+                |> Expect.equal (fromString "17,76,348080c")
 
 
 dataDelimiter : String
@@ -67,3 +85,13 @@ encodeString str =
 
     else
         str
+
+
+
+-- TESTS --
+
+
+tests : Test
+tests =
+    describe "Data.Note"
+        [ encodeTest ]

@@ -10,6 +10,7 @@ module Data.Package exposing
 
 import Array exposing (Array)
 import Data.Beat as Beat exposing (Beat)
+import Data.Encoding as Encoding
 import Data.Note as Note exposing (Note)
 import Data.Part as Part exposing (Part)
 import Data.Room as Room exposing (Room)
@@ -208,10 +209,10 @@ scorePayloadTests package =
         ]
 
 
-toScoreString : Package -> List Beat -> String
+toScoreString : Package -> List (Beat Encoding.None) -> String
 toScoreString package score =
     let
-        withBeatTime : Int -> Beat -> ( Int, Beat )
+        withBeatTime : Int -> Beat Encoding.None -> ( Int, Beat Encoding.None )
         withBeatTime index beat =
             ( index * package.beatLength, beat )
 
@@ -222,17 +223,23 @@ toScoreString package score =
                 (Random.int -package.timingVariance package.timingVariance)
                 (Random.int 0 524288)
 
-        randomizeNoteTiming : ( Int, Note ) -> ( Seed, List Note ) -> ( Seed, List Note )
-        randomizeNoteTiming ( time, note ) ( seed, notes ) =
+        randomizeNoteTiming :
+            ( Int, Note Encoding.None )
+            -> ( Seed, List (Note Encoding.Backend) )
+            -> ( Seed, List (Note Encoding.Backend) )
+        randomizeNoteTiming ( time, note ) ( seed, encodedNotes ) =
             let
                 ( ( timingOffset, noteSeed ), newSeed ) =
                     Random.step randomOffsetAndSeed seed
             in
             ( newSeed
-            , Note.encode (time + timingOffset) noteSeed note :: notes
+            , Note.encode (time + timingOffset) noteSeed note :: encodedNotes
             )
 
-        randomizeTiming : ( Int, Beat ) -> ( Seed, List Beat ) -> ( Seed, List Beat )
+        randomizeTiming :
+            ( Int, Beat Encoding.None )
+            -> ( Seed, List (Beat Encoding.Backend) )
+            -> ( Seed, List (Beat Encoding.Backend) )
         randomizeTiming ( time, beat ) ( seed, beats ) =
             beat
                 |> Beat.toList
@@ -269,10 +276,10 @@ toScoreString package score =
         |> String.join "\n"
 
 
-buildScore : ScoreParams -> Maybe (List Beat)
+buildScore : ScoreParams -> Maybe (List (Beat Encoding.None))
 buildScore params =
     let
-        parts : Dict String (Array Beat)
+        parts : Dict String (Array (Beat Encoding.None))
         parts =
             Part.toDict params.parts
 
@@ -286,14 +293,14 @@ buildScore params =
         -- than is necessary and to crop it down later.
         -- cropPart takes a part, and cuts it down
         -- to the length specified in the package json.
-        cropPart : ( String, Int ) -> Maybe (List Beat)
+        cropPart : ( String, Int ) -> Maybe (List (Beat Encoding.None))
         cropPart ( name, length ) =
             parts
                 |> Dict.get name
                 |> Maybe.map
                     (Array.toList << Array.slice 0 length)
 
-        takeBeginningOfScore : List Beat -> List Beat
+        takeBeginningOfScore : List (Beat Encoding.None) -> List (Beat Encoding.None)
         takeBeginningOfScore beats =
             case params.length of
                 Just length ->
@@ -302,7 +309,7 @@ buildScore params =
                 Nothing ->
                     beats
 
-        cropScore : List (List Beat) -> List Beat
+        cropScore : List (List (Beat Encoding.None)) -> List (Beat Encoding.None)
         cropScore pieces =
             pieces
                 |> List.concat
@@ -319,53 +326,6 @@ buildScore params =
 -- TESTS --
 
 
-tests : Test
-tests =
-    case decode testJsonStr of
-        Ok testPackage ->
-            describe "Tests from successfully decoded package"
-                [ scorePayloadTests testPackage
-                ]
-
-        Err err ->
-            test "Test json failed to decode" <|
-                \_ ->
-                    Expect.fail (Decode.errorToString err)
-
-
-testJsonStr : String
-testJsonStr =
-    """{
-    "name": "test-song",
-    "parts-src": "./parts",
-    "score": [
-        {
-            "name": "part-a",
-            "length": 16
-        },
-        {
-            "name": "part-b",
-            "length": 16
-        }
-    ],
-    "voices": [
-        "saw | position( x=-5 y=1 z=1 ) freqerror=(0.01)",
-        "sin | position( x=-2 y=3 z=1 ) freqerror=(0.01)"
-    ],
-    "room": {
-         "size": {
-              "width": 10,
-              "length": 12,
-              "height": 17
-          },
-          "listener-position": {
-              "x": 5,
-              "y": 3,
-              "z": 7 
-          }
-    },
-    "seed": 19,
-    "timing-variance": 100,
-    "beat-length": 5000,
-    "scale": "major 7 tone jit"
-}"""
+tests : Package -> Test
+tests testPackage =
+    scorePayloadTests testPackage

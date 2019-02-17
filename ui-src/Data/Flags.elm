@@ -47,17 +47,17 @@ decoder =
 
 partsDecoder : Decoder (Array Part)
 partsDecoder =
+    let
+        atLeastOnePart : Array Part -> Array Part
+        atLeastOnePart parts =
+            if Array.isEmpty parts then
+                [ Part.empty "new-part" ]
+                    |> Array.fromList
+
+            else
+                parts
+    in
     Part.decoder
         |> D.list
         |> D.map Array.fromList
         |> D.map atLeastOnePart
-
-
-atLeastOnePart : Array Part -> Array Part
-atLeastOnePart parts =
-    if Array.isEmpty parts then
-        [ Part.empty "new-part" ]
-            |> Array.fromList
-
-    else
-        parts
