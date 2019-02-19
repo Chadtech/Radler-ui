@@ -85,8 +85,8 @@ testPackageJson =
         }
     ],
     "voices": [
-        "saw | position( x=-5 y=1 z=1 ) freqerror=(0.01)",
-        "sin | position( x=-2 y=3 z=1 ) freqerror=(0.01)"
+        "saw | position(x=-5 y=1 z=1) freqerror(0.01)",
+        "sin | position(x=-2 y=3 z=1) freqerror(0.01)"
     ],
     "room": {
          "size": {
