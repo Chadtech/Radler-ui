@@ -44,8 +44,6 @@ ipcRenderer.on('init', function (event, payload) {
     enginePortNumber: payload.port
   };
 
-  console.log(JSON.stringify(flags));
-
   var app = Elm.Main.init({
     flags: flags
   });

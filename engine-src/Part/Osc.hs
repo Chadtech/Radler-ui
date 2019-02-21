@@ -49,13 +49,13 @@ import Part.Volume (Volume)
 import qualified Part.Volume as Volume
 import Position (Position)
 import qualified Position
-import qualified Random
 import Resolution (Resolution)
 import qualified Resolution
 import Room (Room)
 import qualified Room 
 import Scale (Scale)
 import qualified Scale
+import qualified System.Random as Random
 import Time (Time)
 import qualified Time
 import Timeline (Timeline)
@@ -270,7 +270,7 @@ readNoteText config maybeFreqError noteTxt =
             Left <| NoteError error
 
 
-readNonEmptyNoteText :: Config -> Maybe Float -> (Time, Random.Seed, Text) -> Either Error (Time, Note)
+readNonEmptyNoteText :: Config -> Maybe Float -> (Time, Random.StdGen, Text) -> Either Error (Time, Note)
 readNonEmptyNoteText config maybeFreqError (time, seed, contentTxt) =
     let
         -- Something like "34"
@@ -302,14 +302,14 @@ readNonEmptyNoteText config maybeFreqError (time, seed, contentTxt) =
             of
                 (Right freq, Just freqError) ->
                     let
-                        (freqAdjustment, _) =
-                            Random.float 
-                                ((-1) * freqError) 
-                                freqError
-                                |> Random.generate seed 
+                        (freqAdjustment, newSeed) =
+                            ( Random.randomR 
+                                (-freqError, freqError) 
+                                seed
+                            ) :: (Float, Random.StdGen)
                     in
                     Freq.map 
-                        ((*) freqAdjustment) 
+                        ((*) (trace "FREQ ADJUSTMENT" freqAdjustment))
                         freq
                         |> Right
 

@@ -22,9 +22,9 @@ module Model exposing
     , setModal
     , setPlayFor
     , setPlayFrom
-    , urlRoute
     )
 
+import Api
 import Array exposing (Array)
 import BackendStatus as BackendStatus exposing (BackendStatus)
 import Data.Error exposing (Error(..))
@@ -69,7 +69,7 @@ type alias Model =
     , playForBeatsField : String
     , playFromBeat : Int
     , playForBeats : Int
-    , engineUrl : Url
+    , mountPath : Api.MountPath
     , modal : Maybe Modal
     , backendStatus : BackendStatus
     }
@@ -104,12 +104,8 @@ init flags =
     , playForBeatsField = String.fromInt playForBeats
     , playFromBeat = playFromBeat
     , playForBeats = playForBeats
-    , engineUrl =
-        [ "http://localhost:"
-        , String.fromInt flags.enginePort
-        ]
-            |> String.concat
-            |> Url.fromString
+    , mountPath =
+        Api.mountPathFromPortNumber flags.enginePort
     , backendStatus = BackendStatus.Idle
     }
 
@@ -372,12 +368,3 @@ scoreHelper model scoreParams =
             model
                 |> setError ScoreDidNotSave
                 |> Err
-
-
-urlRoute : Model -> String -> String
-urlRoute model route =
-    [ Url.toString model.engineUrl
-    , "/"
-    , route
-    ]
-        |> String.concat

@@ -19,12 +19,13 @@ import qualified Data.List as List
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import Parse
-import qualified Random
+import qualified System.Random as Random
+import System.Random (StdGen)
 import Time (Time)
 import qualified Time
 
 
-read :: Config -> Text -> Either Error (Time, Random.Seed, Text)
+read :: Config -> Text -> Either Error (Time, StdGen, Text)
 read config txt =
     case T.splitOn "," txt of
         timeTxt : randomSeedTxt : content : [] ->
@@ -32,7 +33,7 @@ read config txt =
                 (Right time, Right randomSeed) ->
                     ( time + (Config.timingVariance config)
                         |> Time.fromInt
-                    , Random.fromInt randomSeed
+                    , Random.mkStdGen randomSeed
                     , content
                     )
                         |> Right
