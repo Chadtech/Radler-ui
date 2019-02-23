@@ -4,6 +4,7 @@ module Ui.Header exposing
     , view
     )
 
+import Api
 import Array
 import BackendStatus
 import Colors
@@ -20,7 +21,6 @@ import Html.Styled.Events as Events
 import Http
 import Json.Decode as D
 import Model exposing (Model, Page)
-import Score
 import Style
 import Util
 
@@ -39,7 +39,7 @@ type Msg
     | BuildClicked
     | PlayFromFieldUpdated String
     | PlayForFieldUpdated String
-    | PlaySent (Result Http.Error ())
+    | PlaySent (Result Api.Error ())
 
 
 
@@ -72,7 +72,7 @@ update msg model =
                 Ok scoreStr ->
                     scoreStr
                         |> Play
-                        |> sendHttp
+                        |> sendHttp model
                         |> Util.withModel
                             (Model.setBackendStatusWorking model)
 
@@ -120,10 +120,10 @@ update msg model =
                 |> Util.withNoCmd
 
 
-playFailed : Http.Error -> Model -> Model
+playFailed : Api.Error -> Model -> Model
 playFailed error =
     error
-        |> Score.errorToString
+        |> Api.errorToString
         |> Error.BackendHadProblemWithScore
         |> Model.setError
 
@@ -136,12 +136,12 @@ type Call
     = Play String
 
 
-sendHttp : Call -> Cmd Msg
-sendHttp call =
+sendHttp : Model -> Call -> Cmd Msg
+sendHttp model call =
     case call of
         Play score ->
-            Score.sendHttp
-                { path = "play"
+            Api.sendScore
+                { endpoint = model.endpoints.play
                 , score = score
                 , msgCtor = PlaySent
                 }

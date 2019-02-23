@@ -3,6 +3,7 @@ module Data.Flags exposing
     , decoder
     )
 
+import Api
 import Array exposing (Array)
 import Data.Package as Package exposing (Package)
 import Data.Part as Part exposing (Part)
@@ -29,7 +30,7 @@ import Json.Decode.Pipeline as JDP
 type alias Flags =
     { package : Package
     , parts : Array Part
-    , enginePort : Int
+    , endpoints : Api.Endpoints
     }
 
 
@@ -42,7 +43,7 @@ decoder =
     D.succeed Flags
         |> JDP.required "package" Package.decoder
         |> JDP.required "parts" partsDecoder
-        |> JDP.required "enginePortNumber" D.int
+        |> JDP.required "enginePortNumber" Api.endpointsFromPortNumberDecoder
 
 
 partsDecoder : Decoder (Array Part)

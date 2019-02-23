@@ -69,7 +69,7 @@ type alias Model =
     , playForBeatsField : String
     , playFromBeat : Int
     , playForBeats : Int
-    , mountPath : Api.MountPath
+    , endpoints : Api.Endpoints
     , modal : Maybe Modal
     , backendStatus : BackendStatus
     }
@@ -104,8 +104,7 @@ init flags =
     , playForBeatsField = String.fromInt playForBeats
     , playFromBeat = playFromBeat
     , playForBeats = playForBeats
-    , mountPath =
-        Api.mountPathFromPortNumber flags.enginePort
+    , endpoints = flags.endpoints
     , backendStatus = BackendStatus.Idle
     }
 

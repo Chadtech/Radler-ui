@@ -5,6 +5,7 @@ module Ui.Modal.Build exposing
     , view
     )
 
+import Api
 import BackendStatus as BackendStatus
 import Css exposing (..)
 import Data.Error as Error
@@ -16,7 +17,6 @@ import Html.Styled.Attributes as Attrs
 import Html.Styled.Events as Events
 import Http
 import Model exposing (Model)
-import Score
 import Style
 import Test exposing (Test, describe, test)
 import Util
@@ -30,7 +30,7 @@ type Msg
     = BuildClicked
     | CancelClicked
     | GoBackClicked
-    | BuildSent (Result Http.Error ())
+    | BuildSent (Result Api.Error ())
 
 
 
@@ -78,7 +78,7 @@ handleBuildClicked buildModel model =
                         |> Model.setBackendStatusWorking
                     , scoreStr
                         |> Build
-                        |> sendHttp
+                        |> sendHttp model
                     )
 
                 Err newModel ->
@@ -90,10 +90,10 @@ handleBuildClicked buildModel model =
                 |> Util.withNoCmd
 
 
-buildFailed : Http.Error -> Model -> Model
+buildFailed : Api.Error -> Model -> Model
 buildFailed error =
     error
-        |> Score.errorToString
+        |> Api.errorToString
         |> Error.BackendHadProblemWithScore
         |> Model.setError
 
@@ -106,15 +106,15 @@ type Call
     = Build String
 
 
-sendHttp : Call -> Cmd Msg
-sendHttp call =
+sendHttp : Model -> Call -> Cmd Msg
+sendHttp model call =
     case call of
         Build score ->
-            { path = "build"
+            { endpoint = model.endpoints.build
             , score = score
             , msgCtor = BuildSent
             }
-                |> Score.sendHttp
+                |> Api.sendScore
 
 
 
