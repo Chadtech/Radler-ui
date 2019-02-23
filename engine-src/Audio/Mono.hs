@@ -82,11 +82,17 @@ silence duration =
     Mono $ Vector.replicate duration 0
 
 
-sin :: Freq -> Duration -> Mono
-sin (Freq freq) (Duration duration) =
+sin :: Float -> Freq -> Duration -> Mono
+sin phase (Freq freq) (Duration duration) =
+    let
+        sinAtSample :: Int -> Float
+        sinAtSample index =
+            Prelude.sin 
+                ((2 * pi * (freq / 44100) * toFloat index ) + (pi * phase)) 
+    in
     Vector.generate 
         duration 
-        (sinAtSample freq)
+        sinAtSample
         |> Mono
 
 
@@ -106,11 +112,6 @@ sawAtSample freq index =
             toFloat index / (44100 / freq)
     in
     2 * (j - (toFloat <| floor (0.5 + j)))
-
-
-sinAtSample :: Float -> Int -> Float
-sinAtSample freq index =
-    Prelude.sin (2 * pi * (freq / 44100) * toFloat index) 
 
 
 delay :: Int -> Mono -> Mono

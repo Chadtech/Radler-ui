@@ -39,6 +39,7 @@ makeFlags fields =
 toMono :: Model -> Osc.Note -> Mono
 toMono _ note = 
     Mono.sin 
+        0
         (Osc.freq note)
         (Osc.duration note)
         |> Contour.apply (Osc.contour note)

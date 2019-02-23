@@ -71,6 +71,11 @@ data Error
     | UnrecognizedScale Text
 
 
+instance Show Error where
+    show error =
+        T.unpack <| throw error
+
+        
 throw :: Error -> Text
 throw error =
     case error of

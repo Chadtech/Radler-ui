@@ -183,7 +183,7 @@ readModel flags notes =
 
 parseFreqError :: Parse.Fields Text -> Either Error (Maybe Float)
 parseFreqError fields =
-    case Parse.get "freqError" fields of
+    case Parse.get "freqerror" fields of
         Nothing ->
             Right Nothing
 
@@ -309,7 +309,7 @@ readNonEmptyNoteText config maybeFreqError (time, seed, contentTxt) =
                             ) :: (Float, Random.StdGen)
                     in
                     Freq.map 
-                        ((*) (trace "FREQ ADJUSTMENT" freqAdjustment))
+                        ((*) (1 + freqAdjustment))
                         freq
                         |> Right
 

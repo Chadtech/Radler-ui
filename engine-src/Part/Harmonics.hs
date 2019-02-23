@@ -97,6 +97,7 @@ toMono (Model harmonics) note =
 toHarmonicMono :: Osc.Note -> Harmonic -> Mono
 toHarmonicMono note harmonic =
     Mono.sin 
+        0
         (Freq.map ((*) (_harmonic harmonic)) (Osc.freq note))
         (Osc.duration note)
         |> Mono.setVolume 

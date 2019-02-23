@@ -31,6 +31,7 @@ import qualified Data.Text.Lazy as T
 import qualified Data.Tuple.Extra as Tuple
 import Parse (parse)
 import qualified Parse
+import qualified Part.DullSaw as DullSaw
 import qualified Part.Harmonics as Harmonics
 import qualified Part.Sin as Sin
 import qualified Part.Saw as Saw
@@ -48,6 +49,7 @@ data Part
     = Sin (Osc.Model Sin.Model)
     | Saw (Osc.Model Saw.Model)
     | Harmonics (Osc.Model Harmonics.Model)
+    | DullSaw (Osc.Model DullSaw.Model)
     deriving (Eq)
 
 
@@ -62,6 +64,9 @@ instance Show Part where
 
             Harmonics model ->
                 "Harmonics " ++ show model
+
+            DullSaw model ->
+                "Dull Saw " ++ show model
 
 
 -- HELPERS --
@@ -83,10 +88,20 @@ diff (incomingPart, existingPart) =
                 |> Either.mapRight (Resolution.map Sin) 
                 |> Either.mapLeft SinError
 
-        (Saw incomingSinModel, Saw existingSinModel) ->
-            Osc.diff incomingSinModel existingSinModel
+        (Saw incomingSawModel, Saw existingSawModel) ->
+            Osc.diff incomingSawModel existingSawModel
                 |> Either.mapRight (Resolution.map Saw) 
                 |> Either.mapLeft SawError
+
+        (Harmonics incomingHarmonicsModel, Harmonics existingHarmonicsModel) ->
+            Osc.diff incomingHarmonicsModel existingHarmonicsModel
+                |> Either.mapRight (Resolution.map Harmonics)
+                |> Either.mapLeft HarmonicsError
+
+        (DullSaw incomingDullSawModel, DullSaw existingDullSawModel) ->
+            Osc.diff incomingDullSawModel existingDullSawModel
+                |> Either.mapRight (Resolution.map DullSaw)
+                |> Either.mapLeft DullSawError
 
         _ ->
             Right Resolution.Unresolvable
@@ -121,6 +136,14 @@ fromPieces config (partTxt, noteTxts) =
 
                 Left error ->
                     Left <| HarmonicsFlagsError error
+
+        Right ("dullsaw", fields) ->
+            noteTxts
+                |> Osc.read 
+                    config 
+                    (DullSaw.makeFlags fields)
+                |> Either.mapRight DullSaw
+                |> Either.mapLeft DullSawError
 
         Left error ->
             Left error
@@ -200,6 +223,9 @@ toDevAudio part =
         Harmonics model ->
             oscToDevAudio model
 
+        DullSaw model ->
+            oscToDevAudio model
+
 
 oscToDevAudio :: Osc.Model t -> Audio 
 oscToDevAudio =
@@ -223,6 +249,9 @@ build maybeRoom part =
         Harmonics model ->
             build_ model
 
+        DullSaw model ->
+            build_ model
+
 
 -- ERROR -- 
 
@@ -233,6 +262,7 @@ data Error
     | SinError Osc.Error
     | SawError Osc.Error
     | HarmonicsError Osc.Error
+    | DullSawError Osc.Error
     | HarmonicsFlagsError Harmonics.Error
     | DiffError
     | VoiceInvalidFormat
@@ -278,6 +308,11 @@ errorToText error =
             harmonicsError
                 |> Osc.throw 
                 |> T.append "Error in Harmonics Voice -> \n" 
+
+        DullSawError dullSawError ->
+            dullSawError
+                |> Osc.throw
+                |> T.append "Error in Dull Saw Voice -> \n"
 
         HarmonicsFlagsError harmonicsError ->
             harmonicsError
