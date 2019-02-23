@@ -5,52 +5,7 @@
         {
             "name": "part-9",
             "length": 16
-        },
-        {
-            "name": "part-a",
-            "length": 16
-        },
-        {
-            "name": "part-a",
-            "length": 16
-        },
-        {
-            "name": "part-b-0",
-            "length": 32
-        },
-        {
-            "name": "part-a-p",
-            "length": 16
-        },
-        {
-            "name": "part-a-p",
-            "length": 16
-        },
-        {
-            "name": "part-b-1",
-            "length": 32
-        },
-        {
-            "name": "part-c-0",
-            "length": 62
-        },
-        {
-            "name": "part-c-2",
-            "length": 66
-        },
-        {
-            "name": "part-d",
-            "length": 8
-        },
-        {
-            "name": "part-d",
-            "length": 8
-        },
-        {
-            "name": "part-d",
-            "length": 8
         }
-       
     ],
     "voices": [
         "saw | position( x=-5 y=1 z=1 ) freqerror=(0.01)",

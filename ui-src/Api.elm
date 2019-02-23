@@ -90,7 +90,7 @@ sendScore { endpoint, score, msgCtor } =
 
 responseToError : Http.Response String -> Result Error ()
 responseToError response =
-    case Debug.log "RESPONSE" response of
+    case response of
         Http.BadUrl_ url ->
             Err <| Other <| Http.BadUrl url
 
