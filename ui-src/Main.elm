@@ -14,10 +14,6 @@ import Util
 import View
 
 
-
--- MAIN --
-
-
 main : Program Decode.Value (Result Decode.Error Model) Msg
 main =
     { init = init
