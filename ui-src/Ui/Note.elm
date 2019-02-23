@@ -4,7 +4,6 @@ module Ui.Note exposing
     , view
     )
 
-import Array exposing (Array)
 import Browser.Dom as Dom
 import Colors
 import Css exposing (..)
@@ -12,7 +11,6 @@ import Data.Beat as Beat
 import Data.Encoding as Encoding
 import Data.Note as Note exposing (Note)
 import Data.Part as Part
-import Data.Tracker as Tracker
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Attribute, Html)
 import Html.Styled.Attributes as Attrs

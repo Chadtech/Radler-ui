@@ -15,7 +15,7 @@ import Data.Note as Note exposing (Note)
 import Data.Part as Part exposing (Part)
 import Data.Room as Room exposing (Room)
 import Dict exposing (Dict)
-import Expect exposing (Expectation)
+import Expect
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Ports

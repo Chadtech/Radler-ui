@@ -12,14 +12,11 @@ import Css exposing (..)
 import Data.Error as Error
 import Data.Modal as Modal
 import Data.Package as Package
-import Data.Part as Part
 import Data.Tracker as Tracker
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attrs
 import Html.Styled.Events as Events
-import Http
-import Json.Decode as D
 import Model exposing (Model, Page)
 import Style
 import Util
@@ -34,7 +31,6 @@ type Msg
     | NewPartClicked
     | NewTrackerClicked
     | PlayClicked
-    | OpenClicked
     | SaveClicked
     | BuildClicked
     | PlayFromFieldUpdated String
@@ -79,10 +75,6 @@ update msg model =
                 Err newModel ->
                     newModel
                         |> Util.withNoCmd
-
-        OpenClicked ->
-            model
-                |> Util.withNoCmd
 
         SaveClicked ->
             [ Package.saveToDisk
@@ -304,15 +296,6 @@ playButton =
         , Events.onClick PlayClicked
         ]
         [ Html.text "play" ]
-
-
-openButton : Html Msg
-openButton =
-    Html.button
-        [ Attrs.css [ buttonStyle ]
-        , Events.onClick OpenClicked
-        ]
-        [ Html.text "open" ]
 
 
 buildButton : Html Msg

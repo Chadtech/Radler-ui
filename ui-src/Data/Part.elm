@@ -20,7 +20,7 @@ import Data.Beat as Beat exposing (Beat)
 import Data.Encoding as Encoding
 import Data.Note as Note
 import Dict exposing (Dict)
-import Expect exposing (Expectation)
+import Expect
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline as Pipe
 import Ports

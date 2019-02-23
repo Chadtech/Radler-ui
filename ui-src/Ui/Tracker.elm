@@ -14,10 +14,9 @@ import Data.Tracker as Tracker exposing (Tracker)
 import Data.Tracker.Options as Options
 import Html.Buttons as Buttons
 import Html.Grid as Grid
-import Html.Styled as Html exposing (Attribute, Html)
+import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attrs
 import Html.Styled.Events as Events
-import Html.Styled.Keyed
 import Html.Styled.Lazy
 import Model exposing (Model)
 import Style

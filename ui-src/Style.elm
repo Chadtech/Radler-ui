@@ -20,8 +20,7 @@ module Style exposing
 import Colors
 import Css exposing (..)
 import Css.Global exposing (global)
-import Html.Styled as Html exposing (Html)
-import Html.Styled.Attributes exposing (css)
+import Html.Styled exposing (Html)
 
 
 

@@ -19,10 +19,6 @@ type Endpoint
     = Endpoint String
 
 
-type MountPath
-    = MountPath String
-
-
 type alias Endpoints =
     { play : Endpoint
     , build : Endpoint
@@ -83,8 +79,6 @@ sendScore { endpoint, score, msgCtor } =
             Http.expectStringResponse
                 msgCtor
                 responseToError
-
-        -- Http.expectJson msgCtor <| Decode.null ()
         }
 
 
@@ -100,7 +94,7 @@ responseToError response =
         Http.NetworkError_ ->
             Err <| Other Http.NetworkError
 
-        Http.BadStatus_ metadata body ->
+        Http.BadStatus_ metadata _ ->
             case metadata.statusCode of
                 400 ->
                     metadata.statusText
@@ -113,7 +107,7 @@ responseToError response =
                         |> Other
                         |> Err
 
-        Http.GoodStatus_ metadata body ->
+        Http.GoodStatus_ _ body ->
             let
                 toApiError : Decode.Error -> Error
                 toApiError =

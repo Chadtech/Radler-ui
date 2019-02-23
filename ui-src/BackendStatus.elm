@@ -5,9 +5,8 @@ module BackendStatus exposing
 
 import Colors
 import Css exposing (..)
-import Html.Styled as Html exposing (Attribute, Html)
+import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attrs
-import Style
 
 
 

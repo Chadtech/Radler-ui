@@ -8,7 +8,7 @@ module Data.Note exposing
     )
 
 import Data.Encoding as Encoding
-import Expect exposing (Expectation)
+import Expect
 import Test exposing (Test, describe, test)
 
 

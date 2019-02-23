@@ -6,7 +6,6 @@ module Ui.Modal exposing
 
 import Css exposing (..)
 import Data.Modal exposing (Modal(..))
-import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attrs
 import Model exposing (Model)

@@ -4,14 +4,12 @@ module Ui.Beat exposing
     , view
     )
 
-import Array exposing (Array)
 import Colors
 import Css exposing (..)
 import Data.Beat as Beat exposing (Beat)
 import Data.Encoding as Encoding
 import Data.Note as Note exposing (Note)
 import Data.Part as Part
-import Data.Tracker as Tracker
 import Html.Buttons as Buttons
 import Html.Grid as Grid
 import Html.Styled as Html
@@ -20,7 +18,6 @@ import Html.Styled as Html
         , button
         )
 import Html.Styled.Attributes as Attrs
-import Html.Styled.Events exposing (onClick)
 import Html.Styled.Lazy
 import Model exposing (Model)
 import Style

@@ -10,12 +10,11 @@ import BackendStatus as BackendStatus
 import Css exposing (..)
 import Data.Error as Error
 import Data.Modal.Build as Build
-import Expect exposing (Expectation)
+import Expect
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attrs
 import Html.Styled.Events as Events
-import Http
 import Model exposing (Model)
 import Style
 import Test exposing (Test, describe, test)

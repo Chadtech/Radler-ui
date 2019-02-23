@@ -21,11 +21,6 @@ toCmd type_ payload =
         |> toJs
 
 
-noPayload : String -> Cmd msg
-noPayload type_ =
-    toCmd type_ Encode.null
-
-
 send : JsMsg -> Cmd msg
 send msg =
     case msg of

@@ -7,11 +7,10 @@ module Ui.Tracker.Options exposing
 
 import Colors
 import Css exposing (..)
-import Data.Part as Part
-import Data.Tracker as Tracker exposing (Tracker)
+import Data.Tracker as Tracker
 import Data.Tracker.Options as Options
 import Html.Grid as Grid
-import Html.Styled as Html exposing (Attribute, Html)
+import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attrs
 import Html.Styled.Events as Events
 import Model exposing (Model)

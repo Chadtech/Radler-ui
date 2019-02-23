@@ -10,7 +10,6 @@ module Data.Tracker exposing
     , setSize
     )
 
-import Css exposing (Style)
 import Data.Tracker.Options as Options
 import Style
 

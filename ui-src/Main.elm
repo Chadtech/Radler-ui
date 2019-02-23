@@ -1,13 +1,12 @@
 module Main exposing (main)
 
 import Browser
-import Browser.Navigation
 import Data.Flags as Flags
 import Html.Styled as Html
 import Json.Decode as Decode
 import Model exposing (Model)
 import Msg exposing (Msg)
-import Ports exposing (JsMsg)
+import Ports
 import Style
 import Ui.Error exposing (initializationErrorView)
 import Update
@@ -40,7 +39,7 @@ init json =
 subscriptions : Result Decode.Error Model -> Sub Msg
 subscriptions result =
     case result of
-        Ok model ->
+        Ok _ ->
             Ports.fromJs Msg.decode
 
         Err _ ->
