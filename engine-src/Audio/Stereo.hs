@@ -3,6 +3,7 @@
 
 module Audio.Stereo
     ( Stereo
+    , trimEnd
     , fromMono
     , mix
     , toMonos
@@ -45,6 +46,31 @@ instance Show Stereo where
 
 
 -- HELPERS --
+
+
+trimEnd :: Stereo -> Stereo
+trimEnd (Stereo vector) =
+    let
+        isSampleZero :: Maybe Int -> Int -> (Float, Float) -> Maybe Int
+        isSampleZero maybeLastNonZeroIndex index sample =
+            if 
+                maybeLastNonZeroIndex == Nothing 
+                    && sample /= (0,0) 
+            then
+                Just index
+
+            else 
+                Nothing
+    in
+    case
+        Vector.ifoldl isSampleZero Nothing vector
+    of
+        Just lastNonZeroIndex ->
+            Vector.take lastNonZeroIndex vector
+                |> Stereo
+
+        Nothing ->
+            Stereo vector
 
 
 length :: Stereo -> Int

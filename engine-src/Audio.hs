@@ -3,6 +3,7 @@
 
 module Audio
     ( Audio
+    , trimEnd
     , fromMono
     , fromStereo
     , mixMany
@@ -52,6 +53,19 @@ instance Show Audio where
 
 
 -- HELPERS --
+
+
+trimEnd :: Audio -> Audio
+trimEnd audio =
+    case audio of
+        Mono mono ->
+            Mono.trimEnd mono
+                |> Mono
+
+        Stereo stereo ->
+            Stereo.trimEnd stereo
+                |> Stereo
+
 
 fromMono :: Mono -> Audio
 fromMono =

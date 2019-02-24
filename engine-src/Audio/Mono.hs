@@ -4,6 +4,7 @@
 module Audio.Mono
     ( Mono
     , Audio.Mono.map
+    , trimEnd
     , compress
     , convolve_
     , declip
@@ -58,6 +59,31 @@ instance Show Mono where
 -- HELPERS --
 
 
+trimEnd :: Mono -> Mono
+trimEnd (Mono vector) =
+    let
+        isSampleZero :: Maybe Int -> Int -> Float -> Maybe Int
+        isSampleZero maybeLastNonZeroIndex index sample =
+            if 
+                maybeLastNonZeroIndex == Nothing 
+                    && sample /= 0 
+            then
+                Just index
+
+            else 
+                Nothing
+    in
+    case
+        Vector.ifoldl isSampleZero Nothing vector
+    of
+        Just lastNonZeroIndex ->
+            Vector.take lastNonZeroIndex vector
+                |> Mono
+
+        Nothing ->
+            Mono vector
+
+
 map :: (Float -> Float) -> Mono -> Mono
 map f (Mono mono) =
     Mono <| Vector.map f mono
@@ -89,28 +115,48 @@ silence duration =
 
 tiltedSin :: Int -> Freq -> Duration -> Mono
 tiltedSin degree (Freq freq) duration =
-    let
+    let   
         tiltedSinForDegree :: Int -> Mono
         tiltedSinForDegree thisDegree =
+            let
+                thisDegreeFl :: Float
+                thisDegreeFl =
+                    toFloat thisDegree
+
+                divideByDegree :: Float -> Float
+                divideByDegree sample =
+                    sample / thisDegreeFl
+
+                generateThisDegree :: Float -> Float
+                generateThisDegree sample =
+                    (binomialCoefficient 
+                        (2 * degree) 
+                        (degree - thisDegree)
+                        / binomialCoefficient 
+                            (2 * degree) 
+                            degree
+                    ) * sample
+            in
             sinInternal 
                 0 
-                (Freq (freq * thisDegree)) 
+                (Freq (freq * thisDegreeFl)) 
                 duration
-                |> Vector.map (\s -> s / thisDegree)
-                |> Vector.map (\s ->
-                    (toFloat (binomialCoefficient (2 * degree) (degree - thisDegree))
-                        / (toFloat (binomialCoefficient (2 * degree) degree))
-                    ) * s
-                )        
+                |> Vector.map divideByDegree
+                |> Vector.map generateThisDegree
                 |> Mono
     in
     List.map tiltedSinForDegree [1..degree]
         |> mixMany
         
 
-binomialCoefficient :: Int -> Int -> Int
+binomialCoefficient :: Int -> Int -> Float
 binomialCoefficient n k =
-    product [1..n] / (product [1..k] * product [1..(n - k)])
+    let
+        productFl :: Int -> Float
+        productFl int =
+            toFloat <| product [1..int]
+    in
+    productFl n / (productFl k * productFl (n - k))
 
 
 sin :: Float -> Freq -> Duration -> Mono

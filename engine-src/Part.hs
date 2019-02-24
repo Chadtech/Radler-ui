@@ -78,6 +78,7 @@ manyToDevAudio parts =
         |> List.map toDevAudio
         |> Audio.normalizeVolumes
         |> Audio.mixMany
+        |> Audio.trimEnd
 
 
 diff :: (Part, Part) -> Either Error (Resolution Part)
@@ -237,7 +238,7 @@ build maybeRoom part =
     let
         build_ :: Osc.Model t -> Audio
         build_ =
-            Osc.build maybeRoom
+            Osc.build maybeRoom .> Audio.trimEnd
     in
     case part of
         Sin model ->

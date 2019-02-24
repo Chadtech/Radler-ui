@@ -45,6 +45,7 @@ executable radler
     Note
     Parse
     Part
+    Part.DullSaw
     Part.Duration
     Part.Harmonics
     Part.Osc
@@ -62,6 +63,7 @@ executable radler
     Router
     Scale
     Scale.Major7ToneJit
+    Scale.Slendro
     Score
     Size
     Timeline
