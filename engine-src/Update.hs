@@ -73,7 +73,7 @@ handleRoute route model =
             , Cmd.none
             , Response.error
                 400
-                $ replaceChar 
+                <| replaceChar 
                     '\n' 
                     ' ' 
                     (Error.throw err)
@@ -90,7 +90,7 @@ handleRoute route model =
             , Cmd.none
             , Response.error
                 400
-                $ Error.throw err
+                <| Error.throw err
             )
 
 

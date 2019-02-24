@@ -3,9 +3,11 @@
 
 module Audio.Mono
     ( Mono
+    , Audio.Mono.map
     , compress
     , convolve_
     , declip
+    , tiltedSin
     , empty
     , fadeIn
     , fadeOut
@@ -23,7 +25,6 @@ module Audio.Mono
     , Audio.Mono.sin
     , saw
     ) where
-
 
 import Flow
 import Prelude.Extra
@@ -57,6 +58,10 @@ instance Show Mono where
 -- HELPERS --
 
 
+map :: (Float -> Float) -> Mono -> Mono
+map f (Mono mono) =
+    Mono <| Vector.map f mono
+
 toVector :: Mono -> Vector Float
 toVector (Mono vector) =
     vector
@@ -82,8 +87,40 @@ silence duration =
     Mono $ Vector.replicate duration 0
 
 
+tiltedSin :: Int -> Freq -> Duration -> Mono
+tiltedSin degree (Freq freq) duration =
+    let
+        tiltedSinForDegree :: Int -> Mono
+        tiltedSinForDegree thisDegree =
+            sinInternal 
+                0 
+                (Freq (freq * thisDegree)) 
+                duration
+                |> Vector.map (\s -> s / thisDegree)
+                |> Vector.map (\s ->
+                    (toFloat (binomialCoefficient (2 * degree) (degree - thisDegree))
+                        / (toFloat (binomialCoefficient (2 * degree) degree))
+                    ) * s
+                )        
+                |> Mono
+    in
+    List.map tiltedSinForDegree [1..degree]
+        |> mixMany
+        
+
+binomialCoefficient :: Int -> Int -> Int
+binomialCoefficient n k =
+    product [1..n] / (product [1..k] * product [1..(n - k)])
+
+
 sin :: Float -> Freq -> Duration -> Mono
-sin phase (Freq freq) (Duration duration) =
+sin phase freq duration =
+    sinInternal phase freq duration 
+        |> Mono
+    
+
+sinInternal :: Float -> Freq -> Duration -> Vector Float
+sinInternal phase (Freq freq) (Duration duration) =
     let
         sinAtSample :: Int -> Float
         sinAtSample index =
@@ -93,7 +130,6 @@ sin phase (Freq freq) (Duration duration) =
     Vector.generate 
         duration 
         sinAtSample
-        |> Mono
 
 
 saw :: Freq -> Duration -> Mono
