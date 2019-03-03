@@ -23,8 +23,6 @@ import Audio.Mono (Mono)
 import qualified Audio.Mono as Mono
 import Audio.Stereo (Stereo)
 import qualified Audio.Stereo as Stereo
-import Cmd (Cmd)
-import qualified Cmd
 import qualified Data.List as List
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
@@ -173,7 +171,7 @@ mix audio0 audio1 =
             Stereo <| Stereo.mix stereo0 stereo1
 
 
-write :: Text -> Audio -> Cmd
+write :: Text -> Audio -> IO ()
 write fn audio =
     W.WAVE
         { W.waveHeader = header audio
@@ -194,7 +192,6 @@ write fn audio =
 
         }
         |> W.putWAVEFile (T.unpack fn)
-        |> Cmd.fromIO
 
 
 header :: Audio -> W.WAVEHeader
@@ -223,11 +220,10 @@ length audio =
             Stereo.length stereo
 
 
-play :: Text -> Cmd
+play :: Text -> IO ()
 play fileName =
     fileName
         |> T.append "play "
         |> T.unpack
         |> SP.callCommand
-        |> Cmd.fromIO
     

@@ -20,8 +20,6 @@ import Prelude.Extra
 
 import Audio.Mono (Mono)
 import qualified Audio.Mono as Mono
-import Cmd (Cmd)
-import qualified Cmd
 import qualified Control.Monad as CM
 import Data.Int (Int32)
 import qualified Data.List as List

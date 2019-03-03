@@ -11,8 +11,6 @@ module Router
 import Flow
 import Prelude.Extra
 
-import Cmd (Cmd)
-import qualified Cmd
 import qualified Control.Concurrent.STM as STM
 import Control.Monad.IO.Class (liftIO)
 import qualified Control.Monad.Reader as CMR
@@ -73,16 +71,6 @@ withBody routeTxt = do
 respond :: Msg -> Response
 respond msg =
     Program.model
-        |> andThen (fromModel msg)
+        |> andThen (update msg)
 
-
-fromModel :: Msg -> Model -> Response
-fromModel msg model =
-    let 
-        (newModel, cmd, response) = 
-            update msg model
-    in
-    Program.setModel newModel
-        >> Web.liftAndCatchIO (Cmd.toIO cmd)
-        >> response
         

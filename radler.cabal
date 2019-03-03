@@ -35,7 +35,6 @@ executable radler
     Config
     Constants
     Contour
-    Cmd
     Error
     Freq
     Index
