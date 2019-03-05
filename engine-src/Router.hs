@@ -53,17 +53,21 @@ withBody :: Text -> Response
 withBody routeTxt = do
     wb <- Web.body
     rd <- Web.bodyReader
-    let step acc = do 
+    let 
+        step acc = do 
             chunk <- rd
             let len = BS.length chunk
             if len > 0 then 
-                step <| acc ++ (bytesToString <| BS.unpack chunk)
+                chunk
+                    |> BS.unpack
+                    |> bytesToString
+                    |> (++) acc
+                    |> step
             else 
                 return acc
     bodyTxt <- liftIO <| step ""
-    bodyTxt
-        |> T.pack
-        |> Route.decode routeTxt
+    route <- liftIO <| Route.decode routeTxt <| T.pack bodyTxt
+    route
         |> Request
         |> respond
 

@@ -48,7 +48,7 @@ instance Show Route where
 -- HELPERS --
 
 
-decode :: Text -> Text -> Maybe Route
+decode :: Text -> Text -> IO (Maybe Route)
 decode routeTxt body =
     case routeTxt of
         "/play" ->
@@ -58,19 +58,25 @@ decode routeTxt body =
             scoreRoute Build body
 
         "/ping" ->
-            Just Ping
+            Ping
+                |> Just
+                |> return
 
         "/echo" ->
-            Just (Echo body)
+            body
+                |> Echo
+                |> Just
+                |> return
 
         _ ->
-            Nothing
+            return Nothing
 
         
-scoreRoute :: (Either Error Score -> Route) -> Text -> Maybe Route
+scoreRoute :: (Either Error Score -> Route) -> Text -> IO (Maybe Route)
 scoreRoute routeCtor body =
     body
         |> Score.fromText
         |> Either.mapLeft Error.ScoreError
         |> routeCtor
         |> Just
+        |> return

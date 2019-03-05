@@ -100,7 +100,7 @@ fromVector =
 
 singleton :: Mono
 singleton =
-    Mono <| Vector.fromList $ [ 1 ]
+    Mono <| Vector.fromList <| [ 1 ]
     
 
 empty :: Mono
@@ -110,7 +110,7 @@ empty =
 
 silence :: Int -> Mono
 silence duration =
-    Mono $ Vector.replicate duration 0
+    Mono <| Vector.replicate duration 0
 
 
 tiltedSin :: Int -> Freq -> Duration -> Mono

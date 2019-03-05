@@ -32,6 +32,7 @@ import qualified Data.Tuple.Extra as Tuple
 import Parse (parse)
 import qualified Parse
 import qualified Part.DullSaw as DullSaw
+import qualified Part.Percussion as Percussion
 import qualified Part.Harmonics as Harmonics
 import qualified Part.Sin as Sin
 import qualified Part.Saw as Saw
@@ -50,6 +51,7 @@ data Part
     | Saw (Osc.Model Saw.Model)
     | Harmonics (Osc.Model Harmonics.Model)
     | DullSaw (Osc.Model DullSaw.Model)
+    | Percussion Percussion.Model
     deriving (Eq)
 
 
@@ -67,6 +69,9 @@ instance Show Part where
 
             DullSaw model ->
                 "Dull Saw " ++ show model
+
+            Percussion model ->
+                "Percussion " ++ show model
 
 
 -- HELPERS --
@@ -103,6 +108,11 @@ diff (incomingPart, existingPart) =
             Osc.diff incomingDullSawModel existingDullSawModel
                 |> Either.mapRight (Resolution.map DullSaw)
                 |> Either.mapLeft DullSawError
+
+        (Percussion incomingPercussionModel, Percussion existingPercussionModel) ->
+            Percussion.diff incomingPercussionModel existingPercussionModel
+                |> Either.mapRight (Resolution.map Percussion)
+                |> Either.mapLeft PercussionError
 
         _ ->
             Right Resolution.Unresolvable
@@ -145,6 +155,14 @@ fromPieces config (partTxt, noteTxts) =
                     (DullSaw.makeFlags fields)
                 |> Either.mapRight DullSaw
                 |> Either.mapLeft DullSawError
+
+        Right ("percussion", fields) ->
+            noteTxts
+                |> Percussion.read
+                    config 
+                    (Percussion.makeFlags fields)
+                |> Either.mapRight Percussion
+                |> Either.mapLeft PercussionError
 
         Left error ->
             Left error
@@ -227,6 +245,11 @@ toDevAudio part =
         DullSaw model ->
             oscToDevAudio model
 
+        Percussion model ->
+            model
+                |> Percussion.toMono
+                |> Audio.fromMono
+
 
 oscToDevAudio :: Osc.Model t -> Audio 
 oscToDevAudio =
@@ -253,6 +276,11 @@ build maybeRoom part =
         DullSaw model ->
             build_ model
 
+        Percussion model ->
+            model
+                |> Percussion.build maybeRoom
+                |> Audio.trimEnd
+
 
 -- ERROR -- 
 
@@ -265,6 +293,7 @@ data Error
     | HarmonicsError Osc.Error
     | DullSawError Osc.Error
     | HarmonicsFlagsError Harmonics.Error
+    | PercussionError Percussion.Error
     | DiffError
     | VoiceInvalidFormat
     | FieldsError Text
@@ -314,6 +343,11 @@ errorToText error =
             dullSawError
                 |> Osc.throw
                 |> T.append "Error in Dull Saw Voice -> \n"
+
+        PercussionError percussionError ->
+            percussionError
+                |> Percussion.throw
+                |> T.append "Error in Percussion Voice -> \n"
 
         HarmonicsFlagsError harmonicsError ->
             harmonicsError
