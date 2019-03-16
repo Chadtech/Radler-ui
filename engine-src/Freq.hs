@@ -3,6 +3,7 @@
 module Freq
     ( Freq(..)
     , fromFloat
+    , toFloat
     , applyTo
     , Freq.map
     ) where
@@ -32,6 +33,11 @@ instance Show Freq where
 
 
 -- HELPERS --
+
+
+toFloat :: Freq -> Float
+toFloat (Freq freq) =
+    freq
 
 
 fromFloat :: Float -> Freq

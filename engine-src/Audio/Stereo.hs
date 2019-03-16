@@ -27,6 +27,7 @@ import qualified Data.Tuple.Extra as Tuple
 import Data.Vector.Unboxed (Vector)
 import qualified Data.Vector as V
 import qualified Data.Vector.Unboxed as Vector
+import Part.Duration (Duration(Duration))
 import Part.Volume (Volume(..))
 import qualified Part.Volume as Volume
 
@@ -99,7 +100,7 @@ pairSample sample =
 
 silence :: Int -> Stereo
 silence =
-    fromMono . Mono.silence
+    fromMono <. Mono.silence <. Duration
     
 
 subtract :: Stereo -> Stereo -> Stereo

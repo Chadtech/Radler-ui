@@ -47,6 +47,7 @@ executable radler
     Part.DullSaw
     Part.Duration
     Part.Harmonics
+    Part.Percussion
     Part.Osc
     Part.Saw
     Part.Sin

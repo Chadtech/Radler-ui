@@ -13,14 +13,15 @@ module Timeline
 import Flow
 import Prelude.Extra
 
+import Audio.Mono (Mono)
+import qualified Audio.Mono as Mono
 import qualified Data.List as List
 import Data.IntMap.Strict (IntMap)
 import qualified Data.IntMap.Strict as IntMap
 import qualified Data.Tuple.Extra as Tuple
 import Data.Vector (Vector)
 import qualified Data.Vector as Vector
-import Audio.Mono (Mono)
-import qualified Audio.Mono as Mono
+import Part.Duration (Duration(Duration))
 import Time (Time)
 import qualified Time
 import qualified Data.Vector.Unboxed as Unboxed
@@ -102,6 +103,7 @@ timelineBasis :: Unboxed.Vector (Int, Float) -> Unboxed.Vector Float
 timelineBasis everySample =
     everySample
         |> timelineLength
+        |> Duration
         |> Mono.silence
         |> Mono.toVector
 

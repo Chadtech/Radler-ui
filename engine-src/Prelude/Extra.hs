@@ -11,6 +11,7 @@ module Prelude.Extra
     , toFloat
     , replaceChar
     , showText
+    , range
     ) where
 
 
@@ -85,3 +86,8 @@ trace msg x =
 mapTrace :: Show b => String -> (a -> b) -> a -> a
 mapTrace msg f x =
     Debug.trace (msg ++ " : " ++ (show <| f x)) x
+
+
+range :: Int -> Int -> List Int
+range n m =
+    [n..m]

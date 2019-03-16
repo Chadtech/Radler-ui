@@ -41,7 +41,7 @@ import qualified Freq
 import qualified Note
 import Parse (parse)
 import qualified Parse
-import Part.Duration (Duration)
+import Part.Duration (Duration(Duration))
 import qualified Part.Duration as Duration
 import Part.Volume (Volume)
 import qualified Part.Volume as Volume
@@ -121,6 +121,7 @@ data Flags
 
 data Sound
     = Pulse
+    | Kick
     deriving (Eq)
 
 
@@ -279,6 +280,9 @@ readSoundText soundText =
         "pl" ->
             Right Pulse
 
+        "ki" ->
+            Right Kick
+
         _ ->
             Left <| UnrecognizedSoundText soundText
 
@@ -295,13 +299,38 @@ noteToMono :: Note -> Mono
 noteToMono note =
     case note of
         HardRest ->
-            Mono.silence (44100 * 30)
+            Mono.silence <| Duration (44100 * 30)
 
         Note volume seed sound ->
             case sound of
                 Pulse ->
                     Mono.singleton
                         |> Mono.setVolume volume
+
+                Kick ->
+                    Mono.oneSoftSquare 
+                        0.2
+                        (Duration 25)
+                        |> Mono.convolve_ 
+                            (Mono.sinByWaveCount 0 (Freq.fromFloat 20) 1)
+
+
+oneOfEachOctave :: Freq -> Int -> Mono
+oneOfEachOctave freq octaves =
+    let
+        oneOfThisOctave :: Int -> Mono
+        oneOfThisOctave thisOctave =
+            Mono.sinByWaveCount 
+                0 
+                (Freq.map ((*) (toFloat thisOctave)) freq)
+                1
+                |> Mono.fadeOut
+    in
+    range 1 (octaves + 1)
+        |> List.map oneOfThisOctave
+        |> Mono.mixMany
+
+
 
 
 build :: Maybe Room -> Model -> Audio

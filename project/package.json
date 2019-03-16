@@ -1,17 +1,26 @@
 {
-    "name": "radler-test-piece-2",
+    "name": "radler-test-piece-3",
     "parts-src": "./parts",
     "score": [
         {
-            "name": "part-9",
+            "name": "part-1",
+            "length": 144
+        },
+        {
+            "name": "part-2",
+            "length": 144
+        },
+        {
+            "name": "part-3",
             "length": 144
         }
     ],
     "voices": [
-        "saw | position( x=-5 y=1 z=1 ) freqerror(0.01)",
-        "saw | position( x=-2 y=3 z=1 ) freqerror(0.01)",
-        "saw | position( x=2 y=3 z=1 ) freqerror(0.01)",
-        "saw | position( x=5 y=1 z=1 ) freqerror(0.01)"
+        "dullsaw | position( x=-5 y=1 z=1 ) freqerror(0.01)",
+        "dullsaw | position( x=5 y=1 z=1 ) freqerror(0.01)",
+        "saw | position( x=0 y=10 z=3 ) freqerror(0.01)"
+
+        
     ],
     "room": {
          "size": {
@@ -27,6 +36,6 @@
     },
     "seed": 19,
     "timing-variance": 100,
-    "beat-length": 4000,
+    "beat-length": 2000,
     "scale": "major 7 tone jit"
 }

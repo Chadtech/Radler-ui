@@ -16,6 +16,7 @@ import Room (Room)
 import qualified Room 
 import Size (Size)
 import qualified Size
+import Part.Duration (Duration(Duration))
 import Part.Volume (Volume(..))
 
 
@@ -291,6 +292,7 @@ delayAndDecay distance =
         <. Mono.setVolume (Volume (1 / (distance ^ 2)))
 
 
-calcDelay :: Float -> Int
+calcDelay :: Float -> Duration
 calcDelay distance =
-    round (distance / Constants.speedOfSound)
+    (round (distance / Constants.speedOfSound))
+        |> Duration

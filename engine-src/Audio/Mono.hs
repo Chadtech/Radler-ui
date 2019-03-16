@@ -4,6 +4,7 @@
 module Audio.Mono
     ( Mono
     , Audio.Mono.map
+    , fadeInTo
     , trimEnd
     , compress
     , convolve_
@@ -22,9 +23,11 @@ module Audio.Mono
     , toSamples
     , toVector
     , delay
+    , oneSoftSquare
     , Audio.Mono.subtract
     , Audio.Mono.sin
     , saw
+    , sinByWaveCount
     ) where
 
 import Flow
@@ -40,6 +43,7 @@ import qualified Data.Vector as V
 import qualified Data.Tuple.Extra as Tuple
 import Freq (Freq(Freq))
 import Part.Duration (Duration(Duration))
+import qualified Part.Duration as Duration
 import Part.Volume (Volume(Volume))
 import qualified Part.Volume as Volume
 
@@ -108,9 +112,14 @@ empty =
     Mono Vector.empty
 
 
-silence :: Int -> Mono
+silence :: Duration -> Mono
 silence duration =
-    Mono <| Vector.replicate duration 0
+    fromSample duration 0
+
+
+fromSample :: Duration -> Float -> Mono
+fromSample (Duration duration) float =
+    Mono <| Vector.replicate duration float
 
 
 tiltedSin :: Int -> Freq -> Duration -> Mono
@@ -159,6 +168,14 @@ binomialCoefficient n k =
     productFl n / (productFl k * productFl (n - k))
 
 
+sinByWaveCount :: Float -> Freq -> Int -> Mono
+sinByWaveCount phase freq count =
+    Audio.Mono.sin 
+        phase
+        freq 
+        (Duration.fromFreqAndWaveCount freq count)
+
+
 sin :: Float -> Freq -> Duration -> Mono
 sin phase freq duration =
     sinInternal phase freq duration 
@@ -196,9 +213,34 @@ sawAtSample freq index =
     2 * (j - (toFloat <| floor (0.5 + j)))
 
 
-delay :: Int -> Mono -> Mono
+oneSoftSquare :: Float -> Duration -> Mono
+oneSoftSquare howSoft (Duration duration) =
+    let
+        side :: Mono
+        side =
+            fromSample 
+                (Duration (floor ((howSoft / 2) * toFloat duration)))
+                1
+
+    in
+    [ sFadeIn side
+    , fromSample 
+        (Duration (duration - (floor (howSoft * toFloat duration))))
+        1
+    , sFadeOut side
+    ]
+        |> Audio.Mono.concat
+
+
+delay :: Duration -> Mono -> Mono
 delay delayAmount mono =
     append (silence delayAmount) mono
+
+
+splitAt :: Int -> Mono -> (Mono, Mono)
+splitAt index (Mono mono) =
+    Vector.splitAt index mono
+        |> Tuple.both Mono
 
 
 mixMany :: List Mono -> Mono
@@ -282,6 +324,74 @@ declipLength =
     120
 
 
+fadeInTo :: Int -> Mono -> Mono
+fadeInTo index mono =
+    let
+        (beginning, end) =
+            Audio.Mono.splitAt index mono
+    in
+    [ fadeIn beginning
+    , end
+    ]
+        |> Audio.Mono.concat
+
+
+fadeOutFrom :: Int -> Mono -> Mono
+fadeOutFrom index mono =
+    let
+        (beginning, end) =
+            Audio.Mono.splitAt index mono
+    in
+    [ beginning
+    , fadeOut end
+    ]
+        |> Audio.Mono.concat
+
+
+{-| The "s" is the shape of the of fade in,
+it gradually ramps up, and then gradually
+ramps down
+-}
+sFadeIn :: Mono -> Mono
+sFadeIn mono =
+    let
+        (firstHalf, secondHalf) =
+            Audio.Mono.splitAt 
+                (div (Audio.Mono.length mono) 2) 
+                mono
+    in
+    [ firstHalf
+        |> fadeIn
+        |> fadeIn
+    , Audio.Mono.subtract 
+        (fadeOut <| fadeOut secondHalf)
+        secondHalf
+    ]
+        |> Audio.Mono.concat
+
+
+{-| The "s" is the shape of the of fade in,
+it gradually ramps up, and then gradually
+ramps down
+-}
+sFadeOut :: Mono -> Mono
+sFadeOut mono =
+    let
+        (firstHalf, secondHalf) =
+            Audio.Mono.splitAt 
+                (div (Audio.Mono.length mono) 2) 
+                mono
+    in
+    [ Audio.Mono.subtract
+        (fadeOut <| fadeOut firstHalf)
+        firstHalf
+    , secondHalf
+        |> fadeOut
+        |> fadeOut
+    ]
+        |> Audio.Mono.concat
+
+
 fadeIn :: Mono -> Mono
 fadeIn (Mono mono) =
     let
@@ -336,7 +446,7 @@ lopass mixLevel samplesToSpan mono =
 lopassHelper :: Int -> Mono -> Mono
 lopassHelper samplesToSpan mono =
     mono
-        |> append (silence samplesToSpan)
+        |> append (silence <| Duration samplesToSpan)
         |> averageSamples samplesToSpan
 
 
@@ -368,6 +478,7 @@ equalizeLengths mono0 mono1 =
         mono0Length =
             Audio.Mono.length mono0
 
+
         mono1Length :: Int
         mono1Length =
             Audio.Mono.length mono1
@@ -376,26 +487,39 @@ equalizeLengths mono0 mono1 =
     if mono0Length > mono1Length then
         ( mono0
         , appendSilence 
-            (mono0Length - mono1Length) 
+            (Duration (mono0Length - mono1Length))
             mono1
         )
 
     else
         ( appendSilence 
-            (mono1Length - mono0Length) 
+            (Duration (mono0Length - mono1Length))
             mono0
         , mono1
         )
 
 
-appendSilence :: Int -> Mono -> Mono
+appendSilence :: Duration -> Mono -> Mono
 appendSilence duration mono =
-    append mono (silence duration)
+    append mono <| silence duration
 
 
 append :: Mono -> Mono -> Mono
 append (Mono vector0) (Mono vector1) =
     Mono <| Vector.concat [ vector0, vector1]
+
+
+concat :: List Mono -> Mono
+concat monos =
+    case monos of
+        first : [] ->
+            first
+
+        first : rest ->
+            append first <| Audio.Mono.concat rest
+
+        [] ->
+            empty
 
 
 length :: Mono -> Int
@@ -418,47 +542,53 @@ toInt32 =
 
 convolve_ :: Mono -> Mono -> Mono
 convolve_ (Mono seed) (Mono sound) =
-    convolveHelper 
-        (Vector.indexed seed) 
-        (Vector.toList $ Vector.indexed sound) 
-        (newConvolvedBase seed sound)
+    let
+        indexedSeed :: Vector (Int, Float)
+        indexedSeed =
+            Vector.indexed seed
+
+        multiplySeed :: Float -> Vector (Int, Float)
+        multiplySeed audioSample = 
+            Vector.map 
+                (Tuple.second ((*) audioSample))
+                indexedSeed
+
+        addToIndices :: Int -> Vector (Int, Float) -> Vector (Int, Float) 
+        addToIndices index = 
+            Vector.map 
+                (Tuple.first ((+) index))
+
+        convolveHelper :: List (Int, Float) -> Vector Float -> Vector Float
+        convolveHelper sound output =
+            case sound of
+                (index, sample) : rest ->
+                    sample
+                        |> multiplySeed
+                        |> addToIndices index
+                        |> Vector.accumulate (+) output
+                        |> convolveHelper rest
+        
+                [] ->
+                    output
+    in
+    Vector.replicate 
+        (Vector.length seed + Vector.length sound)
+        0
+        |> convolveHelper 
+            (Vector.toList <| Vector.indexed sound) 
         |> Mono
 
 
-convolveHelper :: Vector (Int, Float) -> List (Int, Float) -> Vector Float -> Vector Float
-convolveHelper seed sound output =
-    case sound of
-        (index, sample) : rest ->
-            let
-                seedAtVolume =
-                    multiplySeed sample seed
-            in
-            seedAtVolume
-                |> addToIndices index
-                |> Vector.accumulate (+) output
-                |> convolveHelper seed rest
-
-        [] ->
-            output
 
 
-newConvolvedBase :: Vector Float -> Vector Float -> Vector Float
-newConvolvedBase seed audio =
-    Vector.replicate 
-        (Vector.length seed + Vector.length audio)
-        0
+
+
 
         
-addToIndices :: Int -> Vector (Int, Float) -> Vector (Int, Float) 
-addToIndices index = 
-    Vector.map 
-        (Tuple.first ((+) index))
 
 
-multiplySeed :: Float -> Vector (Int, Float) -> Vector (Int, Float)
-multiplySeed audioSample = 
-    Vector.map 
-        (Tuple.second ((*) audioSample))
+
+
 
 
 subtract :: Mono -> Mono -> Mono
