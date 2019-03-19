@@ -129,7 +129,7 @@ view payload =
                             , width (pct 100)
                             ]
                         ]
-                        [ Html.text "options" ]
+                        [ Html.text "tracker options" ]
                     ]
                 ]
             , Grid.row
