@@ -121,18 +121,16 @@ playScore incomingScore model =
                 >> Web.liftAndCatchIO 
                     (writeAndPlayCmd audio)
                 >> Response.json Json.null
+                
     in
     case model of
         Model.HasScore existingScore existingAudio ->
-            let 
-                diff :: Either Error (Resolution (List Part))
-                diff =
-                    Score.diff
-                        incomingScore
-                        existingScore
-                        |> Either.mapLeft Error.ScoreError
-            in
-            case diff of 
+            case
+                Score.diff
+                    incomingScore
+                    existingScore
+                    |> Either.mapLeft Error.ScoreError
+            of 
                 Right (Score.Changes (toRemove, toAdd)) ->
                     let
                         newAudio :: Audio

@@ -10,7 +10,6 @@ module Score
     , fromText
     , toDevAudio
     , devFilename
-    , numberOfParts
     , Error
     , throw
     )
@@ -22,8 +21,8 @@ import Prelude.Extra
     
 import Audio (Audio)
 import qualified Audio
-import Audio.Mono (Mono)
-import qualified Audio.Mono as Mono
+import Mono (Mono)
+import qualified Mono
 import Config (Config)
 import qualified Config
 import qualified Control.Monad as CM
@@ -169,10 +168,14 @@ toDevAudio score =
 
 build :: Score -> List Audio
 build score =
+    let
+        buildPart :: Part -> Audio
+        buildPart =
+            Part.build <| Config.room <| config score
+    in
     score 
         |> parts
-        |> List.map 
-            (Part.build <| Config.room <| config score)
+        |> List.map buildPart
         |> Audio.normalizeVolumes
 
 

@@ -6,30 +6,35 @@ module Timeline
     , filterKey
     , fromList
     , toMono
-    -- , toVector
     ) where
 
 
 import Flow
 import Prelude.Extra
 
-import Audio.Mono (Mono)
-import qualified Audio.Mono as Mono
+import Mono (Mono)
+import qualified Mono
 import qualified Data.List as List
 import Data.IntMap.Strict (IntMap)
 import qualified Data.IntMap.Strict as IntMap
 import qualified Data.Tuple.Extra as Tuple
 import Data.Vector (Vector)
 import qualified Data.Vector as Vector
-import Part.Duration (Duration(Duration))
+import Duration (Duration(Duration))
 import Time (Time)
 import qualified Time
 import qualified Data.Vector.Unboxed as Unboxed
 
 
+-- TYPES --
+
+
 newtype Timeline a
     = Timeline (IntMap a)
     deriving (Eq)
+
+
+-- HELPERS --
 
 
 map :: (a -> b) -> Timeline a -> Timeline b

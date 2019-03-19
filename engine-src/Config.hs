@@ -62,14 +62,14 @@ read txt =
         trimmedText =
             T.strip txt
     in
-    case T.splitOn ";" $ trimmedText of
+    case T.splitOn ";" <| trimmedText of
         scale : beatLength : timingVariance : room : [] ->
             Config
                 |> Right
-                |> parse (Scale.read scale) ScaleError
+                |> parse (Scale.fromText scale) ScaleError
                 |> parse (Parse.decodeInt beatLength) BeatLengthIsntInt
                 |> parse (Parse.decodeInt timingVariance) TimingVarianceIsntInt
-                |> parse (Room.read room) RoomError
+                |> parse (Room.maybeFromText room) RoomError
 
         _ ->
             Left <| UnexpectedConfigStructure trimmedText
@@ -90,6 +90,7 @@ instance Show Error where
     show error =
         T.unpack <| throw error 
 
+        
 throw :: Error -> Text
 throw error =
     case error of

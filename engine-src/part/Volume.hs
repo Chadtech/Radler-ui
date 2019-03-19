@@ -10,6 +10,7 @@ module Part.Volume
     , throw
     , invert
     , multiply
+    , toFloat
     ) where
 
 
@@ -32,6 +33,11 @@ newtype Volume =
 -- HELPERS --
 
 
+toFloat :: Volume -> Float
+toFloat (Volume float) =
+    float
+
+    
 applyTo :: Volume -> Float -> Float
 applyTo (Volume vol) fl =
     fl * vol

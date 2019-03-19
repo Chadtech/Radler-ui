@@ -5,8 +5,14 @@ module Time
     ) where
 
 
+-- TYPES --
+
+
 newtype Time 
     = Time Int
+
+
+-- HELPERS --
 
 
 fromInt :: Int -> Time

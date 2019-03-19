@@ -22,9 +22,10 @@ import Prelude.Extra
         
 import Audio (Audio)
 import qualified Audio
-import Audio.Mono (Mono)
-import qualified Audio.Mono as Mono
-import Audio.Mono.Position (positionMono)
+import Mono (Mono)
+import qualified Mono
+import qualified Mono.Fade
+import Mono.Position (positionMono)
 import Config (Config)
 import qualified Config
 import Contour (Contour)
@@ -36,13 +37,13 @@ import qualified Data.Text.Lazy as T
 import qualified Data.Tuple.Extra as Tuple
 import Data.Vector (Vector)
 import qualified Data.Vector as VectorPap
-import Freq (Freq)
+import Freq (Freq(Freq))
 import qualified Freq
 import qualified Note
 import Parse (parse)
 import qualified Parse
-import Part.Duration (Duration(Duration))
-import qualified Part.Duration as Duration
+import Duration (Duration(Duration))
+import qualified Duration
 import Part.Volume (Volume)
 import qualified Part.Volume as Volume
 import Position (Position)
@@ -56,6 +57,7 @@ import Time (Time)
 import qualified Time
 import Timeline (Timeline)
 import qualified Timeline
+import qualified Timing
 
 
 -- TYPES --
@@ -168,7 +170,6 @@ read config flags noteTexts =
         |> andThen (readModel flags)
 
 
-        
 readModel :: Flags -> List (Time, Note) -> Either Error Model
 readModel flags notes =
     Model 
@@ -304,33 +305,44 @@ noteToMono note =
         Note volume seed sound ->
             case sound of
                 Pulse ->
-                    Mono.singleton
-                        |> Mono.setVolume volume
+                    Mono.singleton <| Volume.toFloat volume
 
                 Kick ->
-                    Mono.oneSoftSquare 
-                        0.2
-                        (Duration 25)
-                        |> Mono.convolve_ 
-                            (Mono.sinByWaveCount 0 (Freq.fromFloat 20) 1)
+                    let
+                        pulseFadingIn :: Mono
+                        pulseFadingIn =
+                            Mono.fromSample 
+                                (Duration 50)
+                                0.2
+                                |> Mono.applyUntil
+                                    25
+                                    (Mono.Fade.in_ Timing.EaseInOut)
 
 
-oneOfEachOctave :: Freq -> Int -> Mono
-oneOfEachOctave freq octaves =
-    let
-        oneOfThisOctave :: Int -> Mono
-        oneOfThisOctave thisOctave =
-            Mono.sinByWaveCount 
-                0 
-                (Freq.map ((*) (toFloat thisOctave)) freq)
-                1
-                |> Mono.fadeOut
-    in
-    range 1 (octaves + 1)
-        |> List.map oneOfThisOctave
-        |> Mono.mixMany
+                        drumBody :: Mono
+                        drumBody =
+                            [ Mono.singleton 1
+                            , Mono.silence (Duration 2)
+                            , Mono.singleton 0.8
+                            , Mono.silence (Duration 5)
+                            , Mono.singleton 0.66
+                            ]
+                                |> Mono.concat
+                                |> Mono.convolve
+                                    (Mono.sinByWaveCount 0 (Freq 10) 1)
 
-
+                    in
+                    [ pulseFadingIn
+                    , Mono.sinByWaveCount 0 (Freq 451) 3
+                        |> Mono.Fade.out Timing.Linear
+                        |> Mono.convolve pulseFadingIn
+                    , Mono.sinByWaveCount 0 (Freq 210) 3
+                        |> Mono.Fade.out Timing.Linear
+                        |> Mono.convolve pulseFadingIn
+                    ]
+                        |> Mono.mixMany
+                        |> Mono.convolve drumBody
+                        |> Mono.delay (Duration 10)
 
 
 build :: Maybe Room -> Model -> Audio

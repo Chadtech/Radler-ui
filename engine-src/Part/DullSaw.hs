@@ -11,8 +11,8 @@ module Part.DullSaw
 import Flow
 import Prelude.Extra
     
-import Audio.Mono (Mono)
-import qualified Audio.Mono as Mono
+import Mono (Mono)
+import qualified Mono
 import qualified Contour
 import Data.Text.Lazy (Text)
 import Parse (parse)

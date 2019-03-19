@@ -19,8 +19,8 @@ import Prelude.Extra
 
 import Audio (Audio)
 import qualified Audio
-import Audio.Mono (Mono)
-import qualified Audio.Mono as Mono
+import Mono (Mono)
+import qualified Mono
 import Config (Config)
 import qualified Config
 import qualified Control.Monad as CM

@@ -13,8 +13,8 @@ module Part.Harmonics
 import Flow
 import Prelude.Extra
     
-import Audio.Mono (Mono)
-import qualified Audio.Mono as Mono
+import Mono (Mono)
+import qualified Mono
 import qualified Control.Monad as CM
 import qualified Data.Either.Extra as Either
 import Data.List as List

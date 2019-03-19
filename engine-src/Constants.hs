@@ -14,5 +14,3 @@ speedOfSound :: Float
 speedOfSound =
     0.00778
 
-
-

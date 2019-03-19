@@ -3,10 +3,10 @@
 
 module Room
     ( Room
-    , Room.read
     , listenerPosition
-    , size
     , mapListenerPosition
+    , maybeFromText
+    , size
     , multiplyBy
     , Error
     , throw
@@ -62,27 +62,31 @@ instance Show Room where
 -- HELPERS --
 
 
-read :: Text -> Either Error (Maybe Room)
-read roomText =
+maybeFromText :: Text -> Either Error (Maybe Room)
+maybeFromText roomText =
     if roomText == "no-room" then
         Right Nothing
 
     else
-        let
-            fieldsResult :: Either Text (Parse.Fields Float)
-            fieldsResult =
-                Parse.fromDelimitedText Parse.float roomText
-        in
-        case fieldsResult of
-            Right fields ->
-                Room
-                    |> Right
-                    |> parse (Position.read fields) PositionError
-                    |> parse (Size.read fields) SizeError
-                    |> Either.mapRight Just
+        fromText roomText
+            |> Either.mapRight Just
 
-            Left err ->
-                Left <| ParsingFailed err
+
+fromText :: Text -> Either Error Room
+fromText roomText =
+    case 
+        Parse.fromDelimitedText 
+            Parse.float 
+            roomText
+    of
+        Right fields ->
+            Room
+                |> Right
+                |> parse (Position.read fields) PositionError
+                |> parse (Size.fromFloatFields fields) SizeError
+
+        Left err ->
+            Left <| ParsingFailed err
 
 
 mapListenerPosition :: (Position -> Position) -> Room -> Room

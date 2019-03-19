@@ -3,8 +3,8 @@
 
 module Scale
     ( Scale
+    , fromText
     , toFreq
-    , Scale.read
     , Error
     , throw
     )
@@ -41,16 +41,16 @@ instance Show Scale where
 
 toText :: Scale -> Text
 toText scale =
-        case scale of
-            Major7ToneJit ->
-                "Scale : Major 7 Tone Jit"
+    case scale of
+        Major7ToneJit ->
+            "Scale : Major 7 Tone Jit"
 
-            Slendro ->
-                "Slendro"
+        Slendro ->
+            "Slendro"
 
                 
-read :: Text -> Either Error Scale
-read txt =
+fromText :: Text -> Either Error Scale
+fromText txt =
     case txt of
         "major 7 tone jit" ->
             Right Major7ToneJit

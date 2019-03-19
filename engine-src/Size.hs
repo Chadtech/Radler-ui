@@ -3,11 +3,11 @@
 
 module Size
     ( Size
-    , width
-    , Size.length
+    , fromFloatFields
     , height
+    , Size.length
     , multiplyBy
-    , Size.read
+    , width
     , Error
     , throw
     ) where
@@ -44,7 +44,7 @@ instance Show Size where
             |> T.unpack
         
 
-data Part
+data Dimension
     = Width
     | Length
     | Height
@@ -53,13 +53,13 @@ data Part
 -- HELPERS --
 
 
-read :: Parse.Fields Float -> Either Error Size
-read roomFields =
-    Either.mapLeft MissingPart <| readFields roomFields
+fromFloatFields :: Parse.Fields Float -> Either Error Size
+fromFloatFields =
+    Either.mapLeft MissingDimension <. fromFieldsHelper
 
 
-readFields :: Parse.Fields Float -> Either Part Size
-readFields fields =
+fromFieldsHelper :: Parse.Fields Float -> Either Dimension Size
+fromFieldsHelper fields =
     case Parse.get "width" fields of
         Just width ->
             case Parse.get "length" fields of
@@ -79,9 +79,9 @@ readFields fields =
             Left Width
 
 
-partToText :: Part -> Text
-partToText part =
-    case part of
+dimensionToText :: Dimension -> Text
+dimensionToText dimension =
+    case dimension of
         Width ->
             "width"
 
@@ -104,14 +104,14 @@ multiplyBy factor size =
 
 
 data Error
-    = MissingPart Part
+    = MissingDimension Dimension
 
 
 throw :: Error -> Text
 throw error =
     case error of
-        MissingPart part ->
+        MissingDimension dimension ->
             [ "This part is missing -> "
-            , partToText part
+            , dimensionToText dimension
             ]
                 |> T.concat

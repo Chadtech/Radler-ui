@@ -24,9 +24,9 @@ import Prelude.Extra
         
 import Audio (Audio)
 import qualified Audio
-import Audio.Mono (Mono)
-import qualified Audio.Mono as Mono
-import Audio.Mono.Position (positionMono)
+import Mono (Mono)
+import qualified Mono
+import Mono.Position (positionMono)
 import Config (Config)
 import qualified Config
 import Contour (Contour)
@@ -43,8 +43,8 @@ import qualified Freq
 import qualified Note
 import Parse (parse)
 import qualified Parse
-import Part.Duration (Duration)
-import qualified Part.Duration as Duration
+import Duration (Duration)
+import qualified Duration
 import Part.Volume (Volume)
 import qualified Part.Volume as Volume
 import Position (Position)

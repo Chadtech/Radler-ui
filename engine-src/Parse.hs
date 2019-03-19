@@ -83,6 +83,7 @@ decodeInt :: TL.Text -> Either TL.Text Int
 decodeInt =
     decode int
 
+    
 {-| 
     Creates fields out of a string with key values 
     delimited by an equal sign

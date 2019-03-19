@@ -1,8 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 
-module Part.Duration
-    ( Part.Duration.read
+module Duration
+    ( Duration.read
     , Duration(..)
     , Error
     , fromFreqAndWaveCount

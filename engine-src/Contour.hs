@@ -13,10 +13,12 @@ module Contour
 import Flow
 import Prelude.Extra
 
-import Audio.Mono (Mono)
-import qualified Audio.Mono as Mono
+import Mono (Mono)
+import qualified Mono
+import qualified Mono.Fade
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
+import qualified Timing
 
 
 -- TYPES --
@@ -32,19 +34,20 @@ data Contour
 
 -- HELPERS --
 
+
 apply :: Contour -> Mono -> Mono
 apply contour mono =
     case contour of
         FadeIn ->
-            Mono.fadeIn mono
+            Mono.Fade.in_ Timing.Linear mono
 
         FadeOut ->
-            Mono.fadeOut mono
+            Mono.Fade.out Timing.Linear mono
 
         FadeInAndOut ->
             mono
-                |> Mono.fadeIn
-                |> Mono.fadeOut
+                |> Mono.Fade.in_ Timing.Linear
+                |> Mono.Fade.out Timing.Linear
 
         None ->
             mono

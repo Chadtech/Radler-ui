@@ -17,7 +17,9 @@ cabal-version:       >=1.10
 
 executable radler
   main-is:             Main.hs
-  hs-source-dirs:      engine-src
+  hs-source-dirs:      
+    engine-src
+    audio-src
   ghc-options: 
     -- -prof -fprof-auto -rtsopts
     -O2
@@ -29,12 +31,13 @@ executable radler
 
   other-modules:
     Audio
-    Audio.Mono
-    Audio.Mono.Position
-    Audio.Stereo
+    Mono
+    Mono.Position
+    Stereo
     Config
     Constants
     Contour
+    Duration
     Error
     Freq
     Index
@@ -45,7 +48,6 @@ executable radler
     Parse
     Part
     Part.DullSaw
-    Part.Duration
     Part.Harmonics
     Part.Percussion
     Part.Osc
@@ -68,8 +70,8 @@ executable radler
     Size
     Timeline
     Time
+    Timing
     Update       
-    Voice
   -- other-extensions:    
   build-depends:
     base >=4.11 && <4.12,
