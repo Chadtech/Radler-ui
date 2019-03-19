@@ -121,7 +121,10 @@ view payload =
                     [ Html.p
                         [ Attrs.css
                             [ Style.hfnss
-                            , paddingLeft (px 10)
+                            , padding (px 5)
+                            , backgroundColor Colors.point0
+                            , color Colors.ignorable2
+                            , width (pct 100)
                             ]
                         ]
                         [ Html.text "options" ]
