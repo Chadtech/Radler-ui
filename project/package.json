@@ -1,5 +1,5 @@
 {
-    "name": "radler-test-piece-3",
+    "name": "radler-test-piece-4",
     "parts-src": "./parts",
     "score": [
         {
@@ -16,7 +16,7 @@
         }
     ],
     "voices": [
-        "dullsaw | position( x=-5 y=1 z=1 ) freqerror(0.01)",
+        "percussion | position( x=-5 y=1 z=1 )",
         "dullsaw | position( x=5 y=1 z=1 ) freqerror(0.01)",
         "saw | position( x=0 y=10 z=3 ) freqerror(0.01)"
 

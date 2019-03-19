@@ -1,10 +1,14 @@
 var fs = get('fs');
-var electron = get('electron')
+var electron = get('electron');
 
 var ipcRenderer = electron.ipcRenderer;
 
 function projectDir(path) {
   return './project/' + path;
+}
+
+function partExtension(fileName) {
+  return fileName + ".part";
 }
 
 function partsDir(path) {
@@ -23,9 +27,12 @@ function readPackage() {
 
 function readParts() {
   return fs.readdirSync(partsDir())
+    .filter(function (fileName) {
+      return fileName.slice(-5) === ".part";
+    })
     .map(function (partName) {
       return {
-        name: partName,
+        name: partName.slice(0, -5),
         data:
           fs.readFileSync(
             partsDir(partName),
@@ -34,7 +41,6 @@ function readParts() {
       };
     })
 }
-
 
 ipcRenderer.on('init', function (event, payload) {
 
@@ -58,7 +64,7 @@ ipcRenderer.on('init', function (event, payload) {
   var actions = {
     savePartToDisk: function (payload) {
       fs.writeFileSync(
-        partsDir(payload.name),
+        partsDir(partExtension(payload.name)),
         payload.data
       );
     },
