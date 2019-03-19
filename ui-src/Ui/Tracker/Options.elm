@@ -109,11 +109,13 @@ view payload =
             , position absolute
             , top (pct 50)
             , left (pct 50)
-            , minWidth (px 300)
+            , minWidth (px 375)
             ]
         ]
         [ Grid.container
-            []
+            [ margin (px 0)
+            , width (pct 100)
+            ]
             [ Grid.row
                 [ margin (px 5) ]
                 [ Grid.column
@@ -136,9 +138,7 @@ view payload =
                     []
                     [ Html.p
                         [ Attrs.css
-                            [ Style.hfnss
-                            , paddingLeft (px 10)
-                            ]
+                            [ Style.hfnss ]
                         ]
                         [ Html.text "switch to part.." ]
                     ]
@@ -169,41 +169,8 @@ view payload =
                 , bigViewButton payload.size
                 ]
             , Grid.row
-                [ margin (px 5)
-                , marginTop (px 10)
-                ]
-                [ Grid.column
-                    []
-                    [ Html.button
-                        [ Attrs.css
-                            [ buttonStyle
-                            , margin (px 0)
-                            , width (pct 100)
-                            ]
-                        , Events.onClick CopyWithNameClicked
-                        ]
-                        [ Html.text "copy with name" ]
-                    ]
-                ]
-            , Grid.row
-                [ margin (px 5)
-                , marginBottom (px 10)
-                ]
-                [ Grid.column
-                    []
-                    [ Html.input
-                        [ Attrs.css
-                            [ Style.hfnss
-                            , color Colors.point0
-                            , Style.fontSmoothingNone
-                            , width (pct 100)
-                            ]
-                        , Events.onInput CopyNameChanged
-                        , Attrs.value payload.model.copyName
-                        ]
-                        []
-                    ]
-                ]
+                [ margin (px 5) ]
+                (copyWithNameField payload)
             , Grid.row
                 [ margin (px 5)
                 , justifyContent spaceAround
@@ -211,6 +178,37 @@ view payload =
                 [ backButton ]
             ]
         ]
+
+
+copyWithNameField : Payload -> List (Html Msg)
+copyWithNameField { model } =
+    [ Grid.column
+        []
+        [ Html.input
+            [ Attrs.css
+                [ Style.hfnss
+                , color Colors.point0
+                , Style.fontSmoothingNone
+                , width (pct 100)
+                ]
+            , Events.onInput CopyNameChanged
+            , Attrs.value model.copyName
+            ]
+            []
+        ]
+    , Grid.column
+        [ paddingLeft (px 5) ]
+        [ Html.button
+            [ Attrs.css
+                [ buttonStyle
+                , margin (px 0)
+                , width (pct 100)
+                ]
+            , Events.onClick CopyWithNameClicked
+            ]
+            [ Html.text "copy with name" ]
+        ]
+    ]
 
 
 markLabel : String -> Html Msg
@@ -221,7 +219,6 @@ markLabel labelText =
             [ Attrs.css
                 [ Style.hfnss
                 , lineHeight (px 26)
-                , paddingLeft (px 10)
                 ]
             ]
             [ Html.text labelText ]
