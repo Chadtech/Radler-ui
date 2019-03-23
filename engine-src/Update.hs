@@ -19,7 +19,6 @@ import Index (Index)
 import qualified Index
 import Json (Json)
 import qualified Json
-import Msg (Msg(..))
 import Model (Model)
 import qualified Model
 import qualified Part
@@ -36,15 +35,15 @@ import qualified Score
 import qualified Web.Scotty.Trans as Web
 
 
-update :: Msg -> Model -> Response
-update msg model =
-    case msg of
-        Request Nothing ->
+update :: Maybe Route -> Model -> Response
+update maybeRoute model =
+    case maybeRoute of
+        Nothing ->
             Response.error
                 404
                 "end point unsupported"
 
-        Request (Just route) ->
+        Just route ->
             handleRoute route model
 
 

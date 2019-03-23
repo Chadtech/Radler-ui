@@ -19,11 +19,11 @@ import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import Model (Model)
 import qualified Model
-import Msg
 import Program (Program)
 import qualified Program
 import Response (Response)
 import qualified Response
+import Route (Route)
 import qualified Route
 import Update (update)
 import Web.Scotty.Trans (ScottyT)
@@ -67,14 +67,12 @@ withBody routeTxt = do
                 return acc
     bodyTxt <- liftIO <| step ""
     route <- liftIO <| Route.decode routeTxt <| T.pack bodyTxt
-    route
-        |> Request
-        |> respond
+    respond route
 
 
-respond :: Msg -> Response
-respond msg =
+respond :: Maybe Route -> Response
+respond route =
     Program.model
-        |> andThen (update msg)
+        |> andThen (update route)
 
         

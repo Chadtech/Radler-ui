@@ -43,7 +43,6 @@ executable radler
     Index
     Json
     Model
-    Msg
     Note
     Parse
     Part
