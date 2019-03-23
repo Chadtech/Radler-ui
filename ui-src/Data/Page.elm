@@ -3,13 +3,17 @@ module Data.Page exposing
     , toString
     )
 
+import Data.Parts.Model as Parts
+
+
+
 -- TYPES --
 
 
 type Page
     = Package
     | Trackers
-    | Parts
+    | Parts Parts.Model
 
 
 
@@ -25,5 +29,5 @@ toString page =
         Trackers ->
             "trackers"
 
-        Parts ->
+        Parts _ ->
             "parts"

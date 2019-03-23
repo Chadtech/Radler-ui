@@ -174,15 +174,20 @@ optionsContainerView : Tracker -> Model -> Html Msg
 optionsContainerView tracker model =
     case tracker.options of
         Just options ->
+            let
+                style : List Style
+                style =
+                    [ Style.dim
+                    , width (pct 100)
+                    , height (pct 100)
+                    , position absolute
+                    , zIndex (int 2)
+                    ]
+            in
             Html.div
-                [ Attrs.css
-                    [ optionsContainerStyle ]
-                ]
+                [ Attrs.css style ]
                 [ Ui.Tracker.Options.view
-                    { parts =
-                        model.parts
-                            |> Array.toIndexedList
-                            |> List.map (Tuple.mapSecond .name)
+                    { parts = Model.indexedPartNames model
                     , size = tracker.size
                     , model = options
                     , majorMark = tracker.majorMark
@@ -193,17 +198,6 @@ optionsContainerView tracker model =
 
         Nothing ->
             Html.text ""
-
-
-optionsContainerStyle : Style
-optionsContainerStyle =
-    [ Style.dim
-    , width (pct 100)
-    , height (pct 100)
-    , position absolute
-    , zIndex (int 2)
-    ]
-        |> Css.batch
 
 
 beatsView : Part -> Int -> Int -> Style.Size -> Int -> Html Msg

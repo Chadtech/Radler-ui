@@ -7,6 +7,7 @@ module Model exposing
     , getTrackersOptions
     , getTrackersPart
     , getTrackersPartIndex
+    , indexedPartNames
     , init
     , mapPackage
     , mapPart
@@ -104,6 +105,13 @@ init flags =
 
 
 -- HELPERS --
+
+
+indexedPartNames : Model -> List ( Int, String )
+indexedPartNames { parts } =
+    parts
+        |> Array.map .name
+        |> Array.toIndexedList
 
 
 setError : Error -> Model -> Model

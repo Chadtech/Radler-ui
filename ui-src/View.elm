@@ -51,42 +51,31 @@ body : Model -> Html Msg
 body model =
     case model.page of
         Page.Package ->
-            packageContainer model
+            model
+                |> Package.view
+                |> Html.map PackageMsg
+                |> mainColumn
+                |> fullPageCard
 
         Page.Trackers ->
-            trackersContainer model
+            Grid.row
+                [ flex (int 1) ]
+                [ mainColumn <| trackersBody model ]
 
-        Page.Parts ->
-            partsContainer model
+        Page.Parts partsModel ->
+            Parts.view
+                model
+                partsModel
+                |> Html.map PartsMsg
+                |> mainColumn
+                |> fullPageCard
 
 
-partsContainer : Model -> Html Msg
-partsContainer model =
+fullPageCard : Html Msg -> Html Msg
+fullPageCard content =
     Grid.row
         [ height (calc (vh 100) minus (px 73)) ]
-        [ model
-            |> Parts.view
-            |> Html.map PartsMsg
-            |> mainColumn
-        ]
-
-
-packageContainer : Model -> Html Msg
-packageContainer model =
-    Grid.row
-        [ height (calc (vh 100) minus (px 73)) ]
-        [ model
-            |> Package.view
-            |> Html.map PackageMsg
-            |> mainColumn
-        ]
-
-
-trackersContainer : Model -> Html Msg
-trackersContainer model =
-    Grid.row
-        [ flex (int 1) ]
-        [ mainColumn <| trackersBody model ]
+        [ content ]
 
 
 mainColumn : Html Msg -> Html Msg

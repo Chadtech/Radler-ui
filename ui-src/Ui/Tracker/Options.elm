@@ -303,31 +303,30 @@ partOptionsContainer payload =
 
 partOptionView : ( Int, String ) -> Html Msg
 partOptionView ( index, name ) =
+    let
+        style : List Style
+        style =
+            [ Style.hfnss
+            , marginLeft (px 10)
+            , cursor pointer
+            , width (pct 100)
+            , hover
+                [ backgroundColor Colors.background4
+                , color Colors.point1
+                ]
+            ]
+    in
     Grid.row
         [ Style.basicSpacing ]
         [ Grid.column
             []
             [ Html.p
-                [ Attrs.css [ partOptionStyle ]
+                [ Attrs.css style
                 , Events.onClick (PartClicked index)
                 ]
                 [ Html.text name ]
             ]
         ]
-
-
-partOptionStyle : Style
-partOptionStyle =
-    [ Style.hfnss
-    , marginLeft (px 10)
-    , cursor pointer
-    , width (pct 100)
-    , hover
-        [ backgroundColor Colors.background4
-        , color Colors.point1
-        ]
-    ]
-        |> Css.batch
 
 
 backButton : Html Msg

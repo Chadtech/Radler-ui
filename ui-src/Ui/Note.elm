@@ -27,7 +27,7 @@ import Util
 
 
 type Msg
-    = Updated (Note Encoding.None)
+    = Updated String
     | MovementKeyPressed Direction
     | NoteFocused
 
@@ -49,9 +49,13 @@ type Msg
 update : Int -> Int -> Int -> Int -> Msg -> Model -> ( Model, Cmd Msg )
 update ti pi bi ni msg model =
     case msg of
-        Updated note ->
+        Updated noteStr ->
             model
-                |> updateBeat pi bi ni note
+                |> updateBeat
+                    pi
+                    bi
+                    ni
+                    (Note.fromString noteStr)
                 |> Util.withNoCmd
 
         MovementKeyPressed Up ->
@@ -100,54 +104,42 @@ focusOnNote id =
 
 view : Int -> Int -> Style.Size -> Int -> Int -> Int -> Note Encoding.None -> Html Msg
 view majorMark minorMark size ti bi ni note =
+    let
+        bgColor : Color
+        bgColor =
+            case remainderBy majorMark bi of
+                0 ->
+                    Colors.highlight1
+
+                moduloMajorMark ->
+                    if remainderBy minorMark moduloMajorMark == 0 then
+                        Colors.highlight0
+
+                    else
+                        Colors.background2
+
+        style : List Style
+        style =
+            [ backgroundColor bgColor
+            , Style.font size
+            , color Colors.point0
+            , height (px (Style.noteHeight size))
+            , width (px (Style.noteWidth size))
+            , Style.fontSmoothingNone
+            ]
+    in
     Grid.column
         [ margin (px 1) ]
         [ Html.input
-            [ Attrs.css
-                [ style
-                    majorMark
-                    minorMark
-                    size
-                    bi
-                ]
+            [ Attrs.css style
             , Attrs.value (Note.toString note)
             , Attrs.spellcheck False
-            , Events.onInput (Updated << Note.fromString)
+            , Events.onInput Updated
             , onMovementKey MovementKeyPressed
             , Attrs.id (noteId ti bi ni)
             ]
             []
         ]
-
-
-style : Int -> Int -> Style.Size -> Int -> Style
-style majorMark minorMark size beatIndex =
-    [ determineNoteBgColor
-        majorMark
-        minorMark
-        beatIndex
-        |> backgroundColor
-    , Style.font size
-    , color Colors.point0
-    , height (px (Style.noteHeight size))
-    , width (px (Style.noteWidth size))
-    , Style.fontSmoothingNone
-    ]
-        |> Css.batch
-
-
-determineNoteBgColor : Int -> Int -> Int -> Color
-determineNoteBgColor majorMark minorMark beatIndex =
-    case remainderBy majorMark beatIndex of
-        0 ->
-            Colors.highlight1
-
-        moduloMajorMark ->
-            if remainderBy minorMark moduloMajorMark == 0 then
-                Colors.highlight0
-
-            else
-                Colors.background2
 
 
 noteId : Int -> Int -> Int -> String

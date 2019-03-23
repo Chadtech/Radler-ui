@@ -29,7 +29,6 @@ import Util
 
 type Msg
     = PageClicked Page
-    | NewPartClicked
     | NewTrackerClicked
     | PlayClicked
     | SaveClicked
@@ -48,11 +47,6 @@ update msg model =
     case msg of
         PageClicked page ->
             { model | page = page }
-                |> Util.withNoCmd
-
-        NewPartClicked ->
-            model
-                |> Model.addNewPart
                 |> Util.withNoCmd
 
         NewTrackerClicked ->
@@ -211,9 +205,6 @@ uiButtons model =
         , horizontalSeparator
         , Grid.column
             [ flex (int 0) ]
-            [ newPartButton ]
-        , Grid.column
-            [ flex (int 0) ]
             [ newTrackerButton ]
         ]
 
@@ -331,18 +322,6 @@ pageButton thisPage currentPage =
         , Events.onClick (PageClicked thisPage)
         ]
         [ Html.text <| Page.toString thisPage ]
-
-
-newPartButton : Html Msg
-newPartButton =
-    Html.button
-        [ Attrs.css
-            [ buttonStyle
-            , doubleWidth
-            ]
-        , Events.onClick NewPartClicked
-        ]
-        [ Html.text "new part" ]
 
 
 newTrackerButton : Html Msg
