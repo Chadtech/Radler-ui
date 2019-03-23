@@ -11,7 +11,7 @@ import Data.Beat as Beat exposing (Beat)
 import Data.Encoding as Encoding
 import Data.Part as Part exposing (Part)
 import Data.Tracker as Tracker exposing (Tracker)
-import Data.Tracker.Options as Options
+import Data.Tracker.Options
 import Html.Buttons as Buttons
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
@@ -21,7 +21,7 @@ import Html.Styled.Lazy
 import Model exposing (Model)
 import Style
 import Ui.Beat as Beat
-import Ui.Tracker.Options as Options
+import Ui.Tracker.Options
 import Util
 
 
@@ -41,14 +41,14 @@ type alias Payload =
 
 type alias OptionsPayload =
     { partNames : List ( Int, String )
-    , model : Options.Model
+    , model : Data.Tracker.Options.Model
     }
 
 
 type Msg
     = NameFieldUpdated String
     | BeatMsg Int Beat.Msg
-    | OptionsMsg Options.Msg
+    | OptionsMsg Ui.Tracker.Options.Msg
     | OptionsClicked
     | DeleteTrackerClicked
     | AddBeatBelowClicked
@@ -95,7 +95,7 @@ update ti pi msg model =
         OptionsMsg subMsg ->
             case Model.getTrackersOptions ti model of
                 Just options ->
-                    Options.update
+                    Ui.Tracker.Options.update
                         ti
                         pi
                         options
@@ -161,7 +161,7 @@ view model trackerIndex tracker =
             notFoundView
 
 
-toOptionsPayload : Array Part -> Options.Model -> OptionsPayload
+toOptionsPayload : Array Part -> Data.Tracker.Options.Model -> OptionsPayload
 toOptionsPayload parts model =
     { model = model
     , partNames =
@@ -218,7 +218,7 @@ optionsContainerView payload =
             , majorMark = payload.majorMark
             , minorMark = payload.minorMark
             }
-                |> Options.view
+                |> Ui.Tracker.Options.view
                 |> List.singleton
                 |> Html.div
                     [ Attrs.css [ optionsContainerStyle ] ]
