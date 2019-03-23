@@ -29,22 +29,6 @@ import Util
 -- TYPES --
 
 
-type alias Payload =
-    { part : Part
-    , majorMark : Int
-    , minorMark : Int
-    , size : Style.Size
-    , options : Maybe OptionsPayload
-    , trackerIndex : Int
-    }
-
-
-type alias OptionsPayload =
-    { partNames : List ( Int, String )
-    , model : Data.Tracker.Options.Model
-    }
-
-
 type Msg
     = NameFieldUpdated String
     | BeatMsg Int Beat.Msg
@@ -145,83 +129,66 @@ view : Model -> Int -> Tracker -> Html Msg
 view model trackerIndex tracker =
     case Array.get tracker.partIndex model.parts of
         Just part ->
-            { part = part
-            , majorMark = tracker.majorMark
-            , minorMark = tracker.minorMark
-            , size = tracker.size
-            , options =
-                Maybe.map
-                    (toOptionsPayload model.parts)
-                    tracker.options
-            , trackerIndex = trackerIndex
-            }
-                |> fromPayload
+            Grid.container
+                [ Style.card
+                , flexDirection Css.column
+                , height (calc (vh 100) minus (px 95))
+                , overflow hidden
+                , position relative
+                ]
+                [ optionsContainerView tracker model
+                , Grid.row
+                    [ minHeight fitContent ]
+                    (trackerOptionsRow part tracker.size)
+                , Grid.row
+                    [ minHeight fitContent ]
+                    (voiceOptions part tracker.size)
+                , Grid.row
+                    [ minHeight fitContent ]
+                    (voiceNumbers part tracker.size)
+                , Grid.row
+                    []
+                    [ Html.Styled.Lazy.lazy5
+                        beatsView
+                        part
+                        tracker.majorMark
+                        tracker.minorMark
+                        tracker.size
+                        trackerIndex
+                    ]
+                ]
 
         Nothing ->
             notFoundView
 
 
-toOptionsPayload : Array Part -> Data.Tracker.Options.Model -> OptionsPayload
-toOptionsPayload parts model =
-    { model = model
-    , partNames =
-        parts
-            |> Array.toIndexedList
-            |> List.map (Tuple.mapSecond .name)
+type alias ContentParams =
+    { part : Part
+    , tracker : Tracker
+    , trackerIndex : Int
+    , partNames : List ( Int, String )
     }
 
 
-fromPayload : Payload -> Html Msg
-fromPayload payload =
-    Grid.container
-        [ Style.card
-        , flexDirection Css.column
-        , height (calc (vh 100) minus (px 95))
-        , overflow hidden
-        , position relative
-        ]
-        (contentView payload)
-
-
-contentView : Payload -> List (Html Msg)
-contentView payload =
-    [ optionsContainerView payload
-    , Grid.row
-        [ minHeight fitContent ]
-        (trackerOptions payload)
-    , Grid.row
-        [ minHeight fitContent ]
-        (voiceOptions payload)
-    , Grid.row
-        [ minHeight fitContent ]
-        (voiceNumbers payload)
-    , Grid.row
-        []
-        [ Html.Styled.Lazy.lazy5
-            beatsView
-            payload.part
-            payload.majorMark
-            payload.minorMark
-            payload.size
-            payload.trackerIndex
-        ]
-    ]
-
-
-optionsContainerView : Payload -> Html Msg
-optionsContainerView payload =
-    case payload.options of
+optionsContainerView : Tracker -> Model -> Html Msg
+optionsContainerView tracker model =
+    case tracker.options of
         Just options ->
-            { parts = options.partNames
-            , size = payload.size
-            , model = options.model
-            , majorMark = payload.majorMark
-            , minorMark = payload.minorMark
-            }
-                |> Ui.Tracker.Options.view
-                |> List.singleton
-                |> Html.div
-                    [ Attrs.css [ optionsContainerStyle ] ]
+            Html.div
+                [ Attrs.css
+                    [ optionsContainerStyle ]
+                ]
+                [ Ui.Tracker.Options.view
+                    { parts =
+                        model.parts
+                            |> Array.toIndexedList
+                            |> List.map (Tuple.mapSecond .name)
+                    , size = tracker.size
+                    , model = options
+                    , majorMark = tracker.majorMark
+                    , minorMark = tracker.minorMark
+                    }
+                ]
                 |> Html.map OptionsMsg
 
         Nothing ->
@@ -241,28 +208,23 @@ optionsContainerStyle =
 
 beatsView : Part -> Int -> Int -> Style.Size -> Int -> Html Msg
 beatsView part majorMark minorMark size ti =
-    beatsContentView part majorMark minorMark size ti
-        |> Grid.container [ overflow auto ]
-
-
-beatsContentView : Part -> Int -> Int -> Style.Size -> Int -> List (Html Msg)
-beatsContentView part majorMark minorMark size ti =
+    let
+        wrapBeat : ( Int, Beat Encoding.None ) -> Html Msg
+        wrapBeat ( bi, beat ) =
+            Html.Styled.Lazy.lazy6
+                Beat.view
+                majorMark
+                minorMark
+                size
+                ti
+                bi
+                beat
+                |> Html.map (BeatMsg bi)
+    in
     part.beats
         |> Array.toIndexedList
-        |> List.map (wrapBeat majorMark minorMark size ti)
-
-
-wrapBeat : Int -> Int -> Style.Size -> Int -> ( Int, Beat Encoding.None ) -> Html Msg
-wrapBeat majorMark minorMark size ti ( bi, beat ) =
-    Html.Styled.Lazy.lazy6
-        Beat.view
-        majorMark
-        minorMark
-        size
-        ti
-        bi
-        beat
-        |> Html.map (BeatMsg bi)
+        |> List.map wrapBeat
+        |> Grid.container [ overflow auto ]
 
 
 
@@ -277,12 +239,42 @@ wrapBeat majorMark minorMark size ti ( bi, beat ) =
     be clicked to reveal options about this tracker
 
 -}
-trackerOptions : Payload -> List (Html Msg)
-trackerOptions payload =
+trackerOptionsRow : Part -> Style.Size -> List (Html Msg)
+trackerOptionsRow part size =
     let
         buttonWidth : Float
         buttonWidth =
-            Style.noteWidth payload.size + 3
+            Style.noteWidth size + 3
+
+        trackerOptionsButton : Html Msg
+        trackerOptionsButton =
+            Html.button
+                [ Attrs.css
+                    [ Style.basicButton size
+                    , width (px ((Style.noteWidth size * 2) + 2))
+                    ]
+                , Events.onClick OptionsClicked
+                ]
+                [ Html.text "options" ]
+
+        partNameField : Html Msg
+        partNameField =
+            Html.input
+                [ Attrs.css [ partNameStyle ]
+                , Attrs.value part.name
+                , Attrs.spellcheck False
+                , Events.onInput NameFieldUpdated
+                ]
+                []
+
+        partNameStyle : Style
+        partNameStyle =
+            [ Style.font size
+            , color Colors.point0
+            , width (pct 100)
+            , Style.fontSmoothingNone
+            ]
+                |> Css.batch
     in
     [ Grid.column
         [ flex none
@@ -292,9 +284,9 @@ trackerOptions payload =
         ]
         [ Html.button
             [ Attrs.css
-                [ Style.basicButton payload.size
+                [ Style.basicButton size
                 , width (px buttonWidth)
-                , height (px ((Style.noteHeight payload.size * 2) + 2))
+                , height (px ((Style.noteHeight size * 2) + 2))
                 , position absolute
                 , top (px 0)
                 , left (px 0)
@@ -310,10 +302,10 @@ trackerOptions payload =
         [ flex (int 0)
         , margin (px 1)
         ]
-        [ trackerOptionsButton payload.size ]
+        [ trackerOptionsButton ]
     , Grid.column
         [ margin (px 1) ]
-        [ partNameField payload.size payload.part ]
+        [ partNameField ]
     ]
 
 
@@ -321,8 +313,8 @@ trackerOptions payload =
 -- COLUMN OPTIONS --
 
 
-voiceOptions : Payload -> List (Html Msg)
-voiceOptions { part, size } =
+voiceOptions : Part -> Style.Size -> List (Html Msg)
+voiceOptions part size =
     List.range 0 (Part.voiceCount part - 1)
         |> List.map (voiceOption size)
         |> (::) (addVoiceZero size)
@@ -396,78 +388,44 @@ addVoiceZero size =
 -- COLUMN NUMBERS --
 
 
-voiceNumbers : Payload -> List (Html Msg)
-voiceNumbers { part, size } =
-    List.range 0 (Part.voiceCount part - 1)
-        |> List.map (voiceNumber size)
-        |> (::) (addBeatButton size)
-
-
-addBeatButton : Style.Size -> Html Msg
-addBeatButton size =
-    Grid.column
-        [ margin (px 1)
-        , paddingRight (px (Style.noteWidth size + 2))
-        ]
-        [ Buttons.plus
-            AddBeatBelowClicked
-            [ width (pct 100) ]
-            size
-        ]
-
-
-voiceNumber : Style.Size -> Int -> Html Msg
-voiceNumber size i =
-    Grid.column
-        [ width (px (Style.noteWidth size))
-        , flex none
-        , margin (px 1)
-        ]
-        [ Html.button
-            [ Attrs.css
-                [ Style.basicButton size
-                , width (px (Style.noteWidth size))
-                , minHeight fitContent
-                , margin (px 0)
-                , zIndex (int 1)
-                , Style.flush
+voiceNumbers : Part -> Style.Size -> List (Html Msg)
+voiceNumbers part size =
+    let
+        addBeatButton : Html Msg
+        addBeatButton =
+            Grid.column
+                [ margin (px 1)
+                , paddingRight (px (Style.noteWidth size + 2))
                 ]
-            ]
-            [ Html.text (String.fromInt i) ]
-        ]
+                [ Buttons.plus
+                    AddBeatBelowClicked
+                    [ width (pct 100) ]
+                    size
+                ]
 
-
-trackerOptionsButton : Style.Size -> Html Msg
-trackerOptionsButton size =
-    Html.button
-        [ Attrs.css
-            [ Style.basicButton size
-            , width (px ((Style.noteWidth size * 2) + 2))
-            ]
-        , Events.onClick OptionsClicked
-        ]
-        [ Html.text "options" ]
-
-
-partNameField : Style.Size -> Part -> Html Msg
-partNameField size part =
-    Html.input
-        [ Attrs.css [ partNameStyle size ]
-        , Attrs.value part.name
-        , Attrs.spellcheck False
-        , Events.onInput NameFieldUpdated
-        ]
-        []
-
-
-partNameStyle : Style.Size -> Style
-partNameStyle size =
-    [ Style.font size
-    , color Colors.point0
-    , width (pct 100)
-    , Style.fontSmoothingNone
-    ]
-        |> Css.batch
+        voiceNumber : Int -> Html Msg
+        voiceNumber i =
+            Grid.column
+                [ width (px (Style.noteWidth size))
+                , flex none
+                , margin (px 1)
+                ]
+                [ Html.button
+                    [ Attrs.css
+                        [ Style.basicButton size
+                        , width (px (Style.noteWidth size))
+                        , minHeight fitContent
+                        , margin (px 0)
+                        , zIndex (int 1)
+                        , Style.flush
+                        ]
+                    ]
+                    [ Html.text (String.fromInt i) ]
+                ]
+    in
+    List.range 0 (Part.voiceCount part - 1)
+        |> List.map voiceNumber
+        |> (::) addBeatButton
 
 
 
