@@ -3,6 +3,7 @@ module View exposing (view)
 import Array
 import Colors
 import Css exposing (..)
+import Data.Page as Page
 import Data.Tracker exposing (Tracker)
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
@@ -13,6 +14,7 @@ import Style
 import Ui.Header as Header
 import Ui.Modal as Modal
 import Ui.Package as Package
+import Ui.Parts as Parts
 import Ui.Tracker as Tracker
 
 
@@ -48,25 +50,35 @@ modalView model =
 body : Model -> Html Msg
 body model =
     case model.page of
-        Model.Package ->
+        Page.Package ->
             packageContainer model
 
-        Model.Trackers ->
+        Page.Trackers ->
             trackersContainer model
+
+        Page.Parts ->
+            partsContainer model
+
+
+partsContainer : Model -> Html Msg
+partsContainer model =
+    Grid.row
+        [ height (calc (vh 100) minus (px 73)) ]
+        [ model
+            |> Parts.view
+            |> Html.map PartsMsg
+            |> mainColumn
+        ]
 
 
 packageContainer : Model -> Html Msg
 packageContainer model =
     Grid.row
         [ height (calc (vh 100) minus (px 73)) ]
-        [ Grid.column
-            [ Style.card
-            , Style.basicSpacing
-            , overflow hidden
-            ]
-            [ Package.view model
-                |> Html.map PackageMsg
-            ]
+        [ model
+            |> Package.view
+            |> Html.map PackageMsg
+            |> mainColumn
         ]
 
 
@@ -74,13 +86,17 @@ trackersContainer : Model -> Html Msg
 trackersContainer model =
     Grid.row
         [ flex (int 1) ]
-        [ Grid.column
-            [ Style.card
-            , Style.basicSpacing
-            , overflow hidden
-            ]
-            [ trackersBody model ]
+        [ mainColumn <| trackersBody model ]
+
+
+mainColumn : Html Msg -> Html Msg
+mainColumn content =
+    Grid.column
+        [ Style.card
+        , Style.basicSpacing
+        , overflow hidden
         ]
+        [ content ]
 
 
 trackersBody : Model -> Html Msg

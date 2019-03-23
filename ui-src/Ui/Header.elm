@@ -12,12 +12,13 @@ import Css exposing (..)
 import Data.Error as Error
 import Data.Modal as Modal
 import Data.Package as Package
+import Data.Page as Page exposing (Page)
 import Data.Tracker as Tracker
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attrs
 import Html.Styled.Events as Events
-import Model exposing (Model, Page)
+import Model exposing (Model)
 import Style
 import Util
 
@@ -200,10 +201,13 @@ uiButtons model =
             [ pageText ]
         , Grid.column
             [ flex (int 0) ]
-            [ trackersButton model.page ]
+            [ pageButton Page.Trackers model.page ]
         , Grid.column
             [ flex (int 0) ]
-            [ packageButton model.page ]
+            [ pageButton Page.Package model.page ]
+        , Grid.column
+            [ flex (int 0) ]
+            [ pageButton Page.Parts model.page ]
         , horizontalSeparator
         , Grid.column
             [ flex (int 0) ]
@@ -316,30 +320,17 @@ saveButton =
         [ Html.text "save" ]
 
 
-trackersButton : Page -> Html Msg
-trackersButton page =
+pageButton : Page -> Page -> Html Msg
+pageButton thisPage currentPage =
     Html.button
         [ Attrs.css
             [ buttonStyle
-            , dent page Model.Trackers
+            , dent currentPage thisPage
             , doubleWidth
             ]
-        , Events.onClick (PageClicked Model.Trackers)
+        , Events.onClick (PageClicked thisPage)
         ]
-        [ Html.text "trackers" ]
-
-
-packageButton : Page -> Html Msg
-packageButton page =
-    Html.button
-        [ Attrs.css
-            [ buttonStyle
-            , dent page Model.Package
-            , doubleWidth
-            ]
-        , Events.onClick (PageClicked Model.Package)
-        ]
-        [ Html.text "package" ]
+        [ Html.text <| Page.toString thisPage ]
 
 
 newPartButton : Html Msg

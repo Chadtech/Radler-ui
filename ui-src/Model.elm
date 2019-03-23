@@ -1,6 +1,5 @@
 module Model exposing
     ( Model
-    , Page(..)
     , addNewPart
     , clearModal
     , copyPart
@@ -32,6 +31,7 @@ import Data.Flags exposing (Flags)
 import Data.Modal as Modal exposing (Modal)
 import Data.Modal.Build as Build
 import Data.Package as Package exposing (Package)
+import Data.Page as Page exposing (Page)
 import Data.Part as Part exposing (Part)
 import Data.Tracker as Tracker exposing (Tracker)
 import Data.Tracker.Options as Options
@@ -73,11 +73,6 @@ type alias Model =
     }
 
 
-type Page
-    = Package
-    | Trackers
-
-
 init : Flags -> Model
 init flags =
     let
@@ -95,7 +90,7 @@ init flags =
         , Tracker.init Style.Big 0
         ]
             |> Array.fromList
-    , page = Trackers
+    , page = Page.Trackers
     , package = flags.package
     , modal = Nothing
     , playFromBeatField = String.fromInt playFromBeat

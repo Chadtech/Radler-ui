@@ -7,6 +7,7 @@ import Json.Decode as Decode exposing (Decoder)
 import Ui.Header as Header
 import Ui.Modal as Modal
 import Ui.Package as Package
+import Ui.Parts as Parts
 import Ui.Tracker as Tracker
 
 
@@ -15,6 +16,7 @@ type Msg
     | TrackerMsg Int Tracker.Msg
     | HeaderMsg Header.Msg
     | PackageMsg Package.Msg
+    | PartsMsg Parts.Msg
     | ModalMsg Modal.Msg
 
 

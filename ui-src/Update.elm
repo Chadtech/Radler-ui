@@ -5,6 +5,7 @@ import Msg exposing (Msg(..))
 import Ui.Header as Header
 import Ui.Modal as Modal
 import Ui.Package as Package
+import Ui.Parts as Parts
 import Ui.Tracker as Tracker
 import Util
 
@@ -35,6 +36,11 @@ update msg model =
         PackageMsg subMsg ->
             model
                 |> Package.update subMsg
+                |> Util.withNoCmd
+
+        PartsMsg subMsg ->
+            model
+                |> Parts.update subMsg
                 |> Util.withNoCmd
 
         ModalMsg subMsg ->
