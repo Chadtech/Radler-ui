@@ -1,4 +1,4 @@
-module Ui.Package exposing
+module Page.Package exposing
     ( Msg
     , update
     , view

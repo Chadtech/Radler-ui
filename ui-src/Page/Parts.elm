@@ -1,4 +1,4 @@
-module Ui.Parts exposing
+module Page.Parts exposing
     ( Msg
     , update
     , view
@@ -6,12 +6,12 @@ module Ui.Parts exposing
 
 import Colors
 import Css exposing (..)
-import Data.Parts.Model as Parts
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attrs
 import Html.Styled.Events as Events
 import Model exposing (Model)
+import Page.Parts.Model as Parts
 import Style
 
 
@@ -46,7 +46,7 @@ view model partsModel =
         , width (pct 100)
         ]
         [ Grid.row
-            []
+            [ height (pct 100) ]
             [ Grid.column
                 [ flex3 (int 0) (int 1) (px 375) ]
                 [ partsListView model ]

@@ -1,9 +1,6 @@
-module Data.Page exposing
-    ( Page(..)
-    , toString
-    )
+module Data.Page exposing (Page(..))
 
-import Data.Parts.Model as Parts
+import Page.Parts.Model as Parts
 
 
 
@@ -14,20 +11,3 @@ type Page
     = Package
     | Trackers
     | Parts Parts.Model
-
-
-
--- HELPERS --
-
-
-toString : Page -> String
-toString page =
-    case page of
-        Package ->
-            "package"
-
-        Trackers ->
-            "trackers"
-
-        Parts _ ->
-            "parts"

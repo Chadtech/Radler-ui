@@ -1,21 +1,18 @@
 module View exposing (view)
 
-import Array
-import Colors
 import Css exposing (..)
 import Data.Page as Page
-import Data.Tracker exposing (Tracker)
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attrs
 import Model exposing (Model)
 import Msg exposing (Msg(..))
+import Page.Package as Package
+import Page.Parts as Parts
+import Page.Trackers as Trackers
 import Style
 import Ui.Header as Header
 import Ui.Modal as Modal
-import Ui.Package as Package
-import Ui.Parts as Parts
-import Ui.Tracker as Tracker
 
 
 view : Model -> List (Html Msg)
@@ -51,8 +48,7 @@ body : Model -> Html Msg
 body model =
     case model.page of
         Page.Package ->
-            model
-                |> Package.view
+            Package.view model
                 |> Html.map PackageMsg
                 |> mainColumn
                 |> fullPageCard
@@ -60,7 +56,9 @@ body model =
         Page.Trackers ->
             Grid.row
                 [ flex (int 1) ]
-                [ mainColumn <| trackersBody model ]
+                [ Trackers.view model
+                    |> mainColumn
+                ]
 
         Page.Parts partsModel ->
             Parts.view
@@ -86,36 +84,3 @@ mainColumn content =
         , overflow hidden
         ]
         [ content ]
-
-
-trackersBody : Model -> Html Msg
-trackersBody model =
-    Html.div
-        [ Attrs.css
-            [ Style.indent
-            , width (pct 100)
-            , Style.basicSpacing
-            , backgroundColor Colors.background1
-            , overflow auto
-            ]
-        ]
-        [ Grid.container
-            [ display inlineFlex
-            , Style.basicSpacing
-            ]
-            (viewTrackers model)
-        ]
-
-
-viewTrackers : Model -> List (Html Msg)
-viewTrackers model =
-    model.trackers
-        |> Array.toIndexedList
-        |> List.map (viewTracker model)
-
-
-viewTracker : Model -> ( Int, Tracker ) -> Html Msg
-viewTracker model ( trackerIndex, tracker ) =
-    tracker
-        |> Tracker.view model trackerIndex
-        |> Html.map (TrackerMsg trackerIndex)

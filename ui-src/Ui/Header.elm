@@ -13,12 +13,14 @@ import Data.Error as Error
 import Data.Modal as Modal
 import Data.Package as Package
 import Data.Page as Page exposing (Page)
+import Data.Route as Route exposing (Route)
 import Data.Tracker as Tracker
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attrs
 import Html.Styled.Events as Events
 import Model exposing (Model)
+import Page.Parts.Model as Parts
 import Style
 import Util
 
@@ -28,7 +30,7 @@ import Util
 
 
 type Msg
-    = PageClicked Page
+    = RouteClicked Route
     | NewTrackerClicked
     | PlayClicked
     | SaveClicked
@@ -45,8 +47,8 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        PageClicked page ->
-            { model | page = page }
+        RouteClicked route ->
+            { model | page = Route.toPage route }
                 |> Util.withNoCmd
 
         NewTrackerClicked ->
@@ -195,13 +197,13 @@ uiButtons model =
             [ pageText ]
         , Grid.column
             [ flex (int 0) ]
-            [ pageButton Page.Trackers model.page ]
+            [ pageButton Route.Trackers model.page ]
         , Grid.column
             [ flex (int 0) ]
-            [ pageButton Page.Package model.page ]
+            [ pageButton Route.Package model.page ]
         , Grid.column
             [ flex (int 0) ]
-            [ pageButton Page.Parts model.page ]
+            [ pageButton Route.Parts model.page ]
         , horizontalSeparator
         , Grid.column
             [ flex (int 0) ]
@@ -311,17 +313,17 @@ saveButton =
         [ Html.text "save" ]
 
 
-pageButton : Page -> Page -> Html Msg
-pageButton thisPage currentPage =
+pageButton : Route -> Page -> Html Msg
+pageButton route currentPage =
     Html.button
         [ Attrs.css
             [ buttonStyle
-            , dent currentPage thisPage
+            , dent currentPage route
             , doubleWidth
             ]
-        , Events.onClick (PageClicked thisPage)
+        , Events.onClick (RouteClicked route)
         ]
-        [ Html.text <| Page.toString thisPage ]
+        [ Html.text <| Route.toString route ]
 
 
 newTrackerButton : Html Msg
@@ -358,9 +360,9 @@ buttonStyle =
         |> Css.batch
 
 
-dent : Page -> Page -> Style
-dent currentPage thisPage =
-    if currentPage == thisPage then
+dent : Page -> Route -> Style
+dent currentPage route =
+    if Route.isPage currentPage route then
         Style.indent
 
     else

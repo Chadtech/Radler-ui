@@ -4,10 +4,10 @@ module Msg exposing
     )
 
 import Json.Decode as Decode exposing (Decoder)
+import Page.Package as Package
+import Page.Parts as Parts
 import Ui.Header as Header
 import Ui.Modal as Modal
-import Ui.Package as Package
-import Ui.Parts as Parts
 import Ui.Tracker as Tracker
 
 

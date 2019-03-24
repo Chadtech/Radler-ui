@@ -2,10 +2,10 @@ module Update exposing (update)
 
 import Model exposing (Model)
 import Msg exposing (Msg(..))
+import Page.Package as Package
+import Page.Parts as Parts
 import Ui.Header as Header
 import Ui.Modal as Modal
-import Ui.Package as Package
-import Ui.Parts as Parts
 import Ui.Tracker as Tracker
 import Util
 
