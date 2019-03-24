@@ -1,5 +1,6 @@
 module Update exposing (update)
 
+import Data.Page as Page
 import Model exposing (Model)
 import Msg exposing (Msg(..))
 import Page.Package as Package
@@ -39,9 +40,15 @@ update msg model =
                 |> Util.withNoCmd
 
         PartsMsg subMsg ->
-            model
-                |> Parts.update subMsg
-                |> Util.withNoCmd
+            case model.page of
+                Page.Parts partsModel ->
+                    model
+                        |> Parts.update subMsg partsModel
+                        |> Util.withNoCmd
+
+                _ ->
+                    model
+                        |> Util.withNoCmd
 
         ModalMsg subMsg ->
             model

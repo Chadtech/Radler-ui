@@ -20,6 +20,8 @@ module Model exposing
     , setBuildModal
     , setError
     , setModal
+    , setPage
+    , setPartsPage
     , setPlayFor
     , setPlayFrom
     )
@@ -36,6 +38,7 @@ import Data.Page as Page exposing (Page)
 import Data.Part as Part exposing (Part)
 import Data.Tracker as Tracker exposing (Tracker)
 import Data.Tracker.Options as Options
+import Page.Parts.Model as Parts
 import Style
 
 
@@ -105,6 +108,16 @@ init flags =
 
 
 -- HELPERS --
+
+
+setPage : Page -> Model -> Model
+setPage page model =
+    { model | page = page }
+
+
+setPartsPage : Parts.Model -> Model -> Model
+setPartsPage partsModel =
+    setPage (Page.Parts partsModel)
 
 
 indexedPartNames : Model -> List ( Int, String )

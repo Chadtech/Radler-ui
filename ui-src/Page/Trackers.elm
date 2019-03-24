@@ -35,12 +35,40 @@ view model =
 viewTrackers : Model -> List (Html Msg)
 viewTrackers model =
     let
+        partNames : List ( Int, String )
+        partNames =
+            Model.indexedPartNames model
+
         viewTracker : ( Int, Tracker ) -> Html Msg
         viewTracker ( trackerIndex, tracker ) =
-            tracker
-                |> Tracker.view model trackerIndex
-                |> Html.map (TrackerMsg trackerIndex)
+            case Array.get tracker.partIndex model.parts of
+                Just part ->
+                    Tracker.view
+                        { trackerIndex = trackerIndex
+                        , tracker = tracker
+                        , part = part
+                        , partNames = partNames
+                        }
+                        |> Html.map (TrackerMsg trackerIndex)
+
+                Nothing ->
+                    notFoundView
     in
     model.trackers
         |> Array.toIndexedList
         |> List.map viewTracker
+
+
+notFoundView : Html Msg
+notFoundView =
+    Html.div
+        [ Attrs.css [ Style.card ] ]
+        [ Html.p
+            [ Attrs.css
+                [ Style.hfnss
+                , whiteSpace noWrap
+                , margin (px 4)
+                ]
+            ]
+            [ Html.text "Error : Part not found" ]
+        ]

@@ -13,6 +13,7 @@ import Html.Styled.Events as Events
 import Model exposing (Model)
 import Page.Parts.Model as Parts
 import Style
+import Util
 
 
 
@@ -27,11 +28,13 @@ type Msg
 -- UPDATE --
 
 
-update : Msg -> Model -> Model
-update msg model =
+update : Msg -> Parts.Model -> Model -> Model
+update msg partsModel model =
     case msg of
-        PartClicked _ ->
-            model
+        PartClicked newIndex ->
+            Model.setPartsPage
+                (Parts.setSelectedPartIndex newIndex partsModel)
+                model
 
 
 
@@ -49,16 +52,41 @@ view model partsModel =
             [ height (pct 100) ]
             [ Grid.column
                 [ flex3 (int 0) (int 1) (px 375) ]
-                [ partsListView model ]
+                [ partsListView model partsModel ]
             , Grid.column
                 []
-                []
+                [ partView model partsModel ]
             ]
         ]
 
 
-partsListView : Model -> Html Msg
-partsListView model =
+
+-- PART VIEW --
+
+
+partView : Model -> Parts.Model -> Html Msg
+partView model partsModel =
+    let
+        noPartSelected : Html Msg
+        noPartSelected =
+            Html.p
+                []
+                [ Html.text "No part selected" ]
+    in
+    case partsModel.selectedPartIndex of
+        Just index ->
+            Html.text <| String.fromInt index
+
+        Nothing ->
+            noPartSelected
+
+
+
+-- PARTS LIST VIEW --
+
+
+partsListView : Model -> Parts.Model -> Html Msg
+partsListView model partsModel =
     Html.div
         [ Attrs.css
             [ Style.indent
@@ -68,13 +96,13 @@ partsListView model =
         ]
         [ model
             |> Model.indexedPartNames
-            |> List.map partOptionView
+            |> List.map (partOptionView partsModel.selectedPartIndex)
             |> Grid.container []
         ]
 
 
-partOptionView : ( Int, String ) -> Html Msg
-partOptionView ( index, name ) =
+partOptionView : Maybe Int -> ( Int, String ) -> Html Msg
+partOptionView selectedIndex ( index, name ) =
     let
         style : List Style
         style =
@@ -82,10 +110,10 @@ partOptionView ( index, name ) =
             , marginLeft (px 10)
             , cursor pointer
             , width (pct 100)
-            , hover
-                [ backgroundColor Colors.background4
-                , color Colors.point1
-                ]
+            , hover [ highlight ]
+            , Util.styleIf
+                (selectedIndex == Just index)
+                highlight
             ]
     in
     Grid.row
@@ -99,3 +127,11 @@ partOptionView ( index, name ) =
                 [ Html.text name ]
             ]
         ]
+
+
+highlight : Style
+highlight =
+    [ backgroundColor Colors.background4
+    , color Colors.point1
+    ]
+        |> Css.batch

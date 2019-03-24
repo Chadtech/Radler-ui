@@ -2,10 +2,34 @@ module Util exposing
     ( allValues
     , mapCmd
     , mapModel
+    , noStyle
+    , styleIf
     , unshift
     , withModel
     , withNoCmd
     )
+
+import Css exposing (Style)
+
+
+
+-- CSS --
+
+
+styleIf : Bool -> Style -> Style
+styleIf condition style =
+    if condition then
+        style
+
+    else
+        noStyle
+
+
+noStyle : Style
+noStyle =
+    Css.batch []
+
+
 
 -- CMD --
 

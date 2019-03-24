@@ -48,7 +48,8 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         RouteClicked route ->
-            { model | page = Route.toPage route }
+            model
+                |> Model.setPage (Route.toPage route)
                 |> Util.withNoCmd
 
         NewTrackerClicked ->
@@ -340,12 +341,12 @@ newTrackerButton =
 
 doubleWidth : Style
 doubleWidth =
-    width (px (Style.noteWidth Style.Big * 2))
+    width <| px <| Style.noteWidth Style.Big * 2
 
 
 singleWidth : Style
 singleWidth =
-    width (px (Style.noteWidth Style.Big))
+    width <| px <| Style.noteWidth Style.Big
 
 
 buttonStyle : Style

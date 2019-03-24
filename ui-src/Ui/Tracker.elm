@@ -125,53 +125,48 @@ update ti pi msg model =
 -- VIEW --
 
 
-view : Model -> Int -> Tracker -> Html Msg
-view model trackerIndex tracker =
-    case Array.get tracker.partIndex model.parts of
-        Just part ->
-            Grid.container
-                [ Style.card
-                , flexDirection Css.column
-                , height (calc (vh 100) minus (px 95))
-                , overflow hidden
-                , position relative
-                ]
-                [ optionsContainerView tracker model
-                , Grid.row
-                    [ minHeight fitContent ]
-                    (trackerOptionsRow part tracker.size)
-                , Grid.row
-                    [ minHeight fitContent ]
-                    (voiceOptions part tracker.size)
-                , Grid.row
-                    [ minHeight fitContent ]
-                    (voiceNumbers part tracker.size)
-                , Grid.row
-                    []
-                    [ Html.Styled.Lazy.lazy5
-                        beatsView
-                        part
-                        tracker.majorMark
-                        tracker.minorMark
-                        tracker.size
-                        trackerIndex
-                    ]
-                ]
-
-        Nothing ->
-            notFoundView
-
-
-type alias ContentParams =
-    { part : Part
+type alias ViewParams =
+    { trackerIndex : Int
     , tracker : Tracker
-    , trackerIndex : Int
+    , part : Part
     , partNames : List ( Int, String )
     }
 
 
-optionsContainerView : Tracker -> Model -> Html Msg
-optionsContainerView tracker model =
+view : ViewParams -> Html Msg
+view { trackerIndex, tracker, part, partNames } =
+    Grid.container
+        [ Style.card
+        , flexDirection Css.column
+        , height (calc (vh 100) minus (px 95))
+        , overflow hidden
+        , position relative
+        ]
+        [ optionsContainerView tracker partNames
+        , Grid.row
+            [ minHeight fitContent ]
+            (trackerOptionsRow part tracker.size)
+        , Grid.row
+            [ minHeight fitContent ]
+            (voiceOptions part tracker.size)
+        , Grid.row
+            [ minHeight fitContent ]
+            (voiceNumbers part tracker.size)
+        , Grid.row
+            []
+            [ Html.Styled.Lazy.lazy5
+                beatsView
+                part
+                tracker.majorMark
+                tracker.minorMark
+                tracker.size
+                trackerIndex
+            ]
+        ]
+
+
+optionsContainerView : Tracker -> List ( Int, String ) -> Html Msg
+optionsContainerView tracker partNames =
     case tracker.options of
         Just options ->
             let
@@ -187,7 +182,7 @@ optionsContainerView tracker model =
             Html.div
                 [ Attrs.css style ]
                 [ Ui.Tracker.Options.view
-                    { parts = Model.indexedPartNames model
+                    { parts = partNames
                     , size = tracker.size
                     , model = options
                     , majorMark = tracker.majorMark
@@ -420,22 +415,3 @@ voiceNumbers part size =
     List.range 0 (Part.voiceCount part - 1)
         |> List.map voiceNumber
         |> (::) addBeatButton
-
-
-
--- NOT FOUND VIEW --
-
-
-notFoundView : Html Msg
-notFoundView =
-    Html.div
-        [ Attrs.css [ Style.card ] ]
-        [ Html.p
-            [ Attrs.css
-                [ Style.hfnss
-                , whiteSpace noWrap
-                , margin (px 4)
-                ]
-            ]
-            [ Html.text "Error : Part not found" ]
-        ]
