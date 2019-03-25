@@ -102,9 +102,7 @@ init flags =
         , Tracker.init Style.Big 0
         ]
             |> Array.fromList
-
-    -- , page = Page.Trackers
-    , page = Page.Parts Nothing
+    , page = Page.Trackers
     , package = flags.package
     , modal = Nothing
     , playFromBeatField = String.fromInt playFromBeat

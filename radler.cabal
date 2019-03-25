@@ -32,6 +32,7 @@ executable radler
   other-modules:
     Audio
     Mono
+    Mono.Fade
     Mono.Position
     Stereo
     Config

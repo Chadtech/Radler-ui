@@ -3,15 +3,7 @@
     "parts-src": "./parts",
     "score": [
         {
-            "name": "part-1",
-            "length": 144
-        },
-        {
-            "name": "part-2",
-            "length": 144
-        },
-        {
-            "name": "part-3",
+            "name": "9",
             "length": 144
         }
     ],

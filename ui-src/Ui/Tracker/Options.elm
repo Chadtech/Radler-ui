@@ -37,8 +37,6 @@ type Msg
     | BigClicked
     | MajorMarkFieldUpdated String
     | MinorMarkFieldUpdated String
-    | CopyWithNameClicked
-    | CopyNameChanged String
 
 
 
@@ -84,15 +82,6 @@ update ti pi options msg =
         MinorMarkFieldUpdated field ->
             field
                 |> Tracker.setMinorMark
-                |> Model.mapTracker ti
-
-        CopyWithNameClicked ->
-            Model.copyPart pi options.copyName
-
-        CopyNameChanged copyName ->
-            copyName
-                |> Options.setCopyName
-                |> Tracker.mapOptionsModel
                 |> Model.mapTracker ti
 
 
@@ -169,46 +158,12 @@ view payload =
                 , bigViewButton payload.size
                 ]
             , Grid.row
-                [ margin (px 5) ]
-                (copyWithNameField payload)
-            , Grid.row
                 [ margin (px 5)
                 , justifyContent spaceAround
                 ]
                 [ backButton ]
             ]
         ]
-
-
-copyWithNameField : Payload -> List (Html Msg)
-copyWithNameField { model } =
-    [ Grid.column
-        []
-        [ Html.input
-            [ Attrs.css
-                [ Style.hfnss
-                , color Colors.point0
-                , Style.fontSmoothingNone
-                , width (pct 100)
-                ]
-            , Events.onInput CopyNameChanged
-            , Attrs.value model.copyName
-            ]
-            []
-        ]
-    , Grid.column
-        [ paddingLeft (px 5) ]
-        [ Html.button
-            [ Attrs.css
-                [ buttonStyle
-                , margin (px 0)
-                , width (pct 100)
-                ]
-            , Events.onClick CopyWithNameClicked
-            ]
-            [ Html.text "copy with name" ]
-        ]
-    ]
 
 
 markLabel : String -> Html Msg
@@ -252,7 +207,6 @@ smallViewButton size =
                 [ buttonStyle
                 , indentIf (size == Style.Small)
                 , margin (px 0)
-                , width (pct 100)
                 ]
             , Events.onClick SmallClicked
             ]
@@ -269,7 +223,6 @@ bigViewButton size =
                 [ buttonStyle
                 , indentIf (size == Style.Big)
                 , margin (px 0)
-                , width (pct 100)
                 ]
             , Events.onClick BigClicked
             ]
