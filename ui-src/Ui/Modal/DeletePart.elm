@@ -15,7 +15,7 @@ import Html.Styled.Events as Events
 import Model exposing (Model)
 import Ports
 import Style
-import Util
+import Util.Cmd as CmdUtil
 
 
 
@@ -61,25 +61,25 @@ update msg deletePartModel model =
 
                 Nothing ->
                     model
-                        |> Util.withNoCmd
+                        |> CmdUtil.withNoCmd
 
         CancelClicked ->
             model
                 |> Model.clearModal
-                |> Util.withNoCmd
+                |> CmdUtil.withNoCmd
 
         PartDeleted (Ok int) ->
             model
                 |> Model.deletePart int
                 |> Model.clearModal
                 |> Model.clearPartsPage
-                |> Util.withNoCmd
+                |> CmdUtil.withNoCmd
 
         PartDeleted (Err err) ->
             Model.setDeletePartModal
                 (DeletePart.Error err)
                 model
-                |> Util.withNoCmd
+                |> CmdUtil.withNoCmd
 
 
 

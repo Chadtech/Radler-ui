@@ -10,7 +10,7 @@ import Ports
 import Style
 import Ui.Error exposing (initializationErrorView)
 import Update
-import Util
+import Util.Cmd as CmdUtil
 import View
 
 
@@ -29,7 +29,7 @@ init json =
     json
         |> Decode.decodeValue Flags.decoder
         |> Result.map Model.init
-        |> Util.withNoCmd
+        |> CmdUtil.withNoCmd
 
 
 subscriptions : Result Decode.Error Model -> Sub Msg
@@ -47,11 +47,11 @@ update msg result =
     case result of
         Ok model ->
             Update.update msg model
-                |> Util.mapModel Ok
+                |> CmdUtil.mapModel Ok
 
         Err err ->
             Err err
-                |> Util.withNoCmd
+                |> CmdUtil.withNoCmd
 
 
 view : Result Decode.Error Model -> Browser.Document Msg

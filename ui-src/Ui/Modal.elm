@@ -14,7 +14,7 @@ import Style
 import Ui.Error as Error
 import Ui.Modal.Build as Build
 import Ui.Modal.DeletePart as DeletePart
-import Util
+import Util.Cmd as CmdUtil
 
 
 
@@ -42,29 +42,29 @@ update msg model =
         ErrorMsg subMsg ->
             model
                 |> Error.update subMsg
-                |> Util.withNoCmd
+                |> CmdUtil.withNoCmd
 
         BuildMsg subMsg ->
             case model.modal of
                 Just (BuildConfirmation buildModel) ->
                     model
                         |> Build.update subMsg buildModel
-                        |> Util.mapCmd BuildMsg
+                        |> CmdUtil.mapCmd BuildMsg
 
                 _ ->
                     model
-                        |> Util.withNoCmd
+                        |> CmdUtil.withNoCmd
 
         DeletePartMsg subMsg ->
             case model.modal of
                 Just (DeletePart deletePartModel) ->
                     model
                         |> DeletePart.update subMsg deletePartModel
-                        |> Util.mapCmd DeletePartMsg
+                        |> CmdUtil.mapCmd DeletePartMsg
 
                 _ ->
                     model
-                        |> Util.withNoCmd
+                        |> CmdUtil.withNoCmd
 
 
 

@@ -22,7 +22,7 @@ import Model exposing (Model)
 import Style
 import Ui.Beat as Beat
 import Ui.Tracker.Options
-import Util
+import Util.Cmd as CmdUtil
 
 
 
@@ -62,11 +62,11 @@ update ti pi msg model =
                         ti
                         (Tracker.openOptions part.name)
                         model
-                        |> Util.withNoCmd
+                        |> CmdUtil.withNoCmd
 
                 Nothing ->
                     model
-                        |> Util.withNoCmd
+                        |> CmdUtil.withNoCmd
 
         OptionsMsg subMsg ->
             case Model.getTrackersOptions ti model of
@@ -77,40 +77,40 @@ update ti pi msg model =
                         options
                         subMsg
                         model
-                        |> Util.withNoCmd
+                        |> CmdUtil.withNoCmd
 
                 Nothing ->
                     model
-                        |> Util.withNoCmd
+                        |> CmdUtil.withNoCmd
 
         BeatMsg bi subMsg ->
             Beat.update ti pi bi subMsg model
-                |> Util.mapCmd (BeatMsg bi)
+                |> CmdUtil.mapCmd (BeatMsg bi)
 
         DeleteTrackerClicked ->
             Model.removeTracker ti model
-                |> Util.withNoCmd
+                |> CmdUtil.withNoCmd
 
         AddBeatBelowClicked ->
             Model.mapPart
                 pi
                 Part.addBeatToBeginning
                 model
-                |> Util.withNoCmd
+                |> CmdUtil.withNoCmd
 
         AddVoiceClicked index ->
             Model.mapPart
                 pi
                 (Part.addVoice index)
                 model
-                |> Util.withNoCmd
+                |> CmdUtil.withNoCmd
 
         DeleteVoiceClicked index ->
             Model.mapPart
                 pi
                 (Part.removeVoice index)
                 model
-                |> Util.withNoCmd
+                |> CmdUtil.withNoCmd
 
 
 

@@ -21,7 +21,8 @@ import Json.Decode.Pipeline as JDP
 import Ports
 import Random exposing (Generator, Seed)
 import Test exposing (Test, describe, test)
-import Util
+import Util.List as ListUtil
+import Util.Maybe as MaybeUtil
 
 
 
@@ -244,8 +245,8 @@ toScoreString package score =
                 |> Beat.toList
                 |> List.map (Tuple.pair time)
                 |> List.foldr randomizeNoteTiming ( seed, [] )
-                |> Tuple.mapSecond Beat.fromList
-                |> Tuple.mapSecond (Util.unshift beats)
+                |> Tuple.mapSecond
+                    (Beat.fromList >> ListUtil.unshift beats)
     in
     [ "# NAME"
     , package.name
@@ -317,7 +318,7 @@ buildScore params =
     in
     params.package.score
         |> List.map cropPart
-        |> Util.allValues
+        |> MaybeUtil.allValues
         |> Maybe.map cropScore
 
 

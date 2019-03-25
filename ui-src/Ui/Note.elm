@@ -19,7 +19,7 @@ import Json.Decode as Decode exposing (Decoder)
 import Model exposing (Model)
 import Style
 import Task
-import Util
+import Util.Cmd as CmdUtil
 
 
 
@@ -56,31 +56,31 @@ update ti pi bi ni msg model =
                     bi
                     ni
                     (Note.fromString noteStr)
-                |> Util.withNoCmd
+                |> CmdUtil.withNoCmd
 
         MovementKeyPressed Up ->
             noteId ti (bi - 1) ni
                 |> focusOnNote
-                |> Util.withModel model
+                |> CmdUtil.withModel model
 
         MovementKeyPressed Down ->
             noteId ti (bi + 1) ni
                 |> focusOnNote
-                |> Util.withModel model
+                |> CmdUtil.withModel model
 
         MovementKeyPressed Left ->
             noteId ti bi (ni - 1)
                 |> focusOnNote
-                |> Util.withModel model
+                |> CmdUtil.withModel model
 
         MovementKeyPressed Right ->
             noteId ti bi (ni + 1)
                 |> focusOnNote
-                |> Util.withModel model
+                |> CmdUtil.withModel model
 
         NoteFocused ->
             model
-                |> Util.withNoCmd
+                |> CmdUtil.withNoCmd
 
 
 updateBeat : Int -> Int -> Int -> Note Encoding.None -> Model -> Model

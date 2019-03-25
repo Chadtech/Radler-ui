@@ -9,7 +9,7 @@ import Page.Parts as Parts
 import Ui.Header as Header
 import Ui.Modal as Modal
 import Ui.Tracker as Tracker
-import Util
+import Util.Cmd as CmdUtil
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -17,41 +17,41 @@ update msg model =
     case msg of
         MsgDecodeFailed error ->
             model
-                |> Util.withNoCmd
+                |> CmdUtil.withNoCmd
 
         TrackerMsg ti subMsg ->
             case Model.getTrackersPartIndex ti model of
                 Just pi ->
                     model
                         |> Tracker.update ti pi subMsg
-                        |> Util.mapCmd (TrackerMsg ti)
+                        |> CmdUtil.mapCmd (TrackerMsg ti)
 
                 Nothing ->
                     model
-                        |> Util.withNoCmd
+                        |> CmdUtil.withNoCmd
 
         HeaderMsg subMsg ->
             model
                 |> Header.update subMsg
-                |> Util.mapCmd HeaderMsg
+                |> CmdUtil.mapCmd HeaderMsg
 
         PackageMsg subMsg ->
             model
                 |> Package.update subMsg
-                |> Util.withNoCmd
+                |> CmdUtil.withNoCmd
 
         PartsMsg subMsg ->
             case model.page of
                 Page.Parts partsModel ->
                     model
                         |> Parts.update partsModel subMsg
-                        |> Util.withNoCmd
+                        |> CmdUtil.withNoCmd
 
                 _ ->
                     model
-                        |> Util.withNoCmd
+                        |> CmdUtil.withNoCmd
 
         ModalMsg subMsg ->
             model
                 |> Modal.update subMsg
-                |> Util.mapCmd ModalMsg
+                |> CmdUtil.mapCmd ModalMsg

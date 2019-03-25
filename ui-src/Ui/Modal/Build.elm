@@ -18,7 +18,7 @@ import Html.Styled.Events as Events
 import Model exposing (Model)
 import Style
 import Test exposing (Test, describe, test)
-import Util
+import Util.Cmd as CmdUtil
 
 
 
@@ -52,18 +52,18 @@ update msg buildModel model =
             model
                 |> Model.setBuildModal Build.Finished
                 |> Model.setBackendStatusIdle
-                |> Util.withNoCmd
+                |> CmdUtil.withNoCmd
 
         BuildSent (Err err) ->
             model
                 |> Model.setBackendStatusIdle
                 |> buildFailed err
-                |> Util.withNoCmd
+                |> CmdUtil.withNoCmd
 
 
 closeModal : Model -> ( Model, Cmd Msg )
 closeModal =
-    Model.clearModal >> Util.withNoCmd
+    Model.clearModal >> CmdUtil.withNoCmd
 
 
 handleBuildClicked : Build.Model -> Model -> ( Model, Cmd Msg )
@@ -82,11 +82,11 @@ handleBuildClicked buildModel model =
 
                 Err newModel ->
                     newModel
-                        |> Util.withNoCmd
+                        |> CmdUtil.withNoCmd
 
         _ ->
             model
-                |> Util.withNoCmd
+                |> CmdUtil.withNoCmd
 
 
 buildFailed : Api.Error -> Model -> Model

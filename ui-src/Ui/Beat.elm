@@ -22,7 +22,7 @@ import Html.Styled.Lazy
 import Model exposing (Model)
 import Style
 import Ui.Note as Note
-import Util
+import Util.Cmd as CmdUtil
 
 
 
@@ -54,21 +54,21 @@ update ti pi bi msg model =
     case msg of
         NoteMsg ni subMsg ->
             Note.update ti pi bi ni subMsg model
-                |> Util.mapCmd (NoteMsg ni)
+                |> CmdUtil.mapCmd (NoteMsg ni)
 
         DeleteClicked ->
             Model.mapPart
                 pi
                 (Part.removeBeat bi)
                 model
-                |> Util.withNoCmd
+                |> CmdUtil.withNoCmd
 
         AddBelowClicked ->
             Model.mapPart
                 pi
                 (Part.addBeatBelow bi)
                 model
-                |> Util.withNoCmd
+                |> CmdUtil.withNoCmd
 
 
 

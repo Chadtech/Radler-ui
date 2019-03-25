@@ -253,12 +253,7 @@ removeTracker : Int -> Model -> Model
 removeTracker index model =
     { model
         | trackers =
-            model.trackers
-                |> Array.slice
-                    (index + 1)
-                    (Array.length model.trackers)
-                |> Array.append
-                    (Array.slice 0 index model.trackers)
+            ArrayUtil.remove index model.trackers
     }
 
 

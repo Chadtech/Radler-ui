@@ -22,7 +22,7 @@ import Html.Styled.Events as Events
 import Model exposing (Model)
 import Page.Parts.Model as Parts
 import Style
-import Util
+import Util.Cmd as CmdUtil
 
 
 
@@ -50,7 +50,7 @@ update msg model =
         RouteClicked route ->
             model
                 |> Model.setPage (Route.toPage route)
-                |> Util.withNoCmd
+                |> CmdUtil.withNoCmd
 
         NewTrackerClicked ->
             { model
@@ -59,7 +59,7 @@ update msg model =
                         (Tracker.init Style.Small 0)
                         model.trackers
             }
-                |> Util.withNoCmd
+                |> CmdUtil.withNoCmd
 
         PlayClicked ->
             case Model.score model of
@@ -67,12 +67,12 @@ update msg model =
                     scoreStr
                         |> Play
                         |> sendHttp model
-                        |> Util.withModel
+                        |> CmdUtil.withModel
                             (Model.setBackendStatusWorking model)
 
                 Err newModel ->
                     newModel
-                        |> Util.withNoCmd
+                        |> CmdUtil.withNoCmd
 
         SaveClicked ->
             [ Package.saveToDisk
@@ -81,33 +81,33 @@ update msg model =
                 model
             ]
                 |> Cmd.batch
-                |> Util.withModel model
+                |> CmdUtil.withModel model
 
         BuildClicked ->
             model
                 |> Model.setModal Modal.initBuild
-                |> Util.withNoCmd
+                |> CmdUtil.withNoCmd
 
         PlayFromFieldUpdated str ->
             model
                 |> Model.setPlayFrom str
-                |> Util.withNoCmd
+                |> CmdUtil.withNoCmd
 
         PlayForFieldUpdated str ->
             model
                 |> Model.setPlayFor str
-                |> Util.withNoCmd
+                |> CmdUtil.withNoCmd
 
         PlaySent (Ok ()) ->
             model
                 |> Model.setBackendStatusIdle
-                |> Util.withNoCmd
+                |> CmdUtil.withNoCmd
 
         PlaySent (Err err) ->
             model
                 |> playFailed err
                 |> Model.setBackendStatusIdle
-                |> Util.withNoCmd
+                |> CmdUtil.withNoCmd
 
 
 playFailed : Api.Error -> Model -> Model

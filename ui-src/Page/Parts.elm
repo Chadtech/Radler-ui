@@ -17,7 +17,7 @@ import Html.Styled.Events as Events
 import Model exposing (Model)
 import Page.Parts.Model as Parts
 import Style
-import Util
+import Util.Css as CssUtil
 
 
 
@@ -293,7 +293,7 @@ partOptionView selectedIndex ( index, name ) =
             , cursor pointer
             , width (pct 100)
             , hover [ highlight ]
-            , Util.styleIf
+            , CssUtil.styleIf
                 (selectedIndex == Just index)
                 highlight
             ]
