@@ -343,10 +343,7 @@ backButton =
 
 buttonStyle : Style
 buttonStyle =
-    [ Style.basicButton Style.Big
+    [ Style.clickableButtonStyle Style.Big
     , width (pct 100)
-    , cursor pointer
-    , hover [ color Colors.point1 ]
-    , active [ Style.indent ]
     ]
         |> Css.batch

@@ -351,12 +351,10 @@ singleWidth =
 
 buttonStyle : Style
 buttonStyle =
-    [ Style.basicButton Style.Big
-    , Style.hfnss
+    [ Style.clickableButtonStyle Style.Big
     , margin (px 1)
     , singleWidth
     , height (px (Style.noteHeight Style.Big + 4))
-    , active [ Style.indent ]
     ]
         |> Css.batch
 

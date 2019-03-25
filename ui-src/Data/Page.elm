@@ -10,4 +10,4 @@ import Page.Parts.Model as Parts
 type Page
     = Package
     | Trackers
-    | Parts Parts.Model
+    | Parts (Maybe Parts.Model)

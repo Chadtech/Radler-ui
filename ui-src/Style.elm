@@ -4,6 +4,7 @@ module Style exposing
     , basicSpacing
     , bigSpacing
     , card
+    , clickableButtonStyle
     , dim
     , flush
     , font
@@ -150,6 +151,16 @@ basicButton size =
     , fontSmoothingNone
     , padding (px 0)
     , outline none
+    ]
+        |> Css.batch
+
+
+clickableButtonStyle : Size -> Style
+clickableButtonStyle size =
+    [ basicButton size
+    , active [ indent ]
+    , hover [ color Colors.point1 ]
+    , cursor pointer
     ]
         |> Css.batch
 

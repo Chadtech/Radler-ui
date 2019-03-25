@@ -41,7 +41,7 @@ viewTrackers model =
 
         viewTracker : ( Int, Tracker ) -> Html Msg
         viewTracker ( trackerIndex, tracker ) =
-            case Array.get tracker.partIndex model.parts of
+            case Model.getPart tracker.partIndex model of
                 Just part ->
                     Tracker.view
                         { trackerIndex = trackerIndex

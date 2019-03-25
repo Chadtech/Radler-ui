@@ -10,6 +10,7 @@ import Json.Encode as Encode exposing (Value)
 type JsMsg
     = SavePartToDisk ( String, String )
     | SavePackageToDisk String
+    | DeletePartFromDisk String Int
 
 
 toCmd : String -> Value -> Cmd msg
@@ -25,8 +26,8 @@ send : JsMsg -> Cmd msg
 send msg =
     case msg of
         SavePartToDisk ( name, data ) ->
-            [ field "name" (Encode.string name)
-            , field "data" (Encode.string data)
+            [ field "name" <| Encode.string name
+            , field "data" <| Encode.string data
             ]
                 |> Encode.object
                 |> toCmd "savePartToDisk"
@@ -35,6 +36,13 @@ send msg =
             package
                 |> Encode.string
                 |> toCmd "savePackageToDisk"
+
+        DeletePartFromDisk partName partIndex ->
+            [ field "name" <| Encode.string partName
+            , field "index" <| Encode.int partIndex
+            ]
+                |> Encode.object
+                |> toCmd "deletePartFromDisk"
 
 
 field : String -> Encode.Value -> ( String, Encode.Value )

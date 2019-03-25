@@ -1,6 +1,7 @@
 module View exposing (view)
 
 import Css exposing (..)
+import Css.Global
 import Data.Page as Page
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
@@ -17,7 +18,13 @@ import Ui.Modal as Modal
 
 view : Model -> List (Html Msg)
 view model =
-    [ Header.view model
+    [ Css.Global.global
+        [ Css.Global.p
+            [ Style.hfnss ]
+        , Css.Global.input
+            [ Style.hfnss ]
+        ]
+    , Header.view model
         |> Html.map HeaderMsg
     , body model
     , modalView model
@@ -35,8 +42,7 @@ modalView model =
             Html.text ""
 
         Just modal ->
-            modal
-                |> Modal.view
+            Modal.view model modal
                 |> Html.map ModalMsg
 
 

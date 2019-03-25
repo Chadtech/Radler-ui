@@ -15,7 +15,7 @@ delete : msg -> List Style -> Size -> Html msg
 delete handler extraStyles size =
     Html.button
         [ Attrs.css
-            [ buttonStyleClickable size
+            [ Style.clickableButtonStyle size
             , Css.batch extraStyles
             ]
         , onClick handler
@@ -27,19 +27,9 @@ plus : msg -> List Style -> Size -> Html msg
 plus handler extraStyles size =
     Html.button
         [ Attrs.css
-            [ buttonStyleClickable size
+            [ Style.clickableButtonStyle size
             , Css.batch extraStyles
             ]
         , onClick handler
         ]
         [ Html.text "+v" ]
-
-
-buttonStyleClickable : Size -> Style
-buttonStyleClickable size =
-    [ Style.basicButton size
-    , active [ Style.indent ]
-    , hover [ color Colors.point1 ]
-    , cursor pointer
-    ]
-        |> Css.batch

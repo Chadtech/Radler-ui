@@ -1,6 +1,7 @@
 module Update exposing (update)
 
 import Data.Page as Page
+import Json.Decode as Decode
 import Model exposing (Model)
 import Msg exposing (Msg(..))
 import Page.Package as Package
@@ -14,7 +15,7 @@ import Util
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        MsgDecodeFailed _ ->
+        MsgDecodeFailed error ->
             model
                 |> Util.withNoCmd
 
@@ -43,7 +44,7 @@ update msg model =
             case model.page of
                 Page.Parts partsModel ->
                     model
-                        |> Parts.update subMsg partsModel
+                        |> Parts.update partsModel subMsg
                         |> Util.withNoCmd
 
                 _ ->

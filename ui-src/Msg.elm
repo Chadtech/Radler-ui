@@ -41,6 +41,14 @@ decoder =
 toMsg : String -> Decoder Msg
 toMsg type_ =
     case type_ of
+        "partDeleted" ->
+            [ Decode.map Ok Decode.int
+            , Decode.map Err Decode.string
+            ]
+                |> Decode.oneOf
+                |> Decode.map
+                    (ModalMsg << Modal.partDeleted)
+
         _ ->
             ("Unrecognized Msg type -> " ++ type_)
                 |> Decode.fail

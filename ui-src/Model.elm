@@ -2,15 +2,20 @@ module Model exposing
     ( Model
     , addNewPart
     , clearModal
+    , clearPartsPage
     , copyPart
+    , deletePart
     , fullScore
+    , getPart
     , getTrackersOptions
     , getTrackersPart
     , getTrackersPartIndex
     , indexedPartNames
     , init
+    , initPartsPage
     , mapPackage
     , mapPart
+    , mapSelectedPart
     , mapTracker
     , removeTracker
     , saveParts
@@ -18,6 +23,7 @@ module Model exposing
     , setBackendStatusIdle
     , setBackendStatusWorking
     , setBuildModal
+    , setDeletePartModal
     , setError
     , setModal
     , setPage
@@ -33,6 +39,7 @@ import Data.Error exposing (Error(..))
 import Data.Flags exposing (Flags)
 import Data.Modal as Modal exposing (Modal)
 import Data.Modal.Build as Build
+import Data.Modal.DeletePart as DeletePart
 import Data.Package as Package exposing (Package)
 import Data.Page as Page exposing (Page)
 import Data.Part as Part exposing (Part)
@@ -40,6 +47,7 @@ import Data.Tracker as Tracker exposing (Tracker)
 import Data.Tracker.Options as Options
 import Page.Parts.Model as Parts
 import Style
+import Util.Array as ArrayUtil
 
 
 
@@ -94,7 +102,9 @@ init flags =
         , Tracker.init Style.Big 0
         ]
             |> Array.fromList
-    , page = Page.Trackers
+
+    -- , page = Page.Trackers
+    , page = Page.Parts Nothing
     , package = flags.package
     , modal = Nothing
     , playFromBeatField = String.fromInt playFromBeat
@@ -110,14 +120,34 @@ init flags =
 -- HELPERS --
 
 
+deletePart : Int -> Model -> Model
+deletePart index model =
+    { model | parts = ArrayUtil.remove index model.parts }
+
+
 setPage : Page -> Model -> Model
 setPage page model =
     { model | page = page }
 
 
 setPartsPage : Parts.Model -> Model -> Model
-setPartsPage partsModel =
-    setPage (Page.Parts partsModel)
+setPartsPage =
+    setPage << Page.Parts << Just
+
+
+clearPartsPage : Model -> Model
+clearPartsPage model =
+    case model.page of
+        Page.Parts (Just _) ->
+            setPage (Page.Parts Nothing) model
+
+        _ ->
+            model
+
+
+initPartsPage : Parts.Flags -> Model -> Model
+initPartsPage =
+    setPartsPage << Parts.init
 
 
 indexedPartNames : Model -> List ( Int, String )
@@ -128,8 +158,8 @@ indexedPartNames { parts } =
 
 
 setError : Error -> Model -> Model
-setError error =
-    setModal (Modal.Error error)
+setError =
+    setModal << Modal.Error
 
 
 setModal : Modal -> Model -> Model
@@ -137,14 +167,16 @@ setModal modal model =
     { model | modal = Just modal }
 
 
+setDeletePartModal : DeletePart.Model -> Model -> Model
+setDeletePartModal deletePartModel =
+    setModal <| Modal.DeletePart deletePartModel
+
+
 setBuildModal : Build.Model -> Model -> Model
-setBuildModal buildModel model =
-    { model
-        | modal =
-            buildModel
-                |> Modal.BuildConfirmation
-                |> Just
-    }
+setBuildModal buildModel =
+    buildModel
+        |> Modal.BuildConfirmation
+        |> setModal
 
 
 setBackendStatusWorking : Model -> Model
@@ -169,7 +201,7 @@ mapPackage f model =
 
 mapPart : Int -> (Part -> Part) -> Model -> Model
 mapPart index f model =
-    case Array.get index model.parts of
+    case getPart index model of
         Just part ->
             { model
                 | parts =
@@ -181,6 +213,24 @@ mapPart index f model =
 
         Nothing ->
             model
+
+
+mapSelectedPart : Maybe Parts.Model -> (Part -> Part) -> Model -> Model
+mapSelectedPart maybePartsModel f model =
+    case maybePartsModel of
+        Just partsModel ->
+            mapPart
+                partsModel.selectedPartIndex
+                f
+                model
+
+        Nothing ->
+            model
+
+
+getPart : Int -> Model -> Maybe Part
+getPart index model =
+    Array.get index model.parts
 
 
 mapTracker : Int -> (Tracker -> Tracker) -> Model -> Model

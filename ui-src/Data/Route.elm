@@ -46,7 +46,7 @@ toPage route =
             Page.Trackers
 
         Parts ->
-            Page.Parts Parts.init
+            Page.Parts Nothing
 
 
 isPage : Page -> Route -> Bool

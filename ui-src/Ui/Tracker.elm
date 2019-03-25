@@ -30,8 +30,7 @@ import Util
 
 
 type Msg
-    = NameFieldUpdated String
-    | BeatMsg Int Beat.Msg
+    = BeatMsg Int Beat.Msg
     | OptionsMsg Ui.Tracker.Options.Msg
     | OptionsClicked
     | DeleteTrackerClicked
@@ -56,13 +55,6 @@ type Msg
 update : Int -> Int -> Msg -> Model -> ( Model, Cmd Msg )
 update ti pi msg model =
     case msg of
-        NameFieldUpdated str ->
-            Model.mapPart
-                pi
-                (Part.setName str)
-                model
-                |> Util.withNoCmd
-
         OptionsClicked ->
             case Model.getTrackersPart ti model of
                 Just part ->
@@ -245,25 +237,6 @@ trackerOptionsRow part size =
                 , Events.onClick OptionsClicked
                 ]
                 [ Html.text "options" ]
-
-        partNameField : Html Msg
-        partNameField =
-            Html.input
-                [ Attrs.css [ partNameStyle ]
-                , Attrs.value part.name
-                , Attrs.spellcheck False
-                , Events.onInput NameFieldUpdated
-                ]
-                []
-
-        partNameStyle : Style
-        partNameStyle =
-            [ Style.font size
-            , color Colors.point0
-            , width (pct 100)
-            , Style.fontSmoothingNone
-            ]
-                |> Css.batch
     in
     [ Grid.column
         [ flex none
@@ -293,8 +266,17 @@ trackerOptionsRow part size =
         ]
         [ trackerOptionsButton ]
     , Grid.column
-        [ margin (px 1) ]
-        [ partNameField ]
+        [ margin (px 1)
+        , paddingLeft (px 5)
+        ]
+        [ Html.p
+            [ Attrs.css
+                [ Style.font size
+                , lineHeight <| px <| Style.noteHeight size
+                ]
+            ]
+            [ Html.text part.name ]
+        ]
     ]
 
 

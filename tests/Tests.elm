@@ -1,5 +1,6 @@
 module Tests exposing (tests)
 
+import Api
 import Array exposing (Array)
 import Data.Beat as Beat exposing (Beat)
 import Data.Encoding as Encoding
@@ -13,6 +14,7 @@ import Json.Encode as Encode
 import Model exposing (Model)
 import Test exposing (Test, describe, test)
 import Ui.Modal.Build
+import Util.Array as ArrayUtil
 
 
 tests : Test
@@ -23,25 +25,37 @@ tests =
             (Encode.string testPackageJson)
     of
         Ok package ->
-            let
-                testModel : Model
-                testModel =
-                    { package = package
-                    , parts =
-                        [ testPart "part-a"
-                        , testPart "part-b"
+            case
+                Decode.decodeString
+                    Api.endpointsFromPortNumberDecoder
+                    "3000"
+            of
+                Ok endpoints ->
+                    let
+                        testModel : Model
+                        testModel =
+                            { package = package
+                            , parts =
+                                [ testPart "part-a"
+                                , testPart "part-b"
+                                ]
+                                    |> Array.fromList
+                            , endpoints = endpoints
+                            }
+                                |> Model.init
+                    in
+                    describe "Radler Tests"
+                        [ Data.Package.tests package
+                        , Data.Part.tests
+                        , Data.Note.tests
+                        , Ui.Modal.Build.tests testModel
+                        , ArrayUtil.tests
                         ]
-                            |> Array.fromList
-                    , enginePort = 3000
-                    }
-                        |> Model.init
-            in
-            describe "Radler Tests"
-                [ Data.Package.tests package
-                , Data.Part.tests
-                , Data.Note.tests
-                , Ui.Modal.Build.tests testModel
-                ]
+
+                Err err ->
+                    test "Test endpoints failed to decode" <|
+                        \_ ->
+                            Expect.fail (Decode.errorToString err)
 
         Err err ->
             test "Test package failed to decode" <|

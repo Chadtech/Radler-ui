@@ -1,5 +1,6 @@
 module Ui.Modal exposing
     ( Msg
+    , partDeleted
     , update
     , view
     )
@@ -12,6 +13,7 @@ import Model exposing (Model)
 import Style
 import Ui.Error as Error
 import Ui.Modal.Build as Build
+import Ui.Modal.DeletePart as DeletePart
 import Util
 
 
@@ -22,6 +24,12 @@ import Util
 type Msg
     = ErrorMsg Error.Msg
     | BuildMsg Build.Msg
+    | DeletePartMsg DeletePart.Msg
+
+
+partDeleted : Result String Int -> Msg
+partDeleted =
+    DeletePartMsg << DeletePart.partDeleted
 
 
 
@@ -47,14 +55,26 @@ update msg model =
                     model
                         |> Util.withNoCmd
 
+        DeletePartMsg subMsg ->
+            case model.modal of
+                Just (DeletePart deletePartModel) ->
+                    model
+                        |> DeletePart.update subMsg deletePartModel
+                        |> Util.mapCmd DeletePartMsg
+
+                _ ->
+                    model
+                        |> Util.withNoCmd
+
 
 
 -- VIEW --
 
 
-view : Modal -> Html Msg
-view =
-    modalCard >> backdrop
+view : Model -> Modal -> Html Msg
+view model modal =
+    modalCard model modal
+        |> backdrop
 
 
 backdrop : Html Msg -> Html Msg
@@ -73,8 +93,8 @@ backdrop child =
         [ child ]
 
 
-modalCard : Modal -> Html Msg
-modalCard modal =
+modalCard : Model -> Modal -> Html Msg
+modalCard model modal =
     Html.div
         [ Attrs.css
             [ Style.card
@@ -86,19 +106,26 @@ modalCard modal =
             , overflow scroll
             ]
         ]
-        (modalContent modal)
+        (modalContent model modal)
 
 
-modalContent : Modal -> List (Html Msg)
-modalContent modal =
+modalContent : Model -> Modal -> List (Html Msg)
+modalContent model modal =
     case modal of
         Error error ->
             [ Error.modalView error
                 |> Html.map ErrorMsg
             ]
 
-        BuildConfirmation model ->
-            [ model
+        BuildConfirmation buildModel ->
+            [ buildModel
                 |> Build.view
                 |> Html.map BuildMsg
+            ]
+
+        DeletePart deleteModel ->
+            [ DeletePart.view
+                deleteModel
+                model
+                |> Html.map DeletePartMsg
             ]

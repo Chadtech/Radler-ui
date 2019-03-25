@@ -1,6 +1,8 @@
 module Page.Parts.Model exposing
-    ( Model
+    ( Flags
+    , Model
     , init
+    , setCopyName
     , setSelectedPartIndex
     )
 
@@ -8,12 +10,22 @@ module Page.Parts.Model exposing
 
 
 type alias Model =
-    { selectedPartIndex : Maybe Int }
+    { selectedPartIndex : Int
+    , copyName : String
+    }
 
 
-init : Model
-init =
-    { selectedPartIndex = Nothing }
+type alias Flags =
+    { selectedPartIndex : Int
+    , copyName : String
+    }
+
+
+init : Flags -> Model
+init flags =
+    { selectedPartIndex = flags.selectedPartIndex
+    , copyName = flags.copyName
+    }
 
 
 
@@ -22,4 +34,9 @@ init =
 
 setSelectedPartIndex : Int -> Model -> Model
 setSelectedPartIndex newIndex model =
-    { model | selectedPartIndex = Just newIndex }
+    { model | selectedPartIndex = newIndex }
+
+
+setCopyName : String -> Model -> Model
+setCopyName str model =
+    { model | copyName = str }

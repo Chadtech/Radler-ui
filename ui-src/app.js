@@ -73,6 +73,15 @@ ipcRenderer.on('init', function (event, payload) {
         projectDir('package.json'),
         payload
       );
+    },
+    deletePartFromDisk: function (payload) {
+      fs.unlink(partsDir(partExtension(payload.name)), function (err) {
+        if (err === null) {
+          toElm("partDeleted", payload.index);
+        } else {
+          toElm("partDeleted", String(err));
+        }
+      });
     }
   }
 
