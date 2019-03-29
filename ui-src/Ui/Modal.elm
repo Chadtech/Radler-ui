@@ -1,6 +1,6 @@
 module Ui.Modal exposing
     ( Msg
-    , partDeleted
+    , msgDecoderFromType
     , update
     , view
     )
@@ -9,6 +9,7 @@ import Css exposing (..)
 import Data.Modal exposing (Modal(..))
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attrs
+import Json.Decode as Decode exposing (Decoder)
 import Model exposing (Model)
 import Style
 import Ui.Error as Error
@@ -25,11 +26,6 @@ type Msg
     = ErrorMsg Error.Msg
     | BuildMsg Build.Msg
     | DeletePartMsg DeletePart.Msg
-
-
-partDeleted : Result String Int -> Msg
-partDeleted =
-    DeletePartMsg << DeletePart.partDeleted
 
 
 
@@ -129,3 +125,19 @@ modalContent model modal =
                 model
                 |> Html.map DeletePartMsg
             ]
+
+
+
+-- PORTS --
+
+
+msgDecoderFromType : String -> Decoder Msg
+msgDecoderFromType type_ =
+    case type_ of
+        "partDeleted" ->
+            DeletePart.msgDecoderFromType type_
+                |> Decode.map DeletePartMsg
+
+        _ ->
+            ("Not a Modal Msg -> " ++ type_)
+                |> Decode.fail

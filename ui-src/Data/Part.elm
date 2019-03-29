@@ -75,10 +75,14 @@ decoder =
                 |> String.split "\n"
                 |> List.map Beat.fromString
                 |> Array.fromList
+
+        beatsDecoder : Decoder (Array (Beat Encoding.None))
+        beatsDecoder =
+            Decode.map beatsFromString Decode.string
     in
-    Decode.succeed Part
-        |> Pipe.required "name" Decode.string
-        |> Pipe.required "data" (Decode.map beatsFromString Decode.string)
+    Decode.map2 Part
+        (Decode.field "name" Decode.string)
+        (Decode.field "data" beatsDecoder)
 
 
 

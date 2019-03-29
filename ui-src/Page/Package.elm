@@ -12,6 +12,7 @@ import Html.Styled.Attributes as Attrs
 import Html.Styled.Events as Events
 import Model exposing (Model)
 import Style
+import Util.Css as CssUtil
 
 
 
@@ -60,21 +61,15 @@ view model =
 
 maybeInvalidBackground : Model -> Style
 maybeInvalidBackground { package } =
-    if package.validJson then
-        Css.batch []
-
-    else
-        backgroundColor Colors.lowWarning
-            |> List.singleton
-            |> Css.batch
+    backgroundColor Colors.lowWarning
+        |> List.singleton
+        |> Css.batch
+        |> CssUtil.styleIf (not package.validJson)
 
 
 maybeInvalidBorders : Model -> Style
 maybeInvalidBorders { package } =
-    if package.validJson then
-        Css.batch []
-
-    else
-        border3 (px 2) solid Colors.critical
-            |> List.singleton
-            |> Css.batch
+    border3 (px 2) solid Colors.critical
+        |> List.singleton
+        |> Css.batch
+        |> CssUtil.styleIf (not package.validJson)

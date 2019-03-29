@@ -1,6 +1,6 @@
 module Ui.Modal.DeletePart exposing
     ( Msg
-    , partDeleted
+    , msgDecoderFromType
     , update
     , view
     )
@@ -12,6 +12,7 @@ import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attrs
 import Html.Styled.Events as Events
+import Json.Decode as Decode exposing (Decoder)
 import Model exposing (Model)
 import Ports
 import Style
@@ -26,11 +27,6 @@ type Msg
     = YesClicked
     | CancelClicked
     | PartDeleted (Result String Int)
-
-
-partDeleted : Result String Int -> Msg
-partDeleted =
-    PartDeleted
 
 
 
@@ -176,3 +172,22 @@ readyView part =
             [ cancelButton ]
         ]
     ]
+
+
+
+-- PORTS --
+
+
+msgDecoderFromType : String -> Decoder Msg
+msgDecoderFromType type_ =
+    case type_ of
+        "partDeleted" ->
+            [ Decode.map Ok Decode.int
+            , Decode.map Err Decode.string
+            ]
+                |> Decode.oneOf
+                |> Decode.map PartDeleted
+
+        _ ->
+            ("Not a Delete Part Msg -> " ++ type_)
+                |> Decode.fail

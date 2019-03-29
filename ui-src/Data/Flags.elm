@@ -7,8 +7,7 @@ import Api
 import Array exposing (Array)
 import Data.Package as Package exposing (Package)
 import Data.Part as Part exposing (Part)
-import Json.Decode as D exposing (Decoder)
-import Json.Decode.Pipeline as JDP
+import Json.Decode as Decode exposing (Decoder)
 
 
 
@@ -40,10 +39,10 @@ type alias Flags =
 
 decoder : Decoder Flags
 decoder =
-    D.succeed Flags
-        |> JDP.required "package" Package.decoder
-        |> JDP.required "parts" partsDecoder
-        |> JDP.required "enginePortNumber" Api.endpointsFromPortNumberDecoder
+    Decode.map3 Flags
+        (Decode.field "package" Package.decoder)
+        (Decode.field "parts" partsDecoder)
+        (Decode.field "enginePortNumber" Api.endpointsFromPortNumberDecoder)
 
 
 partsDecoder : Decoder (Array Part)
@@ -59,6 +58,6 @@ partsDecoder =
                 parts
     in
     Part.decoder
-        |> D.list
-        |> D.map Array.fromList
-        |> D.map atLeastOnePart
+        |> Decode.list
+        |> Decode.map
+            (Array.fromList >> atLeastOnePart)
