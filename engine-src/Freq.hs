@@ -25,7 +25,7 @@ newtype Freq
 
 instance Show Freq where
     show (Freq fl) =
-        [ "Freq -> "
+        [ "Freq "
         , T.pack <| show fl
         ]
             |> T.concat

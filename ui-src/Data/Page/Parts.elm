@@ -1,4 +1,4 @@
-module Page.Parts.Model exposing
+module Data.Page.Parts exposing
     ( Flags
     , Model
     , init

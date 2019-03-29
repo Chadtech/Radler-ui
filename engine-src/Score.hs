@@ -61,7 +61,7 @@ instance Show Score where
         , showText <| parts score
         , showText <| config score
         ]
-            |> T.concat
+            |> T.unlines
             |> T.unpack
 
 

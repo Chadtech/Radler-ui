@@ -1,3 +1,6 @@
+{-# LANGUAGE OverloadedStrings #-}
+
+
 module Timeline
     ( Timeline
     , size
@@ -17,6 +20,8 @@ import qualified Mono
 import qualified Data.List as List
 import Data.IntMap.Strict (IntMap)
 import qualified Data.IntMap.Strict as IntMap
+import Data.Text.Lazy (Text)
+import qualified Data.Text.Lazy as T
 import qualified Data.Tuple.Extra as Tuple
 import Data.Vector (Vector)
 import qualified Data.Vector as Vector
@@ -33,6 +38,14 @@ newtype Timeline a
     = Timeline (IntMap a)
     deriving (Eq)
 
+
+instance Show a => Show (Timeline a) where
+    show (Timeline intMap) =
+        [ "Timeline "
+        , T.pack <| show intMap
+        ]
+            |> T.concat
+            |> T.unpack
 
 -- HELPERS --
 

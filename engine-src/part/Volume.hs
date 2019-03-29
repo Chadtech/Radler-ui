@@ -25,9 +25,18 @@ import qualified Data.Text.Lazy.Read as TR
 -- TYPES --
 
 
-newtype Volume =
-    Volume Float
+newtype Volume
+    = Volume Float
     deriving (Eq)
+
+
+instance Show Volume where
+    show (Volume volume) =
+        [ "Volume "
+        , T.pack <| show volume
+        ]
+            |> T.concat
+            |> T.unpack
 
 
 -- HELPERS --

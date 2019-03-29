@@ -1,6 +1,6 @@
 module Data.Beat exposing
     ( Beat
-    , addNote
+    , addNoteAfter
     , empty
     , fromList
     , fromString
@@ -15,6 +15,7 @@ module Data.Beat exposing
 import Array exposing (Array)
 import Data.Encoding as Encoding
 import Data.Note as Note exposing (Note)
+import Util.Array as ArrayUtil
 
 
 
@@ -60,19 +61,19 @@ length (Beat beat) =
     Array.length beat
 
 
-addNote : Int -> Beat Encoding.None -> Beat Encoding.None
-addNote index (Beat beat) =
-    Array.append
-        (Array.push Note.empty (Array.slice 0 (index + 1) beat))
-        (Array.slice (index + 1) (Array.length beat) beat)
+addNoteAfter : Int -> Beat Encoding.None -> Beat Encoding.None
+addNoteAfter index (Beat beat) =
+    ArrayUtil.insert
+        (index + 1)
+        Note.empty
+        beat
         |> Beat
 
 
 removeNote : Int -> Beat Encoding.None -> Beat Encoding.None
 removeNote index (Beat beat) =
     beat
-        |> Array.slice (index + 1) (Array.length beat)
-        |> Array.append (Array.slice 0 index beat)
+        |> ArrayUtil.remove index
         |> Beat
 
 

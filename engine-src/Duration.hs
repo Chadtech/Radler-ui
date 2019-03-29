@@ -30,6 +30,15 @@ newtype Duration
     deriving (Eq)
 
 
+instance Show Duration where
+    show (Duration duration) =
+        [ "Duration "
+        , T.pack <| show duration
+        ]
+            |> T.concat
+            |> T.unpack
+
+
 -- HELPERS --
 
 

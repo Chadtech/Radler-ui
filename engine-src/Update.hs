@@ -113,7 +113,7 @@ playScore incomingScore model =
             let
                 audio :: Audio
                 audio =
-                    Score.toDevAudio incomingScore
+                    Score.toDevAudio <| trace "INCOMING SCORE" incomingScore
             in
             Program.setModel 
                 (Model.HasScore incomingScore audio)
@@ -129,6 +129,7 @@ playScore incomingScore model =
                     incomingScore
                     existingScore
                     |> Either.mapLeft Error.ScoreError
+                    |> trace "RESOLUTION"
             of 
                 Right (Score.Changes (toRemove, toAdd)) ->
                     let

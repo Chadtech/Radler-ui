@@ -80,17 +80,15 @@ instance Show Model where
     show osc =
         [ osc 
             |> notes
-            |> Timeline.size
             |> show
             |> T.pack
-            |> T.append "Number of Notes : " 
         , osc
             |> position
             |> show
             |> T.pack
             |> T.append "Position : "
         ]
-            |> T.concat
+            |> T.unlines
             |> T.unpack
 
 
@@ -112,7 +110,15 @@ instance Eq Note where
     
 instance Show Note where
     show note =
-        "Note"
+        [ show <| volume note
+        , " "
+        , show <| seed note
+        , " "
+        , show <| sound note
+        ]
+            |> List.map T.pack
+            |> T.concat
+            |> T.unpack
 
 
 data Flags
@@ -127,7 +133,22 @@ data Sound
     deriving (Eq)
 
 
+instance Show Sound where
+    show sound = 
+        T.unpack <| soundToText sound
+
+
 -- HELPERS --
+
+
+soundToText :: Sound -> Text
+soundToText sound =
+    case sound of
+        Pulse ->
+            "pulse"
+
+        Kick ->
+            "kick"
 
 
 makeFlags :: Parse.Fields Text -> Flags
@@ -292,7 +313,9 @@ toMono :: Model -> Mono
 toMono model = 
     model
         |> notes
+        |> trace "NOTES!!"
         |> Timeline.map noteToMono
+        -- |> trace "MONOS"
         |> Timeline.toMono
 
 

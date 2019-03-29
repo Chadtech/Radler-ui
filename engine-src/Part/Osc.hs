@@ -111,7 +111,14 @@ data Note
     
 instance Show Note where
     show note =
-        "Note"
+        [ show <| freq note
+        , show <| volume note
+        , show <| duration note
+        , show <| contour note
+        ]
+            |> List.map T.pack
+            |> T.concat
+            |> T.unpack
 
 
 data Flags t

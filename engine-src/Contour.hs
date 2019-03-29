@@ -32,7 +32,32 @@ data Contour
     deriving (Eq)
 
 
+instance Show Contour where
+    show contour =
+        [ "Contour "
+        , toText contour
+        ]
+            |> T.concat
+            |> T.unpack
+
+
 -- HELPERS --
+
+
+toText :: Contour -> Text
+toText contour =
+    case contour of
+        FadeIn ->
+            "fade in"
+
+        FadeOut ->
+            "fade out"
+
+        FadeInAndOut ->
+            "fade in and out"
+
+        None ->
+            "none"
 
 
 apply :: Contour -> Mono -> Mono

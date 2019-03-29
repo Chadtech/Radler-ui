@@ -27,8 +27,8 @@ main =
 
 router :: ScottyT Text Program ()
 router =
-    Web.middleware NWMR.logStdoutDev
-        >> Router.get "/ping"
+    -- Web.middleware NWMR.logStdoutDev
+        Router.get "/ping"
         >> Router.post "/echo"
         >> Router.post "/play"
         >> Router.post "/build"

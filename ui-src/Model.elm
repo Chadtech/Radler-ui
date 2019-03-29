@@ -42,10 +42,10 @@ import Data.Modal.Build as Build
 import Data.Modal.DeletePart as DeletePart
 import Data.Package as Package exposing (Package)
 import Data.Page as Page exposing (Page)
+import Data.Page.Parts as Parts
 import Data.Part as Part exposing (Part)
 import Data.Tracker as Tracker exposing (Tracker)
 import Data.Tracker.Options as Options
-import Page.Parts.Model as Parts
 import Style
 import Util.Array as ArrayUtil
 

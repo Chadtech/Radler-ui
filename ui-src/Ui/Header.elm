@@ -13,6 +13,7 @@ import Data.Error as Error
 import Data.Modal as Modal
 import Data.Package as Package
 import Data.Page as Page exposing (Page)
+import Data.Page.Parts as Parts
 import Data.Route as Route exposing (Route)
 import Data.Tracker as Tracker
 import Html.Grid as Grid
@@ -20,7 +21,6 @@ import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attrs
 import Html.Styled.Events as Events
 import Model exposing (Model)
-import Page.Parts.Model as Parts
 import Style
 import Util.Cmd as CmdUtil
 

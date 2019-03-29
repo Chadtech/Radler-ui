@@ -1,6 +1,6 @@
 module Data.Page exposing (Page(..))
 
-import Page.Parts.Model as Parts
+import Data.Page.Parts as Parts
 
 
 

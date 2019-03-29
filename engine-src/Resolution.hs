@@ -24,7 +24,7 @@ data Resolution a
     | Changes (a, a)
 
 
-instance Show (Resolution a) where
+instance Show a => Show (Resolution a) where
     show resolution = 
         case resolution of
             Identical ->
@@ -33,8 +33,15 @@ instance Show (Resolution a) where
             Unresolvable ->
                 T.unpack "unresolvable"
     
-            Changes _ ->
-                T.unpack "changes"
+            Changes (remove, add) ->
+                [ "Changes"
+                , "Remove"
+                , T.pack <| show remove
+                , "Add"
+                , T.pack <| show add
+                ]
+                    |> T.unlines
+                    |> T.unpack
 
 
 instance Functor Resolution where  

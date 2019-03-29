@@ -6,7 +6,7 @@ module Data.Route exposing
     )
 
 import Data.Page as Page exposing (Page)
-import Page.Parts.Model as Parts
+import Data.Page.Parts as Parts
 
 
 

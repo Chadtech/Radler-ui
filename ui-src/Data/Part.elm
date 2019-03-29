@@ -102,7 +102,9 @@ addVoice : Int -> Part -> Part
 addVoice index part =
     { part
         | beats =
-            Array.map (Beat.addNote index) part.beats
+            Array.map
+                (Beat.addNoteAfter index)
+                part.beats
     }
 
 
