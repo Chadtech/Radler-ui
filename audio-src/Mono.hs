@@ -58,6 +58,7 @@ import qualified Timing
 
 data Mono
     = Mono (Vector Float)
+    deriving (Eq)
 
 
 instance Show Mono where

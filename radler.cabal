@@ -94,6 +94,57 @@ executable radler
     extra >=1.6 && < 1.7,
     random >=1.1 && < 2
 
-  -- hs-source-dirs:      
   default-language:    Haskell2010
+
+
+test-suite spec
+  main-is:             Tests.hs
+  ghc-options:         -main-is Tests
+
+  other-modules:       
+    Mono
+    Config
+    Constants
+    Duration
+    Freq
+    Parse
+    Part.Volume
+    Position
+    Prelude.Extra
+    Room
+    Scale
+    Scale.Major7ToneJit
+    Scale.Slendro
+    Size
+    Timing
+  type:                exitcode-stdio-1.0
+  default-language:    Haskell2010
+  extensions: BangPatterns
+  hs-source-dirs:      
+    tests
+    engine-src
+    audio-src
+  build-depends:       
+    base >=4.11 && <4.12,
+    hspec >=2.7 && < 3,
+    QuickCheck >=2.13 && <3,
+    bytestring >=0.10 && <0.11,
+    containers >=0.6 && <1.0,
+    flow >=1.0 && <2,
+    split >=0.2 && <0.3, 
+    regex-posix >=0.95 && <0.96,
+    text >=1.2 && <1.3,
+    scotty >=0.11 && <0.12,
+    stm >=2.4 && <2.5,
+    mtl >=2.2 && <2.3,
+    wai-extra >=3.0 && <3.1,
+    http-types >=0.12 && <0.13,
+    vector >=0.12 && <0.13,
+    WAVE >=0.1 && <0.2,
+    process >=1.6 && < 1.7,
+    template-haskell >=2.10 && < 2.15,
+    attoparsec >=0.13 && < 0.14,
+    extra >=1.6 && < 1.7,
+    random >=1.1 && < 2
+  -- hs-source-dirs:      
 
