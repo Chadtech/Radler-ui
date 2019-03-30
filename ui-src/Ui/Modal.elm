@@ -133,11 +133,7 @@ modalContent model modal =
 
 msgDecoderFromType : String -> Decoder Msg
 msgDecoderFromType type_ =
-    case type_ of
-        "partDeleted" ->
-            DeletePart.msgDecoderFromType type_
-                |> Decode.map DeletePartMsg
-
-        _ ->
-            ("Not a Modal Msg -> " ++ type_)
-                |> Decode.fail
+    [ DeletePart.msgDecoderFromType type_
+        |> Decode.map DeletePartMsg
+    ]
+        |> Decode.oneOf

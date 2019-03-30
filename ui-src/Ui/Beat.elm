@@ -12,11 +12,7 @@ import Data.Note as Note exposing (Note)
 import Data.Part as Part
 import Html.Buttons as Buttons
 import Html.Grid as Grid
-import Html.Styled as Html
-    exposing
-        ( Html
-        , button
-        )
+import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attrs
 import Html.Styled.Lazy
 import Model exposing (Model)
@@ -126,7 +122,7 @@ numberView : Style.Size -> Int -> Int -> Html Msg
 numberView size majorMark index =
     Grid.column
         [ margin (px 1) ]
-        [ button
+        [ Html.button
             [ Attrs.css [ numberStyle size ] ]
             [ Html.text (numberStr majorMark index) ]
         ]
