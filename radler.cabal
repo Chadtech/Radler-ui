@@ -103,7 +103,7 @@ test-suite spec
 
   other-modules:       
     Mono
-    MonoTests
+    Mono.Spec
     Config
     Constants
     Duration
@@ -116,6 +116,8 @@ test-suite spec
     Scale.Major7ToneJit
     Scale.Slendro
     Size
+    Stereo
+    Stereo.Spec
     Test.Extra
     Timing
     Volume

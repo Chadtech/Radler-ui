@@ -3,13 +3,17 @@
 
 module Stereo
     ( Stereo
+    , append
+    , fromList
     , trimEnd
     , fromMono
     , mix
     , toMonos
-    , toMono    
+    , toMono 
+    , toList   
     , fromMonos
     , setVolume
+    , singleton
     , Stereo.subtract 
     , Stereo.length
     ) where
@@ -37,6 +41,7 @@ import qualified Volume
 
 data Stereo
     = Stereo (Vector (Float, Float))
+    deriving (Eq)
 
 
 instance Show Stereo where
@@ -47,12 +52,26 @@ instance Show Stereo where
 -- HELPERS --
 
 
+toList :: Stereo -> List (Float, Float)
+toList (Stereo stereo) =
+    Vector.toList stereo
+
+
+fromList :: List (Float, Float) -> Stereo
+fromList =
+    Stereo <. Vector.fromList
+
+
+singleton :: (Float, Float) -> Stereo
+singleton sample =
+    fromList [ sample ]
+
+
 trimEnd :: Stereo -> Stereo
 trimEnd stereo =
     stereo
         |> toMonos
         |> Tuple.both (Mono.trimEnd)
-        |> Mono.equalizeLengths
         |> fromMonos
 
 
@@ -71,10 +90,14 @@ fromMono mono =
 
 fromMonos :: (Mono, Mono) -> Stereo
 fromMonos (!left, !right) =
-    Vector.zip 
-        (Mono.toVector left)
-        (Mono.toVector right)
-        |> Stereo
+    let
+        (newLeft, newRight) =
+            Mono.equalizeLengths
+                left
+                right
+                |> Tuple.both Mono.toVector
+    in
+    Stereo <| Vector.zip newLeft newRight
 
 
 pairSample :: Float -> (Float, Float)
@@ -115,17 +138,17 @@ combineAndHalf (left, right) =
 
 setVolume :: Volume -> Stereo -> Stereo
 setVolume newRelativeVolume (Stereo vector) =
+    let
+        multiplyBothChannelsBy :: (Float, Float) -> (Float, Float)
+        multiplyBothChannelsBy (leftSample, rightSample) =
+            ( Volume.applyTo newRelativeVolume leftSample
+            , Volume.applyTo newRelativeVolume rightSample
+            )
+    in
     Stereo 
         <| Vector.map 
-            (multiplyBothChannelsBy newRelativeVolume)
+            multiplyBothChannelsBy
             vector
-
-
-multiplyBothChannelsBy :: Volume -> (Float, Float) -> (Float, Float)
-multiplyBothChannelsBy newRelativeVolume (leftSample, rightSample) =
-    ( Volume.applyTo newRelativeVolume leftSample
-    , Volume.applyTo newRelativeVolume rightSample
-    )
 
 
 mix :: Stereo -> Stereo -> Stereo
