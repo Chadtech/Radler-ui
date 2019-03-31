@@ -48,28 +48,12 @@ instance Show Stereo where
 
 
 trimEnd :: Stereo -> Stereo
-trimEnd (Stereo vector) =
-    let
-        isSampleZero :: Maybe Int -> Int -> (Float, Float) -> Maybe Int
-        isSampleZero maybeLastNonZeroIndex index sample =
-            if 
-                maybeLastNonZeroIndex == Nothing 
-                    && sample /= (0,0) 
-            then
-                Just index
-
-            else 
-                Nothing
-    in
-    case
-        Vector.ifoldl isSampleZero Nothing vector
-    of
-        Just lastNonZeroIndex ->
-            Vector.take lastNonZeroIndex vector
-                |> Stereo
-
-        Nothing ->
-            Stereo vector
+trimEnd stereo =
+    stereo
+        |> toMonos
+        |> Tuple.both (Mono.trimEnd)
+        |> Mono.equalizeLengths
+        |> fromMonos
 
 
 length :: Stereo -> Int

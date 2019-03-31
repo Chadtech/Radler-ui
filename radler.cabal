@@ -116,6 +116,7 @@ test-suite spec
     Scale.Major7ToneJit
     Scale.Slendro
     Size
+    Test.Extra
     Timing
     Volume
   type:                exitcode-stdio-1.0
