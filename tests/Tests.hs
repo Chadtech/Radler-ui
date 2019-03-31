@@ -7,7 +7,7 @@ import Flow
 
 
 import Test.Hspec (hspec, SpecWith)
-import qualified MonoTests as Mono
+import qualified Mono.Spec as Mono
 
 
 main :: IO ()
