@@ -18,7 +18,7 @@ import qualified Room
 import Size (Size)
 import qualified Size
 import Duration (Duration(Duration))
-import Part.Volume (Volume(..))
+import Volume (Volume(..))
 
 
 

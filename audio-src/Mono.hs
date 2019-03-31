@@ -5,21 +5,27 @@ module Mono
     ( Mono
     , Mono.map
     , append
+    , applyFrom
     , applyUntil
     , compress
     , Mono.concat
     , convolve
     , declip
+    , declip__testable
     , delay
+    , equalizeLengths
     , empty
     , fromVector
     , fromList
     , fromSample
     , indexedMap
+    , invert
     , Mono.length
+    , maxInt32Sample
     , mix
     , mixMany
     , saw
+    , saw__testable
     , setVolume
     , silence
     , Mono.sin
@@ -28,6 +34,7 @@ module Mono
     , Mono.splitAt
     , Mono.subtract
     , tiltedSin
+    , toList
     , toSamples
     , toVector
     , trimEnd
@@ -47,8 +54,8 @@ import qualified Data.Tuple.Extra as Tuple
 import Freq (Freq(Freq))
 import Duration (Duration(Duration))
 import qualified Duration
-import Part.Volume (Volume(Volume))
-import qualified Part.Volume as Volume
+import Volume (Volume(Volume))
+import qualified Volume
 import Timing (Timing)
 import qualified Timing
 
@@ -63,7 +70,7 @@ data Mono
 
 instance Show Mono where
     show (Mono mono) =
-        show mono
+        "Mono " ++ show mono
 
 
 -- HELPERS --
@@ -72,22 +79,22 @@ instance Show Mono where
 trimEnd :: Mono -> Mono
 trimEnd (Mono vector) =
     let
-        isSampleZero :: Maybe Int -> Int -> Float -> Maybe Int
-        isSampleZero maybeLastNonZeroIndex index sample =
+        isSampleZero :: Int -> Float -> Maybe Int -> Maybe Int
+        isSampleZero index sample maybeLastNonZeroIndex =
             if 
                 maybeLastNonZeroIndex == Nothing 
-                    && sample /= 0 
+                    && sample /= 0
             then
                 Just index
 
             else 
-                Nothing
+                maybeLastNonZeroIndex
     in
     case
-        Vector.ifoldl isSampleZero Nothing vector
+        Vector.ifoldr isSampleZero Nothing vector
     of
         Just lastNonZeroIndex ->
-            Vector.take lastNonZeroIndex vector
+            Vector.take (lastNonZeroIndex + 1) vector
                 |> Mono
 
         Nothing ->
@@ -135,6 +142,11 @@ fromVector =
 fromList :: List Float -> Mono
 fromList =
     Mono <. Vector.fromList
+
+
+toList :: Mono -> List Float
+toList (Mono mono) =
+    Vector.toList mono
 
 
 singleton :: Float -> Mono
@@ -231,21 +243,32 @@ sinInternal phase (Freq freq) (Duration duration) =
 
 
 saw :: Freq -> Duration -> Mono
-saw (Freq freq) (Duration duration) =
-    Vector.generate
-        duration
-        (sawAtSample freq)
+saw =
+    saw__testable 44100
+
+
+saw__testable :: Int -> Freq -> Duration -> Mono
+saw__testable samplesPerSecond (Freq freq) (Duration duration) =
+    let
+        freqInSamples :: Float
+        freqInSamples =
+            toFloat samplesPerSecond / freq
+
+
+        sawAtSample :: Int -> Float
+        sawAtSample index =
+            let
+                j :: Float
+                j = 
+                    toFloat index / freqInSamples
+            in
+            2 * (j - (toFloat <| floor (0.5 + j)))
+
+    in
+    Vector.generate duration sawAtSample
         |> Mono
 
 
-sawAtSample :: Float -> Int -> Float
-sawAtSample freq index =
-    let
-        j :: Float
-        j = 
-            toFloat index / (44100 / freq)
-    in
-    2 * (j - (toFloat <| floor (0.5 + j)))
 
 
 delay :: Duration -> Mono -> Mono
@@ -302,47 +325,41 @@ compressSample s =
 
 
 declip :: Mono -> Mono
-declip (Mono vector) =
+declip =
+    declip__testable 120
+
+
+declip__testable :: Int -> Mono -> Mono
+declip__testable declipLength (Mono mono)=
+    let
+        divideIndexBy :: Int -> Float
+        divideIndexBy i =
+            (fromIntegral i) 
+                / (fromIntegral declipLength)
+
+
+        declipIn :: Vector (Int, Float)
+        declipIn =
+            Vector.generate 
+                declipLength 
+                divideIndexBy
+                |> Vector.indexed
+
+
+        declipOut :: Vector (Int, Float)
+        declipOut =
+            Vector.generate 
+                declipLength 
+                ((-) 1 .> divideIndexBy)
+                |> Vector.indexed
+                |> Vector.map 
+                    (Tuple.first ((+) (Vector.length mono - declipLength)))
+    in
     Vector.accumulate
         (*)
-        vector
-        (declipVector (Vector.length vector))
+        mono
+        (Vector.concat [ declipIn, declipOut ])
         |> Mono
-
-
-declipVector :: Int -> Vector (Int, Float)
-declipVector length =
-    [ declipIn
-    , declipOut length
-    ]
-        |> Vector.concat
-
-
-declipIn :: Vector (Int, Float)
-declipIn =
-    Vector.generate 
-        declipLength 
-        divideIndexBy
-        |> Vector.indexed
-
-
-declipOut :: Int -> Vector (Int, Float)
-declipOut length =
-    Vector.generate 
-        declipLength 
-        ((-) 1 . divideIndexBy)
-        |> Vector.indexed
-        |> Vector.map (Tuple.first ((+) (length - declipLength)))
-
-
-declipLength :: Int
-declipLength =
-    120
-
-
-divideIndexBy :: Int -> Float
-divideIndexBy i =
-    ((fromIntegral i) / (fromIntegral declipLength)) ^ 2
 
 
 lopass :: Volume -> Int -> Mono -> Mono
@@ -403,7 +420,7 @@ equalizeLengths mono0 mono1 =
 
     else
         ( appendSilence 
-            (Duration (mono0Length - mono1Length))
+            (Duration (mono1Length - mono0Length))
             mono0
         , mono1
         )
@@ -442,7 +459,12 @@ toSamples (Mono vector) =
     vector
         |> Vector.toList
         |> List.map 
-            (toInt32 . (*) 2147483647)
+            (toInt32 .> (*) maxInt32Sample)
+
+
+maxInt32Sample :: Int32
+maxInt32Sample =
+    2147483647
 
 
 toInt32 :: Float -> Int32

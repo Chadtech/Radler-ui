@@ -23,8 +23,8 @@ import qualified Data.Text.Lazy as T
 import Parse (parse)
 import qualified Parse
 import qualified Part.Osc as Osc
-import Part.Volume (Volume(Volume))
-import qualified Part.Volume as Volume
+import Volume (Volume(Volume))
+import qualified Volume
 import qualified Freq
 
 

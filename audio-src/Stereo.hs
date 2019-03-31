@@ -28,8 +28,8 @@ import Data.Vector.Unboxed (Vector)
 import qualified Data.Vector as V
 import qualified Data.Vector.Unboxed as Vector
 import Duration (Duration(Duration))
-import Part.Volume (Volume(..))
-import qualified Part.Volume as Volume
+import Volume (Volume(..))
+import qualified Volume
 
 
 -- TYPES --

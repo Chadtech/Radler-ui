@@ -3,13 +3,18 @@ module Tests
     ) where
 
 
-import Test.Hspec
-import Test.QuickCheck
-import Control.Exception (evaluate)
-import qualified Mono
+import Flow
+
+
+import Test.Hspec (hspec, SpecWith)
+import qualified MonoTests as Mono
+
 
 main :: IO ()
-main = hspec $ do
-    describe "Prelude.head" $ do
-        it "returns the first element of a list" $ do
-            (Mono.singleton 0.5) `shouldBe` (Mono.singleton 0.5)
+main = 
+    hspec tests 
+
+
+tests :: SpecWith ()
+tests =
+    Mono.tests

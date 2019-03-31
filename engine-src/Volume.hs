@@ -1,11 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 
-module Part.Volume
+module Volume
     ( Volume(..)
-    , Part.Volume.read
+    , Volume.read
     , Error
-    , Part.Volume.map
+    , Volume.map
     , applyTo
     , throw
     , invert

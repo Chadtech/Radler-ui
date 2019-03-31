@@ -45,8 +45,8 @@ import Parse (parse)
 import qualified Parse
 import Duration (Duration)
 import qualified Duration
-import Part.Volume (Volume)
-import qualified Part.Volume as Volume
+import Volume (Volume)
+import qualified Volume
 import Position (Position)
 import qualified Position
 import Resolution (Resolution)
