@@ -22,13 +22,13 @@ testText =
     \namey\n\
     \:\n\
     \#voices\n\
-    \asdf\n\
+    \percussion | position( x=-5 y=1 z=1 );dullsaw | position( x=5 y=1 z=1 ) freqerror(0.01);saw | position( x=0 y=10 z=3 ) freqerror(0.01)\n\
     \:\n\
     \#notes\n\
     \asdfdsa\n\
     \:\n\
     \#config\n\
-    \1afkjasdfaksd"
+    \major 7 tone jit;2000;100;x=5y=3z=7width=10length=12height=17"
 
 
 tests :: SpecWith ()

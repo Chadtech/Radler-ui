@@ -34,9 +34,10 @@ import qualified Parse
 import qualified Part.DullSaw as DullSaw
 import qualified Part.Percussion as Percussion
 import qualified Part.Harmonics as Harmonics
+import qualified Part.Osc as Osc
 import qualified Part.Sin as Sin
 import qualified Part.Saw as Saw
-import qualified Part.Osc as Osc
+import qualified Part.Test as Test
 import Resolution (Resolution)
 import qualified Resolution
 import Room (Room)
@@ -52,6 +53,7 @@ data Part
     | Harmonics (Osc.Model Harmonics.Model)
     | DullSaw (Osc.Model DullSaw.Model)
     | Percussion Percussion.Model
+    | Test Test.Model
     deriving (Eq)
 
 
@@ -72,6 +74,9 @@ instance Show Part where
 
             Percussion model ->
                 "Percussion " ++ show model
+
+            Test model ->
+                "Test" ++ show model
 
 
 -- HELPERS --
@@ -113,6 +118,11 @@ diff (incomingPart, existingPart) =
             Percussion.diff incomingPercussionModel existingPercussionModel
                 |> Either.mapRight (Resolution.map Percussion)
                 |> Either.mapLeft PercussionError
+
+        (Test incomingTestModel, Test existingTestModel) ->
+            Test.diff incomingTestModel existingTestModel
+                |> Either.mapRight (Resolutio.map Test)
+                |> Either.mapLeft TestError
 
         _ ->
             Right Resolution.Unresolvable
@@ -163,6 +173,12 @@ fromPieces config (partTxt, noteTxts) =
                     (Percussion.makeFlags fields)
                 |> Either.mapRight Percussion
                 |> Either.mapLeft PercussionError
+
+
+--         Right ("test", fields) ->
+--             noteTxts
+--                 |> Test.read
+
 
         Left error ->
             Left error
