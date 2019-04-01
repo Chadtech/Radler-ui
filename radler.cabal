@@ -101,24 +101,42 @@ test-suite spec
   main-is:             Tests.hs
   ghc-options:         -main-is Tests
 
-  other-modules:       
-    Mono
-    Mono.Spec
+  other-modules:
+    Audio
     Config
     Constants
+    Contour
     Duration
     Freq
+    Index
+    Mono
+    Mono.Fade
+    Mono.Position
+    Mono.Spec
+    Note
     Parse
+    Part
+    Part.DullSaw
+    Part.Harmonics
+    Part.Osc
+    Part.Percussion
+    Part.Saw
+    Part.Sin
     Position
     Prelude.Extra
+    Resolution
     Room
     Scale
     Scale.Major7ToneJit
     Scale.Slendro
+    Score
+    Score.Spec
     Size
     Stereo
     Stereo.Spec
     Test.Extra
+    Time
+    Timeline
     Timing
     Volume
   type:                exitcode-stdio-1.0

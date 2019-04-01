@@ -202,7 +202,9 @@ throw error =
         UnexpectedChunkStructure chunks ->
             [ "I could not parse the score. \
                 \The chunks werent what I expected. : ->\n\n"
-            , T.intercalate "chunk\n\n" chunks
+            , chunks
+                |> List.map (T.append "chunk\n\n")
+                |> T.concat
             ]
                 |> T.concat
 

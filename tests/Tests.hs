@@ -8,6 +8,7 @@ import Flow
 
 import Test.Hspec (hspec, SpecWith)
 import qualified Mono.Spec as Mono
+import qualified Score.Spec as Score
 import qualified Stereo.Spec as Stereo
 
 
@@ -20,3 +21,4 @@ tests :: SpecWith ()
 tests =
     Mono.tests
     >> Stereo.tests
+    >> Score.tests

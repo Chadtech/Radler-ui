@@ -30,7 +30,7 @@ import qualified Data.Text.Lazy as T
 import Data.WAVE (WAVE)
 import qualified Data.WAVE as W
 import qualified System.Process as SP
-import Volume (Volume(..))
+import Volume (Volume(Volume))
 
 
 -- TYPES --
