@@ -133,7 +133,7 @@ data Flags t
 -- HELPERS --
 
 
-diff :: Model t -> Model t -> Either Error (Resolution (Model t))
+diff :: Model t -> Model t -> Resolution (Model t)
 diff incomingModel existingModel =
     ( mapNotes 
         (Timeline.filterKey (isntNoteOf incomingModel)) 
@@ -143,7 +143,6 @@ diff incomingModel existingModel =
         incomingModel
     )
         |> Resolution.Changes
-        |> Right
 
 
 isntNoteOf :: Model t -> Time -> Note -> Bool

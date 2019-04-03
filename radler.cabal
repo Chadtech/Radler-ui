@@ -53,6 +53,7 @@ executable radler
     Part.Osc
     Part.Saw
     Part.Sin
+    Part.Test
     Position
     Prelude.Extra
     Program
@@ -99,7 +100,9 @@ executable radler
 
 test-suite spec
   main-is:             Tests.hs
-  ghc-options:         -main-is Tests
+  ghc-options:
+    -main-is Tests
+    -fwarn-incomplete-patterns
 
   other-modules:
     Audio
@@ -122,6 +125,7 @@ test-suite spec
     Part.Percussion
     Part.Saw
     Part.Sin
+    Part.Test
     Position
     Prelude.Extra
     Resolution

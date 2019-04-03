@@ -22,10 +22,10 @@ testText =
     \namey\n\
     \:\n\
     \#voices\n\
-    \percussion | position( x=-5 y=1 z=1 );dullsaw | position( x=5 y=1 z=1 ) freqerror(0.01);saw | position( x=0 y=10 z=3 ) freqerror(0.01)\n\
+    \test | position( x=-5 y=1 z=1 );test | position( x=5 y=1 z=1 ) \n\
     \:\n\
     \#notes\n\
-    \asdfdsa\n\
+    \100,1,20;110,2,30\n200,3,21;190,4,30\n\
     \:\n\
     \#config\n\
     \major 7 tone jit;2000;100;x=5y=3z=7width=10length=12height=17"

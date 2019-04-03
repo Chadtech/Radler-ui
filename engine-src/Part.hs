@@ -96,33 +96,33 @@ diff (incomingPart, existingPart) =
     case (incomingPart, existingPart) of
         (Sin incomingSinModel, Sin existingSinModel) ->
             Osc.diff incomingSinModel existingSinModel
-                |> Either.mapRight (Resolution.map Sin) 
-                |> Either.mapLeft SinError
+                |> Resolution.map Sin
+                |> Right
 
         (Saw incomingSawModel, Saw existingSawModel) ->
             Osc.diff incomingSawModel existingSawModel
-                |> Either.mapRight (Resolution.map Saw) 
-                |> Either.mapLeft SawError
+                |> Resolution.map Saw
+                |> Right
 
         (Harmonics incomingHarmonicsModel, Harmonics existingHarmonicsModel) ->
             Osc.diff incomingHarmonicsModel existingHarmonicsModel
-                |> Either.mapRight (Resolution.map Harmonics)
-                |> Either.mapLeft HarmonicsError
+                |> Resolution.map Harmonics
+                |> Right
 
         (DullSaw incomingDullSawModel, DullSaw existingDullSawModel) ->
             Osc.diff incomingDullSawModel existingDullSawModel
-                |> Either.mapRight (Resolution.map DullSaw)
-                |> Either.mapLeft DullSawError
+                |> Resolution.map DullSaw
+                |> Right
 
         (Percussion incomingPercussionModel, Percussion existingPercussionModel) ->
             Percussion.diff incomingPercussionModel existingPercussionModel
-                |> Either.mapRight (Resolution.map Percussion)
-                |> Either.mapLeft PercussionError
+                |> Resolution.map Percussion
+                |> Right
 
         (Test incomingTestModel, Test existingTestModel) ->
             Test.diff incomingTestModel existingTestModel
-                |> Either.mapRight (Resolutio.map Test)
-                |> Either.mapLeft TestError
+                |> Resolution.map Test
+                |> Right
 
         _ ->
             Right Resolution.Unresolvable
@@ -175,9 +175,9 @@ fromPieces config (partTxt, noteTxts) =
                 |> Either.mapLeft PercussionError
 
 
---         Right ("test", fields) ->
---             noteTxts
---                 |> Test.read
+        Right ("test", fields) ->
+            noteTxts
+                |> Test.fromTexts config
 
 
         Left error ->

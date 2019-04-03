@@ -156,7 +156,7 @@ makeFlags =
     Flags
 
 
-diff :: Model -> Model -> Either Error (Resolution Model)
+diff :: Model -> Model -> Resolution Model
 diff incomingModel existingModel =
     ( mapNotes 
         (Timeline.filterKey (isntNoteOf incomingModel)) 
@@ -166,7 +166,6 @@ diff incomingModel existingModel =
         incomingModel
     )
         |> Resolution.Changes
-        |> Right
 
 
 isntNoteOf :: Model -> Time -> Note -> Bool
@@ -187,7 +186,7 @@ mapNotes f model =
 read :: Config -> Flags -> List Text -> Either Error Model
 read config flags noteTexts = 
     noteTexts
-        |> (readManyNoteTexts config)
+        |> readManyNoteTexts config
         |> andThen (readModel flags)
 
 
@@ -256,8 +255,8 @@ readManyNoteTextsAccumulate config noteTexts notes =
 readNoteText :: Config -> Text -> Either Error (Maybe (Time, Note))
 readNoteText config noteTxt =
     case Note.read config noteTxt of
-        Right (time, seed, contentTxt) ->
-            case contentTxt of
+        Right (time, seed, contentText) ->
+            case contentText of
                 "X" ->
                     Right Nothing
 
@@ -267,7 +266,7 @@ readNoteText config noteTxt =
                 _ ->
                     readNonEmptyNoteText
                         config
-                        (time, seed, contentTxt) 
+                        (time, seed, contentText)
                         |> Either.mapRight Just
 
         Left error ->
@@ -275,17 +274,17 @@ readNoteText config noteTxt =
 
 
 readNonEmptyNoteText :: Config -> (Time, Random.StdGen, Text) -> Either Error (Time, Note)
-readNonEmptyNoteText config (time, seed, contentTxt) =
+readNonEmptyNoteText config (time, seed, contentText) =
     let
         -- Something like "pl"
         noteText :: Text
         noteText =
-            slice 0 2 contentTxt
+            slice 0 2 contentText
 
         -- 00 to FF
         volumeText :: Text
         volumeText =
-            slice 2 4 contentTxt
+            slice 2 4 contentText
         
     in
     Note
