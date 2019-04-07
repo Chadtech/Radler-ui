@@ -3,19 +3,26 @@
 
 module Part.Test
     ( Model
+    , build
     , diff
     , fromTexts
+    , Error
+    , throw
     ) where
 
 
 import Flow
 import Prelude.Extra
 
+import Audio (Audio)
+import qualified Audio
 import Config (Config)
 import qualified Config
 import qualified Data.Either.Extra as Either
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
+import Mono (Mono)
+import qualified Mono
 import qualified Note
 import qualified Parse
 import Resolution (Resolution)
@@ -138,10 +145,22 @@ fromNonEmptyNoteText time _ contentText =
             Left <| NoteIsntInt contentText
 
 
+toMono :: Model -> Mono
+toMono model =
+    model
+        |> notes
+        |> Timeline.map noteToMono
+        |> Timeline.toMono
 
 
+noteToMono :: Note -> Mono
+noteToMono =
+    Mono.singleton <. toFloat <. amplitude
 
 
+build :: Model -> Audio
+build =
+    Audio.fromMono <. toMono
 
 
 -- ERROR --
@@ -150,3 +169,16 @@ fromNonEmptyNoteText time _ contentText =
 data Error
     = NoteError Note.Error
     | NoteIsntInt Text
+
+
+throw :: Error -> Text
+throw error =
+    case error of
+        NoteError noteError ->
+            Note.throw noteError
+
+        NoteIsntInt text ->
+            T.append
+                "This note is not an integer -> \n "
+                text
+

@@ -178,6 +178,8 @@ fromPieces config (partTxt, noteTxts) =
         Right ("test", fields) ->
             noteTxts
                 |> Test.fromTexts config
+                |> Either.mapRight Test
+                |> Either.mapLeft TestError
 
 
         Left error ->
@@ -274,6 +276,12 @@ oscToDevAudio =
 
 build :: Maybe Room -> Part -> Audio
 build maybeRoom part =
+    part
+        |> buildUnclean maybeRoom
+        |> Audio.trimEnd
+
+buildUnclean :: Maybe Room -> Part -> Audio
+buildUnclean maybeRoom part =
     let
         build_ :: Osc.Model t -> Audio
         build_ =
@@ -297,6 +305,11 @@ build maybeRoom part =
                 |> Percussion.build maybeRoom
                 |> Audio.trimEnd
 
+        Test model ->
+            model
+                |> Test.build
+                |> Audio.trimEnd
+
 
 -- ERROR -- 
 
@@ -310,6 +323,7 @@ data Error
     | DullSawError Osc.Error
     | HarmonicsFlagsError Harmonics.Error
     | PercussionError Percussion.Error
+    | TestError Test.Error
     | DiffError
     | VoiceInvalidFormat
     | FieldsError Text
@@ -364,6 +378,11 @@ errorToText error =
             percussionError
                 |> Percussion.throw
                 |> T.append "Error in Percussion Voice -> \n"
+
+        TestError testError ->
+            testError
+                |> Test.throw
+                |> T.append "Error in Test Voice -> \n"
 
         HarmonicsFlagsError harmonicsError ->
             harmonicsError
