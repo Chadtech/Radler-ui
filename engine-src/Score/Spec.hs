@@ -8,6 +8,7 @@ module Score.Spec
 
 import Flow
 
+import qualified Audio
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import qualified Score
@@ -25,18 +26,21 @@ testText =
     \test | position( x=-5 y=1 z=1 );test | position( x=5 y=1 z=1 ) \n\
     \:\n\
     \#notes\n\
-    \100,1,20;110,2,30\n200,3,21;190,4,30\n\
+    \0,1,20;1,2,30\n3,3,21;4,4,30\n\
     \:\n\
     \#config\n\
-    \major 7 tone jit;2000;100;x=5y=3z=7width=10length=12height=17"
+    \major 7 tone jit;1;0;x=5y=3z=7width=10length=12height=17"
 
 
 tests :: SpecWith ()
 tests =
     case Score.fromText testText of
         Right score ->
-            Test.specify "Parsed from text" <| do
-                expect () ()
+            Test.describe "score tests" <| do
+                Test.specify "Score builds" <| do
+                    Score.toDevAudio score
+                        |> expect
+                            (Audio.fromList [10.0,15.0,0.0,10.5,15.0])
 
         Left error ->
             Test.specify (show error) <| do

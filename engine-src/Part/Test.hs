@@ -6,6 +6,7 @@ module Part.Test
     , build
     , diff
     , fromTexts
+    , toMono
     , Error
     , throw
     ) where

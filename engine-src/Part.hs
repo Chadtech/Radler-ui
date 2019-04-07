@@ -268,6 +268,11 @@ toDevAudio part =
                 |> Percussion.toMono
                 |> Audio.fromMono
 
+        Test model ->
+            model
+                |> Test.toMono
+                |> Audio.fromMono
+
 
 oscToDevAudio :: Osc.Model t -> Audio 
 oscToDevAudio =
@@ -279,6 +284,7 @@ build maybeRoom part =
     part
         |> buildUnclean maybeRoom
         |> Audio.trimEnd
+
 
 buildUnclean :: Maybe Room -> Part -> Audio
 buildUnclean maybeRoom part =

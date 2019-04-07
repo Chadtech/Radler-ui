@@ -3,6 +3,8 @@
 
 module Audio
     ( Audio
+    , empty
+    , fromList
     , trimEnd
     , fromMono
     , fromStereo
@@ -39,6 +41,7 @@ import Volume (Volume(Volume))
 data Audio
     = Mono Mono
     | Stereo Stereo
+    deriving (Eq)
 
 
 instance Show Audio where
@@ -64,6 +67,11 @@ trimEnd audio =
         Stereo stereo ->
             Stereo.trimEnd stereo
                 |> Stereo
+
+
+fromList :: List Float -> Audio
+fromList =
+    Mono <. Mono.fromList
 
 
 fromMono :: Mono -> Audio
