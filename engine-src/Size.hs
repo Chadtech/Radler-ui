@@ -48,6 +48,7 @@ data Dimension
     = Width
     | Length
     | Height
+    deriving (Eq)
 
 
 -- HELPERS --
@@ -105,6 +106,7 @@ multiplyBy factor size =
 
 data Error
     = MissingDimension Dimension
+    deriving (Eq)
 
 
 throw :: Error -> Text

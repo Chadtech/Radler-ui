@@ -11,6 +11,7 @@ import Flow
 import qualified Audio
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
+import qualified Resolution
 import qualified Score
 import Test.Extra (expect)
 import Test.Hspec (SpecWith)
@@ -41,6 +42,12 @@ tests =
                     Score.toDevAudio score
                         |> expect
                             (Audio.fromList [10.0,15.0,0.0,10.5,15.0])
+
+                Test.specify "Score diffed with itself resolves to identical" <| do
+                    Score.diff
+                        score
+                        score
+                        |> expect (Right Resolution.Identical)
 
         Left error ->
             Test.specify (show error) <| do

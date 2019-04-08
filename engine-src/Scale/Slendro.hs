@@ -73,6 +73,7 @@ fundamentalsTone int =
 data Error
     = NoteIsntInt Text
     | ToneIsntInScale Int
+    deriving (Eq)
 
 
 throw :: Error -> Text

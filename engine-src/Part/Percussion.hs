@@ -392,6 +392,7 @@ data Error
     | PositionError Position.Error
     | UnrecognizedSoundText Text
     | FieldsError Text
+    deriving (Eq)
 
 
 throw :: Error -> Text

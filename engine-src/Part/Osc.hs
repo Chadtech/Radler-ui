@@ -373,6 +373,7 @@ data Error
     | FieldsError Text
     | FreqErrorError Text
     | ContourError Contour.Error
+    deriving (Eq)
 
 
 throw :: Error -> Text

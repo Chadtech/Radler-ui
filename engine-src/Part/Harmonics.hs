@@ -113,6 +113,7 @@ data Error
     | HarmonicInvalid Text
     | NoVolume
     | NoHarmonic
+    deriving (Eq)
 
 
 throw :: Error -> Text

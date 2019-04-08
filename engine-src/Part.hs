@@ -333,6 +333,7 @@ data Error
     | DiffError
     | VoiceInvalidFormat
     | FieldsError Text
+    deriving (Eq)
 
 
 instance Show Error where

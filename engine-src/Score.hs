@@ -187,6 +187,7 @@ data Error
     = PartError Part.Error
     | ConfigError Config.Error
     | UnexpectedChunkStructure (List Text)
+    deriving (Eq)
 
 
 instance Show Error where

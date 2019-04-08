@@ -105,6 +105,7 @@ read text =
 
 data Error
     = UnrecognizedContour Text
+    deriving (Eq)
 
 
 throw :: Error -> Text

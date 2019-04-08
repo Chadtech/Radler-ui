@@ -87,6 +87,7 @@ read txt =
 
 data Error 
     = TextNotHexadecimal Text
+    deriving (Eq)
 
 
 throw :: Error -> Text

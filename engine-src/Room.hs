@@ -126,6 +126,7 @@ data Error
     = PositionError Position.Error
     | SizeError Size.Error
     | ParsingFailed Text
+    deriving (Eq)
 
 
 throw :: Error -> Text

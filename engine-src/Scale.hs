@@ -83,6 +83,7 @@ data Error
     = Major7ToneJitError Major7ToneJit.Error
     | SlendroError Slendro.Error
     | UnrecognizedScale Text
+    deriving (Eq)
 
 
 instance Show Error where

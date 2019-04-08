@@ -67,7 +67,7 @@ data Error
     | CouldntParseTime Text
     | CouldntParseAnything Text Text
     | NoteStringHadWrongStructure Text
-
+    deriving (Eq)
 
 throw :: Error -> Text
 throw error =

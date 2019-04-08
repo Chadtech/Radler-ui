@@ -84,6 +84,7 @@ data Error
     | TimingVarianceIsntInt Text
     | ScaleError Scale.Error
     | RoomError Room.Error
+    deriving (Eq)
 
 
 instance Show Error where

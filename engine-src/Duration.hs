@@ -70,6 +70,7 @@ fromFreqAndWaveCount freq count =
 
 data Error 
     = TextNotHexadecimal Text
+    deriving (Eq)
 
 
 throw :: Error -> Text

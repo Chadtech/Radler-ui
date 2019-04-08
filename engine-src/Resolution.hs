@@ -24,6 +24,10 @@ data Resolution a
     | Changes (a, a)
 
 
+instance Eq a => Eq (Resolution a) where
+    (==) resolution0 resolution1 =
+        resolution0 == resolution1
+
 instance Show a => Show (Resolution a) where
     show resolution = 
         case resolution of

@@ -170,6 +170,7 @@ build =
 data Error
     = NoteError Note.Error
     | NoteIsntInt Text
+    deriving (Eq)
 
 
 throw :: Error -> Text

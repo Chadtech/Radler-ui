@@ -52,7 +52,7 @@ data Part
     = X
     | Y
     | Z
-
+    deriving (Eq)
 
 
 -- HELPERS --
@@ -121,6 +121,7 @@ distanceBetween p0 p1 =
 
 data Error
     = MissingPart Part
+    deriving (Eq)
 
 
 throw :: Error -> Text
