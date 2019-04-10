@@ -18,19 +18,27 @@ import Test.Hspec (SpecWith)
 import qualified Test.Hspec as Test
 
 
+makeTestTextFromNotes :: Text -> Text
+makeTestTextFromNotes notes =
+    [ "#name\n\
+      \namey\n\
+      \:\n\
+      \#voices\n\
+      \test | position( x=-5 y=1 z=1 );test | position( x=5 y=1 z=1 ) \n\
+      \:\n\
+      \#notes\n"
+    , notes
+    , ":\n\
+      \#config\n\
+      \major 7 tone jit;1;0;x=5y=3z=7width=10length=12height=17"
+    ]
+        |> T.concat
+
+
 testText :: Text
 testText =
-    "#name\n\
-    \namey\n\
-    \:\n\
-    \#voices\n\
-    \test | position( x=-5 y=1 z=1 );test | position( x=5 y=1 z=1 ) \n\
-    \:\n\
-    \#notes\n\
-    \0,1,20;1,2,30\n3,3,21;4,4,30\n\
-    \:\n\
-    \#config\n\
-    \major 7 tone jit;1;0;x=5y=3z=7width=10length=12height=17"
+    makeTestTextFromNotes
+        "0,1,20;1,2,30\n3,3,21;4,4,30\n"
 
 
 tests :: SpecWith ()
@@ -48,6 +56,7 @@ tests =
                         score
                         score
                         |> expect (Right Resolution.Identical)
+
 
         Left error ->
             Test.specify (show error) <| do

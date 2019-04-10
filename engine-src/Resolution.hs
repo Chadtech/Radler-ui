@@ -22,11 +22,8 @@ data Resolution a
     -- Left a is the notes to remove
     -- Right b is the notes to add
     | Changes (a, a)
+    deriving (Eq)
 
-
-instance Eq a => Eq (Resolution a) where
-    (==) resolution0 resolution1 =
-        resolution0 == resolution1
 
 instance Show a => Show (Resolution a) where
     show resolution = 
@@ -48,8 +45,8 @@ instance Show a => Show (Resolution a) where
                     |> T.unpack
 
 
-instance Functor Resolution where  
-    fmap f (Changes (x,y)) = Changes (f x, f y) 
+instance Functor Resolution where
+    fmap f (Changes (x,y)) = Changes (f x, f y)
     fmap f Unresolvable = Unresolvable
     fmap f Identical = Identical
 
@@ -58,7 +55,7 @@ instance Applicative Resolution where
     pure a = Changes (a, a)
     Changes (f, g) <*> Changes (a, b) = Changes (f a, g b)
     _ <*> Identical = Identical
-    _ <*> Unresolvable = Unresolvable  
+    _ <*> Unresolvable = Unresolvable
     Identical <*> _ = Identical
     Unresolvable <*> _ = Unresolvable
 
