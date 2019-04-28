@@ -4,10 +4,27 @@
     "score": [
         {
             "name": "9",
-            "length": 144
+            "length": 128
+        },
+        {
+            "name": "a",
+            "length": 128
+        },
+        {
+            "name": "b",
+            "length": 128
+        },
+        {
+            "name": "c",
+            "length": 128
+        },
+        {
+            "name": "d",
+            "length": 128
         }
     ],
     "voices": [
+        "percussion | position(x=-3 y=2 z=0)",
         "dullsaw | position( x=5 y=1 z=1 ) freqerror(0.01)"
 
         

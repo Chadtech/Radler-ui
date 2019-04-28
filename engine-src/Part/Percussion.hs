@@ -44,7 +44,7 @@ import Parse (parse)
 import qualified Parse
 import Duration (Duration(Duration))
 import qualified Duration
-import Volume (Volume)
+import Volume (Volume(Volume))
 import qualified Volume
 import Position (Position)
 import qualified Position
@@ -130,6 +130,7 @@ data Flags
 data Sound
     = Pulse
     | Kick
+    | BigKick
     deriving (Eq)
 
 
@@ -149,6 +150,9 @@ soundToText sound =
 
         Kick ->
             "kick"
+
+        BigKick ->
+            "big-kick"
 
 
 makeFlags :: Parse.Fields Text -> Flags
@@ -304,6 +308,9 @@ readSoundText soundText =
         "ki" ->
             Right Kick
 
+        "bi" ->
+            Right BigKick
+
         _ ->
             Left <| UnrecognizedSoundText soundText
 
@@ -312,9 +319,7 @@ toMono :: Model -> Mono
 toMono model = 
     model
         |> notes
-        |> trace "NOTES!!"
         |> Timeline.map noteToMono
-        -- |> trace "MONOS"
         |> Timeline.toMono
 
 
@@ -327,7 +332,8 @@ noteToMono note =
         Note volume seed sound ->
             case sound of
                 Pulse ->
-                    Mono.singleton <| Volume.toFloat volume
+                    Mono.fromSample (Duration 50) 1
+                        |> Mono.setVolume volume
 
                 Kick ->
                     let
@@ -343,28 +349,81 @@ noteToMono note =
 
                         drumBody :: Mono
                         drumBody =
-                            [ Mono.singleton 1
-                            , Mono.silence (Duration 2)
-                            , Mono.singleton 0.8
+                            [ Mono.singleton 0.5
                             , Mono.silence (Duration 5)
-                            , Mono.singleton 0.66
+                            , Mono.singleton 0.4
+                            , Mono.silence (Duration 40)
+                            , Mono.singleton 0.4
+                            , Mono.silence (Duration 9)
+                            , Mono.singleton 0.3
+                            , Mono.silence (Duration 100)
+                            , Mono.singleton 0.3
                             ]
                                 |> Mono.concat
-                                |> Mono.convolve
-                                    (Mono.sinByWaveCount 0 (Freq 10) 1)
+                                |> Mono.compress 1
+                                |> Mono.setVolume (Volume 0.5)
 
                     in
                     [ pulseFadingIn
                     , Mono.sinByWaveCount 0 (Freq 451) 3
                         |> Mono.Fade.out Timing.Linear
                         |> Mono.convolve pulseFadingIn
+                        |> Mono.delay (Duration 25)
+
                     , Mono.sinByWaveCount 0 (Freq 210) 3
                         |> Mono.Fade.out Timing.Linear
                         |> Mono.convolve pulseFadingIn
+                        |> Mono.delay (Duration 25)
+
                     ]
                         |> Mono.mixMany
+                        |> Mono.setVolume (Volume 0.05)
+                        |> Mono.compress 4
                         |> Mono.convolve drumBody
-                        |> Mono.delay (Duration 10)
+                        |> Mono.setVolume volume
+
+                BigKick ->
+                    let
+                        pulseFadingIn :: Mono
+                        pulseFadingIn =
+                            Mono.fromSample
+                                (Duration 10)
+                                0.2
+                                |> Mono.applyUntil
+                                    25
+                                    (Mono.Fade.in_ Timing.EaseInOut)
+
+
+                        drumBody :: Mono
+                        drumBody =
+                            [ Mono.singleton 0.5
+                            , Mono.silence (Duration 5)
+                            , Mono.singleton 0.4
+                            , Mono.silence (Duration 40)
+                            , Mono.singleton 0.4
+                            , Mono.silence (Duration 9)
+                            , Mono.singleton 0.3
+                            , Mono.silence (Duration 50)
+                            , Mono.singleton 0.3
+                            ]
+                                |> Mono.concat
+
+                    in
+                    [ pulseFadingIn
+                    , Mono.sinByWaveCount 0 (Freq 122) 3
+                        |> Mono.Fade.out Timing.Linear
+                        |> Mono.deltaConvolve pulseFadingIn
+                        |> Mono.compress 1
+                    , Mono.sinByWaveCount 0 (Freq 38) 3
+                        |> Mono.Fade.out Timing.Linear
+                        |> Mono.deltaConvolve pulseFadingIn
+                        |> Mono.compress 1
+
+                    ]
+                        |> Mono.mixMany
+                        |> Mono.compress 2
+                        |> Mono.deltaConvolve drumBody
+                        |> Mono.setVolume volume
 
 
 build :: Maybe Room -> Model -> Audio

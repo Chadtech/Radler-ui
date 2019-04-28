@@ -13,6 +13,7 @@ module Mono
     , declip
     , declip__testable
     , delay
+    , deltaConvolve
     , equalizeLengths
     , empty
     , fromVector
@@ -315,14 +316,21 @@ setVolume (Volume newRelativeVolume) (Mono vector) =
     Mono <| Vector.map ((*) newRelativeVolume) vector
 
 
-compress :: Mono -> Mono
-compress (Mono vector) =
-    Mono <| Vector.map compressSample vector
+compress :: Int -> Mono -> Mono
+compress times (Mono vector) =
+    let
+        compressSample :: Int -> Float -> Float
+        compressSample remainingTimes s =
+            if remainingTimes == 0 then
+                s
 
+            else
+                compressSample
+                    (remainingTimes - 1)
+                    (s + (s * (1 - abs s)))
+    in
+    Mono <| Vector.map (compressSample times) vector
 
-compressSample :: Float -> Float
-compressSample s =
-    s + (s * (1 - s))
 
 
 declip :: Mono -> Mono
@@ -506,6 +514,28 @@ convolve (Mono seed) (Mono sound) =
         0
         |> convolveHelper 
             (Vector.toList <| Vector.indexed sound) 
+        |> Mono
+
+
+deltaConvolve :: Mono -> Mono -> Mono
+deltaConvolve seed sound =
+    mix
+        sound
+        (convolve seed (delta sound))
+        |> setVolume (Volume 0.5)
+
+
+delta :: Mono -> Mono
+delta (Mono mono) =
+    let
+        sampleDifference :: (Float, Float) -> Float
+        sampleDifference (first, second) =
+            (second - first) / 2
+    in
+    Vector.zip
+        (Vector.cons 0 mono)
+        mono
+        |> Vector.map sampleDifference
         |> Mono
 
 
