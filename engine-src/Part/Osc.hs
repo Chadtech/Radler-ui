@@ -288,11 +288,13 @@ readNonEmptyNoteText config maybeFreqError (time, seed, contentTxt) =
         volumeText :: Text
         volumeText =
             slice 4 6 contentTxt
+                |> trace "Volume text"
         
         -- 00 to FF
         durationText :: Text
         durationText =
             slice 2 4 contentTxt
+                |> trace "Duration text"
 
         -- Something like "n" "o" or "i"
         contourText :: Text

@@ -460,17 +460,17 @@ toSamples (Mono vector) =
     vector
         |> Vector.toList
         |> List.map 
-            (toInt32 .> (*) maxInt32Sample)
+            (toInt32 <. (*) maxInt32Sample)
 
 
-maxInt32Sample :: Int32
+maxInt32Sample :: Float
 maxInt32Sample =
     2147483647
 
 
 toInt32 :: Float -> Int32
 toInt32 =
-    round
+    truncate
 
 
 convolve :: Mono -> Mono -> Mono

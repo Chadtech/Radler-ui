@@ -65,8 +65,9 @@ trimEnd audio =
                 |> Mono
 
         Stereo stereo ->
-            Stereo.trimEnd stereo
-                |> Stereo
+            Stereo stereo
+--             Stereo.trimEnd stereo
+--                 |> Stereo
 
 
 fromList :: List Float -> Audio

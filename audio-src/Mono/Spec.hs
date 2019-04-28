@@ -33,7 +33,7 @@ onezerozero =
 tests :: SpecWith ()
 tests = 
     Test.describe "Mono" <| do
-        Test.it "concatenates" <| do
+        Test.specify "concatenates" <| do
             Mono.concat
                 [ one
                 , zero
@@ -41,37 +41,41 @@ tests =
                 ]
                 |> expect onezerozero
 
-        Test.it "appends" <| do
+        Test.specify "appends" <| do
             Mono.append one zero
                 |> Mono.toList
                 |> expect [ 1, 0 ]
 
-        Test.it "can turn into a list of samples" <| do
-            [ 1, 0 ]
+        Test.specify "can turn into a list of samples" <| do
+            [ 1, 0.5, 0 ]
                 |> Mono.fromList
                 |> Mono.toSamples 
-                |> expect [ Mono.maxInt32Sample, 0 ]
+                |> expect
+                    [ 2147483647
+                    , 1073741823
+                    , 0
+                    ]
 
-        Test.it "gives the length" <| do
+        Test.specify "gives the length" <| do
             Mono.length one
                 |> expect 1
 
         Test.describe "TrimEnd" <| do
-            Test.it "can trim the end of a mono" <| do
+            Test.specify "can trim the end of a mono" <| do
                 Mono.append
                     onezerozero
                     onezerozero
                     |> Mono.trimEnd
                     |> expect (Mono.append onezerozero one)
 
-            Test.it "wont trim anything of the end of mono that doesnt end in zero" <| do
+            Test.specify "wont trim anything of the end of mono that doesnt end in zero" <| do
                 Mono.append
                     onezerozero
                     one
                     |> Mono.trimEnd
                     |> expect (Mono.append onezerozero one)
 
-        Test.it "applies until" <| do
+        Test.specify "applies until" <| do
             Mono.applyUntil
                 2
                 (Mono.map ((*) 2))
@@ -79,7 +83,7 @@ tests =
                 |> Mono.toList
                 |> expect [2, 1, 1, 1]
 
-        Test.it "applies from" <| do
+        Test.specify "applies from" <| do
             Mono.applyFrom
                 2
                 (Mono.map ((*) 2))
@@ -87,33 +91,33 @@ tests =
                 |> Mono.toList
                 |> expect [1, 0.5, 2, 2]
 
-        Test.it "declips" <| do
+        Test.specify "declips" <| do
             Mono.declip__testable
                 2
                 (Mono.fromList [1, 1, 1, 1, 1 ])
                 |> Mono.toList
                 |> expect [0, 0.5, 1, 0.5, 0]
 
-        Test.it "delays" <| do
+        Test.specify "delays" <| do
             Mono.delay (Duration 1) one
                 |> Mono.toList
                 |> expect [ 0, 1 ]
 
-        Test.it "equalizes lengths" <| do
+        Test.specify "equalizes lengths" <| do
             Mono.equalizeLengths
                 one
                 onezerozero
                 |> expect
                     (onezerozero, onezerozero)
 
-        Test.it "mixes" <| do
+        Test.specify "mixes" <| do
             Mono.mix
                 (Mono.fromList [1, 1, 0.5, 0.1, 0, 0.1 ])
                 (Mono.fromList [0, -0.1, 0.5, 1, 1, 0.5, 0 ])
                 |> Mono.toList
                 |> expect [ 1, 0.9, 1, 1.1, 1, 0.6, 0 ]
 
-        Test.it "mixes many" <| do
+        Test.specify "mixes many" <| do
             Mono.mixMany
                 [ Mono.fromList
                     [ 1, 0, 0, 0, 1, 0 ]
@@ -126,7 +130,7 @@ tests =
                 |> expect 
                     [ 1, 0.5, 0, 0.5, 1, 0 ]
 
-        Test.it "saw" <| do
+        Test.specify "saw" <| do
             Mono.saw__testable
                 4
                 (Freq 1)
@@ -135,7 +139,7 @@ tests =
                 |> expect
                     [ 0, 0.5, -1, -0.5, 0, 0.5, -1, -0.5 ]
 
-        Test.it "sets volume" <| do
+        Test.specify "sets volume" <| do
             Mono.setVolume
                 (Volume 0.5)
                 (Mono.fromList [0, 0.5, 1, -0.5, -1 ])
@@ -143,7 +147,7 @@ tests =
                 |> expect
                     [ 0, 0.25, 0.5, -0.25, -0.5 ]
 
-        Test.it "splits at" <| do
+        Test.specify "splits at" <| do
             Mono.splitAt 
                 2 
                 (Mono.fromList [-1, 0, 1, 2])
@@ -152,14 +156,14 @@ tests =
                     , Mono.fromList [ 1, 2 ]
                     )
 
-        Test.it "subtracts" <| do
+        Test.specify "subtracts" <| do
             Mono.subtract
                 (Mono.fromList [1, 1, 0.5, 0.1, 0, 0.1 ])
                 (Mono.fromList [0, -0.1, 0.5, 1, 1, 0.5, 0 ])
                 |> Mono.toList
                 |> expect [ -1, -1.1, 0, 0.9, 1, 0.4, 0 ]
 
-        Test.it "inverts" <| do
+        Test.specify "inverts" <| do
             Mono.invert one
                 |> Mono.toList
                 |> expect [ -1 ]

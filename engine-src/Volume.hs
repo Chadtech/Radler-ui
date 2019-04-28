@@ -71,9 +71,18 @@ read :: Text -> Either Error Volume
 read txt =
     case TR.hexadecimal txt of
         Right (v, _) ->
-            fromIntegral v / 255
-                |> Volume
-                |> Right
+            let
+                fl :: Float
+                fl =
+                    fromIntegral v / 256
+            in
+            if fl > 1 || 0 > fl then
+                Left <| BeyondReadableRange fl
+
+            else
+                fl
+                    |> Volume
+                    |> Right
 
         Left err ->
             err
@@ -87,7 +96,12 @@ read txt =
 
 data Error 
     = TextNotHexadecimal Text
+    | BeyondReadableRange Float
     deriving (Eq)
+
+
+instance Show Error where
+    show = T.unpack <. throw
 
 
 throw :: Error -> Text
@@ -96,5 +110,11 @@ throw error =
         TextNotHexadecimal txt ->
             [ "Volume is not hexadecimal : "
             , txt
+            ]
+                |> T.concat
+
+        BeyondReadableRange fl ->
+            [ "Volume is not within 0 and 1 : "
+            , T.pack <| show fl
             ]
                 |> T.concat

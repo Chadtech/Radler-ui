@@ -4,6 +4,8 @@
 module Score
     ( Score
     , Resolution(..)
+    , Incoming(..)
+    , Existing(..)
     , build
     , buildFilename
     , diff
@@ -65,11 +67,19 @@ instance Show Score where
             |> T.unpack
 
 
+newtype Incoming
+    = Incoming Score
+
+
+newtype Existing
+    = Existing Score
+
+
 -- HELPERS --
 
 
-diff :: Score -> Score -> Either Error (Resolution (List Part))
-diff incomingScore existingScore =
+diff :: Incoming -> Existing -> Either Error (Resolution (List Part))
+diff (Incoming incomingScore) (Existing existingScore) =
     if incomingScore == existingScore then
         Right Resolution.Identical
 

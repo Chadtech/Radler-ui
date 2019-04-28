@@ -10,7 +10,7 @@ import Test.Hspec (hspec, SpecWith)
 import qualified Mono.Spec as Mono
 import qualified Score.Spec as Score
 import qualified Stereo.Spec as Stereo
-
+import qualified Volume.Spec as Volume
 
 main :: IO ()
 main = 
@@ -22,3 +22,4 @@ tests =
     Mono.tests
     >> Stereo.tests
     >> Score.tests
+    >> Volume.tests
