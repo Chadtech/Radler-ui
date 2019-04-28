@@ -20,14 +20,17 @@ tests =
     Test.describe "Volume" <| do
         Test.specify "Max volume can be read from text" <| do
             Volume.read "ff"
-                |> expect (Right <| Volume 1)
+                -- This is deliberately a little less than one
+                -- since trying to convert to 1 leads to Int32
+                -- overflow problems
+                |> expect (Right <| Volume 0.99609375)
 
         Test.specify "Half volume can be read from text" <| do
             Volume.read "80"
-                |> expect (Right <| Volume (128 / 255))
+                |> expect (Right <| Volume (128 / 256))
 
 
-        Test.specify "Half volume can be read from text" <| do
+        Test.specify "Zero volume can be read from text" <| do
             Volume.read "00"
                 |> expect (Right <| Volume 0)
 

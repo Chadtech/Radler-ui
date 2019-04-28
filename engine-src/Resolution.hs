@@ -25,6 +25,7 @@ data Resolution a
     deriving (Eq)
 
 
+
 instance Show a => Show (Resolution a) where
     show resolution = 
         case resolution of

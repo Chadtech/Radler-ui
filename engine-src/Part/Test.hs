@@ -22,6 +22,7 @@ import qualified Config
 import qualified Data.Either.Extra as Either
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
+import qualified Data.Tuple.Extra as Tuple
 import Mono (Mono)
 import qualified Mono
 import qualified Note

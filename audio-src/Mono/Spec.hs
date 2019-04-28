@@ -47,14 +47,14 @@ tests =
                 |> expect [ 1, 0 ]
 
         Test.specify "can turn into a list of samples" <| do
-            [ 1, 0.5, 0 ]
+            [ 255 / 256, 128 / 256, 0 ]
                 |> Mono.fromList
                 |> Mono.toSamples 
                 |> expect
-                    [ 2147483647
-                    , 1073741823
-                    , 0
-                    ]
+                    -- slightly less than one full Int32
+                    -- about half of the max Int32
+                    -- and zero
+                    [ 2139095040, 1073741824, 0 ]
 
         Test.specify "gives the length" <| do
             Mono.length one

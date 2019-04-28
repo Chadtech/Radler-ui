@@ -76,7 +76,7 @@ instance Show Part where
                 "Percussion " ++ show model
 
             Test model ->
-                "Test" ++ show model
+                "Test " ++ show model
 
 
 -- HELPERS --

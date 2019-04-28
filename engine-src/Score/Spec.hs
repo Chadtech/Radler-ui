@@ -9,6 +9,7 @@ module Score.Spec
 import Flow
 
 import qualified Audio
+import qualified Data.Either.Extra as Either
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import qualified Resolution
@@ -16,6 +17,7 @@ import qualified Score
 import Test.Extra (expect)
 import Test.Hspec (SpecWith)
 import qualified Test.Hspec as Test
+import qualified Timeline
 
 
 makeTestTextFromNotes :: Text -> Text
@@ -70,21 +72,26 @@ tests =
                         (Score.Existing score)
                         |> expect (Right Resolution.Identical)
 
---                 Test.specify "Score diffed with slightly different version resolves to Changes" <|
---                     case
---                         "21"
---                             |> makeNotes
---                             |> makeTestTextFromNotes
---                             |> Score.fromText
---                     of
---                         Right score2 ->
---                             Score.diff
---                                 (Score.Incoming score2)
---                                 (Score.Existing score)
---                                 |> expect (Right Resolution.Identical)
---
---                         Left error ->
---                             expect True False
+                Test.specify "Score diffed with slightly different version resolves to Changes" <|
+                    case
+                        "21"
+                            |> makeNotes
+                            |> makeTestTextFromNotes
+                            |> Score.fromText
+                    of
+                        Right score2 ->
+                            Score.diff
+                                (Score.Incoming score2)
+                                (Score.Existing score)
+                                |> Either.mapRight show
+                                |> expect (Right "Changes\n\
+                                    \Remove\n\
+                                    \[Test Timeline fromList [],Test Timeline fromList [(0,20)]]\n\
+                                    \Add\n\
+                                    \[Test Timeline fromList [],Test Timeline fromList [(0,21)]]\n")
+
+                        Left error ->
+                            expect True False
 
 
         Left error ->
