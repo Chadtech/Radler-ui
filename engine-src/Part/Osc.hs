@@ -329,7 +329,9 @@ readNonEmptyNoteText config maybeFreqError (time, seed, contentTxt) =
         |> Right
         |> parse freqResult id
         |> parse (Volume.read volumeText) VolumeError
-        |> parse (Duration.read config durationText) DurationError
+        |> parse
+            (Duration.read (Config.beatLength config) durationText)
+            DurationError
         |> parse (Contour.read contourText) ContourError
         |> Either.mapRight ((,) time)
 

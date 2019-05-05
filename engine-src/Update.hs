@@ -114,6 +114,7 @@ playScore incomingScore model =
                 audio :: Audio
                 audio =
                     Score.toDevAudio incomingScore
+                        |> Audio.trimEnd
             in
             Program.setModel 
                 (Model.HasScore incomingScore audio)
@@ -137,6 +138,7 @@ playScore incomingScore model =
                             existingAudio
                                 |> Audio.subtract (Part.manyToDevAudio toRemove)
                                 |> Audio.mix (Part.manyToDevAudio toAdd)
+                                |> Audio.trimEnd
                     in            
                     Program.setModel
                         (Model.HasScore incomingScore newAudio)

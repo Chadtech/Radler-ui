@@ -42,11 +42,12 @@ instance Show Duration where
 -- HELPERS --
 
 
-read :: Config -> Text -> Either Error Duration
-read config txt =
+read :: Int -> Text -> Either Error Duration
+read resolution txt =
     case TR.hexadecimal txt of
         Right (v, _) ->
-            v * Config.beatLength config
+            v * resolution
+--             v * Config.beatLength config
                 |> Duration
                 |> Right
 

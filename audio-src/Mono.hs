@@ -335,7 +335,7 @@ compress times (Mono vector) =
 
 declip :: Mono -> Mono
 declip =
-    declip__testable 120
+    declip__testable 30
 
 
 declip__testable :: Int -> Mono -> Mono

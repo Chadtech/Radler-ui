@@ -2,30 +2,57 @@
     "name": "radler-test-piece-4",
     "parts-src": "./parts",
     "score": [
+        { "name": "3", "length": 14 },
+        {
+            "name": "4",
+            "length": 80
+        },
+        {
+            "name": "5-0",
+            "length": 80
+        },
+        {
+            "name": "5-2",
+            "length": 80
+        },
+        {
+            "name": "5-3",
+            "length": 80
+        },
+        {
+            "name": "6-2",
+            "length": 80
+        },
+        {
+            "name": "6-1",
+            "length": 80
+        },
+        {
+            "name": "6-0",
+            "length": 80
+        },
+        {
+            "name": "7",
+            "length": 80
+        },
+        {
+            "name": "8",
+            "length": 80
+        },
         {
             "name": "9",
-            "length": 128
+            "length": 80
         },
         {
             "name": "a",
-            "length": 128
-        },
-        {
-            "name": "b",
-            "length": 128
-        },
-        {
-            "name": "c",
-            "length": 128
-        },
-        {
-            "name": "d",
-            "length": 128
+            "length": 80
         }
     ],
     "voices": [
         "percussion | position(x=-3 y=2 z=0)",
-        "dullsaw | position( x=5 y=1 z=1 ) freqerror(0.01)"
+        "percussion | position(x=4 y=2 z=1)",
+        "dullsaw | position( x=5 y=1 z=1 ) freqerror(0.005)",
+        "dullsaw | position( x=-2 y=0 z=2 ) freqerror(0.005)"
 
         
     ],
@@ -43,6 +70,6 @@
     },
     "seed": 19,
     "timing-variance": 100,
-    "beat-length": 2000,
-    "scale": "major 7 tone jit"
+    "beat-length": 4000,
+    "scale": "slendro"
 }

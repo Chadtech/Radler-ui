@@ -31,6 +31,7 @@ import qualified Config
 import Contour (Contour)
 import qualified Contour
 import qualified Data.Either.Extra as Either
+import Data.Int (Int64)
 import qualified Data.List as List
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
@@ -39,6 +40,7 @@ import Data.Vector (Vector)
 import qualified Data.Vector as VectorPap
 import Freq (Freq(Freq))
 import qualified Freq
+import qualified Mono.Fade
 import qualified Note
 import Parse (parse)
 import qualified Parse
@@ -128,9 +130,12 @@ data Flags
 
 
 data Sound
-    = Pulse
+    = Pulse Duration
+    | Noise Duration
+    | Hat Duration
+    | Unit
+    | Clunk
     | Kick
-    | BigKick
     deriving (Eq)
 
 
@@ -145,14 +150,23 @@ instance Show Sound where
 soundToText :: Sound -> Text
 soundToText sound =
     case sound of
-        Pulse ->
+        Pulse _ ->
             "pulse"
+
+        Noise _ ->
+            "noise"
+
+        Hat _ ->
+           "hi-hat"
+
+        Unit ->
+            "unit"
+
+        Clunk ->
+            "clunk"
 
         Kick ->
             "kick"
-
-        BigKick ->
-            "big-kick"
 
 
 makeFlags :: Parse.Fields Text -> Flags
@@ -280,36 +294,65 @@ readNoteText config noteTxt =
 readNonEmptyNoteText :: Config -> (Time, Random.StdGen, Text) -> Either Error (Time, Note)
 readNonEmptyNoteText config (time, seed, contentText) =
     let
-        -- Something like "pl"
+        -- Something like "pul"
         noteText :: Text
         noteText =
-            slice 0 2 contentText
+            slice 0 3 contentText
 
         -- 00 to FF
         volumeText :: Text
         volumeText =
-            slice 2 4 contentText
-        
+            slice 3 5 contentText
+
+        -- Extra info for specific notes
+        extraText :: Text
+        extraText =
+            slice 5 (fromInt64 <| T.length contentText) contentText
+
     in
     Note
         |> Right
         |> parse (Volume.read volumeText) VolumeError
         |> Parse.apply seed
-        |> parse (readSoundText noteText) id
+        |> parse (readSoundText extraText noteText) id
         |> Either.mapRight ((,) time)
 
 
-readSoundText :: Text -> Either Error Sound
-readSoundText soundText =
+readSoundText :: Text -> Text -> Either Error Sound
+readSoundText extraText soundText =
     case soundText of
-        "pl" ->
-            Right Pulse
+        "pul" ->
+            case Duration.read 10 extraText of
+                Right duration ->
+                    Right <| Pulse duration
 
-        "ki" ->
+                Left error ->
+                    Left <| DurationError error
+
+        "noi" ->
+             case Duration.read 100 extraText of
+                 Right duration ->
+                     Right <| Noise  duration
+
+                 Left error ->
+                     Left <| DurationError error
+
+        "hat" ->
+             case Duration.read 100 extraText of
+                 Right duration ->
+                     Right <| Hat duration
+
+                 Left error ->
+                     Left <| DurationError error
+
+        "cnk" ->
+            Right Clunk
+
+        "kic" ->
             Right Kick
 
-        "bi" ->
-            Right BigKick
+        "unt" ->
+            Right Unit
 
         _ ->
             Left <| UnrecognizedSoundText soundText
@@ -331,11 +374,52 @@ noteToMono note =
 
         Note volume seed sound ->
             case sound of
-                Pulse ->
-                    Mono.fromSample (Duration 50) 1
-                        |> Mono.setVolume volume
+                Unit ->
+                    Mono.singleton <| Volume.toFloat volume
 
-                Kick ->
+                Pulse duration ->
+                    volume
+                        |> Volume.toFloat
+                        |> Mono.fromSample duration
+                        |> Mono.declip
+
+                Noise (Duration duration) ->
+                    let
+                        noise :: List Float
+                        noise =
+                            Random.randomRs
+                                (-1, 1)
+                                seed
+                    in
+                    noise
+                        |> List.take duration
+                        |> Mono.fromList
+                        |> Mono.setVolume volume
+                        |> Mono.Fade.out Timing.Linear
+                        |> Mono.declip
+
+                Hat (Duration duration) ->
+                    let
+                        noise :: Mono
+                        noise =
+                            Random.randomRs
+                                (-1, 1)
+                                seed
+                                |> List.take duration
+                                |> Mono.fromList
+                                |> Mono.setVolume volume
+                                |> Mono.Fade.out Timing.Linear
+                    in
+                    [ Mono.sin 0 (Freq 310) (Duration 1280)
+                    , Mono.sin 0 (Freq 630) (Duration 1280)
+                    , Mono.sin 0 (Freq 1510) (Duration 600)
+                    ]
+                        |> Mono.mixMany
+                        |> Mono.Fade.out Timing.Linear
+                        |> Mono.deltaConvolve noise
+                        |> Mono.declip
+
+                Clunk ->
                     let
                         pulseFadingIn :: Mono
                         pulseFadingIn =
@@ -363,14 +447,28 @@ noteToMono note =
                                 |> Mono.compress 1
                                 |> Mono.setVolume (Volume 0.5)
 
+
+                        (highFreq, seed1) =
+                            ( Random.randomR
+                                (423, 479)
+                                seed
+                            ) :: (Float, Random.StdGen)
+
+
+                        (lowFreq, seed2) =
+                            ( Random.randomR
+                                (199, 221)
+                                seed1
+                            ) :: (Float, Random.StdGen)
+
                     in
                     [ pulseFadingIn
-                    , Mono.sinByWaveCount 0 (Freq 451) 3
+                    , Mono.sinByWaveCount 0 (Freq highFreq) 3
                         |> Mono.Fade.out Timing.Linear
                         |> Mono.convolve pulseFadingIn
                         |> Mono.delay (Duration 25)
 
-                    , Mono.sinByWaveCount 0 (Freq 210) 3
+                    , Mono.sinByWaveCount 0 (Freq lowFreq) 3
                         |> Mono.Fade.out Timing.Linear
                         |> Mono.convolve pulseFadingIn
                         |> Mono.delay (Duration 25)
@@ -381,8 +479,9 @@ noteToMono note =
                         |> Mono.compress 4
                         |> Mono.convolve drumBody
                         |> Mono.setVolume volume
+                        |> Mono.declip
 
-                BigKick ->
+                Kick ->
                     let
                         pulseFadingIn :: Mono
                         pulseFadingIn =
@@ -408,13 +507,25 @@ noteToMono note =
                             ]
                                 |> Mono.concat
 
+                        (highFreq, seed1) =
+                            ( Random.randomR
+                                (115, 129)
+                                seed
+                            ) :: (Float, Random.StdGen)
+
+
+                        (lowFreq, seed2) =
+                            ( Random.randomR
+                                (36, 40)
+                                seed1
+                            ) :: (Float, Random.StdGen)
                     in
                     [ pulseFadingIn
-                    , Mono.sinByWaveCount 0 (Freq 122) 3
+                    , Mono.sinByWaveCount 0 (Freq highFreq) 3
                         |> Mono.Fade.out Timing.Linear
                         |> Mono.deltaConvolve pulseFadingIn
                         |> Mono.compress 1
-                    , Mono.sinByWaveCount 0 (Freq 38) 3
+                    , Mono.sinByWaveCount 0 (Freq lowFreq) 3
                         |> Mono.Fade.out Timing.Linear
                         |> Mono.deltaConvolve pulseFadingIn
                         |> Mono.compress 1
@@ -424,6 +535,7 @@ noteToMono note =
                         |> Mono.compress 2
                         |> Mono.deltaConvolve drumBody
                         |> Mono.setVolume volume
+                        |> Mono.declip
 
 
 build :: Maybe Room -> Model -> Audio
@@ -451,6 +563,7 @@ data Error
     | PositionError Position.Error
     | UnrecognizedSoundText Text
     | FieldsError Text
+    | DurationError Duration.Error
     deriving (Eq)
 
 
@@ -469,10 +582,12 @@ throw error =
         UnrecognizedSoundText soundText ->
             [ "The following is not a valid sound type -> \n"
             , soundText
-            , "\nI was expecting something like \"pl80\""
+            , "\nI was expecting something like \"pul80\""
             ]
                 |> T.concat
 
-
         FieldsError text ->
             T.append "Fields Error -> " text
+
+        DurationError error ->
+            Duration.throw error

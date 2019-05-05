@@ -68,11 +68,28 @@ singleton sample =
 
 
 trimEnd :: Stereo -> Stereo
-trimEnd stereo =
-    stereo
-        |> toMonos
-        |> Tuple.both (Mono.trimEnd)
-        |> fromMonos
+trimEnd (Stereo vector) =
+    let
+        isSampleZero :: Int -> (Float, Float) -> Maybe Int -> Maybe Int
+        isSampleZero index sample maybeLastNonZeroIndex =
+            if
+                maybeLastNonZeroIndex == Nothing
+                    && sample /= (0,0)
+            then
+                Just index
+
+            else
+                maybeLastNonZeroIndex
+    in
+    case
+        Vector.ifoldr isSampleZero Nothing vector
+    of
+        Just lastNonZeroIndex ->
+            Vector.take (lastNonZeroIndex + 1) vector
+                |> Stereo
+
+        Nothing ->
+            Stereo vector
 
 
 length :: Stereo -> Int

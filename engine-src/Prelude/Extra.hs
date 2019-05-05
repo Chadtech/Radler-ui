@@ -2,8 +2,9 @@
 
 
 module Prelude.Extra 
-    ( andThen
-    , List
+    ( List
+    , andThen
+    , fromInt64
     , trace
     , mapTrace
     , mixLists
@@ -18,6 +19,7 @@ module Prelude.Extra
 
 import Flow
 
+import Data.Int (Int64)
 import qualified Data.List as List
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
@@ -97,3 +99,8 @@ mark =
 range :: Int -> Int -> List Int
 range n m =
     [n..m]
+
+
+fromInt64 :: Int64 -> Int
+fromInt64 =
+    fromIntegral
