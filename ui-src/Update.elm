@@ -1,7 +1,6 @@
 module Update exposing (update)
 
 import Data.Page as Page
-import Json.Decode as Decode
 import Model exposing (Model)
 import Msg exposing (Msg(..))
 import Page.Package as Package
@@ -45,7 +44,6 @@ update msg model =
                 Page.Parts partsModel ->
                     model
                         |> Parts.update partsModel subMsg
-                        |> CmdUtil.withNoCmd
 
                 _ ->
                     model
@@ -55,3 +53,8 @@ update msg model =
             model
                 |> Modal.update subMsg
                 |> CmdUtil.mapCmd ModalMsg
+
+        EscapePressed ->
+            model
+                |> Model.clearModal
+                |> CmdUtil.withNoCmd

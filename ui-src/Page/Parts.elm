@@ -6,7 +6,6 @@ module Page.Parts exposing
 
 import Colors
 import Css exposing (..)
-import Data.Error as Error
 import Data.Modal as Modal
 import Data.Modal.DeletePart as DeletePart
 import Data.Page.Parts as Parts
@@ -17,6 +16,7 @@ import Html.Styled.Attributes as Attrs
 import Html.Styled.Events as Events
 import Model exposing (Model)
 import Style
+import Util.Cmd as CmdUtil
 import Util.Css as CssUtil
 
 
@@ -41,7 +41,7 @@ type SelectedPartMsg
 -- UPDATE --
 
 
-update : Maybe Parts.Model -> Msg -> Model -> Model
+update : Maybe Parts.Model -> Msg -> Model -> ( Model, Cmd msg )
 update maybePartsModel msg model =
     case msg of
         PartClicked newIndex ->
@@ -52,15 +52,18 @@ update maybePartsModel msg model =
                         , selectedPartIndex = newIndex
                         }
                         model
+                        |> CmdUtil.withNoCmd
 
                 Nothing ->
                     model
+                        |> CmdUtil.withNoCmd
 
         NameFieldUpdated str ->
             Model.mapSelectedPart
                 maybePartsModel
                 (Part.setName str)
                 model
+                |> CmdUtil.withNoCmd
 
         NewPartClicked ->
             Model.addNewPart model
@@ -68,10 +71,13 @@ update maybePartsModel msg model =
         SelectedPartMsg subMsg ->
             case maybePartsModel of
                 Just partsModel ->
-                    updatePartModel subMsg partsModel model
+                    model
+                        |> updatePartModel subMsg partsModel
+                        |> CmdUtil.withNoCmd
 
                 Nothing ->
                     model
+                        |> CmdUtil.withNoCmd
 
 
 updatePartModel : SelectedPartMsg -> Parts.Model -> Model -> Model

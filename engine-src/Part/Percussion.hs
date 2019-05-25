@@ -358,16 +358,16 @@ readSoundText extraText soundText =
             Left <| UnrecognizedSoundText soundText
 
 
-toMono :: Model -> Mono
-toMono model = 
+toMono :: Bool -> Model -> Mono
+toMono building model =
     model
         |> notes
-        |> Timeline.map noteToMono
+        |> Timeline.map (noteToMono building)
         |> Timeline.toMono
 
 
-noteToMono :: Note -> Mono
-noteToMono note =
+noteToMono :: Bool -> Note -> Mono
+noteToMono building note =
     case note of
         HardRest ->
             Mono.silence <| Duration (44100 * 30)
@@ -390,11 +390,21 @@ noteToMono note =
                             Random.randomRs
                                 (-1, 1)
                                 seed
+
+
+                        volumeBias :: Mono -> Mono
+                        volumeBias =
+                            if building then
+                                Mono.setVolume (Volume 2)
+
+                            else
+                                id
                     in
                     noise
                         |> List.take duration
                         |> Mono.fromList
                         |> Mono.setVolume volume
+                        |> volumeBias
                         |> Mono.Fade.out Timing.Linear
                         |> Mono.declip
 
@@ -543,11 +553,12 @@ build maybeRoom model =
     let
         mono :: Mono
         mono =
-            toMono model
+            toMono True model
     in
     case (maybeRoom, position model) of
         (Just room, Just position) ->
-            positionMono room position mono
+            mono
+                |> positionMono room position
                 |> Audio.fromStereo
 
         _ ->

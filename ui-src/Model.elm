@@ -18,6 +18,7 @@ module Model exposing
     , mapSelectedPart
     , mapTracker
     , removeTracker
+    , save
     , saveParts
     , score
     , setBackendStatusIdle
@@ -98,7 +99,7 @@ init flags =
     in
     { parts = flags.parts
     , trackers =
-        [ Tracker.init Style.Small 0
+        [ Tracker.init Style.Big 0
         , Tracker.init Style.Big 0
         ]
             |> Array.fromList
@@ -327,10 +328,10 @@ copyPart partIndex copysName model =
             model
 
 
-addNewPart : Model -> Model
+addNewPart : Model -> ( Model, Cmd msg )
 addNewPart model =
     let
-        addNewPartWithName : String -> Model
+        addNewPartWithName : String -> ( Model, Cmd msg )
         addNewPartWithName newPartName =
             if
                 model.parts
@@ -341,18 +342,37 @@ addNewPart model =
                 addNewPartWithName (newPartName ++ "-1")
 
             else
-                { model
+                let
+                    newPart : Part
+                    newPart =
+                        Part.empty newPartName
+                in
+                ( { model
                     | parts =
                         Array.push
-                            (Part.empty newPartName)
+                            newPart
                             model.parts
-                }
+                  }
+                , Part.saveToDisk newPart
+                )
     in
     addNewPartWithName "new-part"
 
 
 
 -- SAVING -
+
+
+{-| Save everything, parts and package
+-}
+save : Model -> Cmd msg
+save model =
+    [ Package.saveToDisk
+        model.package
+    , saveParts
+        model
+    ]
+        |> Cmd.batch
 
 
 {-|

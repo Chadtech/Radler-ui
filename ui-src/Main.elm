@@ -1,6 +1,7 @@
 module Main exposing (main)
 
 import Browser
+import Browser.Events
 import Data.Flags as Flags
 import Html.Styled as Html
 import Json.Decode as Decode
@@ -36,7 +37,10 @@ subscriptions : Result Decode.Error Model -> Sub Msg
 subscriptions result =
     case result of
         Ok _ ->
-            Ports.fromJs Msg.decode
+            [ Ports.fromJs Msg.decode
+            , Browser.Events.onKeyUp Msg.escapePressedDecoder
+            ]
+                |> Sub.batch
 
         Err _ ->
             Sub.none

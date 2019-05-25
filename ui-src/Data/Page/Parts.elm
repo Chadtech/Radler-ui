@@ -3,7 +3,6 @@ module Data.Page.Parts exposing
     , Model
     , init
     , setCopyName
-    , setSelectedPartIndex
     )
 
 -- TYPES --
@@ -30,11 +29,6 @@ init flags =
 
 
 -- HELPERS --
-
-
-setSelectedPartIndex : Int -> Model -> Model
-setSelectedPartIndex newIndex model =
-    { model | selectedPartIndex = newIndex }
 
 
 setCopyName : String -> Model -> Model

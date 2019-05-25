@@ -56,7 +56,7 @@ update msg model =
             { model
                 | trackers =
                     Array.push
-                        (Tracker.init Style.Small 0)
+                        (Tracker.init Style.Big 0)
                         model.trackers
             }
                 |> CmdUtil.withNoCmd
@@ -75,12 +75,7 @@ update msg model =
                         |> CmdUtil.withNoCmd
 
         SaveClicked ->
-            [ Package.saveToDisk
-                model.package
-            , Model.saveParts
-                model
-            ]
-                |> Cmd.batch
+            Model.save model
                 |> CmdUtil.withModel model
 
         BuildClicked ->

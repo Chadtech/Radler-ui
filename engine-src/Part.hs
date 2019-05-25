@@ -265,7 +265,7 @@ toDevAudio part =
 
         Percussion model ->
             model
-                |> Percussion.toMono
+                |> Percussion.toMono False
                 |> Audio.fromMono
 
         Test model ->

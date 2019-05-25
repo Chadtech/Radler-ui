@@ -46,7 +46,32 @@
         {
             "name": "a",
             "length": 80
+        },
+        {
+            "name": "b-v2",
+            "length": 80
+        },
+        {
+            "name": "drum-solo-0",
+            "length": 80
+        },
+        {
+            "name": "drum-solo-1",
+            "length": 80
+        },
+        {
+            "name": "c-v0",
+            "length": 80
+        },
+        {
+            "name": "d",
+            "length": 80
+        },
+        {
+            "name": "e",
+            "length": 160
         }
+
     ],
     "voices": [
         "percussion | position(x=-3 y=2 z=0)",
@@ -59,8 +84,8 @@
     "room": {
          "size": {
               "width": 10,
-              "length": 12,
-              "height": 17
+              "length": 3,
+              "height": 2
           },
           "listener-position": {
               "x": 5,

@@ -4,13 +4,13 @@ import Api
 import Array exposing (Array)
 import Data.Beat as Beat exposing (Beat)
 import Data.Encoding as Encoding
-import Data.Flags as Flags exposing (Flags)
 import Data.Note
 import Data.Package
 import Data.Part exposing (Part)
 import Expect exposing (Expectation)
 import Json.Decode as Decode
 import Json.Encode as Encode
+import Main
 import Model exposing (Model)
 import Test exposing (Test, describe, test)
 import Ui.Modal.Build
@@ -19,6 +19,10 @@ import Util.Array as ArrayUtil
 
 tests : Test
 tests =
+    let
+        _ =
+            Main.main
+    in
     case
         Decode.decodeValue
             Data.Package.decoder

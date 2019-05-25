@@ -1,6 +1,7 @@
 module Msg exposing
     ( Msg(..)
     , decode
+    , escapePressedDecoder
     )
 
 import Json.Decode as Decode exposing (Decoder)
@@ -11,6 +12,10 @@ import Ui.Modal as Modal
 import Ui.Tracker as Tracker
 
 
+
+-- TYPES --
+
+
 type Msg
     = MsgDecodeFailed Decode.Error
     | TrackerMsg Int Tracker.Msg
@@ -18,6 +23,28 @@ type Msg
     | PackageMsg Package.Msg
     | PartsMsg Parts.Msg
     | ModalMsg Modal.Msg
+    | EscapePressed
+
+
+
+-- DECODERS --
+
+
+escapePressedDecoder : Decoder Msg
+escapePressedDecoder =
+    let
+        fromString : String -> Decoder Msg
+        fromString str =
+            case str of
+                "Escape" ->
+                    Decode.succeed EscapePressed
+
+                _ ->
+                    Decode.fail "Key is not escape"
+    in
+    Decode.string
+        |> Decode.field "key"
+        |> Decode.andThen fromString
 
 
 decode : Decode.Value -> Msg
