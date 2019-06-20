@@ -16,6 +16,7 @@ update msg model =
     case msg of
         MsgDecodeFailed error ->
             model
+                |> Model.setError error
                 |> CmdUtil.withNoCmd
 
         TrackerMsg ti subMsg ->

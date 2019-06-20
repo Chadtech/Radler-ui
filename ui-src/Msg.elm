@@ -4,6 +4,7 @@ module Msg exposing
     , escapePressedDecoder
     )
 
+import Data.Error as Error exposing (Error)
 import Json.Decode as Decode exposing (Decoder)
 import Page.Package as Package
 import Page.Parts as Parts
@@ -17,7 +18,7 @@ import Ui.Tracker as Tracker
 
 
 type Msg
-    = MsgDecodeFailed Decode.Error
+    = MsgDecodeFailed Error
     | TrackerMsg Int Tracker.Msg
     | HeaderMsg Header.Msg
     | PackageMsg Package.Msg
@@ -54,20 +55,20 @@ decode json =
             msg
 
         Err err ->
-            MsgDecodeFailed err
+            MsgDecodeFailed <| Error.MsgDecodeError err
 
 
 decoder : Decoder Msg
 decoder =
+    let
+        payloadDecoder : String -> Decoder Msg
+        payloadDecoder type_ =
+            [ Modal.msgDecoderFromType type_
+                |> Decode.map ModalMsg
+            ]
+                |> Decode.oneOf
+                |> Decode.field "payload"
+    in
     Decode.string
         |> Decode.field "type"
-        |> Decode.andThen
-            (Decode.field "payload" << toMsg)
-
-
-toMsg : String -> Decoder Msg
-toMsg type_ =
-    [ Modal.msgDecoderFromType type_
-        |> Decode.map ModalMsg
-    ]
-        |> Decode.oneOf
+        |> Decode.andThen payloadDecoder

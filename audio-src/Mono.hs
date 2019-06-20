@@ -471,11 +471,6 @@ toSamples (Mono vector) =
             (toInt32 <. (*) maxInt32Sample)
 
 
-maxInt32Sample :: Float
-maxInt32Sample =
-    2147483647
-
-
 toInt32 :: Float -> Int32
 toInt32 =
     truncate

@@ -3,6 +3,7 @@
 
 module Audio
     ( Audio
+    , Audio.read
     , empty
     , fromList
     , trimEnd
@@ -15,6 +16,7 @@ module Audio
     , setVolume
     , Audio.subtract
     , write
+    , ReadError
     ) where
 
 
@@ -26,6 +28,9 @@ import qualified Mono
 import Stereo (Stereo)
 import qualified Stereo
 
+import qualified Control.Monad as CM
+import qualified Data.Either.Extra as Either
+import Data.Int (Int64, Int32)
 import qualified Data.List as List
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
@@ -33,7 +38,6 @@ import Data.WAVE (WAVE)
 import qualified Data.WAVE as W
 import qualified System.Process as SP
 import Volume (Volume(Volume))
-
 
 -- TYPES --
 
@@ -201,6 +205,62 @@ write fn audio =
 
         }
         |> W.putWAVEFile (T.unpack fn)
+
+
+
+data ReadError
+    = MoreThanTwoChannels
+    | ImpossibleCaseOfMoreThanOneChannel
+
+
+read :: Text -> IO (Either ReadError Audio)
+read fn =
+    let
+        divideTo1 :: Float -> Float
+        divideTo1 fl =
+            fl / maxInt32Sample
+
+
+        frameToMono :: List Int32 -> Either ReadError Float
+        frameToMono frame =
+            case frame of
+                sample : [] ->
+                    sample
+                        |> fromInt32
+                        |> toFloat
+                        |> divideTo1
+                        |> Right
+
+                _ ->
+                    Left ImpossibleCaseOfMoreThanOneChannel
+
+        toMono :: List (List Int32) -> Either ReadError Mono
+        toMono samples =
+            samples
+                |> List.map frameToMono
+                |> CM.sequence
+                |> Either.mapRight Mono.fromList
+
+
+        toAudio :: W.WAVE -> Either ReadError Audio
+        toAudio wave =
+            case W.waveNumChannels <| W.waveHeader wave of
+                1 ->
+                    wave
+                        |> W.waveSamples
+                        |> toMono
+                        |> Either.mapRight Mono
+
+
+                2 ->
+                    Right empty
+
+                _ ->
+                    Left MoreThanTwoChannels
+
+    in
+    W.getWAVEFile (T.unpack fn)
+        |> mapIO toAudio
 
 
 header :: Audio -> W.WAVEHeader

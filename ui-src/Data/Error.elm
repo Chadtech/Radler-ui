@@ -5,10 +5,13 @@ module Data.Error exposing
 
 -- TYPES --
 
+import Json.Decode as Decode
+
 
 type Error
     = ScoreDidNotSave
     | BackendHadProblemWithScore String
+    | MsgDecodeError Decode.Error
 
 
 
@@ -27,3 +30,9 @@ toString error =
 
         BackendHadProblemWithScore str ->
             str
+
+        MsgDecodeError decodeError ->
+            [ "There was a problem decoding an incoming message from JS -> "
+            , Decode.errorToString decodeError
+            ]
+                |> String.concat

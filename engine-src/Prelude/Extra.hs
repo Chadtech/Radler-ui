@@ -5,6 +5,7 @@ module Prelude.Extra
     ( List
     , andThen
     , fromInt64
+    , fromInt32
     , trace
     , mapTrace
     , mixLists
@@ -14,18 +15,25 @@ module Prelude.Extra
     , showText
     , range
     , mark
+    , mapIO
+    , maxInt32Sample
     ) where
 
 
 import Flow
 
-import Data.Int (Int64)
+import Data.Int (Int64, Int32)
 import qualified Data.List as List
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import qualified Data.Text.Lazy.Read as TR
 import Prelude hiding (head)
 import qualified Debug.Trace as Debug
+
+
+mapIO :: (a -> b) -> IO a -> IO b
+mapIO =
+    fmap
 
 
 showText :: Show a => a -> Text
@@ -104,3 +112,13 @@ range n m =
 fromInt64 :: Int64 -> Int
 fromInt64 =
     fromIntegral
+
+
+fromInt32 :: Int32 -> Int
+fromInt32 =
+    fromIntegral
+
+
+maxInt32Sample :: Float
+maxInt32Sample =
+    2147483647
