@@ -3,6 +3,7 @@
 
 module Prelude.Extra 
     ( List
+    , require
     , andThen
     , fromInt64
     , fromInt32
@@ -13,6 +14,7 @@ module Prelude.Extra
     , toFloat
     , replaceChar
     , showText
+    , toIO
     , range
     , mark
     , mapIO
@@ -36,6 +38,10 @@ mapIO =
     fmap
 
 
+toIO :: a -> IO a
+toIO =
+    return
+
 showText :: Show a => a -> Text
 showText =
     show .> T.pack
@@ -44,6 +50,11 @@ showText =
 andThen :: Monad m => (a -> m b) -> m a -> m b
 andThen f m =
     m >>= f
+
+
+require :: Monad m => m a -> m (a -> b) -> m b
+require ma fm =
+    andThen (\f -> fmap f ma) fm
 
 
 toFloat :: Int -> Float

@@ -3,11 +3,13 @@
 
 module Audio
     ( Audio
+    , Audio.concat
     , Audio.read
+    , append
     , empty
+    , fromMono
     , fromList
     , trimEnd
-    , fromMono
     , fromStereo
     , mixMany
     , mix 
@@ -59,6 +61,35 @@ instance Show Audio where
 
 
 -- HELPERS --
+
+
+append :: Audio -> Audio -> Audio
+append audio0 audio1 =
+    case (audio0, audio1) of
+        (Stereo stereo0, Stereo stereo1) ->
+            Stereo <| Stereo.append stereo0 stereo1
+
+        (Mono mono, Stereo stereo) ->
+            Stereo <| Stereo.append (Stereo.fromMono mono) stereo
+
+        (Stereo stereo, Mono mono) ->
+            Stereo <| Stereo.append stereo (Stereo.fromMono mono)
+
+        (Mono mono0, Mono mono1) ->
+            Mono <| Mono.append mono0 mono1
+
+
+concat :: List Audio -> Audio
+concat audios =
+    case audios of
+        first : [] ->
+            first
+
+        first : rest ->
+            append first <| Audio.concat rest
+
+        [] ->
+            empty
 
 
 trimEnd :: Audio -> Audio
@@ -213,7 +244,7 @@ data ReadError
     | ImpossibleCaseOfMoreThanOneChannel
 
 
-read :: Text -> IO (Either ReadError Audio)
+read :: Text -> IO Audio
 read fn =
     let
         divideTo1 :: Float -> Float
@@ -221,7 +252,7 @@ read fn =
             fl / maxInt32Sample
 
 
-        frameToMono :: List Int32 -> Either ReadError Float
+        frameToMono :: List Int32 -> IO Float
         frameToMono frame =
             case frame of
                 sample : [] ->
@@ -229,38 +260,35 @@ read fn =
                         |> fromInt32
                         |> toFloat
                         |> divideTo1
-                        |> Right
+                        |> return
 
                 _ ->
-                    Left ImpossibleCaseOfMoreThanOneChannel
+                    error "impossible case of more than one channel for single channel audio"
 
-        toMono :: List (List Int32) -> Either ReadError Mono
+        toMono :: List (List Int32) -> IO Mono
         toMono samples =
             samples
                 |> List.map frameToMono
                 |> CM.sequence
-                |> Either.mapRight Mono.fromList
+                |> fmap Mono.fromList
 
 
-        toAudio :: W.WAVE -> Either ReadError Audio
+        toAudio :: W.WAVE -> IO Audio
         toAudio wave =
             case W.waveNumChannels <| W.waveHeader wave of
                 1 ->
-                    wave
-                        |> W.waveSamples
-                        |> toMono
-                        |> Either.mapRight Mono
-
+                    Mono.read fn
+                        |> mapIO Mono
 
                 2 ->
-                    Right empty
+                    return empty
 
                 _ ->
-                    Left MoreThanTwoChannels
+                    error "more than two channels"
 
     in
     W.getWAVEFile (T.unpack fn)
-        |> mapIO toAudio
+        |> andThen toAudio
 
 
 header :: Audio -> W.WAVEHeader

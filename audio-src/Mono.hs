@@ -3,7 +3,9 @@
 
 module Mono
     ( Mono
+    , Mono.read
     , Mono.map
+
     , append
     , applyFrom
     , applyUntil
@@ -21,6 +23,8 @@ module Mono
     , fromSample
     , indexedMap
     , invert
+    , invertAbove
+    , invertBelow
     , Mono.length
     , maxInt32Sample
     , mix
@@ -49,9 +53,13 @@ import qualified Control.Monad as CM
 import qualified Data.Fixed as Fixed
 import Data.Int (Int32)
 import qualified Data.List as List
+import Data.Text.Lazy (Text)
+import qualified Data.Text.Lazy as T
 import Data.Vector.Unboxed (Vector)
 import qualified Data.Vector.Unboxed as Vector
 import qualified Data.Vector as V
+import Data.WAVE (WAVE)
+import qualified Data.WAVE as W
 import qualified Data.Tuple.Extra as Tuple
 import Freq (Freq(Freq))
 import Duration (Duration(Duration))
@@ -333,6 +341,25 @@ compress times (Mono vector) =
 
 
 
+invertAbove :: Float -> Mono -> Mono
+invertAbove sampleLimit (Mono vector) =
+    let
+        adjustSample :: Float -> Float
+        adjustSample sample =
+            if sample > sampleLimit then
+                sampleLimit - (sample - sampleLimit)
+
+            else
+                sample
+    in
+    Mono <| Vector.map adjustSample vector
+
+
+invertBelow :: Float -> Mono -> Mono
+invertBelow sampleLimit =
+    invert <. invertAbove sampleLimit <. invert
+
+
 declip :: Mono -> Mono
 declip =
     declip__testable 30
@@ -542,4 +569,43 @@ subtract mono =
 invert :: Mono -> Mono
 invert (Mono mono) =
     Mono <| Vector.map ((*) (-1)) mono
-        
+
+
+read :: Text -> IO Mono
+read fn =
+    let
+        divideTo1 :: Float -> Float
+        divideTo1 fl =
+            fl / maxInt32Sample
+
+
+        frameToMono :: List Int32 -> IO Float
+        frameToMono frame =
+            case frame of
+                sample : [] ->
+                    sample
+                        |> fromInt32
+                        |> toFloat
+                        |> divideTo1
+                        |> return
+
+                _ ->
+                    error "Mono Read Error : impossible case of more than one channel for single channel audio"
+
+
+        toAudio :: W.WAVE -> IO Mono
+        toAudio wave =
+            case W.waveNumChannels <| W.waveHeader wave of
+                1 ->
+                    wave
+                        |> W.waveSamples
+                        |> List.map frameToMono
+                        |> CM.sequence
+                        |> mapIO fromList
+
+                _ ->
+                    error "Mono Read Error : more than one channel"
+
+    in
+    W.getWAVEFile (T.unpack fn)
+        |> andThen toAudio
