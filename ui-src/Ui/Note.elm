@@ -195,12 +195,11 @@ directionDecoder ( metaKey, key ) =
             40 ->
                 Decode.succeed Down
 
-            -- Enter Key
-            13 ->
-                Decode.succeed Down
-
             _ ->
-                Decode.fail "Key isnt a direction key (arrows and enter)"
+                Decode.fail "Key isnt a direction key"
+
+    else if key == 13 then
+        Decode.succeed Down
 
     else
-        Decode.fail "MetaKey not pressed"
+        Decode.fail "Key is not enter"
