@@ -31,6 +31,7 @@ module Model exposing
     , setPartsPage
     , setPlayFor
     , setPlayFrom
+    , toggleRepeatPlayback
     )
 
 import Api
@@ -120,6 +121,11 @@ init flags =
 
 
 -- HELPERS --
+
+
+toggleRepeatPlayback : Model -> Model
+toggleRepeatPlayback model =
+    { model | repeatPlayback = not model.repeatPlayback }
 
 
 deletePart : Index Part -> Model -> Model

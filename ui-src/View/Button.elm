@@ -27,7 +27,11 @@ import Util.Css as CssUtil
 
 
 type Button msg
-    = Button { onClick : msg, label : String, options : List Option }
+    = Button (Model msg)
+
+
+type alias Model msg =
+    { onClick : msg, label : String, options : List Option }
 
 
 type Option
@@ -50,6 +54,10 @@ type alias Summary =
     , extraHeight : Float
     , indent : Maybe Bool
     }
+
+
+
+-- VALUES --
 
 
 halfWidth : Width
@@ -105,15 +113,6 @@ indent =
 -- SUMMARY --
 
 
-defaultSummary : Summary
-defaultSummary =
-    { size = Style.Big
-    , width = Nothing
-    , extraHeight = 0
-    , indent = Nothing
-    }
-
-
 optionsToSummary : List Option -> Summary
 optionsToSummary =
     let
@@ -132,7 +131,12 @@ optionsToSummary =
                 Indent indent_ ->
                     { summary | indent = Just indent_ }
     in
-    List.foldr modifySummary defaultSummary
+    List.foldr modifySummary
+        { size = Style.Big
+        , width = Nothing
+        , extraHeight = 0
+        , indent = Nothing
+        }
 
 
 

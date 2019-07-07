@@ -19,6 +19,7 @@ import Model exposing (Model)
 import Style
 import Util.Cmd as CmdUtil
 import View.Button as Button
+import View.Checkbox as Checkbox
 
 
 
@@ -34,6 +35,7 @@ type Msg
     | PlayFromFieldUpdated String
     | PlayForFieldUpdated String
     | PlaySent (Result Api.Error ())
+    | RepeatClicked
 
 
 
@@ -54,17 +56,7 @@ update msg model =
                 |> CmdUtil.withNoCmd
 
         PlayClicked ->
-            case Model.score model of
-                Ok scoreStr ->
-                    scoreStr
-                        |> Play
-                        |> sendHttp model
-                        |> CmdUtil.withModel
-                            (Model.setBackendStatusWorking model)
-
-                Err newModel ->
-                    newModel
-                        |> CmdUtil.withNoCmd
+            attemptToPlay model
 
         SaveClicked ->
             Model.save model
@@ -86,14 +78,38 @@ update msg model =
                 |> CmdUtil.withNoCmd
 
         PlaySent (Ok ()) ->
-            model
-                |> Model.setBackendStatusIdle
-                |> CmdUtil.withNoCmd
+            if model.repeatPlayback then
+                attemptToPlay model
+
+            else
+                model
+                    |> Model.setBackendStatusIdle
+                    |> CmdUtil.withNoCmd
 
         PlaySent (Err err) ->
             model
                 |> playFailed err
                 |> Model.setBackendStatusIdle
+                |> CmdUtil.withNoCmd
+
+        RepeatClicked ->
+            model
+                |> Model.toggleRepeatPlayback
+                |> CmdUtil.withNoCmd
+
+
+attemptToPlay : Model -> ( Model, Cmd Msg )
+attemptToPlay model =
+    case Model.score model of
+        Ok scoreStr ->
+            scoreStr
+                |> Play
+                |> sendHttp model
+                |> CmdUtil.withModel
+                    (Model.setBackendStatusWorking model)
+
+        Err newModel ->
+            newModel
                 |> CmdUtil.withNoCmd
 
 
@@ -136,48 +152,51 @@ view model =
         , minHeight minContent
         , flexDirection Css.column
         ]
-        [ playbackButtons model
-        , uiButtons model
+        [ Grid.row [] (playbackButtons model)
+        , Grid.row [] (uiButtons model)
         ]
 
 
-playbackButtons : Model -> Html Msg
+playbackButtons : Model -> List (Html Msg)
 playbackButtons model =
-    Grid.row
-        []
-        [ column <| button SaveClicked "save"
-        , column <| button PlayClicked "play"
-        , column <| text "from"
-        , column <|
-            input
-                PlayForFieldUpdated
-                model.playFromBeatField
-        , column <| text "for"
-        , column <|
-            input
-                PlayForFieldUpdated
-                model.playForBeatsField
-        , column <| button BuildClicked "build"
-        , column <| repeatCheckbox
-        , Grid.column
-            [ alignItems flexEnd
-            , flexDirection Css.column
-            ]
-            [ BackendStatus.view model.backendStatus ]
+    [ buttonColumn SaveClicked "save"
+    , buttonColumn PlayClicked "play"
+    , textColumn "from"
+    , inputColumn PlayForFieldUpdated model.playFromBeatField
+    , textColumn "for"
+    , inputColumn PlayForFieldUpdated model.playForBeatsField
+    , Grid.column
+        [ flex none
+        , padding (px 1)
+        , Style.doubleWidth Style.Big
         ]
+        [ text "repeat"
+        , Checkbox.checkbox RepeatClicked model.repeatPlayback
+            |> Checkbox.toHtml
+            |> column
+        ]
+    , buttonColumn BuildClicked "build"
+    , Grid.column
+        [ alignItems flexEnd
+        , flexDirection Css.column
+        ]
+        [ BackendStatus.view model.backendStatus ]
+    ]
 
 
-uiButtons : Model -> Html Msg
+uiButtons : Model -> List (Html Msg)
 uiButtons model =
-    Grid.row
-        []
-        [ column <| text "play"
-        , column <| pageButton Route.Trackers model.page
-        , column <| pageButton Route.Package model.page
-        , column <| pageButton Route.Parts model.page
-        , horizontalSeparator
-        , column <| newTrackerButton
-        ]
+    [ textColumn "page"
+    , pageButtonColumn Route.Trackers model.page
+    , pageButtonColumn Route.Package model.page
+    , pageButtonColumn Route.Parts model.page
+    , horizontalSeparator
+    , Button.button NewTrackerClicked "new tracker"
+        |> Button.withWidth Button.doubleWidth
+        |> Button.makeTallerBy 4
+        |> Button.toHtml
+        |> column
+    ]
 
 
 column : Html Msg -> Html Msg
@@ -200,6 +219,11 @@ text str =
             ]
         ]
         [ Html.text str ]
+
+
+textColumn : String -> Html Msg
+textColumn =
+    column << text
 
 
 horizontalSeparator : Html Msg
@@ -229,12 +253,22 @@ input msgCtor value =
         []
 
 
+inputColumn : (String -> Msg) -> String -> Html Msg
+inputColumn msgCtor value =
+    column <| input msgCtor value
+
+
 button : Msg -> String -> Html Msg
 button msg label =
     Button.button msg label
         |> Button.withWidth Button.singleWidth
         |> Button.makeTallerBy 4
         |> Button.toHtml
+
+
+buttonColumn : Msg -> String -> Html Msg
+buttonColumn msg label =
+    column <| button msg label
 
 
 pageButton : Route -> Page -> Html Msg
@@ -246,14 +280,6 @@ pageButton route currentPage =
         |> Button.toHtml
 
 
-newTrackerButton : Html Msg
-newTrackerButton =
-    Button.button NewTrackerClicked "new tracker"
-        |> Button.withWidth Button.doubleWidth
-        |> Button.makeTallerBy 4
-        |> Button.toHtml
-
-
-repeatCheckbox : Html Msg
-repeatCheckbox =
-    Html.text ""
+pageButtonColumn : Route -> Page -> Html Msg
+pageButtonColumn route currentPage =
+    column <| pageButton route currentPage
