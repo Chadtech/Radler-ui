@@ -1,13 +1,14 @@
 module Ui.Tracker.Options exposing
     ( Msg(..)
-    , Payload
     , update
     , view
     )
 
 import Colors
 import Css exposing (..)
-import Data.Tracker as Tracker
+import Data.Index exposing (Index)
+import Data.Part exposing (Part)
+import Data.Tracker as Tracker exposing (Tracker)
 import Data.Tracker.Options as Options
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
@@ -15,23 +16,15 @@ import Html.Styled.Attributes as Attrs
 import Html.Styled.Events as Events
 import Model exposing (Model)
 import Style
+import View.Button as Button
 
 
 
 -- TYPES --
 
 
-type alias Payload =
-    { parts : List ( Int, String )
-    , size : Style.Size
-    , majorMark : Int
-    , minorMark : Int
-    , model : Options.Model
-    }
-
-
 type Msg
-    = PartClicked Int
+    = PartClicked (Index Part)
     | BackClicked
     | SmallClicked
     | BigClicked
@@ -43,54 +36,48 @@ type Msg
 -- UPDATE --
 
 
-{-|
+update : Index Tracker -> Msg -> Model -> Model
+update trackerIndex =
+    Model.mapTracker trackerIndex << updateTracker
 
-    Theres a lot of indexing going on!
 
-        ti := tracker index
-        pi := part index
-        bi := beat index
-
--}
-update : Int -> Int -> Options.Model -> Msg -> Model -> Model
-update ti pi options msg =
+updateTracker : Msg -> Tracker -> Tracker
+updateTracker msg =
     case msg of
         PartClicked index ->
-            index
-                |> Tracker.setPartIndex
-                |> Model.mapTracker ti
+            Tracker.setPartIndex index
 
         BackClicked ->
             Tracker.closeOptions
-                |> Model.mapTracker ti
 
         SmallClicked ->
-            Style.Small
-                |> Tracker.setSize
-                |> Model.mapTracker ti
+            Tracker.setSize Style.Small
 
         BigClicked ->
-            Style.Big
-                |> Tracker.setSize
-                |> Model.mapTracker ti
+            Tracker.setSize Style.Big
 
         MajorMarkFieldUpdated field ->
-            field
-                |> Tracker.setMajorMark
-                |> Model.mapTracker ti
+            Tracker.setMajorMark field
 
         MinorMarkFieldUpdated field ->
-            field
-                |> Tracker.setMinorMark
-                |> Model.mapTracker ti
+            Tracker.setMinorMark field
 
 
 
 -- VIEW --
 
 
-view : Payload -> Html Msg
-view payload =
+type alias ViewParams =
+    { parts : List ( Index Part, String )
+    , size : Style.Size
+    , majorMark : Int
+    , minorMark : Int
+    , model : Options.Model
+    }
+
+
+view : ViewParams -> Html Msg
+view params =
     Html.div
         [ Attrs.css
             [ Style.card
@@ -136,32 +123,35 @@ view payload =
                 [ margin (px 5) ]
                 [ Grid.column
                     []
-                    [ partOptionsContainer payload ]
+                    [ partOptionsContainer params ]
                 ]
             , Grid.row
                 [ margin (px 5) ]
                 [ markLabel "major mark"
                 , markField
-                    payload.model.majorMarkField
+                    params.model.majorMarkField
                     MajorMarkFieldUpdated
                 ]
             , Grid.row
                 [ margin (px 5) ]
                 [ markLabel "minor mark"
                 , markField
-                    payload.model.minorMarkField
+                    params.model.minorMarkField
                     MinorMarkFieldUpdated
                 ]
             , Grid.row
                 [ margin (px 5) ]
-                [ smallViewButton payload.size
-                , bigViewButton payload.size
+                [ smallViewButton params.size
+                , bigViewButton params.size
                 ]
             , Grid.row
                 [ margin (px 5)
                 , justifyContent spaceAround
                 ]
-                [ backButton ]
+                [ Button.button BackClicked "back"
+                    |> Button.withWidth Button.fullWidth
+                    |> Button.toHtml
+                ]
             ]
         ]
 
@@ -187,8 +177,6 @@ markField mark msgCtor =
         [ Html.input
             [ Attrs.css
                 [ Style.hfnss
-                , color Colors.point0
-                , Style.fontSmoothingNone
                 , width (pct 100)
                 ]
             , Events.onInput msgCtor
@@ -202,15 +190,9 @@ smallViewButton : Style.Size -> Html Msg
 smallViewButton size =
     Grid.column
         []
-        [ Html.button
-            [ Attrs.css
-                [ buttonStyle
-                , indentIf (size == Style.Small)
-                , margin (px 0)
-                ]
-            , Events.onClick SmallClicked
-            ]
-            [ Html.text "small" ]
+        [ Button.button SmallClicked "small"
+            |> Button.indent (size == Style.Small)
+            |> Button.toHtml
         ]
 
 
@@ -218,29 +200,14 @@ bigViewButton : Style.Size -> Html Msg
 bigViewButton size =
     Grid.column
         [ paddingLeft (px 5) ]
-        [ Html.button
-            [ Attrs.css
-                [ buttonStyle
-                , indentIf (size == Style.Big)
-                , margin (px 0)
-                ]
-            , Events.onClick BigClicked
-            ]
-            [ Html.text "big" ]
+        [ Button.button BigClicked "big"
+            |> Button.indent (size == Style.Big)
+            |> Button.toHtml
         ]
 
 
-indentIf : Bool -> Style
-indentIf condition =
-    if condition then
-        Style.indent
-
-    else
-        Css.batch []
-
-
-partOptionsContainer : Payload -> Html Msg
-partOptionsContainer payload =
+partOptionsContainer : ViewParams -> Html Msg
+partOptionsContainer params =
     Html.div
         [ Attrs.css
             [ Style.indent
@@ -250,11 +217,11 @@ partOptionsContainer payload =
         ]
         [ Grid.container
             []
-            (List.map partOptionView payload.parts)
+            (List.map partOptionView params.parts)
         ]
 
 
-partOptionView : ( Int, String ) -> Html Msg
+partOptionView : ( Index Part, String ) -> Html Msg
 partOptionView ( index, name ) =
     let
         style : List Style
@@ -280,23 +247,3 @@ partOptionView ( index, name ) =
                 [ Html.text name ]
             ]
         ]
-
-
-backButton : Html Msg
-backButton =
-    Grid.column
-        []
-        [ Html.button
-            [ Attrs.css [ buttonStyle ]
-            , Events.onClick BackClicked
-            ]
-            [ Html.text "back" ]
-        ]
-
-
-buttonStyle : Style
-buttonStyle =
-    [ Style.clickableButtonStyle Style.Big
-    , width (pct 100)
-    ]
-        |> Css.batch

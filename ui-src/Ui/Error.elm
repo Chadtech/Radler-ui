@@ -10,10 +10,10 @@ import Data.Error as Error exposing (Error(..))
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attrs
-import Html.Styled.Events as Events
 import Json.Decode as Decode
 import Model exposing (Model)
 import Style
+import View.Button as Button
 
 
 
@@ -47,31 +47,18 @@ modalView error =
             [ marginBottom (px 5) ]
             [ Grid.column
                 []
-                [ Html.p
-                    [ Attrs.css [ errorPStyle ] ]
-                    [ Html.text (Error.toString error) ]
-                ]
+                [ text (Error.toString error) ]
             ]
         , Grid.row
             []
             [ Grid.column
                 [ justifyContent center ]
-                [ ignoreButton ]
+                [ Button.button IgnoreClicked "ignore"
+                    |> Button.withWidth Button.singleWidth
+                    |> Button.toHtml
+                ]
             ]
         ]
-
-
-ignoreButton : Html Msg
-ignoreButton =
-    Html.button
-        [ Attrs.css
-            [ Style.basicButton Style.Big
-            , width (px (Style.noteWidth Style.Big))
-            , active [ Style.indent ]
-            ]
-        , Events.onClick IgnoreClicked
-        ]
-        [ Html.text "ignore" ]
 
 
 {-| The view for when the app fails to initialize
@@ -88,18 +75,18 @@ initializationErrorView error =
                 [ Style.card
                 , Style.bigSpacing
                 ]
-                [ Html.p
-                    [ Attrs.css [ errorPStyle ] ]
-                    [ Html.text (Decode.errorToString error) ]
-                ]
+                [ text (Decode.errorToString error) ]
             ]
         ]
 
 
-errorPStyle : Style
-errorPStyle =
-    [ Style.hfnss
-    , property "word-wrap" "break-word"
-    , maxWidth (px 500)
-    ]
-        |> Css.batch
+text : String -> Html msg
+text str =
+    Html.p
+        [ Attrs.css
+            [ Style.hfnss
+            , property "word-wrap" "break-word"
+            , maxWidth (px 500)
+            ]
+        ]
+        [ Html.text str ]

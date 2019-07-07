@@ -5,10 +5,10 @@ module Data.Part exposing
     , addVoice
     , decoder
     , empty
+    , encode
     , mapBeat
     , removeBeat
     , removeVoice
-    , saveToDisk
     , setName
     , tests
     , toDict
@@ -18,12 +18,12 @@ module Data.Part exposing
 import Array exposing (Array)
 import Data.Beat as Beat exposing (Beat)
 import Data.Encoding as Encoding
-import Data.Note as Note
+import Data.Index as Index exposing (Index)
+import Data.Note as Note exposing (Note)
 import Dict exposing (Dict)
 import Expect
 import Json.Decode as Decode exposing (Decoder)
-import Json.Decode.Pipeline as Pipe
-import Ports
+import Json.Encode as Encode
 import Test exposing (Test, describe, test)
 
 
@@ -102,7 +102,7 @@ toDict parts =
         |> Dict.fromList
 
 
-addVoice : Int -> Part -> Part
+addVoice : Index (Note Encoding.None) -> Part -> Part
 addVoice index part =
     { part
         | beats =
@@ -112,7 +112,7 @@ addVoice index part =
     }
 
 
-removeVoice : Int -> Part -> Part
+removeVoice : Index (Note Encoding.None) -> Part -> Part
 removeVoice index part =
     { part
         | beats =
@@ -135,22 +135,27 @@ voiceCount { beats } =
         |> Maybe.withDefault 0
 
 
-removeBeat : Int -> Part -> Part
+removeBeat : Index (Beat Encoding.None) -> Part -> Part
 removeBeat index part =
+    let
+        i : Int
+        i =
+            Index.toInt index
+    in
     { part
         | beats =
             part.beats
                 |> Array.slice
-                    (index + 1)
+                    (i + 1)
                     (Array.length part.beats)
                 |> Array.append
-                    (Array.slice 0 index part.beats)
+                    (Array.slice 0 i part.beats)
     }
 
 
 addBeatToBeginning : Part -> Part
 addBeatToBeginning =
-    addBeatBelow -1
+    addBeatBelow (Index.previous Index.zero)
 
 
 {-| Below as in, below this beat in the UI, so
@@ -165,20 +170,21 @@ In the UI, the top most beat is index 0
     v  3
 
 -}
-addBeatBelow : Int -> Part -> Part
-addBeatBelow index part =
+addBeatBelow : Index (Beat Encoding.None) -> Part -> Part
+addBeatBelow noteIndex part =
     case Maybe.map Beat.length <| Array.get 0 part.beats of
         Just beatLength ->
             let
-                ni =
-                    index + 1
+                i : Int
+                i =
+                    Index.toInt <| Index.next noteIndex
             in
             { part
                 | beats =
                     part.beats
-                        |> Array.slice ni (Array.length part.beats)
+                        |> Array.slice i (Array.length part.beats)
                         |> Array.append
-                            (pushEmptyBeat beatLength (Array.slice 0 ni part.beats))
+                            (pushEmptyBeat beatLength (Array.slice 0 i part.beats))
             }
 
         Nothing ->
@@ -208,14 +214,19 @@ pushEmptyBeat columnNumber =
     Array.push (Beat.empty columnNumber)
 
 
-mapBeat : Int -> (Beat Encoding.None -> Beat Encoding.None) -> Part -> Part
+mapBeat : Index (Beat Encoding.None) -> (Beat Encoding.None -> Beat Encoding.None) -> Part -> Part
 mapBeat index f part =
-    case Array.get index part.beats of
+    let
+        i : Int
+        i =
+            Index.toInt index
+    in
+    case Array.get i part.beats of
         Just beat ->
             { part
                 | beats =
                     Array.set
-                        index
+                        i
                         (f beat)
                         part.beats
             }
@@ -238,23 +249,18 @@ mapBeatTest =
                         |> Array.fromList
             in
             testPart
-                |> mapBeat 0 (Beat.removeNote 0)
-                |> mapBeat 1 (Beat.removeNote 0)
+                |> mapBeat Index.zero (Beat.removeNote Index.zero)
+                |> mapBeat (Index.next Index.zero) (Beat.removeNote Index.zero)
                 |> .beats
                 |> Expect.equal expectedResult
 
 
-saveToDisk : Part -> Cmd msg
-saveToDisk part =
-    part
-        |> toFile
-        |> Ports.SavePartToDisk
-        |> Ports.send
-
-
-toFile : Part -> ( String, String )
-toFile part =
-    ( part.name, toString part )
+encode : Part -> Encode.Value
+encode part =
+    [ Tuple.pair "name" <| Encode.string part.name
+    , Tuple.pair "data" <| Encode.string <| toString part
+    ]
+        |> Encode.object
 
 
 toString : Part -> String

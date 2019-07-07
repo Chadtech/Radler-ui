@@ -8,9 +8,10 @@ import Colors
 import Css exposing (..)
 import Data.Beat as Beat exposing (Beat)
 import Data.Encoding as Encoding
+import Data.Index as Index exposing (Index)
 import Data.Note as Note exposing (Note)
-import Data.Part as Part
-import Html.Buttons as Buttons
+import Data.Part as Part exposing (Part)
+import Data.Tracker exposing (Tracker)
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attrs
@@ -19,6 +20,7 @@ import Model exposing (Model)
 import Style
 import Ui.Note as Note
 import Util.Cmd as CmdUtil
+import View.Button as Button
 
 
 
@@ -26,7 +28,7 @@ import Util.Cmd as CmdUtil
 
 
 type Msg
-    = NoteMsg Int Note.Msg
+    = NoteMsg (Index (Note Encoding.None)) Note.Msg
     | DeleteClicked
     | AddBelowClicked
 
@@ -35,34 +37,36 @@ type Msg
 -- UPDATE --
 
 
-{-|
-
-    Theres a lot of indexing going on!
-
-        ti := tracker index
-        pi := part index
-        bi := beat index
-        ni := note index
-
--}
-update : Int -> Int -> Int -> Msg -> Model -> ( Model, Cmd Msg )
-update ti pi bi msg model =
+update :
+    Index Tracker
+    -> Index Part
+    -> Index (Beat Encoding.None)
+    -> Msg
+    -> Model
+    -> ( Model, Cmd Msg )
+update trackerIndex partIndex beatIndex msg model =
     case msg of
-        NoteMsg ni subMsg ->
-            Note.update ti pi bi ni subMsg model
-                |> CmdUtil.mapCmd (NoteMsg ni)
+        NoteMsg noteIndex subMsg ->
+            Note.update
+                trackerIndex
+                partIndex
+                beatIndex
+                noteIndex
+                subMsg
+                model
+                |> CmdUtil.mapCmd (NoteMsg noteIndex)
 
         DeleteClicked ->
             Model.mapPart
-                pi
-                (Part.removeBeat bi)
+                partIndex
+                (Part.removeBeat beatIndex)
                 model
                 |> CmdUtil.withNoCmd
 
         AddBelowClicked ->
             Model.mapPart
-                pi
-                (Part.addBeatBelow bi)
+                partIndex
+                (Part.addBeatBelow beatIndex)
                 model
                 |> CmdUtil.withNoCmd
 
@@ -71,61 +75,80 @@ update ti pi bi msg model =
 -- VIEW --
 
 
-view : Int -> Int -> Style.Size -> Int -> Int -> Beat Encoding.None -> Html Msg
-view majorMark minorMark size ti bi beat =
+view :
+    Int
+    -> Int
+    -> Style.Size
+    -> Index Tracker
+    -> Index (Beat Encoding.None)
+    -> Beat Encoding.None
+    -> Html Msg
+view majorMark minorMark size trackerIndex beatIndex beat =
     beat
         |> Beat.toIndexedList
-        |> List.map (wrapNote majorMark minorMark size ti bi)
-        |> (::) (numberView size majorMark bi)
-        |> (::) (plusButton size)
-        |> (::) (deleteButton size)
+        |> List.map (wrapNote majorMark minorMark size trackerIndex beatIndex)
+        |> (::) (numberView size majorMark beatIndex)
+        |> (::) (buttonColumn AddBelowClicked "+v" size)
+        |> (::) (buttonColumn DeleteClicked "x" size)
         |> Grid.row []
 
 
-plusButton : Style.Size -> Html Msg
-plusButton size =
+buttonColumn : Msg -> String -> Style.Size -> Html Msg
+buttonColumn msg label size =
     Grid.column
         [ margin (px 1) ]
-        [ Buttons.plus
-            AddBelowClicked
-            [ width (px (Style.noteWidth size / 2)) ]
-            size
+        [ Button.button msg label
+            |> Button.withWidth Button.halfWidth
+            |> Button.withSize size
+            |> Button.toHtml
         ]
 
 
-deleteButton : Style.Size -> Html Msg
-deleteButton size =
-    Grid.column
-        [ margin (px 1) ]
-        [ Buttons.delete
-            DeleteClicked
-            [ width (px (Style.noteWidth size / 2)) ]
-            size
-        ]
-
-
-wrapNote : Int -> Int -> Style.Size -> Int -> Int -> ( Int, Note Encoding.None ) -> Html Msg
-wrapNote majorMark minorMark size ti bi ( ni, note ) =
+wrapNote :
+    Int
+    -> Int
+    -> Style.Size
+    -> Index Tracker
+    -> Index (Beat Encoding.None)
+    -> ( Index (Note Encoding.None), Note Encoding.None )
+    -> Html Msg
+wrapNote majorMark minorMark size trackerIndex beatIndex ( noteIndex, note ) =
     Html.Styled.Lazy.lazy7
         Note.view
         majorMark
         minorMark
         size
-        ti
-        bi
-        ni
+        trackerIndex
+        beatIndex
+        noteIndex
         note
-        |> Html.map (NoteMsg ni)
+        |> Html.map (NoteMsg noteIndex)
 
 
-numberView : Style.Size -> Int -> Int -> Html Msg
+numberView : Style.Size -> Int -> Index (Beat Encoding.None) -> Html Msg
 numberView size majorMark index =
     Grid.column
         [ margin (px 1) ]
         [ Html.button
             [ Attrs.css [ numberStyle size ] ]
-            [ Html.text (numberStr majorMark index) ]
+            [ Html.text (numberStr majorMark <| Index.toInt index) ]
         ]
+
+
+numberStyle : Style.Size -> Style
+numberStyle size =
+    [ Style.outdent
+    , Style.font size
+    , width (px (Style.noteWidth size))
+    , height (px (Style.noteHeight size))
+    , backgroundColor Colors.ignorable2
+    , color Colors.point0
+    , Style.fontSmoothingNone
+    , padding (px 0)
+    , outline none
+    , Style.flush
+    ]
+        |> Css.batch
 
 
 numberStr : Int -> Int -> String
@@ -146,19 +169,3 @@ beatNumber i str =
 
     else
         beatNumber (i - 1) (String.dropLeft 1 str)
-
-
-numberStyle : Style.Size -> Style
-numberStyle size =
-    [ Style.outdent
-    , Style.font size
-    , width (px (Style.noteWidth size))
-    , height (px (Style.noteHeight size))
-    , backgroundColor Colors.ignorable2
-    , color Colors.point0
-    , Style.fontSmoothingNone
-    , padding (px 0)
-    , outline none
-    , Style.flush
-    ]
-        |> Css.batch

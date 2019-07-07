@@ -4,7 +4,7 @@ module Data.Room exposing
     , toString
     )
 
-import Json.Decode as JD exposing (Decoder)
+import Json.Decode as Decode exposing (Decoder)
 
 
 
@@ -59,22 +59,22 @@ toString room =
 
 decoder : Decoder Room
 decoder =
-    JD.map2 Room
-        (JD.field "listener-position" positionDecoder)
-        (JD.field "size" sizeDecoder)
+    Decode.map2 Room
+        (Decode.field "listener-position" positionDecoder)
+        (Decode.field "size" sizeDecoder)
 
 
 positionDecoder : Decoder Position
 positionDecoder =
-    JD.map3 Position
-        (JD.field "x" JD.int)
-        (JD.field "y" JD.int)
-        (JD.field "z" JD.int)
+    Decode.map3 Position
+        (Decode.field "x" Decode.int)
+        (Decode.field "y" Decode.int)
+        (Decode.field "z" Decode.int)
 
 
 sizeDecoder : Decoder Size
 sizeDecoder =
-    JD.map3 Size
-        (JD.field "width" JD.int)
-        (JD.field "length" JD.int)
-        (JD.field "height" JD.int)
+    Decode.map3 Size
+        (Decode.field "width" Decode.int)
+        (Decode.field "length" Decode.int)
+        (Decode.field "height" Decode.int)

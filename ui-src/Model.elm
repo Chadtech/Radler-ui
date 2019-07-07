@@ -1,13 +1,13 @@
 module Model exposing
     ( Model
     , addNewPart
+    , addNewTracker
     , clearModal
     , clearPartsPage
     , copyPart
     , deletePart
     , fullScore
     , getPart
-    , getTrackersOptions
     , getTrackersPart
     , getTrackersPartIndex
     , indexedPartNames
@@ -38,6 +38,7 @@ import Array exposing (Array)
 import BackendStatus as BackendStatus exposing (BackendStatus)
 import Data.Error exposing (Error(..))
 import Data.Flags exposing (Flags)
+import Data.Index as Index exposing (Index)
 import Data.Modal as Modal exposing (Modal)
 import Data.Modal.Build as Build
 import Data.Modal.DeletePart as DeletePart
@@ -46,7 +47,7 @@ import Data.Page as Page exposing (Page)
 import Data.Page.Parts as Parts
 import Data.Part as Part exposing (Part)
 import Data.Tracker as Tracker exposing (Tracker)
-import Data.Tracker.Options as Options
+import Ports
 import Style
 import Util.Array as ArrayUtil
 
@@ -80,6 +81,7 @@ type alias Model =
     , playForBeatsField : String
     , playFromBeat : Int
     , playForBeats : Int
+    , repeatPlayback : Bool
     , endpoints : Api.Endpoints
     , modal : Maybe Modal
     , backendStatus : BackendStatus
@@ -99,8 +101,8 @@ init flags =
     in
     { parts = flags.parts
     , trackers =
-        [ Tracker.init Style.Big 0
-        , Tracker.init Style.Big 0
+        [ Tracker.init Style.Big Index.zero
+        , Tracker.init Style.Big Index.zero
         ]
             |> Array.fromList
     , page = Page.Trackers
@@ -110,6 +112,7 @@ init flags =
     , playForBeatsField = String.fromInt playForBeats
     , playFromBeat = playFromBeat
     , playForBeats = playForBeats
+    , repeatPlayback = False
     , endpoints = flags.endpoints
     , backendStatus = BackendStatus.Idle
     }
@@ -119,9 +122,9 @@ init flags =
 -- HELPERS --
 
 
-deletePart : Int -> Model -> Model
+deletePart : Index Part -> Model -> Model
 deletePart index model =
-    { model | parts = ArrayUtil.remove index model.parts }
+    { model | parts = ArrayUtil.remove (Index.toInt index) model.parts }
 
 
 setPage : Page -> Model -> Model
@@ -149,11 +152,11 @@ initPartsPage =
     setPartsPage << Parts.init
 
 
-indexedPartNames : Model -> List ( Int, String )
+indexedPartNames : Model -> List ( Index Part, String )
 indexedPartNames { parts } =
     parts
-        |> Array.map .name
-        |> Array.toIndexedList
+        |> Index.toEntries
+        |> List.map (Tuple.mapSecond .name)
 
 
 setError : Error -> Model -> Model
@@ -198,14 +201,14 @@ mapPackage f model =
     { model | package = f model.package }
 
 
-mapPart : Int -> (Part -> Part) -> Model -> Model
+mapPart : Index Part -> (Part -> Part) -> Model -> Model
 mapPart index f model =
     case getPart index model of
         Just part ->
             { model
                 | parts =
                     Array.set
-                        index
+                        (Index.toInt index)
                         (f part)
                         model.parts
             }
@@ -227,19 +230,24 @@ mapSelectedPart maybePartsModel f model =
             model
 
 
-getPart : Int -> Model -> Maybe Part
+getPart : Index Part -> Model -> Maybe Part
 getPart index model =
-    Array.get index model.parts
+    Array.get (Index.toInt index) model.parts
 
 
-mapTracker : Int -> (Tracker -> Tracker) -> Model -> Model
+mapTracker : Index Tracker -> (Tracker -> Tracker) -> Model -> Model
 mapTracker index f model =
-    case Array.get index model.trackers of
+    let
+        i : Int
+        i =
+            Index.toInt index
+    in
+    case Array.get i model.trackers of
         Just tracker ->
             { model
                 | trackers =
                     Array.set
-                        index
+                        i
                         (f tracker)
                         model.trackers
             }
@@ -248,34 +256,39 @@ mapTracker index f model =
             model
 
 
-removeTracker : Int -> Model -> Model
+removeTracker : Index Tracker -> Model -> Model
 removeTracker index model =
     { model
         | trackers =
-            ArrayUtil.remove index model.trackers
+            ArrayUtil.remove (Index.toInt index) model.trackers
     }
 
 
-getTracker : Int -> Model -> Maybe Tracker
+addNewTracker : Model -> Model
+addNewTracker model =
+    { model
+        | trackers =
+            Array.push
+                (Tracker.init Style.Big Index.zero)
+                model.trackers
+    }
+
+
+getTracker : Index Tracker -> Model -> Maybe Tracker
 getTracker trackerIndex model =
-    Array.get trackerIndex model.trackers
+    Array.get (Index.toInt trackerIndex) model.trackers
 
 
-getTrackersOptions : Int -> Model -> Maybe Options.Model
-getTrackersOptions trackerIndex =
-    getTracker trackerIndex >> Maybe.andThen .options
-
-
-getTrackersPartIndex : Int -> Model -> Maybe Int
+getTrackersPartIndex : Index Tracker -> Model -> Maybe (Index Part)
 getTrackersPartIndex trackerIndex =
     getTracker trackerIndex >> Maybe.map .partIndex
 
 
-getTrackersPart : Int -> Model -> Maybe Part
+getTrackersPart : Index Tracker -> Model -> Maybe Part
 getTrackersPart trackerIndex model =
     case getTrackersPartIndex trackerIndex model of
         Just partIndex ->
-            Array.get partIndex model.parts
+            Array.get (Index.toInt partIndex) model.parts
 
         Nothing ->
             Nothing
@@ -313,9 +326,9 @@ setPlayFor str model =
             }
 
 
-copyPart : Int -> String -> Model -> Model
+copyPart : Index Part -> String -> Model -> Model
 copyPart partIndex copysName model =
-    case Array.get partIndex model.parts of
+    case getPart partIndex model of
         Just part ->
             { model
                 | parts =
@@ -353,7 +366,7 @@ addNewPart model =
                             newPart
                             model.parts
                   }
-                , Part.saveToDisk newPart
+                , Ports.savePartToDisk newPart
                 )
     in
     addNewPartWithName "new-part"
@@ -387,7 +400,7 @@ saveParts : Model -> Cmd msg
 saveParts model =
     model.parts
         |> Array.toList
-        |> List.map Part.saveToDisk
+        |> List.map Ports.savePartToDisk
         |> Cmd.batch
 
 

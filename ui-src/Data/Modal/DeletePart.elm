@@ -3,11 +3,16 @@ module Data.Modal.DeletePart exposing
     , getPartIndex
     )
 
+import Data.Index exposing (Index)
+import Data.Part exposing (Part)
+
+
+
 -- TYPES --
 
 
 type Model
-    = Ready { partIndex : Int }
+    = Ready (Index Part)
     | Deleting
     | Error String
 
@@ -16,10 +21,10 @@ type Model
 -- HELPERS --
 
 
-getPartIndex : Model -> Maybe Int
+getPartIndex : Model -> Maybe (Index Part)
 getPartIndex model =
     case model of
-        Ready { partIndex } ->
+        Ready partIndex ->
             Just partIndex
 
         _ ->

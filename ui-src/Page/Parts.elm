@@ -6,6 +6,7 @@ module Page.Parts exposing
 
 import Colors
 import Css exposing (..)
+import Data.Index exposing (Index)
 import Data.Modal as Modal
 import Data.Modal.DeletePart as DeletePart
 import Data.Page.Parts as Parts
@@ -25,7 +26,7 @@ import Util.Css as CssUtil
 
 
 type Msg
-    = PartClicked Int
+    = PartClicked (Index Part)
     | NameFieldUpdated String
     | NewPartClicked
     | SelectedPartMsg SelectedPartMsg
@@ -95,7 +96,7 @@ updatePartModel msg partsModel =
                 |> Model.setPartsPage
 
         DeleteClicked ->
-            { partIndex = partsModel.selectedPartIndex }
+            partsModel.selectedPartIndex
                 |> DeletePart.Ready
                 |> Modal.DeletePart
                 |> Model.setModal
@@ -282,7 +283,7 @@ partsListView model partsModel =
         ]
 
 
-partOptionView : Maybe Int -> ( Int, String ) -> Html Msg
+partOptionView : Maybe (Index Part) -> ( Index Part, String ) -> Html Msg
 partOptionView selectedIndex ( index, name ) =
     let
         highlight : Style

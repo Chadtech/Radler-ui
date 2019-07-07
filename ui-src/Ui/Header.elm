@@ -5,17 +5,12 @@ module Ui.Header exposing
     )
 
 import Api
-import Array
 import BackendStatus
-import Colors
 import Css exposing (..)
 import Data.Error as Error
 import Data.Modal as Modal
-import Data.Package as Package
 import Data.Page as Page exposing (Page)
-import Data.Page.Parts as Parts
 import Data.Route as Route exposing (Route)
-import Data.Tracker as Tracker
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attrs
@@ -23,6 +18,7 @@ import Html.Styled.Events as Events
 import Model exposing (Model)
 import Style
 import Util.Cmd as CmdUtil
+import View.Button as Button
 
 
 
@@ -53,12 +49,8 @@ update msg model =
                 |> CmdUtil.withNoCmd
 
         NewTrackerClicked ->
-            { model
-                | trackers =
-                    Array.push
-                        (Tracker.init Style.Big 0)
-                        model.trackers
-            }
+            model
+                |> Model.addNewTracker
                 |> CmdUtil.withNoCmd
 
         PlayClicked ->
@@ -142,7 +134,7 @@ view model =
         [ Style.card
         , displayFlex
         , minHeight minContent
-        , flexDirection column
+        , flexDirection Css.column
         ]
         [ playbackButtons model
         , uiButtons model
@@ -153,30 +145,23 @@ playbackButtons : Model -> Html Msg
 playbackButtons model =
     Grid.row
         []
-        [ Grid.column
-            [ flex (int 0) ]
-            [ saveButton ]
-        , Grid.column
-            [ flex (int 0) ]
-            [ playButton ]
-        , Grid.column
-            [ flex (int 0) ]
-            [ fromText ]
-        , Grid.column
-            [ flex (int 0) ]
-            [ playFromField model.playFromBeatField ]
-        , Grid.column
-            [ flex (int 0) ]
-            [ forText ]
-        , Grid.column
-            [ flex (int 0) ]
-            [ playForField model.playForBeatsField ]
-        , Grid.column
-            [ flex (int 0) ]
-            [ buildButton ]
+        [ column <| button SaveClicked "save"
+        , column <| button PlayClicked "play"
+        , column <| text "from"
+        , column <|
+            input
+                PlayForFieldUpdated
+                model.playFromBeatField
+        , column <| text "for"
+        , column <|
+            input
+                PlayForFieldUpdated
+                model.playForBeatsField
+        , column <| button BuildClicked "build"
+        , column <| repeatCheckbox
         , Grid.column
             [ alignItems flexEnd
-            , flexDirection column
+            , flexDirection Css.column
             ]
             [ BackendStatus.view model.backendStatus ]
         ]
@@ -186,46 +171,35 @@ uiButtons : Model -> Html Msg
 uiButtons model =
     Grid.row
         []
-        [ Grid.column
-            [ flex (int 0)
-            , singleWidth
-            ]
-            [ pageText ]
-        , Grid.column
-            [ flex (int 0) ]
-            [ pageButton Route.Trackers model.page ]
-        , Grid.column
-            [ flex (int 0) ]
-            [ pageButton Route.Package model.page ]
-        , Grid.column
-            [ flex (int 0) ]
-            [ pageButton Route.Parts model.page ]
+        [ column <| text "play"
+        , column <| pageButton Route.Trackers model.page
+        , column <| pageButton Route.Package model.page
+        , column <| pageButton Route.Parts model.page
         , horizontalSeparator
-        , Grid.column
-            [ flex (int 0) ]
-            [ newTrackerButton ]
+        , column <| newTrackerButton
         ]
 
 
-pageText : Html Msg
-pageText =
+column : Html Msg -> Html Msg
+column childButton =
+    Grid.column
+        [ flex (int 0)
+        , padding (px 1)
+        ]
+        [ childButton ]
+
+
+text : String -> Html Msg
+text str =
     Html.p
-        [ Attrs.css [ textStyle ] ]
-        [ Html.text "page" ]
-
-
-fromText : Html Msg
-fromText =
-    Html.p
-        [ Attrs.css [ textStyle ] ]
-        [ Html.text "from" ]
-
-
-forText : Html Msg
-forText =
-    Html.p
-        [ Attrs.css [ textStyle ] ]
-        [ Html.text "for" ]
+        [ Attrs.css
+            [ Style.hfnss
+            , lineHeight (px 32)
+            , Style.singleWidth Style.Big
+            , textAlign center
+            ]
+        ]
+        [ Html.text str ]
 
 
 horizontalSeparator : Html Msg
@@ -233,131 +207,53 @@ horizontalSeparator =
     Grid.column
         [ flex (int 0) ]
         [ Html.div
-            [ Attrs.css [ singleWidth ] ]
+            [ Attrs.css
+                [ Style.singleWidth Style.Big ]
+            ]
             []
         ]
 
 
-textStyle : Style
-textStyle =
-    [ Style.hfnss
-    , lineHeight (px 32)
-    , singleWidth
-    , textAlign center
-    ]
-        |> Css.batch
-
-
-playForField : String -> Html Msg
-playForField playForBeats =
+input : (String -> Msg) -> String -> Html Msg
+input msgCtor value =
     Html.input
         [ Attrs.css
-            [ margin2 (px 1) (px 0)
-            , Style.hfnss
-            , color Colors.point0
-            , Style.fontSmoothingNone
-            , singleWidth
+            [ Style.hfnss
+            , Style.singleWidth Style.Big
+            , height (px 30)
             ]
-        , Attrs.value playForBeats
+        , Attrs.value value
         , Attrs.spellcheck False
-        , Events.onInput PlayForFieldUpdated
+        , Events.onInput msgCtor
         ]
         []
 
 
-playFromField : String -> Html Msg
-playFromField playFromBeat =
-    Html.input
-        [ Attrs.css
-            [ margin2 (px 1) (px 0)
-            , Style.hfnss
-            , color Colors.point0
-            , Style.fontSmoothingNone
-            , singleWidth
-            ]
-        , Attrs.value playFromBeat
-        , Attrs.spellcheck False
-        , Events.onInput PlayFromFieldUpdated
-        ]
-        []
-
-
-playButton : Html Msg
-playButton =
-    Html.button
-        [ Attrs.css [ buttonStyle ]
-        , Events.onClick PlayClicked
-        ]
-        [ Html.text "play" ]
-
-
-buildButton : Html Msg
-buildButton =
-    Html.button
-        [ Attrs.css [ buttonStyle ]
-        , Events.onClick BuildClicked
-        ]
-        [ Html.text "build" ]
-
-
-saveButton : Html Msg
-saveButton =
-    Html.button
-        [ Attrs.css [ buttonStyle ]
-        , Events.onClick SaveClicked
-        ]
-        [ Html.text "save" ]
+button : Msg -> String -> Html Msg
+button msg label =
+    Button.button msg label
+        |> Button.withWidth Button.singleWidth
+        |> Button.makeTallerBy 4
+        |> Button.toHtml
 
 
 pageButton : Route -> Page -> Html Msg
 pageButton route currentPage =
-    Html.button
-        [ Attrs.css
-            [ buttonStyle
-            , dent currentPage route
-            , doubleWidth
-            ]
-        , Events.onClick (RouteClicked route)
-        ]
-        [ Html.text <| Route.toString route ]
+    Button.button (RouteClicked route) (Route.toString route)
+        |> Button.withWidth Button.doubleWidth
+        |> Button.makeTallerBy 4
+        |> Button.indent (Route.isPage currentPage route)
+        |> Button.toHtml
 
 
 newTrackerButton : Html Msg
 newTrackerButton =
-    Html.button
-        [ Attrs.css
-            [ buttonStyle
-            , doubleWidth
-            ]
-        , Events.onClick NewTrackerClicked
-        ]
-        [ Html.text "new tracker" ]
+    Button.button NewTrackerClicked "new tracker"
+        |> Button.withWidth Button.doubleWidth
+        |> Button.makeTallerBy 4
+        |> Button.toHtml
 
 
-doubleWidth : Style
-doubleWidth =
-    width <| px <| Style.noteWidth Style.Big * 2
-
-
-singleWidth : Style
-singleWidth =
-    width <| px <| Style.noteWidth Style.Big
-
-
-buttonStyle : Style
-buttonStyle =
-    [ Style.clickableButtonStyle Style.Big
-    , margin (px 1)
-    , singleWidth
-    , height (px (Style.noteHeight Style.Big + 4))
-    ]
-        |> Css.batch
-
-
-dent : Page -> Route -> Style
-dent currentPage route =
-    if Route.isPage currentPage route then
-        Style.indent
-
-    else
-        Style.outdent
+repeatCheckbox : Html Msg
+repeatCheckbox =
+    Html.text ""

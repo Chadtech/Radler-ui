@@ -4,15 +4,14 @@ module Ui.Tracker exposing
     , view
     )
 
-import Array exposing (Array)
-import Colors
+import Array
 import Css exposing (..)
 import Data.Beat as Beat exposing (Beat)
 import Data.Encoding as Encoding
+import Data.Index as Index exposing (Index)
+import Data.Note exposing (Note)
 import Data.Part as Part exposing (Part)
 import Data.Tracker as Tracker exposing (Tracker)
-import Data.Tracker.Options
-import Html.Buttons as Buttons
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attrs
@@ -23,6 +22,7 @@ import Style
 import Ui.Beat as Beat
 import Ui.Tracker.Options
 import Util.Cmd as CmdUtil
+import View.Button as Button
 
 
 
@@ -30,36 +30,27 @@ import Util.Cmd as CmdUtil
 
 
 type Msg
-    = BeatMsg Int Beat.Msg
+    = BeatMsg (Index (Beat Encoding.None)) Beat.Msg
     | OptionsMsg Ui.Tracker.Options.Msg
     | OptionsClicked
     | DeleteTrackerClicked
     | AddBeatBelowClicked
-    | DeleteVoiceClicked Int
-    | AddVoiceClicked Int
+    | DeleteVoiceClicked (Index (Note Encoding.None))
+    | AddVoiceClicked (Index (Note Encoding.None))
 
 
 
 -- UPDATE --
 
 
-{-|
-
-    Theres a lot of indexing going on!
-
-        ti := tracker index
-        pi := part index
-        bi := beat index
-
--}
-update : Int -> Int -> Msg -> Model -> ( Model, Cmd Msg )
-update ti pi msg model =
+update : Index Tracker -> Index Part -> Msg -> Model -> ( Model, Cmd Msg )
+update trackerIndex partIndex msg model =
     case msg of
         OptionsClicked ->
-            case Model.getTrackersPart ti model of
+            case Model.getTrackersPart trackerIndex model of
                 Just part ->
                     Model.mapTracker
-                        ti
+                        trackerIndex
                         (Tracker.openOptions part.name)
                         model
                         |> CmdUtil.withNoCmd
@@ -69,45 +60,38 @@ update ti pi msg model =
                         |> CmdUtil.withNoCmd
 
         OptionsMsg subMsg ->
-            case Model.getTrackersOptions ti model of
-                Just options ->
-                    Ui.Tracker.Options.update
-                        ti
-                        pi
-                        options
-                        subMsg
-                        model
-                        |> CmdUtil.withNoCmd
+            Ui.Tracker.Options.update
+                trackerIndex
+                subMsg
+                model
+                |> CmdUtil.withNoCmd
 
-                Nothing ->
-                    model
-                        |> CmdUtil.withNoCmd
-
-        BeatMsg bi subMsg ->
-            Beat.update ti pi bi subMsg model
-                |> CmdUtil.mapCmd (BeatMsg bi)
+        BeatMsg beatIndex subMsg ->
+            Beat.update trackerIndex partIndex beatIndex subMsg model
+                |> CmdUtil.mapCmd (BeatMsg beatIndex)
 
         DeleteTrackerClicked ->
-            Model.removeTracker ti model
+            model
+                |> Model.removeTracker trackerIndex
                 |> CmdUtil.withNoCmd
 
         AddBeatBelowClicked ->
             Model.mapPart
-                pi
+                partIndex
                 Part.addBeatToBeginning
                 model
                 |> CmdUtil.withNoCmd
 
         AddVoiceClicked index ->
             Model.mapPart
-                pi
+                partIndex
                 (Part.addVoice index)
                 model
                 |> CmdUtil.withNoCmd
 
         DeleteVoiceClicked index ->
             Model.mapPart
-                pi
+                partIndex
                 (Part.removeVoice index)
                 model
                 |> CmdUtil.withNoCmd
@@ -118,10 +102,10 @@ update ti pi msg model =
 
 
 type alias ViewParams =
-    { trackerIndex : Int
+    { trackerIndex : Index Tracker
     , tracker : Tracker
     , part : Part
-    , partNames : List ( Int, String )
+    , partNames : List ( Index Part, String )
     }
 
 
@@ -157,22 +141,19 @@ view { trackerIndex, tracker, part, partNames } =
         ]
 
 
-optionsContainerView : Tracker -> List ( Int, String ) -> Html Msg
+optionsContainerView : Tracker -> List ( Index Part, String ) -> Html Msg
 optionsContainerView tracker partNames =
     case tracker.options of
         Just options ->
-            let
-                style : List Style
-                style =
+            Html.div
+                [ Attrs.css
                     [ Style.dim
                     , width (pct 100)
                     , height (pct 100)
                     , position absolute
                     , zIndex (int 2)
                     ]
-            in
-            Html.div
-                [ Attrs.css style ]
+                ]
                 [ Ui.Tracker.Options.view
                     { parts = partNames
                     , size = tracker.size
@@ -187,23 +168,23 @@ optionsContainerView tracker partNames =
             Html.text ""
 
 
-beatsView : Part -> Int -> Int -> Style.Size -> Int -> Html Msg
-beatsView part majorMark minorMark size ti =
+beatsView : Part -> Int -> Int -> Style.Size -> Index Tracker -> Html Msg
+beatsView part majorMark minorMark size trackerIndex =
     let
-        wrapBeat : ( Int, Beat Encoding.None ) -> Html Msg
-        wrapBeat ( bi, beat ) =
+        wrapBeat : ( Index (Beat Encoding.None), Beat Encoding.None ) -> Html Msg
+        wrapBeat ( beatIndex, beat ) =
             Html.Styled.Lazy.lazy6
                 Beat.view
                 majorMark
                 minorMark
                 size
-                ti
-                bi
+                trackerIndex
+                beatIndex
                 beat
-                |> Html.map (BeatMsg bi)
+                |> Html.map (BeatMsg beatIndex)
     in
     part.beats
-        |> Array.toIndexedList
+        |> Index.toEntries
         |> List.map wrapBeat
         |> Grid.container [ overflow auto ]
 
@@ -226,17 +207,6 @@ trackerOptionsRow part size =
         buttonWidth : Float
         buttonWidth =
             Style.noteWidth size + 3
-
-        trackerOptionsButton : Html Msg
-        trackerOptionsButton =
-            Html.button
-                [ Attrs.css
-                    [ Style.basicButton size
-                    , width (px ((Style.noteWidth size * 2) + 2))
-                    ]
-                , Events.onClick OptionsClicked
-                ]
-                [ Html.text "options" ]
     in
     [ Grid.column
         [ flex none
@@ -246,15 +216,12 @@ trackerOptionsRow part size =
         ]
         [ Html.button
             [ Attrs.css
-                [ Style.basicButton size
+                [ Style.clickableButtonStyle size
                 , width (px buttonWidth)
                 , height (px ((Style.noteHeight size * 2) + 2))
                 , position absolute
                 , top (px 0)
                 , left (px 0)
-                , hover [ color Colors.point1 ]
-                , active [ Style.indent ]
-                , cursor pointer
                 ]
             , Events.onClick DeleteTrackerClicked
             ]
@@ -264,7 +231,11 @@ trackerOptionsRow part size =
         [ flex (int 0)
         , margin (px 1)
         ]
-        [ trackerOptionsButton ]
+        [ Button.button OptionsClicked "options"
+            |> Button.withWidth Button.doubleWidth
+            |> Button.withSize size
+            |> Button.toHtml
+        ]
     , Grid.column
         [ margin (px 1)
         , paddingLeft (px 5)
@@ -286,50 +257,30 @@ trackerOptionsRow part size =
 
 voiceOptions : Part -> Style.Size -> List (Html Msg)
 voiceOptions part size =
-    List.range 0 (Part.voiceCount part - 1)
+    part.beats
+        |> Array.get 0
+        |> Maybe.map (Beat.toIndexedList >> List.map Tuple.first)
+        |> Maybe.withDefault []
         |> List.map (voiceOption size)
         |> (::) (addVoiceZero size)
 
 
-voiceOption : Style.Size -> Int -> Html Msg
+voiceOption : Style.Size -> Index (Note Encoding.None) -> Html Msg
 voiceOption size i =
-    let
-        buttonWidth : Float
-        buttonWidth =
-            Style.noteWidth size / 2 - 1
-    in
     Grid.column
         [ position relative
         , width (px (Style.noteWidth size))
         , margin (px 1)
         ]
-        [ Html.button
-            [ Attrs.css
-                [ Style.basicButton size
-                , width (px buttonWidth)
-                , minHeight fitContent
-                , active [ Style.indent ]
-                , cursor pointer
-                , hover [ color Colors.point1 ]
-                , marginRight (px 2)
-                ]
-            , Events.onClick (DeleteVoiceClicked i)
+        [ Html.div
+            [ Attrs.css [ marginRight (px 2) ] ]
+            [ Button.button (DeleteVoiceClicked i) "x"
+                |> Button.withWidth Button.halfWidth
+                |> Button.toHtml
             ]
-            [ Html.text "x"
-            ]
-        , Html.button
-            [ Attrs.css
-                [ Style.basicButton size
-                , width (px buttonWidth)
-                , minHeight fitContent
-                , active [ Style.indent ]
-                , cursor pointer
-                , hover [ color Colors.point1 ]
-                ]
-            , Events.onClick (AddVoiceClicked i)
-            ]
-            [ Html.text "+>"
-            ]
+        , Button.button (AddVoiceClicked i) "+>"
+            |> Button.withWidth Button.halfWidth
+            |> Button.toHtml
         ]
 
 
@@ -339,19 +290,9 @@ addVoiceZero size =
         [ margin (px 1)
         , paddingLeft (px (Style.noteWidth size + 5))
         ]
-        [ Html.button
-            [ Attrs.css
-                [ Style.basicButton size
-                , width (px (Style.noteWidth size))
-                , minHeight fitContent
-                , active [ Style.indent ]
-                , cursor pointer
-                , hover [ color Colors.point1 ]
-                ]
-            , Events.onClick (AddVoiceClicked -1)
-            ]
-            [ Html.text "+>"
-            ]
+        [ Button.button (AddVoiceClicked <| Index.previous Index.zero) "+>"
+            |> Button.withWidth Button.singleWidth
+            |> Button.toHtml
         ]
 
 
@@ -368,10 +309,10 @@ voiceNumbers part size =
                 [ margin (px 1)
                 , paddingRight (px (Style.noteWidth size + 2))
                 ]
-                [ Buttons.plus
-                    AddBeatBelowClicked
-                    [ width (pct 100) ]
-                    size
+                [ Button.button AddBeatBelowClicked "+v"
+                    |> Button.withWidth Button.fullWidth
+                    |> Button.withSize size
+                    |> Button.toHtml
                 ]
 
         voiceNumber : Int -> Html Msg
@@ -381,12 +322,10 @@ voiceNumbers part size =
                 , flex none
                 , margin (px 1)
                 ]
-                [ Html.button
+                [ Html.p
                     [ Attrs.css
-                        [ Style.basicButton size
-                        , width (px (Style.noteWidth size))
-                        , minHeight fitContent
-                        , margin (px 0)
+                        [ textAlign center
+                        , Style.singleWidth size
                         , zIndex (int 1)
                         , Style.flush
                         ]

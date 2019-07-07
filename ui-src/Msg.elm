@@ -5,6 +5,8 @@ module Msg exposing
     )
 
 import Data.Error as Error exposing (Error)
+import Data.Index exposing (Index)
+import Data.Tracker exposing (Tracker)
 import Json.Decode as Decode exposing (Decoder)
 import Page.Package as Package
 import Page.Parts as Parts
@@ -19,7 +21,7 @@ import Ui.Tracker as Tracker
 
 type Msg
     = MsgDecodeFailed Error
-    | TrackerMsg Int Tracker.Msg
+    | TrackerMsg (Index Tracker) Tracker.Msg
     | HeaderMsg Header.Msg
     | PackageMsg Package.Msg
     | PartsMsg Parts.Msg

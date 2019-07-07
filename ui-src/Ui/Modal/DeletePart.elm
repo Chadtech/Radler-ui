@@ -6,17 +6,16 @@ module Ui.Modal.DeletePart exposing
     )
 
 import Css exposing (..)
+import Data.Index as Index exposing (Index)
 import Data.Modal.DeletePart as DeletePart
 import Data.Part as Part exposing (Part)
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
-import Html.Styled.Attributes as Attrs
-import Html.Styled.Events as Events
 import Json.Decode as Decode exposing (Decoder)
 import Model exposing (Model)
 import Ports
-import Style
 import Util.Cmd as CmdUtil
+import View.Button as Button
 
 
 
@@ -26,7 +25,7 @@ import Util.Cmd as CmdUtil
 type Msg
     = YesClicked
     | CancelClicked
-    | PartDeleted (Result String Int)
+    | PartDeleted (Result String (Index Part))
 
 
 
@@ -38,7 +37,7 @@ update msg deletePartModel model =
     case msg of
         YesClicked ->
             let
-                getPartToDelete : Int -> Maybe ( Int, String )
+                getPartToDelete : Index Part -> Maybe ( Index Part, String )
                 getPartToDelete index =
                     Model.getPart index model
                         |> Maybe.map .name
@@ -92,7 +91,7 @@ view deletePartModel model =
 contentView : DeletePart.Model -> Model -> List (Html Msg)
 contentView deletePartModel model =
     case deletePartModel of
-        DeletePart.Ready { partIndex } ->
+        DeletePart.Ready partIndex ->
             case Model.getPart partIndex model of
                 Just part ->
                     readyView part
@@ -132,29 +131,6 @@ readyView part =
                     |> String.concat
                     |> Html.text
                 ]
-
-        yesButton : Html Msg
-        yesButton =
-            Html.button
-                [ Attrs.css
-                    [ Style.clickableButtonStyle Style.Big
-                    , width (px 125)
-                    ]
-                , Events.onClick YesClicked
-                ]
-                [ Html.text "yes" ]
-
-        cancelButton : Html Msg
-        cancelButton =
-            Html.button
-                [ Attrs.css
-                    [ Style.clickableButtonStyle Style.Big
-                    , width (px 125)
-                    , marginLeft (px 5)
-                    ]
-                , Events.onClick CancelClicked
-                ]
-                [ Html.text "cancel" ]
     in
     [ Grid.row
         [ marginBottom (px 5) ]
@@ -166,10 +142,18 @@ readyView part =
         [ justifyContent center ]
         [ Grid.column
             [ flex (int 0) ]
-            [ yesButton ]
+            [ Button.button YesClicked "yes"
+                |> Button.withWidth Button.singleWidth
+                |> Button.toHtml
+            ]
         , Grid.column
-            [ flex (int 0) ]
-            [ cancelButton ]
+            [ flex (int 0)
+            , marginLeft (px 5)
+            ]
+            [ Button.button CancelClicked "cancel"
+                |> Button.withWidth Button.singleWidth
+                |> Button.toHtml
+            ]
         ]
     ]
 
@@ -182,7 +166,7 @@ msgDecoderFromType : String -> Decoder Msg
 msgDecoderFromType type_ =
     case type_ of
         "partDeleted" ->
-            [ Decode.map Ok Decode.int
+            [ Decode.map Ok Index.decoder
             , Decode.map Err Decode.string
             ]
                 |> Decode.oneOf

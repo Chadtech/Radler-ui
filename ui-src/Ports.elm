@@ -1,16 +1,24 @@
 port module Ports exposing
     ( JsMsg(..)
     , fromJs
+    , savePartToDisk
     , send
     )
 
+import Data.Index as Index exposing (Index)
+import Data.Part as Part exposing (Part)
 import Json.Encode as Encode exposing (Value)
 
 
 type JsMsg
-    = SavePartToDisk ( String, String )
+    = SavePartToDisk Part
     | SavePackageToDisk String
-    | DeletePartFromDisk String Int
+    | DeletePartFromDisk String (Index Part)
+
+
+savePartToDisk : Part -> Cmd msg
+savePartToDisk =
+    SavePartToDisk >> send
 
 
 toCmd : String -> Value -> Cmd msg
@@ -25,11 +33,9 @@ toCmd type_ payload =
 send : JsMsg -> Cmd msg
 send msg =
     case msg of
-        SavePartToDisk ( name, data ) ->
-            [ field "name" <| Encode.string name
-            , field "data" <| Encode.string data
-            ]
-                |> Encode.object
+        SavePartToDisk part ->
+            part
+                |> Part.encode
                 |> toCmd "savePartToDisk"
 
         SavePackageToDisk package ->
@@ -39,7 +45,7 @@ send msg =
 
         DeletePartFromDisk partName partIndex ->
             [ field "name" <| Encode.string partName
-            , field "index" <| Encode.int partIndex
+            , field "index" <| Index.encode partIndex
             ]
                 |> Encode.object
                 |> toCmd "deletePartFromDisk"

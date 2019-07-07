@@ -5,7 +5,6 @@ import Css.Global
 import Data.Page as Page
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
-import Html.Styled.Attributes as Attrs
 import Model exposing (Model)
 import Msg exposing (Msg(..))
 import Page.Package as Package

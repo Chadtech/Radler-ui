@@ -5,17 +5,22 @@ module Data.Page.Parts exposing
     , setCopyName
     )
 
+import Data.Index exposing (Index)
+import Data.Part exposing (Part)
+
+
+
 -- TYPES --
 
 
 type alias Model =
-    { selectedPartIndex : Int
+    { selectedPartIndex : Index Part
     , copyName : String
     }
 
 
 type alias Flags =
-    { selectedPartIndex : Int
+    { selectedPartIndex : Index Part
     , copyName : String
     }
 

@@ -17,7 +17,7 @@ import Data.Room as Room exposing (Room)
 import Dict exposing (Dict)
 import Expect
 import Json.Decode as Decode exposing (Decoder)
-import Json.Decode.Pipeline as JDP
+import Json.Decode.Pipeline as Pipe
 import Ports
 import Random exposing (Generator, Seed)
 import Test exposing (Test, describe, test)
@@ -116,17 +116,17 @@ decode jsonStr =
 fromStringDecoder : String -> Decoder Package
 fromStringDecoder jsonStr =
     Decode.succeed Package
-        |> JDP.hardcoded jsonStr
-        |> JDP.hardcoded jsonStr
-        |> JDP.hardcoded True
-        |> JDP.required "name" Decode.string
-        |> JDP.required "beat-length" Decode.int
-        |> JDP.required "timing-variance" Decode.int
-        |> JDP.required "seed" (Decode.map Random.initialSeed Decode.int)
-        |> JDP.required "score" partsListDecoder
-        |> JDP.required "voices" (Decode.list Decode.string)
-        |> JDP.optional "room" (Decode.map Just Room.decoder) Nothing
-        |> JDP.required "scale" Decode.string
+        |> Pipe.hardcoded jsonStr
+        |> Pipe.hardcoded jsonStr
+        |> Pipe.hardcoded True
+        |> Pipe.required "name" Decode.string
+        |> Pipe.required "beat-length" Decode.int
+        |> Pipe.required "timing-variance" Decode.int
+        |> Pipe.required "seed" (Decode.map Random.initialSeed Decode.int)
+        |> Pipe.required "score" partsListDecoder
+        |> Pipe.required "voices" (Decode.list Decode.string)
+        |> Pipe.optional "room" (Decode.map Just Room.decoder) Nothing
+        |> Pipe.required "scale" Decode.string
 
 
 partsListDecoder : Decoder (List ( String, Int ))

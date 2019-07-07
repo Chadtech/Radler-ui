@@ -14,11 +14,11 @@ import Expect
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attrs
-import Html.Styled.Events as Events
 import Model exposing (Model)
 import Style
 import Test exposing (Test, describe, test)
 import Util.Cmd as CmdUtil
+import View.Button as Button
 
 
 
@@ -146,16 +146,13 @@ finishedView =
         [ marginBottom (px 5) ]
         [ Grid.column
             []
-            [ Html.p
-                [ Attrs.css [ Style.hfnss ] ]
-                [ Html.text "done building" ]
-            ]
+            [ text "done building" ]
         ]
     , Grid.row
         [ justifyContent center ]
         [ Grid.column
             [ flex (int 0) ]
-            [ goBackButton ]
+            [ button GoBackClicked "go back" ]
         ]
     ]
 
@@ -166,10 +163,7 @@ buildView =
         []
         [ Grid.column
             []
-            [ Html.p
-                [ Attrs.css [ Style.hfnss ] ]
-                [ Html.text "building.." ]
-            ]
+            [ text "building.." ]
         ]
     ]
 
@@ -180,59 +174,35 @@ readyView =
         [ marginBottom (px 5) ]
         [ Grid.column
             []
-            [ Html.p
-                [ Attrs.css
-                    [ Style.hfnss ]
-                ]
-                [ Html.text "building takes a long time, are you sure you want to build this piece?" ]
-            ]
+            [ text "building takes a long time, are you sure you want to build this piece?" ]
         ]
     , Grid.row
         [ justifyContent center ]
         [ Grid.column
             [ flex (int 0)
             ]
-            [ buildButton ]
+            [ button BuildClicked "build" ]
         , Grid.column
             [ flex (int 0)
             , marginLeft (px 10)
             ]
-            [ cancelButton ]
+            [ button CancelClicked "cancel" ]
         ]
     ]
 
 
-goBackButton : Html Msg
-goBackButton =
-    button GoBackClicked "go back"
-
-
-buildButton : Html Msg
-buildButton =
-    button BuildClicked "build"
-
-
-cancelButton : Html Msg
-cancelButton =
-    button CancelClicked "cancel"
+text : String -> Html msg
+text str =
+    Html.p
+        [ Attrs.css [ Style.hfnss ] ]
+        [ Html.text str ]
 
 
 button : Msg -> String -> Html Msg
 button clickMsg label =
-    Html.button
-        [ Attrs.css [ buttonStyle ]
-        , Events.onClick clickMsg
-        ]
-        [ Html.text label ]
-
-
-buttonStyle : Style
-buttonStyle =
-    [ Style.basicButton Style.Big
-    , width (px (Style.noteWidth Style.Big))
-    , active [ Style.indent ]
-    ]
-        |> Css.batch
+    Button.button clickMsg label
+        |> Button.withWidth Button.singleWidth
+        |> Button.toHtml
 
 
 

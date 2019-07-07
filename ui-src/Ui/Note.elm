@@ -7,10 +7,12 @@ module Ui.Note exposing
 import Browser.Dom as Dom
 import Colors
 import Css exposing (..)
-import Data.Beat as Beat
+import Data.Beat as Beat exposing (Beat)
 import Data.Encoding as Encoding
+import Data.Index as Index exposing (Index)
 import Data.Note as Note exposing (Note)
-import Data.Part as Part
+import Data.Part as Part exposing (Part)
+import Data.Tracker exposing (Tracker)
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Attribute, Html)
 import Html.Styled.Attributes as Attrs
@@ -29,72 +31,69 @@ import Util.Cmd as CmdUtil
 type Msg
     = Updated String
     | MovementKeyPressed Direction
-    | NoteFocused
+    | NoteFocused (Result Dom.Error ())
 
 
 
 -- UPDATE --
 
 
-{-|
-
-    Theres a lot of indexing going on!
-
-        ti := tracker index
-        pi := part index
-        bi := beat index
-        ni := note index
-
--}
-update : Int -> Int -> Int -> Int -> Msg -> Model -> ( Model, Cmd Msg )
-update ti pi bi ni msg model =
+update :
+    Index Tracker
+    -> Index Part
+    -> Index (Beat Encoding.None)
+    -> Index (Note Encoding.None)
+    -> Msg
+    -> Model
+    -> ( Model, Cmd Msg )
+update trackerIndex partIndex beatIndex noteIndex msg model =
     case msg of
         Updated noteStr ->
             model
                 |> updateBeat
-                    pi
-                    bi
-                    ni
+                    partIndex
+                    beatIndex
+                    noteIndex
                     (Note.fromString noteStr)
                 |> CmdUtil.withNoCmd
 
         MovementKeyPressed Up ->
-            noteId ti (bi - 1) ni
+            noteId trackerIndex (Index.previous beatIndex) noteIndex
                 |> focusOnNote
                 |> CmdUtil.withModel model
 
         MovementKeyPressed Down ->
-            noteId ti (bi + 1) ni
+            noteId trackerIndex (Index.next beatIndex) noteIndex
                 |> focusOnNote
                 |> CmdUtil.withModel model
 
         MovementKeyPressed Left ->
-            noteId ti bi (ni - 1)
+            noteId trackerIndex beatIndex (Index.previous noteIndex)
                 |> focusOnNote
                 |> CmdUtil.withModel model
 
         MovementKeyPressed Right ->
-            noteId ti bi (ni + 1)
+            noteId trackerIndex beatIndex (Index.next noteIndex)
                 |> focusOnNote
                 |> CmdUtil.withModel model
 
-        NoteFocused ->
+        NoteFocused _ ->
             model
                 |> CmdUtil.withNoCmd
 
 
-updateBeat : Int -> Int -> Int -> Note Encoding.None -> Model -> Model
-updateBeat pi bi ni note =
+updateBeat : Index Part -> Index (Beat Encoding.None) -> Index (Note Encoding.None) -> Note Encoding.None -> Model -> Model
+updateBeat partIndex beatIndex noteIndex note =
     note
-        |> Beat.setNote ni
-        |> Part.mapBeat bi
-        |> Model.mapPart pi
+        |> Beat.setNote noteIndex
+        |> Part.mapBeat beatIndex
+        |> Model.mapPart partIndex
 
 
 focusOnNote : String -> Cmd Msg
 focusOnNote id =
     Task.attempt
-        (always NoteFocused)
+        NoteFocused
         (Dom.focus id)
 
 
@@ -102,12 +101,20 @@ focusOnNote id =
 -- VIEW --
 
 
-view : Int -> Int -> Style.Size -> Int -> Int -> Int -> Note Encoding.None -> Html Msg
-view majorMark minorMark size ti bi ni note =
+view :
+    Int
+    -> Int
+    -> Style.Size
+    -> Index Tracker
+    -> Index (Beat Encoding.None)
+    -> Index (Note Encoding.None)
+    -> Note Encoding.None
+    -> Html Msg
+view majorMark minorMark size trackerIndex beatIndex noteIndex note =
     let
         bgColor : Color
         bgColor =
-            case remainderBy majorMark bi of
+            case remainderBy majorMark <| Index.toInt beatIndex of
                 0 ->
                     Colors.highlight1
 
@@ -136,20 +143,20 @@ view majorMark minorMark size ti bi ni note =
             , Attrs.spellcheck False
             , Events.onInput Updated
             , onMovementKey MovementKeyPressed
-            , Attrs.id (noteId ti bi ni)
+            , Attrs.id (noteId trackerIndex beatIndex noteIndex)
             ]
             []
         ]
 
 
-noteId : Int -> Int -> Int -> String
-noteId ti bi ni =
+noteId : Index Tracker -> Index (Beat Encoding.None) -> Index (Note Encoding.None) -> String
+noteId trackerIndex beatIndex noteIndex =
     [ "t"
-    , String.fromInt ti
+    , Index.toString trackerIndex
     , "b"
-    , String.fromInt bi
+    , Index.toString beatIndex
     , "n"
-    , String.fromInt ni
+    , Index.toString noteIndex
     ]
         |> String.concat
 

@@ -1,6 +1,5 @@
 module Data.Tracker.Options exposing
     ( Model
-    , setCopyName
     , setMajorMarkField
     , setMinorMarkField
     )
@@ -17,11 +16,6 @@ type alias Model =
 
 
 -- HELPERS --
-
-
-setCopyName : String -> Model -> Model
-setCopyName copyName model =
-    { model | copyName = copyName }
 
 
 setMajorMarkField : String -> Model -> Model

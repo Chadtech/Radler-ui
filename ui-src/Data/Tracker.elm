@@ -10,6 +10,8 @@ module Data.Tracker exposing
     , setSize
     )
 
+import Data.Index exposing (Index)
+import Data.Part exposing (Part)
 import Data.Tracker.Options as Options
 import Style
 
@@ -49,14 +51,14 @@ import Style
 -}
 type alias Tracker =
     { size : Style.Size
-    , partIndex : Int
+    , partIndex : Index Part
     , options : Maybe Options.Model
     , majorMark : Int
     , minorMark : Int
     }
 
 
-init : Style.Size -> Int -> Tracker
+init : Style.Size -> Index Part -> Tracker
 init size partIndex =
     { size = size
     , partIndex = partIndex
@@ -107,7 +109,7 @@ setSize size tracker =
     { tracker | size = size }
 
 
-setPartIndex : Int -> Tracker -> Tracker
+setPartIndex : Index Part -> Tracker -> Tracker
 setPartIndex index tracker =
     { tracker | partIndex = index }
 

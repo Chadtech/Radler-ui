@@ -6,16 +6,19 @@ module Style exposing
     , card
     , clickableButtonStyle
     , dim
+    , doubleWidth
     , flush
     , font
     , fontSmoothingNone
     , globals
+    , halfWidth
     , hfnss
     , hftin
     , indent
     , noteHeight
     , noteWidth
     , outdent
+    , singleWidth
     )
 
 import Colors
@@ -47,7 +50,9 @@ globals =
     , Css.Global.input
         [ outline none
         , backgroundColor Colors.background1
+        , fontSmoothingNone
         , indent
+        , color Colors.point0
         ]
     , Css.Global.textarea
         [ outline none
@@ -167,6 +172,26 @@ clickableButtonStyle size =
 
 
 -- HELPERS --
+
+
+doubleWidth : Size -> Style
+doubleWidth size =
+    widthFromFloat <| (noteWidth size * 2) + 2
+
+
+singleWidth : Size -> Style
+singleWidth =
+    widthFromFloat << noteWidth
+
+
+halfWidth : Size -> Style
+halfWidth size =
+    widthFromFloat <| (noteWidth size / 2) - 1
+
+
+widthFromFloat : Float -> Style
+widthFromFloat =
+    width << px
 
 
 noteWidth : Size -> Float

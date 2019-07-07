@@ -1,8 +1,9 @@
 module Page.Trackers exposing (view)
 
-import Array
 import Colors
 import Css exposing (..)
+import Data.Index as Index exposing (Index)
+import Data.Part exposing (Part)
 import Data.Tracker exposing (Tracker)
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
@@ -35,11 +36,11 @@ view model =
 viewTrackers : Model -> List (Html Msg)
 viewTrackers model =
     let
-        partNames : List ( Int, String )
+        partNames : List ( Index Part, String )
         partNames =
             Model.indexedPartNames model
 
-        viewTracker : ( Int, Tracker ) -> Html Msg
+        viewTracker : ( Index Tracker, Tracker ) -> Html Msg
         viewTracker ( trackerIndex, tracker ) =
             case Model.getPart tracker.partIndex model of
                 Just part ->
@@ -55,7 +56,7 @@ viewTrackers model =
                     notFoundView
     in
     model.trackers
-        |> Array.toIndexedList
+        |> Index.toEntries
         |> List.map viewTracker
 
 

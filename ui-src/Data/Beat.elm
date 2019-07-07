@@ -14,6 +14,7 @@ module Data.Beat exposing
 
 import Array exposing (Array)
 import Data.Encoding as Encoding
+import Data.Index as Index exposing (Index)
 import Data.Note as Note exposing (Note)
 import Util.Array as ArrayUtil
 
@@ -46,9 +47,9 @@ toList (Beat beat) =
     Array.toList beat
 
 
-toIndexedList : Beat encoding -> List ( Int, Note encoding )
+toIndexedList : Beat encoding -> List ( Index (Note encoding), Note encoding )
 toIndexedList (Beat beat) =
-    Array.toIndexedList beat
+    Index.toEntries beat
 
 
 fromList : List (Note encoding) -> Beat encoding
@@ -61,19 +62,19 @@ length (Beat beat) =
     Array.length beat
 
 
-addNoteAfter : Int -> Beat Encoding.None -> Beat Encoding.None
+addNoteAfter : Index (Note Encoding.None) -> Beat Encoding.None -> Beat Encoding.None
 addNoteAfter index (Beat beat) =
     ArrayUtil.insert
-        (index + 1)
+        (Index.toInt <| Index.next index)
         Note.empty
         beat
         |> Beat
 
 
-removeNote : Int -> Beat Encoding.None -> Beat Encoding.None
+removeNote : Index (Note Encoding.None) -> Beat Encoding.None -> Beat Encoding.None
 removeNote index (Beat beat) =
     beat
-        |> ArrayUtil.remove index
+        |> ArrayUtil.remove (Index.toInt index)
         |> Beat
 
 
@@ -105,7 +106,7 @@ empty thisLength =
         |> Beat
 
 
-setNote : Int -> Note Encoding.None -> Beat Encoding.None -> Beat Encoding.None
+setNote : Index (Note Encoding.None) -> Note Encoding.None -> Beat Encoding.None -> Beat Encoding.None
 setNote index note (Beat beat) =
-    Array.set index note beat
+    Array.set (Index.toInt index) note beat
         |> Beat
