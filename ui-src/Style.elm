@@ -46,6 +46,7 @@ globals =
         [ color Colors.point0
         , margin (px 0)
         , fontSmoothingNone
+        , hfnss
         ]
     , Css.Global.input
         [ outline none
@@ -53,6 +54,7 @@ globals =
         , fontSmoothingNone
         , indent
         , color Colors.point0
+        , hfnss
         ]
     , Css.Global.textarea
         [ outline none

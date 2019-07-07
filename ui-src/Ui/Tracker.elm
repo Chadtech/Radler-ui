@@ -273,13 +273,19 @@ voiceOption size i =
         , margin (px 1)
         ]
         [ Html.div
-            [ Attrs.css [ marginRight (px 2) ] ]
+            [ Attrs.css
+                [ marginRight (px 2)
+                , displayFlex
+                ]
+            ]
             [ Button.button (DeleteVoiceClicked i) "x"
                 |> Button.withWidth Button.halfWidth
+                |> Button.withSize size
                 |> Button.toHtml
             ]
         , Button.button (AddVoiceClicked i) "+>"
             |> Button.withWidth Button.halfWidth
+            |> Button.withSize size
             |> Button.toHtml
         ]
 
@@ -292,6 +298,7 @@ addVoiceZero size =
         ]
         [ Button.button (AddVoiceClicked <| Index.previous Index.zero) "+>"
             |> Button.withWidth Button.singleWidth
+            |> Button.withSize size
             |> Button.toHtml
         ]
 
@@ -326,6 +333,7 @@ voiceNumbers part size =
                     [ Attrs.css
                         [ textAlign center
                         , Style.singleWidth size
+                        , Style.font size
                         , zIndex (int 1)
                         , Style.flush
                         ]

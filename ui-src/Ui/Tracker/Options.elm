@@ -192,6 +192,7 @@ smallViewButton size =
         []
         [ Button.button SmallClicked "small"
             |> Button.indent (size == Style.Small)
+            |> Button.withWidth Button.fullWidth
             |> Button.toHtml
         ]
 
@@ -202,6 +203,7 @@ bigViewButton size =
         [ paddingLeft (px 5) ]
         [ Button.button BigClicked "big"
             |> Button.indent (size == Style.Big)
+            |> Button.withWidth Button.fullWidth
             |> Button.toHtml
         ]
 

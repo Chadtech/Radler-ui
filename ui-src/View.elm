@@ -17,13 +17,7 @@ import Ui.Modal as Modal
 
 view : Model -> List (Html Msg)
 view model =
-    [ Css.Global.global
-        [ Css.Global.p
-            [ Style.hfnss ]
-        , Css.Global.input
-            [ Style.hfnss ]
-        ]
-    , Header.view model
+    [ Header.view model
         |> Html.map HeaderMsg
     , body model
     , modalView model
