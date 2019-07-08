@@ -124,9 +124,12 @@ buildFilename score partIndex =
 
 devFilename :: Score -> Text
 devFilename score =
-    T.append
-        (name score)
-        "-dev.wav"
+    [ "./audio-product/"
+    , name score
+    , "-dev.wav"
+    ]
+        |> T.concat
+        |> trace "FN"
 
 
 fromText :: Text -> Either Error Score

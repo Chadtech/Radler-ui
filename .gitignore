@@ -10,3 +10,5 @@ cabal.sandbox.config
 dist
 
 project/score
+
+audio-product
