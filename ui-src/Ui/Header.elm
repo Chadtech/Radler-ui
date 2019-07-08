@@ -59,7 +59,8 @@ update msg model =
             attemptToPlay model
 
         SaveClicked ->
-            Model.save model
+            model
+                |> Model.save
                 |> CmdUtil.withModel model
 
         BuildClicked ->

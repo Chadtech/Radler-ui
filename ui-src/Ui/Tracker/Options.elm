@@ -9,7 +9,8 @@ import Css exposing (..)
 import Data.Index exposing (Index)
 import Data.Part exposing (Part)
 import Data.Tracker as Tracker exposing (Tracker)
-import Data.Tracker.Options as Options
+import Data.Tracker.Collapse as Collapse exposing (Collapse)
+import Data.Tracker.Options as TrackerOptions
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attrs
@@ -17,6 +18,7 @@ import Html.Styled.Events as Events
 import Model exposing (Model)
 import Style
 import View.Button as Button
+import View.Checkbox as Checkbox
 
 
 
@@ -30,6 +32,8 @@ type Msg
     | BigClicked
     | MajorMarkFieldUpdated String
     | MinorMarkFieldUpdated String
+    | CollapseClicked Collapse
+    | CollapseEveryChanged String
 
 
 
@@ -56,11 +60,47 @@ updateTracker msg =
         BigClicked ->
             Tracker.setSize Style.Big
 
+        MajorMarkFieldUpdated "" ->
+            Tracker.setMajorMark 0
+
         MajorMarkFieldUpdated field ->
-            Tracker.setMajorMark field
+            case String.toInt field of
+                Just newMajorMark ->
+                    Tracker.setMajorMark newMajorMark
+
+                Nothing ->
+                    identity
+
+        MinorMarkFieldUpdated "" ->
+            Tracker.setMinorMark 0
 
         MinorMarkFieldUpdated field ->
-            Tracker.setMinorMark field
+            case String.toInt field of
+                Just newMinorMark ->
+                    Tracker.setMinorMark newMinorMark
+
+                Nothing ->
+                    identity
+
+        CollapseClicked collapse ->
+            Tracker.setCollapse collapse
+
+        CollapseEveryChanged "" ->
+            setCollapseForEvery 0
+
+        CollapseEveryChanged str ->
+            case String.toInt str of
+                Just every ->
+                    setCollapseForEvery every
+
+                Nothing ->
+                    identity
+
+
+setCollapseForEvery : Int -> Tracker -> Tracker
+setCollapseForEvery every =
+    Tracker.setCollapse (Collapse.every every)
+        >> Tracker.mapOptions (TrackerOptions.setEveryField every)
 
 
 
@@ -72,7 +112,8 @@ type alias ViewParams =
     , size : Style.Size
     , majorMark : Int
     , minorMark : Int
-    , model : Options.Model
+    , collapse : Collapse
+    , model : TrackerOptions.Model
     }
 
 
@@ -92,62 +133,43 @@ view params =
             [ margin (px 0)
             , width (pct 100)
             ]
-            [ Grid.row
-                [ margin (px 5) ]
-                [ Grid.column
-                    []
-                    [ Html.p
-                        [ Attrs.css
-                            [ Style.hfnss
-                            , padding (px 5)
-                            , backgroundColor Colors.point0
-                            , color Colors.ignorable2
-                            , width (pct 100)
-                            ]
+            [ row
+                [ Html.p
+                    [ Attrs.css
+                        [ padding (px 5)
+                        , backgroundColor Colors.point0
+                        , color Colors.ignorable2
+                        , width (pct 100)
                         ]
-                        [ Html.text "tracker options" ]
                     ]
+                    [ Html.text "tracker options" ]
                 ]
-            , Grid.row
-                [ margin (px 5) ]
-                [ Grid.column
-                    []
-                    [ Html.p
-                        [ Attrs.css
-                            [ Style.hfnss ]
-                        ]
-                        [ Html.text "switch to part.." ]
-                    ]
-                ]
-            , Grid.row
-                [ margin (px 5) ]
-                [ Grid.column
-                    []
-                    [ partOptionsContainer params ]
-                ]
-            , Grid.row
-                [ margin (px 5) ]
+            , row
+                [ text "switch to part.." ]
+            , row
+                [ partOptionsContainer params ]
+            , row
                 [ markLabel "major mark"
                 , markField
-                    params.model.majorMarkField
+                    params.majorMark
                     MajorMarkFieldUpdated
                 ]
-            , Grid.row
-                [ margin (px 5) ]
+            , row
                 [ markLabel "minor mark"
                 , markField
-                    params.model.minorMarkField
+                    params.minorMark
                     MinorMarkFieldUpdated
                 ]
             , Grid.row
-                [ margin (px 5) ]
+                [ margin (px 5)
+                , flexDirection Css.column
+                ]
+                (collapseOptions params)
+            , row
                 [ smallViewButton params.size
                 , bigViewButton params.size
                 ]
-            , Grid.row
-                [ margin (px 5)
-                , justifyContent spaceAround
-                ]
+            , row
                 [ Button.button BackClicked "back"
                     |> Button.withWidth Button.fullWidth
                     |> Button.toHtml
@@ -156,31 +178,93 @@ view params =
         ]
 
 
+collapseOptions : ViewParams -> List (Html Msg)
+collapseOptions { model, collapse } =
+    let
+        collapseOptionBody : Collapse -> List (Html Msg)
+        collapseOptionBody thisCollapse =
+            let
+                collapseCheckbox : Html Msg
+                collapseCheckbox =
+                    Grid.column
+                        [ marginRight (px 5)
+                        , flex (int 0)
+                        ]
+                        [ Checkbox.checkbox
+                            (CollapseClicked thisCollapse)
+                            (Collapse.areSame collapse thisCollapse)
+                            |> Checkbox.toHtml
+                        ]
+
+                collapseLabelHtml : Html Msg
+                collapseLabelHtml =
+                    Html.p
+                        [ Attrs.css [ lineHeight (px 30) ] ]
+                        [ Html.text <| Collapse.toLabel thisCollapse ]
+            in
+            case thisCollapse of
+                Collapse.Every everyAmount ->
+                    [ collapseCheckbox
+                    , collapseLabelHtml
+                    , Html.input
+                        [ Attrs.css
+                            [ Style.singleWidth Style.Big
+                            , marginLeft (px 5)
+                            ]
+                        , Attrs.value <| String.fromInt everyAmount
+                        , Events.onInput CollapseEveryChanged
+                        ]
+                        []
+                    ]
+
+                _ ->
+                    [ collapseCheckbox
+                    , collapseLabelHtml
+                    ]
+
+        collapseOption : Collapse -> Html Msg
+        collapseOption thisCollapse =
+            Grid.row
+                [ margin2 (px 5) (px 0) ]
+                [ Grid.column
+                    []
+                    (collapseOptionBody thisCollapse)
+                ]
+    in
+    text "collapse.."
+        :: List.map
+            collapseOption
+            (Collapse.all model.collapseEveryField)
+
+
+text : String -> Html Msg
+text str =
+    Html.p [] [ Html.text str ]
+
+
+row : List (Html Msg) -> Html Msg
+row =
+    Grid.row [ margin (px 5) ]
+
+
 markLabel : String -> Html Msg
 markLabel labelText =
     Grid.column
         []
         [ Html.p
-            [ Attrs.css
-                [ Style.hfnss
-                , lineHeight (px 26)
-                ]
-            ]
+            [ Attrs.css [ lineHeight (px 26) ] ]
             [ Html.text labelText ]
         ]
 
 
-markField : String -> (String -> Msg) -> Html Msg
+markField : Int -> (String -> Msg) -> Html Msg
 markField mark msgCtor =
     Grid.column
         [ paddingLeft (px 5) ]
         [ Html.input
-            [ Attrs.css
-                [ Style.hfnss
-                , width (pct 100)
-                ]
+            [ Attrs.css [ width (pct 100) ]
             , Events.onInput msgCtor
-            , Attrs.value mark
+            , Attrs.value <| String.fromInt mark
             ]
             []
         ]
@@ -215,6 +299,8 @@ partOptionsContainer params =
             [ Style.indent
             , backgroundColor Colors.background3
             , width (pct 100)
+            , maxHeight (px 200)
+            , overflow auto
             ]
         ]
         [ Grid.container

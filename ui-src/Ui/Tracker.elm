@@ -12,6 +12,7 @@ import Data.Index as Index exposing (Index)
 import Data.Note exposing (Note)
 import Data.Part as Part exposing (Part)
 import Data.Tracker as Tracker exposing (Tracker)
+import Data.Tracker.Collapse exposing (Collapse)
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attrs
@@ -47,17 +48,11 @@ update : Index Tracker -> Index Part -> Msg -> Model -> ( Model, Cmd Msg )
 update trackerIndex partIndex msg model =
     case msg of
         OptionsClicked ->
-            case Model.getTrackersPart trackerIndex model of
-                Just part ->
-                    Model.mapTracker
-                        trackerIndex
-                        (Tracker.openOptions part.name)
-                        model
-                        |> CmdUtil.withNoCmd
-
-                Nothing ->
-                    model
-                        |> CmdUtil.withNoCmd
+            Model.mapTracker
+                trackerIndex
+                Tracker.openOptions
+                model
+                |> CmdUtil.withNoCmd
 
         OptionsMsg subMsg ->
             Ui.Tracker.Options.update
@@ -130,12 +125,13 @@ view { trackerIndex, tracker, part, partNames } =
             (voiceNumbers part tracker.size)
         , Grid.row
             []
-            [ Html.Styled.Lazy.lazy5
+            [ Html.Styled.Lazy.lazy6
                 beatsView
                 part
                 tracker.majorMark
                 tracker.minorMark
                 tracker.size
+                tracker.collapse
                 trackerIndex
             ]
         ]
@@ -144,7 +140,7 @@ view { trackerIndex, tracker, part, partNames } =
 optionsContainerView : Tracker -> List ( Index Part, String ) -> Html Msg
 optionsContainerView tracker partNames =
     case tracker.options of
-        Just options ->
+        Just optionsModel ->
             Html.div
                 [ Attrs.css
                     [ Style.dim
@@ -157,9 +153,10 @@ optionsContainerView tracker partNames =
                 [ Ui.Tracker.Options.view
                     { parts = partNames
                     , size = tracker.size
-                    , model = options
                     , majorMark = tracker.majorMark
                     , minorMark = tracker.minorMark
+                    , collapse = tracker.collapse
+                    , model = optionsModel
                     }
                 ]
                 |> Html.map OptionsMsg
@@ -168,16 +165,17 @@ optionsContainerView tracker partNames =
             Html.text ""
 
 
-beatsView : Part -> Int -> Int -> Style.Size -> Index Tracker -> Html Msg
-beatsView part majorMark minorMark size trackerIndex =
+beatsView : Part -> Int -> Int -> Style.Size -> Collapse -> Index Tracker -> Html Msg
+beatsView part majorMark minorMark size collapse trackerIndex =
     let
         wrapBeat : ( Index (Beat Encoding.None), Beat Encoding.None ) -> Html Msg
         wrapBeat ( beatIndex, beat ) =
-            Html.Styled.Lazy.lazy6
+            Html.Styled.Lazy.lazy7
                 Beat.view
                 majorMark
                 minorMark
                 size
+                collapse
                 trackerIndex
                 beatIndex
                 beat

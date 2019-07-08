@@ -1,28 +1,25 @@
 module Data.Tracker.Options exposing
     ( Model
-    , setMajorMarkField
-    , setMinorMarkField
+    , init
+    , setEveryField
     )
 
 -- TYPES --
 
 
 type alias Model =
-    { majorMarkField : String
-    , minorMarkField : String
-    , copyName : String
-    }
+    { collapseEveryField : Int }
 
 
 
--- HELPERS --
+-- INIT --
 
 
-setMajorMarkField : String -> Model -> Model
-setMajorMarkField str optionsModel =
-    { optionsModel | majorMarkField = str }
+init : Int -> Model
+init everyAmount =
+    { collapseEveryField = everyAmount }
 
 
-setMinorMarkField : String -> Model -> Model
-setMinorMarkField str optionsModel =
-    { optionsModel | minorMarkField = str }
+setEveryField : Int -> Model -> Model
+setEveryField newEveryField model =
+    { model | collapseEveryField = newEveryField }

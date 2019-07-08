@@ -18,7 +18,10 @@ type Checkbox msg
 
 
 type alias Model msg =
-    { onClick : msg, checked : Bool, options : List Option }
+    { onClick : msg
+    , checked : Bool
+    , options : List Option
+    }
 
 
 type Option

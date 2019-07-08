@@ -12,6 +12,7 @@ import Data.Index as Index exposing (Index)
 import Data.Note as Note exposing (Note)
 import Data.Part as Part exposing (Part)
 import Data.Tracker exposing (Tracker)
+import Data.Tracker.Collapse as Collapse exposing (Collapse)
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attrs
@@ -79,18 +80,30 @@ view :
     Int
     -> Int
     -> Style.Size
+    -> Collapse
     -> Index Tracker
     -> Index (Beat Encoding.None)
     -> Beat Encoding.None
     -> Html Msg
-view majorMark minorMark size trackerIndex beatIndex beat =
-    beat
-        |> Beat.toIndexedList
-        |> List.map (wrapNote majorMark minorMark size trackerIndex beatIndex)
-        |> (::) (numberView size majorMark beatIndex)
-        |> (::) (buttonColumn AddBelowClicked "+v" size)
-        |> (::) (buttonColumn DeleteClicked "x" size)
-        |> Grid.row []
+view majorMark minorMark size collapse trackerIndex beatIndex beat =
+    if
+        Collapse.shouldShow
+            { majorMark = majorMark
+            , minorMark = minorMark
+            , collapse = collapse
+            , beatIndex = beatIndex
+            }
+    then
+        beat
+            |> Beat.toIndexedList
+            |> List.map (wrapNote majorMark minorMark size trackerIndex beatIndex)
+            |> (::) (numberView size majorMark beatIndex)
+            |> (::) (buttonColumn AddBelowClicked "+v" size)
+            |> (::) (buttonColumn DeleteClicked "x" size)
+            |> Grid.row []
+
+    else
+        Html.text ""
 
 
 buttonColumn : Msg -> String -> Style.Size -> Html Msg

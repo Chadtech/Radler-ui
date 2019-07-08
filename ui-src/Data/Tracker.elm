@@ -2,8 +2,9 @@ module Data.Tracker exposing
     ( Tracker
     , closeOptions
     , init
-    , mapOptionsModel
+    , mapOptions
     , openOptions
+    , setCollapse
     , setMajorMark
     , setMinorMark
     , setPartIndex
@@ -12,7 +13,8 @@ module Data.Tracker exposing
 
 import Data.Index exposing (Index)
 import Data.Part exposing (Part)
-import Data.Tracker.Options as Options
+import Data.Tracker.Collapse as Collapse exposing (Collapse)
+import Data.Tracker.Options as TrackerOptions
 import Style
 
 
@@ -35,36 +37,43 @@ import Style
         computer after the composer entered the
         right notes into the spread sheet.
 
-        Thats what this software is, tracker
+        Thats what this software is; tracker
         software. This software as a whole
         manages several tracker UIs. Each tracker
         is like an independent view into the
         singular musical score the whole software
         is modifying. Each tracker is showing a
         specific part of music ('partIndex').
-        It shows it in a certain size ('size').
+        It be rendered in a different sizes ('size').
         There are major and minor marks, which
-        represent rythmically important information
-        in the form of certain rows being
+        show up as certain rows behind highlighted
+        in different colors, which conveys
+        rythmically important information.
         highlighted.
 
 -}
 type alias Tracker =
     { size : Style.Size
     , partIndex : Index Part
-    , options : Maybe Options.Model
     , majorMark : Int
     , minorMark : Int
+    , collapse : Collapse
+    , options : Maybe TrackerOptions.Model
     }
+
+
+
+-- INIT --
 
 
 init : Style.Size -> Index Part -> Tracker
 init size partIndex =
     { size = size
     , partIndex = partIndex
-    , options = Nothing
     , majorMark = 16
     , minorMark = 4
+    , collapse = Collapse.none
+    , options = Nothing
     }
 
 
@@ -72,36 +81,22 @@ init size partIndex =
 -- HELPERS --
 
 
-setMajorMark : String -> Tracker -> Tracker
-setMajorMark majorMarkString tracker =
-    let
-        fieldUpdatedTracker =
-            mapOptionsModel
-                (Options.setMajorMarkField majorMarkString)
-                tracker
-    in
-    case String.toInt majorMarkString of
-        Just majorMark ->
-            { fieldUpdatedTracker | majorMark = majorMark }
-
-        Nothing ->
-            fieldUpdatedTracker
+mapOptions : (TrackerOptions.Model -> TrackerOptions.Model) -> Tracker -> Tracker
+mapOptions mapper tracker =
+    { tracker
+        | options =
+            Maybe.map mapper tracker.options
+    }
 
 
-setMinorMark : String -> Tracker -> Tracker
-setMinorMark minorMarkString tracker =
-    let
-        fieldUpdatedTracker =
-            mapOptionsModel
-                (Options.setMinorMarkField minorMarkString)
-                tracker
-    in
-    case String.toInt minorMarkString of
-        Just minorMark ->
-            { fieldUpdatedTracker | minorMark = minorMark }
+setMajorMark : Int -> Tracker -> Tracker
+setMajorMark newMajorMark tracker =
+    { tracker | majorMark = newMajorMark }
 
-        Nothing ->
-            fieldUpdatedTracker
+
+setMinorMark : Int -> Tracker -> Tracker
+setMinorMark newMinorMark tracker =
+    { tracker | minorMark = newMinorMark }
 
 
 setSize : Style.Size -> Tracker -> Tracker
@@ -114,25 +109,24 @@ setPartIndex index tracker =
     { tracker | partIndex = index }
 
 
-mapOptionsModel : (Options.Model -> Options.Model) -> Tracker -> Tracker
-mapOptionsModel f tracker =
-    { tracker | options = Maybe.map f tracker.options }
-
-
-openOptions : String -> Tracker -> Tracker
-openOptions partName tracker =
-    { tracker
-        | options =
-            { majorMarkField =
-                String.fromInt tracker.majorMark
-            , minorMarkField =
-                String.fromInt tracker.minorMark
-            , copyName = partName ++ "-copy"
-            }
-                |> Just
-    }
+openOptions : Tracker -> Tracker
+openOptions tracker =
+    let
+        options : TrackerOptions.Model
+        options =
+            tracker.collapse
+                |> Collapse.getEveryAmount
+                |> Maybe.withDefault 4
+                |> TrackerOptions.init
+    in
+    { tracker | options = Just options }
 
 
 closeOptions : Tracker -> Tracker
 closeOptions tracker =
     { tracker | options = Nothing }
+
+
+setCollapse : Collapse -> Tracker -> Tracker
+setCollapse collapse tracker =
+    { tracker | collapse = collapse }
