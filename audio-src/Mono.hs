@@ -93,7 +93,7 @@ trimEnd (Mono vector) =
         isSampleZero index sample maybeLastNonZeroIndex =
             if 
                 maybeLastNonZeroIndex == Nothing 
-                    && sample /= 0
+                    && (sample > 0.00005)
             then
                 Just index
 

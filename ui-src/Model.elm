@@ -78,8 +78,6 @@ type alias Model =
     , trackers : Array Tracker
     , page : Page
     , package : Package
-    , playFromBeatField : String
-    , playForBeatsField : String
     , playFromBeat : Int
     , playForBeats : Int
     , repeatPlayback : Bool
@@ -109,8 +107,6 @@ init flags =
     , page = Page.Trackers
     , package = flags.package
     , modal = Nothing
-    , playFromBeatField = String.fromInt playFromBeat
-    , playForBeatsField = String.fromInt playForBeats
     , playFromBeat = playFromBeat
     , playForBeats = playForBeats
     , repeatPlayback = False
@@ -300,36 +296,14 @@ getTrackersPart trackerIndex model =
             Nothing
 
 
-setPlayFrom : String -> Model -> Model
-setPlayFrom str model =
-    case String.toInt str of
-        Just fromBeat ->
-            { model
-                | playFromBeatField = str
-                , playFromBeat = fromBeat
-            }
-
-        Nothing ->
-            { model
-                | playFromBeatField =
-                    str
-            }
+setPlayFrom : Int -> Model -> Model
+setPlayFrom playFrom model =
+    { model | playFromBeat = playFrom }
 
 
-setPlayFor : String -> Model -> Model
-setPlayFor str model =
-    case String.toInt str of
-        Just fromBeat ->
-            { model
-                | playForBeatsField = str
-                , playForBeats = fromBeat
-            }
-
-        Nothing ->
-            { model
-                | playForBeatsField =
-                    str
-            }
+setPlayFor : Int -> Model -> Model
+setPlayFor playFor model =
+    { model | playForBeats = playFor }
 
 
 copyPart : Index Part -> String -> Model -> Model

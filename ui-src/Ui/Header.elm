@@ -68,15 +68,37 @@ update msg model =
                 |> Model.setModal Modal.initBuild
                 |> CmdUtil.withNoCmd
 
-        PlayFromFieldUpdated str ->
+        PlayFromFieldUpdated "" ->
             model
-                |> Model.setPlayFrom str
+                |> Model.setPlayFrom 0
+                |> CmdUtil.withNoCmd
+
+        PlayFromFieldUpdated str ->
+            case String.toInt str of
+                Just playFrom ->
+                    model
+                        |> Model.setPlayFrom playFrom
+                        |> CmdUtil.withNoCmd
+
+                Nothing ->
+                    model
+                        |> CmdUtil.withNoCmd
+
+        PlayForFieldUpdated "" ->
+            model
+                |> Model.setPlayFor 0
                 |> CmdUtil.withNoCmd
 
         PlayForFieldUpdated str ->
-            model
-                |> Model.setPlayFor str
-                |> CmdUtil.withNoCmd
+            case String.toInt str of
+                Just playFor ->
+                    model
+                        |> Model.setPlayFor playFor
+                        |> CmdUtil.withNoCmd
+
+                Nothing ->
+                    model
+                        |> CmdUtil.withNoCmd
 
         PlaySent (Ok ()) ->
             if model.repeatPlayback then
@@ -163,9 +185,11 @@ playbackButtons model =
     [ buttonColumn SaveClicked "save"
     , buttonColumn PlayClicked "play"
     , textColumn "from"
-    , inputColumn PlayForFieldUpdated model.playFromBeatField
+    , inputColumn PlayFromFieldUpdated <|
+        String.fromInt model.playFromBeat
     , textColumn "for"
-    , inputColumn PlayForFieldUpdated model.playForBeatsField
+    , inputColumn PlayForFieldUpdated <|
+        String.fromInt model.playForBeats
     , Grid.column
         [ flex none
         , padding (px 1)
