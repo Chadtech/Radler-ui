@@ -8,7 +8,6 @@ module Model exposing
     , deletePart
     , fullScore
     , getPart
-    , getTrackersPart
     , getTrackersPartIndex
     , indexedPartNames
     , init
@@ -47,9 +46,9 @@ import Data.Package as Package exposing (Package)
 import Data.Page as Page exposing (Page)
 import Data.Page.Parts as Parts
 import Data.Part as Part exposing (Part)
+import Data.Size as Size
 import Data.Tracker as Tracker exposing (Tracker)
 import Ports
-import Style
 import Util.Array as ArrayUtil
 
 
@@ -100,8 +99,8 @@ init flags =
     in
     { parts = flags.parts
     , trackers =
-        [ Tracker.init Style.Big Index.zero
-        , Tracker.init Style.Big Index.zero
+        [ Tracker.init Size.big Index.zero
+        , Tracker.init Size.big Index.zero
         ]
             |> Array.fromList
     , page = Page.Trackers
@@ -271,7 +270,7 @@ addNewTracker model =
     { model
         | trackers =
             Array.push
-                (Tracker.init Style.Big Index.zero)
+                (Tracker.init Size.big Index.zero)
                 model.trackers
     }
 
@@ -284,16 +283,6 @@ getTracker trackerIndex model =
 getTrackersPartIndex : Index Tracker -> Model -> Maybe (Index Part)
 getTrackersPartIndex trackerIndex =
     getTracker trackerIndex >> Maybe.map .partIndex
-
-
-getTrackersPart : Index Tracker -> Model -> Maybe Part
-getTrackersPart trackerIndex model =
-    case getTrackersPartIndex trackerIndex model of
-        Just partIndex ->
-            Array.get (Index.toInt partIndex) model.parts
-
-        Nothing ->
-            Nothing
 
 
 setPlayFrom : Int -> Model -> Model

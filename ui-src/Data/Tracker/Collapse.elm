@@ -2,6 +2,7 @@ module Data.Tracker.Collapse exposing
     ( Collapse(..)
     , all
     , areSame
+    , encode
     , every
     , everyMajorMark
     , everyMinorMark
@@ -11,11 +12,14 @@ module Data.Tracker.Collapse exposing
     , toLabel
     )
 
--- TYPES --
-
 import Data.Beat exposing (Beat)
 import Data.Encoding as Encoding
 import Data.Index as Index exposing (Index)
+import Json.Encode as Encode
+
+
+
+-- TYPES --
 
 
 type Collapse
@@ -132,3 +136,19 @@ areSame collapse0 collapse1 =
 
         _ ->
             False
+
+
+encode : Collapse -> Encode.Value
+encode collapse =
+    case collapse of
+        None ->
+            Encode.null
+
+        Every everyAmount ->
+            Encode.int everyAmount
+
+        EveryMajorMark ->
+            Encode.string "majorMark"
+
+        EveryMinorMark ->
+            Encode.string "minorMark"

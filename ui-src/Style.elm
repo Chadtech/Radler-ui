@@ -1,6 +1,5 @@
 module Style exposing
-    ( Size(..)
-    , basicButton
+    ( basicButton
     , basicSpacing
     , bigSpacing
     , card
@@ -24,16 +23,8 @@ module Style exposing
 import Colors
 import Css exposing (..)
 import Css.Global exposing (global)
+import Data.Size exposing (Size(..))
 import Html.Styled exposing (Html)
-
-
-
--- TYPES --
-
-
-type Size
-    = Big
-    | Small
 
 
 

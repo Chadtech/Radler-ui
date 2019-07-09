@@ -15,10 +15,11 @@ module View.Button exposing
     )
 
 import Css exposing (Style, height, pct, px)
+import Data.Size as Size exposing (Size)
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attrs
 import Html.Styled.Events as Events
-import Style exposing (Size)
+import Style
 import Util.Css as CssUtil
 
 
@@ -132,7 +133,7 @@ optionsToSummary =
                     { summary | indent = Just indent_ }
     in
     List.foldr modifySummary
-        { size = Style.Big
+        { size = Size.big
         , width = Nothing
         , extraHeight = 0
         , indent = Nothing

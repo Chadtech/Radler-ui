@@ -8,6 +8,7 @@ import Colors
 import Css exposing (..)
 import Data.Index exposing (Index)
 import Data.Part exposing (Part)
+import Data.Size as Size exposing (Size)
 import Data.Tracker as Tracker exposing (Tracker)
 import Data.Tracker.Collapse as Collapse exposing (Collapse)
 import Data.Tracker.Options as TrackerOptions
@@ -55,10 +56,10 @@ updateTracker msg =
             Tracker.closeOptions
 
         SmallClicked ->
-            Tracker.setSize Style.Small
+            Tracker.setSize Size.small
 
         BigClicked ->
-            Tracker.setSize Style.Big
+            Tracker.setSize Size.big
 
         MajorMarkFieldUpdated "" ->
             Tracker.setMajorMark 0
@@ -109,7 +110,7 @@ setCollapseForEvery every =
 
 type alias ViewParams =
     { parts : List ( Index Part, String )
-    , size : Style.Size
+    , size : Size
     , majorMark : Int
     , minorMark : Int
     , collapse : Collapse
@@ -208,7 +209,7 @@ collapseOptions { model, collapse } =
                     , collapseLabelHtml
                     , Html.input
                         [ Attrs.css
-                            [ Style.singleWidth Style.Big
+                            [ Style.singleWidth Size.big
                             , marginLeft (px 5)
                             ]
                         , Attrs.value <| String.fromInt everyAmount
@@ -270,23 +271,23 @@ markField mark msgCtor =
         ]
 
 
-smallViewButton : Style.Size -> Html Msg
+smallViewButton : Size -> Html Msg
 smallViewButton size =
     Grid.column
         []
         [ Button.button SmallClicked "small"
-            |> Button.indent (size == Style.Small)
+            |> Button.indent (size == Size.small)
             |> Button.withWidth Button.fullWidth
             |> Button.toHtml
         ]
 
 
-bigViewButton : Style.Size -> Html Msg
+bigViewButton : Size -> Html Msg
 bigViewButton size =
     Grid.column
         [ paddingLeft (px 5) ]
         [ Button.button BigClicked "big"
-            |> Button.indent (size == Style.Big)
+            |> Button.indent (size == Size.big)
             |> Button.withWidth Button.fullWidth
             |> Button.toHtml
         ]

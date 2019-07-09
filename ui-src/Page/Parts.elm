@@ -11,6 +11,7 @@ import Data.Modal as Modal
 import Data.Modal.DeletePart as DeletePart
 import Data.Page.Parts as Parts
 import Data.Part as Part exposing (Part)
+import Data.Size as Size
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attrs
@@ -176,7 +177,7 @@ partView partsModel part =
         deleteButton =
             Html.button
                 [ Attrs.css
-                    [ Style.clickableButtonStyle Style.Big
+                    [ Style.clickableButtonStyle Size.big
                     , width (px 250)
                     ]
                 , Events.onClick DeleteClicked
@@ -227,7 +228,7 @@ copyWithNameField model =
         ]
         [ Html.button
             [ Attrs.css
-                [ Style.clickableButtonStyle Style.Big
+                [ Style.clickableButtonStyle Size.big
                 , margin (px 0)
                 , width (px 250)
                 ]
@@ -322,7 +323,7 @@ newPartButton : Html Msg
 newPartButton =
     Html.button
         [ Attrs.css
-            [ Style.clickableButtonStyle Style.Big
+            [ Style.clickableButtonStyle Size.big
             , width (pct 100)
             ]
         , Events.onClick NewPartClicked

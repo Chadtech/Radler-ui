@@ -11,6 +11,7 @@ import Data.Encoding as Encoding
 import Data.Index as Index exposing (Index)
 import Data.Note exposing (Note)
 import Data.Part as Part exposing (Part)
+import Data.Size exposing (Size)
 import Data.Tracker as Tracker exposing (Tracker)
 import Data.Tracker.Collapse exposing (Collapse)
 import Html.Grid as Grid
@@ -165,7 +166,7 @@ optionsContainerView tracker partNames =
             Html.text ""
 
 
-beatsView : Part -> Int -> Int -> Style.Size -> Collapse -> Index Tracker -> Html Msg
+beatsView : Part -> Int -> Int -> Size -> Collapse -> Index Tracker -> Html Msg
 beatsView part majorMark minorMark size collapse trackerIndex =
     let
         wrapBeat : ( Index (Beat Encoding.None), Beat Encoding.None ) -> Html Msg
@@ -199,7 +200,7 @@ beatsView part majorMark minorMark size collapse trackerIndex =
     be clicked to reveal options about this tracker
 
 -}
-trackerOptionsRow : Part -> Style.Size -> List (Html Msg)
+trackerOptionsRow : Part -> Size -> List (Html Msg)
 trackerOptionsRow part size =
     let
         buttonWidth : Float
@@ -253,7 +254,7 @@ trackerOptionsRow part size =
 -- COLUMN OPTIONS --
 
 
-voiceOptions : Part -> Style.Size -> List (Html Msg)
+voiceOptions : Part -> Size -> List (Html Msg)
 voiceOptions part size =
     part.beats
         |> Array.get 0
@@ -263,7 +264,7 @@ voiceOptions part size =
         |> (::) (addVoiceZero size)
 
 
-voiceOption : Style.Size -> Index (Note Encoding.None) -> Html Msg
+voiceOption : Size -> Index (Note Encoding.None) -> Html Msg
 voiceOption size i =
     Grid.column
         [ position relative
@@ -288,7 +289,7 @@ voiceOption size i =
         ]
 
 
-addVoiceZero : Style.Size -> Html Msg
+addVoiceZero : Size -> Html Msg
 addVoiceZero size =
     Grid.column
         [ margin (px 1)
@@ -305,7 +306,7 @@ addVoiceZero size =
 -- COLUMN NUMBERS --
 
 
-voiceNumbers : Part -> Style.Size -> List (Html Msg)
+voiceNumbers : Part -> Size -> List (Html Msg)
 voiceNumbers part size =
     let
         addBeatButton : Html Msg

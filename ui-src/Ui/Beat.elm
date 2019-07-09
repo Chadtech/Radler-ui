@@ -11,6 +11,7 @@ import Data.Encoding as Encoding
 import Data.Index as Index exposing (Index)
 import Data.Note as Note exposing (Note)
 import Data.Part as Part exposing (Part)
+import Data.Size exposing (Size)
 import Data.Tracker exposing (Tracker)
 import Data.Tracker.Collapse as Collapse exposing (Collapse)
 import Html.Grid as Grid
@@ -79,7 +80,7 @@ update trackerIndex partIndex beatIndex msg model =
 view :
     Int
     -> Int
-    -> Style.Size
+    -> Size
     -> Collapse
     -> Index Tracker
     -> Index (Beat Encoding.None)
@@ -106,7 +107,7 @@ view majorMark minorMark size collapse trackerIndex beatIndex beat =
         Html.text ""
 
 
-buttonColumn : Msg -> String -> Style.Size -> Html Msg
+buttonColumn : Msg -> String -> Size -> Html Msg
 buttonColumn msg label size =
     Grid.column
         [ margin (px 1) ]
@@ -120,7 +121,7 @@ buttonColumn msg label size =
 wrapNote :
     Int
     -> Int
-    -> Style.Size
+    -> Size
     -> Index Tracker
     -> Index (Beat Encoding.None)
     -> ( Index (Note Encoding.None), Note Encoding.None )
@@ -138,7 +139,7 @@ wrapNote majorMark minorMark size trackerIndex beatIndex ( noteIndex, note ) =
         |> Html.map (NoteMsg noteIndex)
 
 
-numberView : Style.Size -> Int -> Index (Beat Encoding.None) -> Html Msg
+numberView : Size -> Int -> Index (Beat Encoding.None) -> Html Msg
 numberView size majorMark index =
     Grid.column
         [ margin (px 1) ]
@@ -148,7 +149,7 @@ numberView size majorMark index =
         ]
 
 
-numberStyle : Style.Size -> Style
+numberStyle : Size -> Style
 numberStyle size =
     [ Style.outdent
     , Style.font size

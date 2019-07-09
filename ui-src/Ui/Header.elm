@@ -11,6 +11,7 @@ import Data.Error as Error
 import Data.Modal as Modal
 import Data.Page as Page exposing (Page)
 import Data.Route as Route exposing (Route)
+import Data.Size as Size
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attrs
@@ -193,7 +194,7 @@ playbackButtons model =
     , Grid.column
         [ flex none
         , padding (px 1)
-        , Style.doubleWidth Style.Big
+        , Style.doubleWidth Size.big
         ]
         [ text "repeat"
         , Checkbox.checkbox RepeatClicked model.repeatPlayback
@@ -239,7 +240,7 @@ text str =
         [ Attrs.css
             [ Style.hfnss
             , lineHeight (px 32)
-            , Style.singleWidth Style.Big
+            , Style.singleWidth Size.big
             , textAlign center
             ]
         ]
@@ -257,7 +258,7 @@ horizontalSeparator =
         [ flex (int 0) ]
         [ Html.div
             [ Attrs.css
-                [ Style.singleWidth Style.Big ]
+                [ Style.singleWidth Size.big ]
             ]
             []
         ]
@@ -268,7 +269,7 @@ input msgCtor value =
     Html.input
         [ Attrs.css
             [ Style.hfnss
-            , Style.singleWidth Style.Big
+            , Style.singleWidth Size.big
             , height (px 30)
             ]
         , Attrs.value value

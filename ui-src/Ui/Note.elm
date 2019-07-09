@@ -12,6 +12,7 @@ import Data.Encoding as Encoding
 import Data.Index as Index exposing (Index)
 import Data.Note as Note exposing (Note)
 import Data.Part as Part exposing (Part)
+import Data.Size exposing (Size)
 import Data.Tracker exposing (Tracker)
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Attribute, Html)
@@ -104,7 +105,7 @@ focusOnNote id =
 view :
     Int
     -> Int
-    -> Style.Size
+    -> Size
     -> Index Tracker
     -> Index (Beat Encoding.None)
     -> Index (Note Encoding.None)

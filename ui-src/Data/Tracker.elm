@@ -1,6 +1,7 @@
 module Data.Tracker exposing
     ( Tracker
     , closeOptions
+    , encode
     , init
     , mapOptions
     , openOptions
@@ -11,11 +12,12 @@ module Data.Tracker exposing
     , setSize
     )
 
-import Data.Index exposing (Index)
+import Data.Index as Index exposing (Index)
 import Data.Part exposing (Part)
+import Data.Size as Size exposing (Size)
 import Data.Tracker.Collapse as Collapse exposing (Collapse)
 import Data.Tracker.Options as TrackerOptions
-import Style
+import Json.Encode as Encode
 
 
 
@@ -53,7 +55,7 @@ import Style
 
 -}
 type alias Tracker =
-    { size : Style.Size
+    { size : Size
     , partIndex : Index Part
     , majorMark : Int
     , minorMark : Int
@@ -66,7 +68,7 @@ type alias Tracker =
 -- INIT --
 
 
-init : Style.Size -> Index Part -> Tracker
+init : Size -> Index Part -> Tracker
 init size partIndex =
     { size = size
     , partIndex = partIndex
@@ -99,7 +101,7 @@ setMinorMark newMinorMark tracker =
     { tracker | minorMark = newMinorMark }
 
 
-setSize : Style.Size -> Tracker -> Tracker
+setSize : Size -> Tracker -> Tracker
 setSize size tracker =
     { tracker | size = size }
 
@@ -130,3 +132,14 @@ closeOptions tracker =
 setCollapse : Collapse -> Tracker -> Tracker
 setCollapse collapse tracker =
     { tracker | collapse = collapse }
+
+
+encode : Tracker -> Encode.Value
+encode tracker =
+    [ ( "size", Size.encode tracker.size )
+    , ( "partIndex", Index.encode tracker.partIndex )
+    , ( "majorMark", Encode.int tracker.majorMark )
+    , ( "minorMark", Encode.int tracker.minorMark )
+    , ( "collapse", Collapse.encode tracker.collapse )
+    ]
+        |> Encode.object
