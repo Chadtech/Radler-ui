@@ -1,14 +1,15 @@
 module Time
-    ( Time(..)
-    , fromInt
-    , toInt
-    ) where
+  ( Time(..)
+  , fromInt
+  , toInt
+  )
+where
 
 
 -- TYPES --
 
 
-newtype Time 
+newtype Time
     = Time Int
 
 
@@ -16,10 +17,8 @@ newtype Time
 
 
 fromInt :: Int -> Time
-fromInt =
-    Time
+fromInt = Time
 
 
 toInt :: Time -> Int
-toInt (Time int) =
-    int
+toInt (Time int) = int
