@@ -5,8 +5,11 @@ module Data.Flags exposing
 
 import Api
 import Array exposing (Array)
+import Data.Index as Index
 import Data.Package as Package exposing (Package)
 import Data.Part as Part exposing (Part)
+import Data.Size as Size
+import Data.Tracker as Tracker exposing (Tracker)
 import Json.Decode as Decode exposing (Decoder)
 
 
@@ -29,6 +32,7 @@ import Json.Decode as Decode exposing (Decoder)
 type alias Flags =
     { package : Package
     , parts : Array Part
+    , trackers : Array Tracker
     , endpoints : Api.Endpoints
     }
 
@@ -39,9 +43,10 @@ type alias Flags =
 
 decoder : Decoder Flags
 decoder =
-    Decode.map3 Flags
+    Decode.map4 Flags
         (Decode.field "package" Package.decoder)
         (Decode.field "parts" partsDecoder)
+        (Decode.field "trackers" trackersDecoder)
         (Decode.field "enginePortNumber" Api.endpointsFromPortNumberDecoder)
 
 
@@ -61,3 +66,23 @@ partsDecoder =
         |> Decode.list
         |> Decode.map
             (Array.fromList >> atLeastOnePart)
+
+
+trackersDecoder : Decoder (Array Tracker)
+trackersDecoder =
+    let
+        atLeastTwoTrackers : Array Tracker -> Array Tracker
+        atLeastTwoTrackers trackers =
+            if Array.isEmpty trackers then
+                [ Tracker.init Size.big Index.zero
+                , Tracker.init Size.big Index.zero
+                ]
+                    |> Array.fromList
+
+            else
+                trackers
+    in
+    Tracker.decoder
+        |> Decode.list
+        |> Decode.map
+            (Array.fromList >> atLeastTwoTrackers)

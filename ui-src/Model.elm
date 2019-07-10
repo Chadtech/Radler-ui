@@ -98,11 +98,7 @@ init flags =
             32
     in
     { parts = flags.parts
-    , trackers =
-        [ Tracker.init Size.big Index.zero
-        , Tracker.init Size.big Index.zero
-        ]
-            |> Array.fromList
+    , trackers = flags.trackers
     , page = Page.Trackers
     , package = flags.package
     , modal = Nothing
@@ -349,12 +345,18 @@ addNewPart model =
 -}
 save : Model -> Cmd msg
 save model =
-    [ Package.saveToDisk
-        model.package
-    , saveParts
-        model
+    [ Package.saveToDisk model.package
+    , saveParts model
+    , saveTrackers model
     ]
         |> Cmd.batch
+
+
+saveTrackers : Model -> Cmd msg
+saveTrackers model =
+    model.trackers
+        |> Array.toList
+        |> Ports.saveTrackersToDisk
 
 
 {-|

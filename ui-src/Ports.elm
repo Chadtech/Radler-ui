@@ -2,16 +2,19 @@ port module Ports exposing
     ( JsMsg(..)
     , fromJs
     , savePartToDisk
+    , saveTrackersToDisk
     , send
     )
 
 import Data.Index as Index exposing (Index)
 import Data.Part as Part exposing (Part)
+import Data.Tracker as Tracker exposing (Tracker)
 import Json.Encode as Encode exposing (Value)
 
 
 type JsMsg
     = SavePartToDisk Part
+    | SaveTrackersToDisk (List Tracker)
     | SavePackageToDisk String
     | DeletePartFromDisk String (Index Part)
 
@@ -19,6 +22,11 @@ type JsMsg
 savePartToDisk : Part -> Cmd msg
 savePartToDisk =
     SavePartToDisk >> send
+
+
+saveTrackersToDisk : List Tracker -> Cmd msg
+saveTrackersToDisk =
+    SaveTrackersToDisk >> send
 
 
 toCmd : String -> Value -> Cmd msg
@@ -49,6 +57,11 @@ send msg =
             ]
                 |> Encode.object
                 |> toCmd "deletePartFromDisk"
+
+        SaveTrackersToDisk trackers ->
+            trackers
+                |> Encode.list Tracker.encode
+                |> toCmd "saveTrackersToDisk"
 
 
 field : String -> Encode.Value -> ( String, Encode.Value )

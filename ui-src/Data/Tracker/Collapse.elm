@@ -2,6 +2,7 @@ module Data.Tracker.Collapse exposing
     ( Collapse(..)
     , all
     , areSame
+    , decoder
     , encode
     , every
     , everyMajorMark
@@ -15,6 +16,7 @@ module Data.Tracker.Collapse exposing
 import Data.Beat exposing (Beat)
 import Data.Encoding as Encoding
 import Data.Index as Index exposing (Index)
+import Json.Decode as Decode exposing (Decoder)
 import Json.Encode as Encode
 
 
@@ -152,3 +154,27 @@ encode collapse =
 
         EveryMinorMark ->
             Encode.string "minorMark"
+
+
+decoder : Decoder Collapse
+decoder =
+    let
+        fromString : String -> Decoder Collapse
+        fromString str =
+            case str of
+                "majorMark" ->
+                    Decode.succeed EveryMajorMark
+
+                "minorMark" ->
+                    Decode.succeed EveryMinorMark
+
+                _ ->
+                    Decode.fail "collapse isnt major or minor mark"
+    in
+    [ Decode.string
+        |> Decode.andThen fromString
+    , Decode.int
+        |> Decode.map Every
+    , Decode.null None
+    ]
+        |> Decode.oneOf

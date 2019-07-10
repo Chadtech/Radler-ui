@@ -25,6 +25,20 @@ function readPackage() {
   )
 }
 
+function readTrackers() {
+  try {
+    return JSON.parse(
+      fs.readFileSync(
+        projectDir('trackers.json'),
+        'utf-8'
+      )
+    )
+  } catch (err) {
+    return [];
+  }
+
+}
+
 function readParts() {
   return fs.readdirSync(partsDir())
     .filter(function (fileName) {
@@ -43,10 +57,11 @@ function readParts() {
 }
 
 ipcRenderer.on('init', function (event, payload) {
-
+  console.log(readTrackers())
   var flags = {
     package: readPackage(),
     parts: readParts(),
+    trackers: readTrackers(),
     enginePortNumber: payload.port
   };
 
@@ -82,6 +97,12 @@ ipcRenderer.on('init', function (event, payload) {
           toElm("partDeleted", String(err));
         }
       });
+    },
+    saveTrackersToDisk: function(payload){
+      fs.writeFileSync(
+        projectDir('trackers.json'),
+        JSON.stringify(payload)
+      );
     }
   }
 

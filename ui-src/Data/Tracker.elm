@@ -1,6 +1,7 @@
 module Data.Tracker exposing
     ( Tracker
     , closeOptions
+    , decoder
     , encode
     , init
     , mapOptions
@@ -17,6 +18,7 @@ import Data.Part exposing (Part)
 import Data.Size as Size exposing (Size)
 import Data.Tracker.Collapse as Collapse exposing (Collapse)
 import Data.Tracker.Options as TrackerOptions
+import Json.Decode as Decode exposing (Decoder)
 import Json.Encode as Encode
 
 
@@ -143,3 +145,14 @@ encode tracker =
     , ( "collapse", Collapse.encode tracker.collapse )
     ]
         |> Encode.object
+
+
+decoder : Decoder Tracker
+decoder =
+    Decode.map6 Tracker
+        (Decode.field "size" Size.decoder)
+        (Decode.field "partIndex" Index.decoder)
+        (Decode.field "majorMark" Decode.int)
+        (Decode.field "minorMark" Decode.int)
+        (Decode.field "collapse" Collapse.decoder)
+        (Decode.succeed Nothing)
