@@ -4,9 +4,12 @@ import Api
 import Array exposing (Array)
 import Data.Beat as Beat exposing (Beat)
 import Data.Encoding as Encoding
+import Data.Index as Index
 import Data.Note
 import Data.Package
 import Data.Part exposing (Part)
+import Data.Size as Size
+import Data.Tracker as Tracker
 import Expect exposing (Expectation)
 import Json.Decode as Decode
 import Json.Encode as Encode
@@ -42,6 +45,11 @@ tests =
                             , parts =
                                 [ testPart "part-a"
                                 , testPart "part-b"
+                                ]
+                                    |> Array.fromList
+                            , trackers =
+                                [ Tracker.init Size.big Index.zero
+                                , Tracker.init Size.big Index.zero
                                 ]
                                     |> Array.fromList
                             , endpoints = endpoints
