@@ -27,10 +27,7 @@ executable radler
   --   -threaded
   --   -fprof-auto
   --   "-with-rtsopts=-N -p -s -h -i0.1"
-  default-extensions: 
-    BangPatterns
-    OverloadedStrings
-    GeneralizedNewtypeDeriving
+  extensions: BangPatterns
 
   other-modules:
     Audio

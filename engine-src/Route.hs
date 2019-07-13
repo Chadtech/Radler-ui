@@ -1,30 +1,29 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 
-module Route
-  ( Route(..)
-  , decode
-  )
-where
+module Route 
+    ( Route(..)
+    , decode
+    ) where
 
 
-import           Flow
-import           Prelude.Extra
+import Flow
+import Prelude.Extra
 
-import           Data.Function
-import qualified Data.Either.Extra             as Either
-import           Data.Text.Lazy                 ( Text )
-import qualified Data.Text.Lazy                as T
-import           Error                          ( Error )
+import Data.Function
+import qualified Data.Either.Extra as Either
+import Data.Text.Lazy (Text)
+import qualified Data.Text.Lazy as T  
+import Error (Error)
 import qualified Error
-import           Score                          ( Score )
+import Score (Score)
 import qualified Score
 
 
 -- TYPES --
 
 
-data Route
+data Route 
     = Play (Either Error Score)
     | Build (Either Error Score)
     | Echo Text
@@ -32,36 +31,52 @@ data Route
 
 
 instance Show Route where
-  show route = case route of
-    Play  result -> "play " ++ show result
+    show route =
+        case route of
+            Play result ->
+                "play " ++ show result
 
-    Build result -> "build " ++ show result
+            Build result ->
+                "build " ++ show result
 
-    Echo  text   -> "echo " ++ T.unpack text
+            Echo text ->
+                "echo " ++ T.unpack text
 
-    Ping         -> "ping"
+            Ping ->
+                "ping"
 
 -- HELPERS --
 
 
 decode :: Text -> Text -> IO (Maybe Route)
-decode routeTxt body = case routeTxt of
-  "/play"  -> scoreRoute Play body
+decode routeTxt body =
+    case routeTxt of
+        "/play" ->
+            scoreRoute Play body
 
-  "/build" -> scoreRoute Build body
+        "/build" ->
+            scoreRoute Build body
 
-  "/ping"  -> Ping |> Just |> return
+        "/ping" ->
+            Ping
+                |> Just
+                |> return
 
-  "/echo"  -> body |> Echo |> Just |> return
+        "/echo" ->
+            body
+                |> Echo
+                |> Just
+                |> return
 
-  _        -> return Nothing
+        _ ->
+            return Nothing
 
-
+        
 scoreRoute :: (Either Error Score -> Route) -> Text -> IO (Maybe Route)
 scoreRoute routeCtor body =
-  body
-    |> Score.fromText
-    |> Either.mapLeft Error.ScoreError
-    |> routeCtor
-    |> Just
-    |> return
+    body
+        |> Score.fromText
+        |> Either.mapLeft Error.ScoreError
+        |> routeCtor
+        |> Just
+        |> return

@@ -1,19 +1,19 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 
-module Model
-  ( Model(..)
-  , score
-  , init
-  )
-where
+module Model 
+    ( Model(..)
+    , score
+    , init
+    )
+    where
 
 
-import           Audio                          ( Audio )
-import           Data.Text.Lazy                 ( Text )
-import qualified Data.Text.Lazy                as T
-import           Prelude                 hiding ( init )
-import           Score                          ( Score )
+import Audio (Audio)
+import Data.Text.Lazy (Text)
+import qualified Data.Text.Lazy as T
+import Prelude hiding (init)
+import Score (Score)
 import qualified Score
 
 
@@ -23,20 +23,27 @@ data Model
 
 
 instance Show Model where
-  show model = case model of
-    Init         -> "Model.Init"
+    show model =
+        case model of
+            Init ->
+                "Model.Init"
 
-    HasScore _ _ -> "Model.HasScore"
-
+            HasScore _ _ ->
+                "Model.HasScore"
+            
 
 init :: Model
-init = Init
+init =
+    Init   
 
 
 score :: Model -> Maybe Score
-score model = case model of
-  Init             -> Nothing
+score model =
+    case model of
+        Init ->
+            Nothing
 
-  HasScore score _ -> Just score
-
+        HasScore score _ ->
+            Just score
+            
 
