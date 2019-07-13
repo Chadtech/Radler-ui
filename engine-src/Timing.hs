@@ -1,6 +1,7 @@
 module Timing
-    ( Timing(..)
-    ) where
+  ( Timing(..)
+  )
+where
 
 
 -- TYPES --
