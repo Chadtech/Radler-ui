@@ -6,7 +6,7 @@ module Ui.Tracker exposing
 
 import Array
 import Css exposing (..)
-import Data.Beat as Beat exposing (Beat)
+import Data.Beat as BeatData exposing (Beat)
 import Data.Encoding as Encoding
 import Data.Index as Index exposing (Index)
 import Data.Note exposing (Note)
@@ -263,7 +263,7 @@ voiceOptions : Part -> Size -> List (Grid.Column Msg)
 voiceOptions part size =
     part.beats
         |> Array.get 0
-        |> Maybe.map (Beat.toIndexedList >> List.map Tuple.first)
+        |> Maybe.map (BeatData.toIndexedList >> List.map Tuple.first)
         |> Maybe.withDefault []
         |> List.map (voiceOption size)
         |> (::) (addVoiceZero size)
