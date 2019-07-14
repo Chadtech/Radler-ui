@@ -117,9 +117,6 @@ view trackerIndexInt beatIndexInt noteIndexInt majorMark minorMark size note =
         noteIndex =
             Index.fromInt noteIndexInt
 
-        _ =
-            Debug.log "BEAT / NOTE" ( beatIndex, noteIndex )
-
         bgColor : Color
         bgColor =
             case remainderBy majorMark <| Index.toInt beatIndex of
