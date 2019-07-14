@@ -41,7 +41,7 @@ update msg =
 
 modalView : Error -> Html Msg
 modalView error =
-    Grid.container
+    Grid.box
         []
         [ Grid.row
             [ marginBottom (px 5) ]
@@ -65,7 +65,7 @@ modalView error =
 -}
 initializationErrorView : Decode.Error -> Html msg
 initializationErrorView error =
-    Grid.container
+    Grid.box
         [ marginTop (pct 50)
         , transform (translateY (pct -50))
         ]

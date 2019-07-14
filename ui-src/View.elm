@@ -68,14 +68,14 @@ body model =
                 |> fullPageCard
 
 
-fullPageCard : Html Msg -> Html Msg
+fullPageCard : Grid.Column Msg -> Html Msg
 fullPageCard content =
     Grid.row
         [ height (calc (vh 100) minus (px 73)) ]
         [ content ]
 
 
-mainColumn : Html Msg -> Html Msg
+mainColumn : Html Msg -> Grid.Column Msg
 mainColumn content =
     Grid.column
         [ Style.card

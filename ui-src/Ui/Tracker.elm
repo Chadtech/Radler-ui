@@ -107,7 +107,7 @@ type alias ViewParams =
 
 view : ViewParams -> Html Msg
 view { trackerIndex, tracker, part, partNames } =
-    Grid.container
+    Grid.box
         [ Style.card
         , flexDirection Css.column
         , height (calc (vh 100) minus (px 95))
@@ -124,17 +124,14 @@ view { trackerIndex, tracker, part, partNames } =
         , Grid.row
             [ minHeight fitContent ]
             (voiceNumbers part tracker.size)
-        , Grid.row
-            []
-            [ Html.Styled.Lazy.lazy6
-                beatsView
-                part
-                tracker.majorMark
-                tracker.minorMark
-                tracker.size
-                tracker.collapse
-                trackerIndex
-            ]
+        , Html.Styled.Lazy.lazy6
+            beatsView
+            part
+            tracker.majorMark
+            tracker.minorMark
+            tracker.size
+            tracker.collapse
+            (Index.toInt trackerIndex)
         ]
 
 
@@ -166,26 +163,34 @@ optionsContainerView tracker partNames =
             Html.text ""
 
 
-beatsView : Part -> Int -> Int -> Size -> Collapse -> Index Tracker -> Html Msg
+beatsView : Part -> Int -> Int -> Size -> Collapse -> Int -> Html Msg
 beatsView part majorMark minorMark size collapse trackerIndex =
     let
-        wrapBeat : ( Index (Beat Encoding.None), Beat Encoding.None ) -> Html Msg
+        wrapBeat : ( Index (Beat Encoding.None), Beat Encoding.None ) -> ( String, Html Msg )
         wrapBeat ( beatIndex, beat ) =
-            Html.Styled.Lazy.lazy7
+            ( Index.toString beatIndex
+            , Html.Styled.Lazy.lazy7
                 Beat.view
                 majorMark
                 minorMark
                 size
                 collapse
                 trackerIndex
-                beatIndex
+                (Index.toInt beatIndex)
                 beat
                 |> Html.map (BeatMsg beatIndex)
+            )
     in
-    part.beats
-        |> Index.toEntries
-        |> List.map wrapBeat
-        |> Grid.container [ overflow auto ]
+    Grid.row
+        []
+        [ part.beats
+            |> Index.toEntries
+            |> List.map wrapBeat
+            |> Grid.keyedColumn
+                [ overflow auto
+                , display block
+                ]
+        ]
 
 
 
@@ -200,7 +205,7 @@ beatsView part majorMark minorMark size collapse trackerIndex =
     be clicked to reveal options about this tracker
 
 -}
-trackerOptionsRow : Part -> Size -> List (Html Msg)
+trackerOptionsRow : Part -> Size -> List (Grid.Column Msg)
 trackerOptionsRow part size =
     let
         buttonWidth : Float
@@ -254,7 +259,7 @@ trackerOptionsRow part size =
 -- COLUMN OPTIONS --
 
 
-voiceOptions : Part -> Size -> List (Html Msg)
+voiceOptions : Part -> Size -> List (Grid.Column Msg)
 voiceOptions part size =
     part.beats
         |> Array.get 0
@@ -264,7 +269,7 @@ voiceOptions part size =
         |> (::) (addVoiceZero size)
 
 
-voiceOption : Size -> Index (Note Encoding.None) -> Html Msg
+voiceOption : Size -> Index (Note Encoding.None) -> Grid.Column Msg
 voiceOption size i =
     Grid.column
         [ position relative
@@ -289,7 +294,7 @@ voiceOption size i =
         ]
 
 
-addVoiceZero : Size -> Html Msg
+addVoiceZero : Size -> Grid.Column Msg
 addVoiceZero size =
     Grid.column
         [ margin (px 1)
@@ -306,10 +311,10 @@ addVoiceZero size =
 -- COLUMN NUMBERS --
 
 
-voiceNumbers : Part -> Size -> List (Html Msg)
+voiceNumbers : Part -> Size -> List (Grid.Column Msg)
 voiceNumbers part size =
     let
-        addBeatButton : Html Msg
+        addBeatButton : Grid.Column Msg
         addBeatButton =
             Grid.column
                 [ margin (px 1)
@@ -321,7 +326,7 @@ voiceNumbers part size =
                     |> Button.toHtml
                 ]
 
-        voiceNumber : Int -> Html Msg
+        voiceNumber : Int -> Grid.Column Msg
         voiceNumber i =
             Grid.column
                 [ width (px (Style.noteWidth size))

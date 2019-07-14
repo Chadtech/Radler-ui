@@ -122,7 +122,7 @@ sendHttp model call =
 
 view : Build.Model -> Html Msg
 view buildModel =
-    Grid.container
+    Grid.box
         [ maxWidth (px 375) ]
         (viewContent buildModel)
 

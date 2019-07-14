@@ -12,7 +12,7 @@ import Data.Encoding as Encoding
 import Data.Index as Index exposing (Index)
 import Data.Note as Note exposing (Note)
 import Data.Part as Part exposing (Part)
-import Data.Size exposing (Size)
+import Data.Size as Size exposing (Size)
 import Data.Tracker exposing (Tracker)
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Attribute, Html)
@@ -102,17 +102,24 @@ focusOnNote id =
 -- VIEW --
 
 
-view :
-    Int
-    -> Int
-    -> Size
-    -> Index Tracker
-    -> Index (Beat Encoding.None)
-    -> Index (Note Encoding.None)
-    -> Note Encoding.None
-    -> Html Msg
-view majorMark minorMark size trackerIndex beatIndex noteIndex note =
+view : Int -> Int -> Int -> Int -> Int -> Size -> Note Encoding.None -> Html Msg
+view trackerIndexInt beatIndexInt noteIndexInt majorMark minorMark size note =
     let
+        trackerIndex : Index Tracker
+        trackerIndex =
+            Index.fromInt trackerIndexInt
+
+        beatIndex : Index (Beat Encoding.None)
+        beatIndex =
+            Index.fromInt beatIndexInt
+
+        noteIndex : Index (Note Encoding.None)
+        noteIndex =
+            Index.fromInt noteIndexInt
+
+        _ =
+            Debug.log "BEAT / NOTE" ( beatIndex, noteIndex )
+
         bgColor : Color
         bgColor =
             case remainderBy majorMark <| Index.toInt beatIndex of
@@ -136,18 +143,15 @@ view majorMark minorMark size trackerIndex beatIndex noteIndex note =
             , Style.fontSmoothingNone
             ]
     in
-    Grid.column
-        [ margin (px 1) ]
-        [ Html.input
-            [ Attrs.css style
-            , Attrs.value (Note.toString note)
-            , Attrs.spellcheck False
-            , Events.onInput Updated
-            , onMovementKey MovementKeyPressed
-            , Attrs.id (noteId trackerIndex beatIndex noteIndex)
-            ]
-            []
+    Html.input
+        [ Attrs.css style
+        , Attrs.value (Note.toString note)
+        , Attrs.spellcheck False
+        , Events.onInput Updated
+        , onMovementKey MovementKeyPressed
+        , Attrs.id (noteId trackerIndex beatIndex noteIndex)
         ]
+        []
 
 
 noteId : Index Tracker -> Index (Beat Encoding.None) -> Index (Note Encoding.None) -> String

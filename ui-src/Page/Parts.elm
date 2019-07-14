@@ -109,7 +109,7 @@ updatePartModel msg partsModel =
 
 view : Model -> Maybe Parts.Model -> Html Msg
 view model maybePartsModel =
-    Grid.container
+    Grid.box
         [ margin zero
         , padding (px 5)
         , width (pct 100)
@@ -185,7 +185,7 @@ partView partsModel part =
                 [ Html.text "delete part" ]
                 |> Html.map SelectedPartMsg
     in
-    Grid.container
+    Grid.box
         [ width (pct 100) ]
         [ Grid.row
             []
@@ -206,7 +206,7 @@ partView partsModel part =
         ]
 
 
-copyWithNameField : Parts.Model -> List (Html SelectedPartMsg)
+copyWithNameField : Parts.Model -> List (Grid.Column SelectedPartMsg)
 copyWithNameField model =
     [ Grid.column
         []
@@ -245,7 +245,7 @@ copyWithNameField model =
 
 partsView : Model -> Maybe Parts.Model -> Html Msg
 partsView model maybePartsModel =
-    Grid.container
+    Grid.box
         [ width (pct 100)
         , displayFlex
         , flexDirection column
@@ -280,7 +280,7 @@ partsListView model partsModel =
             |> Model.indexedPartNames
             |> List.map
                 (partOptionView (Maybe.map .selectedPartIndex partsModel))
-            |> Grid.container []
+            |> Grid.box []
         ]
 
 

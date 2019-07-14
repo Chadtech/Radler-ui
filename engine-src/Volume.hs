@@ -10,11 +10,12 @@ module Volume
     , throw
     , invert
     , multiply
-    , toFloat
+    , Volume.toFloat
     ) where
 
 
 import Flow
+import Basics
 
 import qualified Data.Either.Extra as Either
 import Data.Text.Lazy (Text)

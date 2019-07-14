@@ -2,6 +2,7 @@ module Data.Index exposing
     ( Index
     , decoder
     , encode
+    , fromInt
     , next
     , previous
     , toEntries

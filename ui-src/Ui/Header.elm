@@ -170,7 +170,7 @@ sendHttp model call =
 
 view : Model -> Html Msg
 view model =
-    Grid.container
+    Grid.box
         [ Style.card
         , displayFlex
         , minHeight minContent
@@ -181,7 +181,7 @@ view model =
         ]
 
 
-playbackButtons : Model -> List (Html Msg)
+playbackButtons : Model -> List (Grid.Column Msg)
 playbackButtons model =
     [ buttonColumn SaveClicked "save"
     , buttonColumn PlayClicked "play"
@@ -197,10 +197,10 @@ playbackButtons model =
         , Style.doubleWidth Size.big
         ]
         [ text "repeat"
-        , Checkbox.checkbox RepeatClicked model.repeatPlayback
-            |> Checkbox.toHtml
-            |> column
         ]
+    , Checkbox.checkbox RepeatClicked model.repeatPlayback
+        |> Checkbox.toHtml
+        |> column
     , buttonColumn BuildClicked "build"
     , Grid.column
         [ alignItems flexEnd
@@ -210,7 +210,7 @@ playbackButtons model =
     ]
 
 
-uiButtons : Model -> List (Html Msg)
+uiButtons : Model -> List (Grid.Column Msg)
 uiButtons model =
     [ textColumn "page"
     , pageButtonColumn Route.Trackers model.page
@@ -225,7 +225,7 @@ uiButtons model =
     ]
 
 
-column : Html Msg -> Html Msg
+column : Html Msg -> Grid.Column Msg
 column childButton =
     Grid.column
         [ flex (int 0)
@@ -247,21 +247,18 @@ text str =
         [ Html.text str ]
 
 
-textColumn : String -> Html Msg
+textColumn : String -> Grid.Column Msg
 textColumn =
     column << text
 
 
-horizontalSeparator : Html Msg
+horizontalSeparator : Grid.Column Msg
 horizontalSeparator =
     Grid.column
-        [ flex (int 0) ]
-        [ Html.div
-            [ Attrs.css
-                [ Style.singleWidth Size.big ]
-            ]
-            []
+        [ flex (int 0)
+        , Style.singleWidth Size.big
         ]
+        []
 
 
 input : (String -> Msg) -> String -> Html Msg
@@ -279,7 +276,7 @@ input msgCtor value =
         []
 
 
-inputColumn : (String -> Msg) -> String -> Html Msg
+inputColumn : (String -> Msg) -> String -> Grid.Column Msg
 inputColumn msgCtor value =
     column <| input msgCtor value
 
@@ -292,7 +289,7 @@ button msg label =
         |> Button.toHtml
 
 
-buttonColumn : Msg -> String -> Html Msg
+buttonColumn : Msg -> String -> Grid.Column Msg
 buttonColumn msg label =
     column <| button msg label
 
@@ -306,6 +303,6 @@ pageButton route currentPage =
         |> Button.toHtml
 
 
-pageButtonColumn : Route -> Page -> Html Msg
+pageButtonColumn : Route -> Page -> Grid.Column Msg
 pageButtonColumn route currentPage =
     column <| pageButton route currentPage

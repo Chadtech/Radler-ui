@@ -25,7 +25,7 @@ view model =
             , overflow auto
             ]
         ]
-        [ Grid.container
+        [ Grid.box
             [ display inlineFlex
             , Style.basicSpacing
             ]

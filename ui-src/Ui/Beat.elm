@@ -77,16 +77,17 @@ update trackerIndex partIndex beatIndex msg model =
 -- VIEW --
 
 
-view :
-    Int
-    -> Int
-    -> Size
-    -> Collapse
-    -> Index Tracker
-    -> Index (Beat Encoding.None)
-    -> Beat Encoding.None
-    -> Html Msg
-view majorMark minorMark size collapse trackerIndex beatIndex beat =
+view : Int -> Int -> Size -> Collapse -> Int -> Int -> Beat Encoding.None -> Html Msg
+view majorMark minorMark size collapse trackerIndexInt beatIndexInt beat =
+    let
+        beatIndex : Index (Beat Encoding.None)
+        beatIndex =
+            Index.fromInt beatIndexInt
+
+        trackerIndex : Index Tracker
+        trackerIndex =
+            Index.fromInt trackerIndexInt
+    in
     if
         Collapse.shouldShow
             { majorMark = majorMark
@@ -107,7 +108,7 @@ view majorMark minorMark size collapse trackerIndex beatIndex beat =
         Html.text ""
 
 
-buttonColumn : Msg -> String -> Size -> Html Msg
+buttonColumn : Msg -> String -> Size -> Grid.Column Msg
 buttonColumn msg label size =
     Grid.column
         [ margin (px 1) ]
@@ -125,21 +126,24 @@ wrapNote :
     -> Index Tracker
     -> Index (Beat Encoding.None)
     -> ( Index (Note Encoding.None), Note Encoding.None )
-    -> Html Msg
+    -> Grid.Column Msg
 wrapNote majorMark minorMark size trackerIndex beatIndex ( noteIndex, note ) =
-    Html.Styled.Lazy.lazy7
-        Note.view
-        majorMark
-        minorMark
-        size
-        trackerIndex
-        beatIndex
-        noteIndex
-        note
-        |> Html.map (NoteMsg noteIndex)
+    Grid.column
+        [ margin (px 1) ]
+        [ Html.Styled.Lazy.lazy7
+            Note.view
+            (Index.toInt trackerIndex)
+            (Index.toInt beatIndex)
+            (Index.toInt noteIndex)
+            majorMark
+            minorMark
+            size
+            note
+        ]
+        |> Grid.mapColumn (NoteMsg noteIndex)
 
 
-numberView : Size -> Int -> Index (Beat Encoding.None) -> Html Msg
+numberView : Size -> Int -> Index (Beat Encoding.None) -> Grid.Column Msg
 numberView size majorMark index =
     Grid.column
         [ margin (px 1) ]

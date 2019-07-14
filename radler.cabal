@@ -20,14 +20,18 @@ executable radler
   hs-source-dirs:      
     engine-src
     audio-src
+    basics-src
   ghc-options: 
     -- -prof -fprof-auto -rtsopts
     -O2
-    -fwarn-incomplete-patterns
+    -W
   --   -threaded
   --   -fprof-auto
   --   "-with-rtsopts=-N -p -s -h -i0.1"
-  extensions: BangPatterns
+  default-extensions:
+    BangPatterns
+    OverloadedStrings
+--    NoImplicitPrelude
 
   other-modules:
     Audio

@@ -83,7 +83,7 @@ update msg deletePartModel model =
 
 view : DeletePart.Model -> Model -> Html Msg
 view deletePartModel model =
-    Grid.container
+    Grid.box
         [ maxWidth (px 375) ]
         (contentView deletePartModel model)
 
