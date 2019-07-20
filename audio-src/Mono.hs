@@ -94,6 +94,7 @@ trimEnd (Mono vector) =
             if 
                 maybeLastNonZeroIndex == Nothing 
                     && (sample > 0.00005)
+                    && (sample < -0.0005)
             then
                 Just index
 

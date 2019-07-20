@@ -71,10 +71,13 @@ trimEnd :: Stereo -> Stereo
 trimEnd (Stereo vector) =
     let
         isSampleZero :: Int -> (Float, Float) -> Maybe Int -> Maybe Int
-        isSampleZero index sample maybeLastNonZeroIndex =
+        isSampleZero index (leftSample, rightSample) maybeLastNonZeroIndex =
             if
                 maybeLastNonZeroIndex == Nothing
-                    && sample /= (0,0)
+                    && (leftSample > 0.00005)
+                    && (rightSample < -0.0005)
+                    && (leftSample > 0.00005)
+                    && (rightSample < -0.0005)
             then
                 Just index
 
