@@ -38,7 +38,7 @@ subscriptions result =
     case result of
         Ok _ ->
             [ Ports.fromJs Msg.decode
-            , Browser.Events.onKeyUp Msg.keyDecoder
+            , Browser.Events.onKeyDown Msg.keyDecoder
             ]
                 |> Sub.batch
 

@@ -75,7 +75,7 @@ cmdEnterPressedDecoder =
                     Decode.fail "Key is not enter, or meta not pressed"
     in
     Decode.map2 Tuple.pair
-        (Decode.field "meta" Decode.bool)
+        (Decode.field "metaKey" Decode.bool)
         (Decode.field "key" Decode.string)
         |> Decode.andThen fromStringAndMeta
 
