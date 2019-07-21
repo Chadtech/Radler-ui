@@ -81,7 +81,7 @@ read txt =
                 Left <| BeyondReadableRange fl
 
             else
-                fl
+                (fl ^ 6)
                     |> Volume
                     |> Right
 

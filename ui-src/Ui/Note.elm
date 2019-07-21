@@ -14,7 +14,6 @@ import Data.Note as Note exposing (Note)
 import Data.Part as Part exposing (Part)
 import Data.Size as Size exposing (Size)
 import Data.Tracker exposing (Tracker)
-import Html.Grid as Grid
 import Html.Styled as Html exposing (Attribute, Html)
 import Html.Styled.Attributes as Attrs
 import Html.Styled.Events as Events
