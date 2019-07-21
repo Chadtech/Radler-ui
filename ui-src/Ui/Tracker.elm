@@ -17,7 +17,6 @@ import Data.Tracker.Collapse exposing (Collapse)
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attrs
-import Html.Styled.Events as Events
 import Html.Styled.Lazy
 import Model exposing (Model)
 import Style
@@ -138,14 +137,12 @@ optionsContainerView : Tracker -> List ( Index Part, String ) -> Html Msg
 optionsContainerView tracker partNames =
     case tracker.options of
         Just optionsModel ->
-            Html.div
-                [ Attrs.css
-                    [ Style.dim
-                    , width (pct 100)
-                    , height (pct 100)
-                    , position absolute
-                    , zIndex (int 2)
-                    ]
+            Grid.box
+                [ Style.dim
+                , width (pct 100)
+                , height (pct 100)
+                , position absolute
+                , zIndex (int 2)
                 ]
                 [ Ui.Tracker.Options.view
                     { parts = partNames
@@ -216,19 +213,13 @@ trackerOptionsRow part size =
         , flexBasis (px buttonWidth)
         , position relative
         , margin (px 1)
+        , height (px <| Style.noteHeight size)
         ]
-        [ Html.button
-            [ Attrs.css
-                [ Style.clickableButtonStyle size
-                , width (px buttonWidth)
-                , height (px ((Style.noteHeight size * 2) + 2))
-                , position absolute
-                , top (px 0)
-                , left (px 0)
-                ]
-            , Events.onClick DeleteTrackerClicked
-            ]
-            [ Html.text "x" ]
+        [ Button.config DeleteTrackerClicked "x"
+            |> Button.withWidth Button.fullWidth
+            |> Button.withSize size
+            |> Button.makeTallerBy (Style.noteHeight size + 2)
+            |> Button.toHtml
         ]
     , Grid.column
         [ flex (int 0)
@@ -275,11 +266,9 @@ voiceOption size i =
         , width (px (Style.noteWidth size))
         , margin (px 1)
         ]
-        [ Html.div
-            [ Attrs.css
-                [ marginRight (px 2)
-                , displayFlex
-                ]
+        [ Grid.box
+            [ marginRight (px 2)
+            , displayFlex
             ]
             [ Button.config (DeleteVoiceClicked i) "x"
                 |> Button.withWidth Button.halfWidth

@@ -1,9 +1,8 @@
 module Style exposing
-    ( basicButton
-    , basicSpacing
+    ( basicSpacing
     , bigSpacing
+    , buttonStyle
     , card
-    , clickableButtonStyle
     , dim
     , doubleWidth
     , flush
@@ -138,8 +137,8 @@ card =
         |> Css.batch
 
 
-basicButton : Size -> Style
-basicButton size =
+buttonStyle : Size -> Style
+buttonStyle size =
     [ outdent
     , font size
     , width (px (noteWidth size / 2))
@@ -149,13 +148,6 @@ basicButton size =
     , fontSmoothingNone
     , padding (px 0)
     , outline none
-    ]
-        |> Css.batch
-
-
-clickableButtonStyle : Size -> Style
-clickableButtonStyle size =
-    [ basicButton size
     , active [ indent ]
     , hover [ color Colors.point1 ]
     , cursor pointer

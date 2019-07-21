@@ -11,7 +11,6 @@ import Data.Modal as Modal
 import Data.Modal.DeletePart as DeletePart
 import Data.Page.Parts as Parts
 import Data.Part as Part exposing (Part)
-import Data.Size as Size
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attrs
@@ -20,6 +19,7 @@ import Model exposing (Model)
 import Style
 import Util.Cmd as CmdUtil
 import Util.Css as CssUtil
+import View.Button as Button
 
 
 
@@ -28,7 +28,6 @@ import Util.Css as CssUtil
 
 type Msg
     = PartClicked (Index Part)
-    | NameFieldUpdated String
     | NewPartClicked
     | SelectedPartMsg SelectedPartMsg
 
@@ -37,6 +36,7 @@ type SelectedPartMsg
     = CopyWithNameClicked
     | CopyNameChanged String
     | DeleteClicked
+    | NameFieldUpdated String
 
 
 
@@ -59,13 +59,6 @@ update maybePartsModel msg model =
                 Nothing ->
                     model
                         |> CmdUtil.withNoCmd
-
-        NameFieldUpdated str ->
-            Model.mapSelectedPart
-                maybePartsModel
-                (Part.setName str)
-                model
-                |> CmdUtil.withNoCmd
 
         NewPartClicked ->
             Model.addNewPart model
@@ -102,6 +95,11 @@ updatePartModel msg partsModel =
                 |> Modal.DeletePart
                 |> Model.setModal
 
+        NameFieldUpdated str ->
+            Model.mapPart
+                partsModel.selectedPartIndex
+                (Part.setName str)
+
 
 
 -- VIEW --
@@ -109,13 +107,6 @@ updatePartModel msg partsModel =
 
 view : Model -> Maybe Parts.Model -> List (Grid.Column Msg)
 view model maybePartsModel =
-    --    Grid.box
-    --        [ margin zero
-    --        , padding (px 5)
-    --        , width (pct 100)
-    --        ]
-    --    [ Grid.row
-    --        [ height (pct 100) ]
     [ Grid.column
         [ flex3 (int 0) (int 1) (px 375) ]
         [ partsView model maybePartsModel ]
@@ -126,7 +117,6 @@ view model maybePartsModel =
 
 
 
---    ]
 -- PART VIEW --
 
 
@@ -154,56 +144,39 @@ maybeSelectedPartView model maybePartsModel =
 
 partView : Parts.Model -> Part -> Html Msg
 partView partsModel part =
-    let
-        partNameField : Html Msg
-        partNameField =
-            let
-                style : List Style
-                style =
-                    [ color Colors.point0
-                    , width (pct 100)
-                    , Style.fontSmoothingNone
-                    ]
-            in
-            Html.input
-                [ Attrs.css style
-                , Attrs.value part.name
-                , Attrs.spellcheck False
-                , Events.onInput NameFieldUpdated
-                ]
-                []
-
-        deleteButton : Html Msg
-        deleteButton =
-            Html.button
-                [ Attrs.css
-                    [ Style.clickableButtonStyle Size.big
-                    , width (px 250)
-                    ]
-                , Events.onClick DeleteClicked
-                ]
-                [ Html.text "delete part" ]
-                |> Html.map SelectedPartMsg
-    in
     Grid.box
         [ width (pct 100) ]
         [ Grid.row
             []
             [ Grid.column
                 []
-                [ partNameField ]
+                [ Html.input
+                    [ Attrs.css
+                        [ color Colors.point0
+                        , width (pct 100)
+                        , Style.fontSmoothingNone
+                        ]
+                    , Attrs.value part.name
+                    , Attrs.spellcheck False
+                    , Events.onInput NameFieldUpdated
+                    ]
+                    []
+                ]
             ]
         , Grid.row
             [ marginTop (px 5) ]
             (copyWithNameField partsModel)
-            |> Html.map SelectedPartMsg
         , Grid.row
             [ marginTop (px (5 + 26)) ]
             [ Grid.column
                 [ justifyContent flexEnd ]
-                [ deleteButton ]
+                [ Button.config DeleteClicked "delete part"
+                    |> Button.withWidth Button.doubleWidth
+                    |> Button.toHtml
+                ]
             ]
         ]
+        |> Html.map SelectedPartMsg
 
 
 copyWithNameField : Parts.Model -> List (Grid.Column SelectedPartMsg)
@@ -226,15 +199,9 @@ copyWithNameField model =
         [ paddingLeft (px 5)
         , flex (int 0)
         ]
-        [ Html.button
-            [ Attrs.css
-                [ Style.clickableButtonStyle Size.big
-                , margin (px 0)
-                , width (px 250)
-                ]
-            , Events.onClick CopyWithNameClicked
-            ]
-            [ Html.text "copy with name" ]
+        [ Button.config CopyWithNameClicked "copy with name"
+            |> Button.withWidth Button.doubleWidth
+            |> Button.toHtml
         ]
     ]
 
@@ -262,7 +229,10 @@ partsView model maybePartsModel =
             []
             [ Grid.column
                 []
-                [ newPartButton ]
+                [ Button.config NewPartClicked "new part"
+                    |> Button.withWidth Button.fullWidth
+                    |> Button.toHtml
+                ]
             ]
         ]
 
@@ -317,15 +287,3 @@ partOptionView selectedIndex ( index, name ) =
                 [ Html.text name ]
             ]
         ]
-
-
-newPartButton : Html Msg
-newPartButton =
-    Html.button
-        [ Attrs.css
-            [ Style.clickableButtonStyle Size.big
-            , width (pct 100)
-            ]
-        , Events.onClick NewPartClicked
-        ]
-        [ Html.text "new part" ]

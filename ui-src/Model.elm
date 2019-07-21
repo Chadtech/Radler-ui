@@ -14,7 +14,6 @@ module Model exposing
     , initPartsPage
     , mapPackage
     , mapPart
-    , mapSelectedPart
     , mapTracker
     , removeTracker
     , save
@@ -217,19 +216,6 @@ mapPart index f model =
                         (f part)
                         model.parts
             }
-
-        Nothing ->
-            model
-
-
-mapSelectedPart : Maybe Parts.Model -> (Part -> Part) -> Model -> Model
-mapSelectedPart maybePartsModel f model =
-    case maybePartsModel of
-        Just partsModel ->
-            mapPart
-                partsModel.selectedPartIndex
-                f
-                model
 
         Nothing ->
             model

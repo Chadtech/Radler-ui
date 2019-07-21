@@ -7,6 +7,7 @@ module View.Button exposing
     , fullWidth
     , halfWidth
     , indent
+    , isDisabled
     , makeTallerBy
     , singleWidth
     , toHtml
@@ -14,9 +15,10 @@ module View.Button exposing
     , withWidth
     )
 
-import Css exposing (Style, height, pct, px)
+import Colors
+import Css exposing (Style, active, backgroundColor, height, pct, px)
 import Data.Size as Size exposing (Size)
-import Html.Styled as Html exposing (Html)
+import Html.Styled as Html exposing (Attribute, Html)
 import Html.Styled.Attributes as Attrs
 import Html.Styled.Events as Events
 import Style
@@ -43,6 +45,7 @@ type Option
     | Width Width
     | ExtraHeight Float
     | Indent Bool
+    | Disabled Bool
 
 
 type Width
@@ -57,6 +60,7 @@ type alias Summary =
     , width : Maybe Width
     , extraHeight : Float
     , indent : Maybe Bool
+    , disabled : Bool
     }
 
 
@@ -86,6 +90,11 @@ fullWidth =
 
 
 -- OPTIONS --
+
+
+isDisabled : Bool -> Button msg -> Button msg
+isDisabled =
+    addOption << Disabled
 
 
 withSize : Size -> Button msg -> Button msg
@@ -134,12 +143,16 @@ optionsToSummary =
 
                 Indent indent_ ->
                     { summary | indent = Just indent_ }
+
+                Disabled disabled ->
+                    { summary | disabled = disabled }
     in
     List.foldr modifySummary
         { size = Size.big
         , width = Nothing
         , extraHeight = 0
         , indent = Nothing
+        , disabled = False
         }
 
 
@@ -165,14 +178,27 @@ toHtml (Button { onClick, label, options }) =
     in
     Html.button
         [ Attrs.css
-            [ Style.clickableButtonStyle summary.size
+            [ Style.buttonStyle summary.size
             , buttonWidth summary
             , indentStyle summary.indent
+            , disabledStyle summary.disabled
             , height (px <| Style.noteHeight summary.size + summary.extraHeight)
             ]
         , Events.onClick onClick
         ]
         [ Html.text label ]
+
+
+disabledStyle : Bool -> Style
+disabledStyle disabled =
+    if disabled then
+        [ backgroundColor Colors.ignorable3
+        , active [ Style.outdent ]
+        ]
+            |> Css.batch
+
+    else
+        CssUtil.noStyle
 
 
 indentStyle : Maybe Bool -> Style
