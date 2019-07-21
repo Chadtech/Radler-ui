@@ -148,25 +148,21 @@ numberView size majorMark index =
     Grid.column
         [ margin (px 1) ]
         [ Html.button
-            [ Attrs.css [ numberStyle size ] ]
+            [ Attrs.css
+                [ Style.outdent
+                , Style.font size
+                , width (px (Style.noteWidth size))
+                , height (px (Style.noteHeight size))
+                , backgroundColor Colors.ignorable2
+                , color Colors.point0
+                , Style.fontSmoothingNone
+                , padding (px 0)
+                , outline none
+                , Style.flush
+                ]
+            ]
             [ Html.text (numberStr majorMark <| Index.toInt index) ]
         ]
-
-
-numberStyle : Size -> Style
-numberStyle size =
-    [ Style.outdent
-    , Style.font size
-    , width (px (Style.noteWidth size))
-    , height (px (Style.noteHeight size))
-    , backgroundColor Colors.ignorable2
-    , color Colors.point0
-    , Style.fontSmoothingNone
-    , padding (px 0)
-    , outline none
-    , Style.flush
-    ]
-        |> Css.batch
 
 
 numberStr : Int -> Int -> String

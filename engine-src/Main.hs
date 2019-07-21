@@ -32,6 +32,7 @@ router =
         >> Router.post "/echo"
         >> Router.post "/play"
         >> Router.post "/build"
+        >> Router.post "/terminal"
 
 
 

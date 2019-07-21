@@ -18,6 +18,7 @@ import Error (Error)
 import qualified Error
 import Score (Score)
 import qualified Score
+import qualified Terminal
 
 
 -- TYPES --
@@ -26,6 +27,7 @@ import qualified Score
 data Route 
     = Play (Either Error Score)
     | Build (Either Error Score)
+    | Terminal (Either Error Terminal.Expression)
     | Echo Text
     | Ping
 
@@ -50,6 +52,11 @@ instance Show Route where
 
 decode :: Text -> Text -> IO (Maybe Route)
 decode routeTxt body =
+    return <| decodeHelp routeTxt body
+
+
+decodeHelp :: Text -> Text -> Maybe Route
+decodeHelp routeTxt body =
     case routeTxt of
         "/play" ->
             scoreRoute Play body
@@ -57,26 +64,28 @@ decode routeTxt body =
         "/build" ->
             scoreRoute Build body
 
-        "/ping" ->
-            Ping
+        "/terminal" ->
+            body
+                |> Terminal.fromText
+                |> Either.mapLeft Error.TerminalError
+                |> Terminal
                 |> Just
-                |> return
+
+        "/ping" ->
+            Just Ping
 
         "/echo" ->
-            body
-                |> Echo
-                |> Just
-                |> return
+            Just <| Echo body
+
 
         _ ->
-            return Nothing
+            Nothing
 
         
-scoreRoute :: (Either Error Score -> Route) -> Text -> IO (Maybe Route)
+scoreRoute :: (Either Error Score -> Route) -> Text -> Maybe Route
 scoreRoute routeCtor body =
     body
         |> Score.fromText
         |> Either.mapLeft Error.ScoreError
         |> routeCtor
         |> Just
-        |> return

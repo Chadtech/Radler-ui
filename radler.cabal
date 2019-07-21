@@ -25,6 +25,7 @@ executable radler
     -- -prof -fprof-auto -rtsopts
     -O2
     -W
+    -Wall
   --   -threaded
   --   -fprof-auto
   --   "-with-rtsopts=-N -p -s -h -i0.1"

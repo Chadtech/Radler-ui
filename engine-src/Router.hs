@@ -2,8 +2,7 @@
 
 
 module Router 
-    ( Router
-    , get
+    ( get
     , post
     ) where
 
@@ -11,28 +10,19 @@ module Router
 import Flow
 import Prelude.Extra
 
-import qualified Control.Concurrent.STM as STM
 import Control.Monad.IO.Class (liftIO)
-import qualified Control.Monad.Reader as CMR
 import qualified Data.ByteString as BS
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
-import Model (Model)
-import qualified Model
 import Program (Program)
 import qualified Program
 import Response (Response)
-import qualified Response
 import Route (Route)
 import qualified Route
 import Update (update)
 import Web.Scotty.Trans (ScottyT)
 import qualified Web.Scotty.Trans as Web
 import Language.Haskell.TH.Ppr (bytesToString)
-
-
-data Router
-    = Router (ScottyT Text Program ())
 
 
 get :: Text -> ScottyT Text Program ()
@@ -51,7 +41,6 @@ post routeTxt =
     
 withBody :: Text -> Response
 withBody routeTxt = do
-    wb <- Web.body
     rd <- Web.bodyReader
     let 
         step acc = do 

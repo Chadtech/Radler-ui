@@ -13,23 +13,17 @@ import qualified Data.Either.Extra as Either
 import qualified Data.List as List
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
-import Error (Error)
 import qualified Error
 import Index (Index)
 import qualified Index
-import Json (Json)
 import qualified Json
 import Model (Model)
 import qualified Model
 import qualified Part
-import Part (Part)
 import qualified Program
 import Response (Response)
 import qualified Response
-import Resolution (Resolution)
-import qualified Resolution
 import Route (Route(..))
-import qualified Route
 import Score (Score)
 import qualified Score
 import qualified Web.Scotty.Trans as Web
@@ -51,7 +45,7 @@ handleRoute :: Route -> Model -> Response
 handleRoute route model =
     case route of
         Ping ->
-            Response.ping 
+            Response.ping
             
         Echo body ->
             Response.text body 
@@ -71,6 +65,17 @@ handleRoute route model =
                 >> Response.json Json.null
 
         Build (Left err) ->
+            err
+                |> Error.throw
+                |> Response.error 400
+
+        Terminal (Right expression) ->
+            expression
+                |> show
+                |> T.pack
+                |> Response.text
+
+        Terminal (Left err) ->
             err
                 |> Error.throw
                 |> Response.error 400
@@ -154,15 +159,10 @@ playScore incomingScore model =
                 Right Score.Unresolvable ->
                     writeAndPlayFromScratch
                     
-                Left error ->
-                    error
+                Left err ->
+                    err
                         |> Error.throw
                         |> Response.error 500
 
         Model.Init ->
             writeAndPlayFromScratch
-
-
-
-
-         
