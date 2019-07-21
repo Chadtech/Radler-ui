@@ -1,10 +1,12 @@
 module Update exposing (update)
 
-import Data.Page as Page
+import Data.Page as Page exposing (Page)
 import Model exposing (Model)
 import Msg exposing (Msg(..))
 import Page.Package as Package
 import Page.Parts as Parts
+import Page.Terminal as Terminal
+import Service.Api.Play as Play
 import Ui.Header as Header
 import Ui.Modal as Modal
 import Ui.Tracker as Tracker
@@ -50,6 +52,16 @@ update msg model =
                     model
                         |> CmdUtil.withNoCmd
 
+        TerminalMsg subMsg ->
+            case model.page of
+                Page.Terminal ->
+                    Terminal.update subMsg model
+                        |> CmdUtil.mapCmd TerminalMsg
+
+                _ ->
+                    model
+                        |> CmdUtil.withNoCmd
+
         ModalMsg subMsg ->
             model
                 |> Modal.update subMsg
@@ -59,3 +71,22 @@ update msg model =
             model
                 |> Model.clearModal
                 |> CmdUtil.withNoCmd
+
+        CmdEnterPressed ->
+            onCmdEnterPressed model
+
+        PlayMsg subMsg ->
+            Play.update subMsg model
+                |> CmdUtil.mapCmd PlayMsg
+
+
+onCmdEnterPressed : Model -> ( Model, Cmd Msg )
+onCmdEnterPressed model =
+    case model.page of
+        Page.Terminal ->
+            Terminal.onCmdEnterPressed model
+                |> CmdUtil.mapCmd TerminalMsg
+
+        _ ->
+            Play.attempt model
+                |> CmdUtil.mapCmd PlayMsg

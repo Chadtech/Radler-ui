@@ -142,7 +142,7 @@ readyView part =
         [ justifyContent center ]
         [ Grid.column
             [ flex (int 0) ]
-            [ Button.button YesClicked "yes"
+            [ Button.config YesClicked "yes"
                 |> Button.withWidth Button.singleWidth
                 |> Button.toHtml
             ]
@@ -150,7 +150,7 @@ readyView part =
             [ flex (int 0)
             , marginLeft (px 5)
             ]
-            [ Button.button CancelClicked "cancel"
+            [ Button.config CancelClicked "cancel"
                 |> Button.withWidth Button.singleWidth
                 |> Button.toHtml
             ]

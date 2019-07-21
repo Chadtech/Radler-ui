@@ -15,6 +15,7 @@ import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attrs
 import Model exposing (Model)
+import Service.Api as Api
 import Style
 import Test exposing (Test, describe, test)
 import Util.Cmd as CmdUtil
@@ -29,18 +30,18 @@ type Msg
     = BuildClicked
     | CancelClicked
     | GoBackClicked
-    | BuildSent (Result Api.Error ())
+    | GotBuildResponse (Result Api.Error ())
 
 
 
 -- UPDATE --
 
 
-update : Msg -> Build.Model -> Model -> ( Model, Cmd Msg )
-update msg buildModel model =
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
     case msg of
         BuildClicked ->
-            handleBuildClicked buildModel model
+            handleBuildClicked model
 
         CancelClicked ->
             closeModal model
@@ -48,17 +49,22 @@ update msg buildModel model =
         GoBackClicked ->
             closeModal model
 
-        BuildSent (Ok ()) ->
-            model
-                |> Model.setBuildModal Build.Finished
-                |> Model.setBackendStatusIdle
-                |> CmdUtil.withNoCmd
+        GotBuildResponse response ->
+            let
+                idleModel : Model
+                idleModel =
+                    Model.setBackendStatusIdle model
+            in
+            case response of
+                Ok () ->
+                    idleModel
+                        |> Model.setBuildModal Build.Finished
+                        |> CmdUtil.withNoCmd
 
-        BuildSent (Err err) ->
-            model
-                |> Model.setBackendStatusIdle
-                |> buildFailed err
-                |> CmdUtil.withNoCmd
+                Err error ->
+                    idleModel
+                        |> Model.setError (Error.ApiError error)
+                        |> CmdUtil.withNoCmd
 
 
 closeModal : Model -> ( Model, Cmd Msg )
@@ -66,54 +72,19 @@ closeModal =
     Model.clearModal >> CmdUtil.withNoCmd
 
 
-handleBuildClicked : Build.Model -> Model -> ( Model, Cmd Msg )
-handleBuildClicked buildModel model =
-    case buildModel of
-        Build.Ready ->
-            case Model.fullScore model of
-                Ok scoreStr ->
-                    ( model
-                        |> Model.setBuildModal Build.Building
-                        |> Model.setBackendStatusWorking
-                    , scoreStr
-                        |> Build
-                        |> sendHttp model
-                    )
+handleBuildClicked : Model -> ( Model, Cmd Msg )
+handleBuildClicked model =
+    case Model.fullScore model of
+        Ok scoreStr ->
+            Api.sendBuild
+                { score = scoreStr
+                , handler = GotBuildResponse
+                }
+                model
 
-                Err newModel ->
-                    newModel
-                        |> CmdUtil.withNoCmd
-
-        _ ->
-            model
+        Err newModel ->
+            newModel
                 |> CmdUtil.withNoCmd
-
-
-buildFailed : Api.Error -> Model -> Model
-buildFailed error =
-    error
-        |> Api.errorToString
-        |> Error.BackendHadProblemWithScore
-        |> Model.setError
-
-
-
--- HTTP --
-
-
-type Call
-    = Build String
-
-
-sendHttp : Model -> Call -> Cmd Msg
-sendHttp model call =
-    case call of
-        Build score ->
-            { endpoint = model.endpoints.build
-            , score = score
-            , msgCtor = BuildSent
-            }
-                |> Api.sendScore
 
 
 
@@ -200,7 +171,7 @@ text str =
 
 button : Msg -> String -> Html Msg
 button clickMsg label =
-    Button.button clickMsg label
+    Button.config clickMsg label
         |> Button.withWidth Button.singleWidth
         |> Button.toHtml
 
@@ -214,13 +185,13 @@ tests testModel =
     describe "Ui.Modal.Build"
         [ test "BuildClick leads to the backend status being Working" <|
             \_ ->
-                update BuildClicked Build.Ready testModel
+                update BuildClicked testModel
                     |> Tuple.first
                     |> .backendStatus
                     |> Expect.equal BackendStatus.Working
         , test "BuildSent leads to the backend status being Idle, under ideal conditions" <|
             \_ ->
-                update (BuildSent <| Ok ()) Build.Ready testModel
+                update (GotBuildResponse <| Ok ()) testModel
                     |> Tuple.first
                     |> .backendStatus
                     |> Expect.equal BackendStatus.Idle

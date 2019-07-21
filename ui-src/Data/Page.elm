@@ -1,6 +1,7 @@
 module Data.Page exposing (Page(..))
 
 import Data.Page.Parts as Parts
+import Data.Page.Terminal as Terminal
 
 
 
@@ -11,3 +12,4 @@ type Page
     = Package
     | Trackers
     | Parts (Maybe Parts.Model)
+    | Terminal

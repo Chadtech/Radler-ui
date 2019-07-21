@@ -70,10 +70,7 @@ handleRoute route model =
                 |> Response.error 400
 
         Terminal (Right expression) ->
-            expression
-                |> show
-                |> T.pack
-                |> Response.text
+            Response.json Json.null
 
         Terminal (Left err) ->
             err

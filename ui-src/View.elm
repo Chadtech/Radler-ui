@@ -1,7 +1,6 @@
 module View exposing (view)
 
 import Css exposing (..)
-import Css.Global
 import Data.Page as Page
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
@@ -9,6 +8,7 @@ import Model exposing (Model)
 import Msg exposing (Msg(..))
 import Page.Package as Package
 import Page.Parts as Parts
+import Page.Terminal as Terminal
 import Page.Trackers as Trackers
 import Style
 import Ui.Header as Header
@@ -19,7 +19,12 @@ view : Model -> List (Html Msg)
 view model =
     [ Header.view model
         |> Html.map HeaderMsg
-    , body model
+    , Grid.row
+        [ height (calc (vh 100) minus (px 78))
+        , Style.card
+        , overflow hidden
+        ]
+        (body model)
     , modalView model
     ]
 
@@ -43,43 +48,27 @@ modalView model =
 -- BODY --
 
 
-body : Model -> Html Msg
+body : Model -> List (Grid.Column Msg)
 body model =
     case model.page of
         Page.Package ->
             Package.view model
-                |> Html.map PackageMsg
-                |> mainColumn
-                |> fullPageCard
+                |> mapColumns PackageMsg
 
         Page.Trackers ->
-            Grid.row
-                [ flex (int 1) ]
-                [ Trackers.view model
-                    |> mainColumn
-                ]
+            Trackers.view model
 
         Page.Parts partsModel ->
             Parts.view
                 model
                 partsModel
-                |> Html.map PartsMsg
-                |> mainColumn
-                |> fullPageCard
+                |> mapColumns PartsMsg
+
+        Page.Terminal ->
+            Terminal.view model
+                |> mapColumns TerminalMsg
 
 
-fullPageCard : Grid.Column Msg -> Html Msg
-fullPageCard content =
-    Grid.row
-        [ height (calc (vh 100) minus (px 73)) ]
-        [ content ]
-
-
-mainColumn : Html Msg -> Grid.Column Msg
-mainColumn content =
-    Grid.column
-        [ Style.card
-        , Style.basicSpacing
-        , overflow hidden
-        ]
-        [ content ]
+mapColumns : (a -> b) -> List (Grid.Column a) -> List (Grid.Column b)
+mapColumns =
+    List.map << Grid.mapColumn

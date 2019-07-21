@@ -3,14 +3,18 @@ module Data.Error exposing
     , toString
     )
 
--- TYPES --
-
+import Api
 import Json.Decode as Decode
+
+
+
+-- TYPES --
 
 
 type Error
     = ScoreDidNotSave
-    | BackendHadProblemWithScore String
+    | ApiError Api.Error
+    | BackendIsBusy
     | MsgDecodeError Decode.Error
 
 
@@ -28,8 +32,11 @@ toString error =
             a part that is not loaded into Radler
             """
 
-        BackendHadProblemWithScore str ->
-            str
+        ApiError endpointError ->
+            Api.errorToString endpointError
+
+        BackendIsBusy ->
+            "I am currently busy doing something else. Please wait for me to finish."
 
         MsgDecodeError decodeError ->
             [ "There was a problem decoding an incoming message from JS -> "

@@ -41,15 +41,9 @@ update msg model =
                 |> CmdUtil.withNoCmd
 
         BuildMsg subMsg ->
-            case model.modal of
-                Just (BuildConfirmation buildModel) ->
-                    model
-                        |> Build.update subMsg buildModel
-                        |> CmdUtil.mapCmd BuildMsg
-
-                _ ->
-                    model
-                        |> CmdUtil.withNoCmd
+            model
+                |> Build.update subMsg
+                |> CmdUtil.mapCmd BuildMsg
 
         DeletePartMsg subMsg ->
             case model.modal of

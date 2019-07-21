@@ -111,7 +111,6 @@ view { trackerIndex, tracker, part, partNames } =
         [ Style.card
         , flexDirection Css.column
         , height (calc (vh 100) minus (px 95))
-        , overflow hidden
         , position relative
         ]
         [ optionsContainerView tracker partNames
@@ -235,7 +234,7 @@ trackerOptionsRow part size =
         [ flex (int 0)
         , margin (px 1)
         ]
-        [ Button.button OptionsClicked "options"
+        [ Button.config OptionsClicked "options"
             |> Button.withWidth Button.doubleWidth
             |> Button.withSize size
             |> Button.toHtml
@@ -282,12 +281,12 @@ voiceOption size i =
                 , displayFlex
                 ]
             ]
-            [ Button.button (DeleteVoiceClicked i) "x"
+            [ Button.config (DeleteVoiceClicked i) "x"
                 |> Button.withWidth Button.halfWidth
                 |> Button.withSize size
                 |> Button.toHtml
             ]
-        , Button.button (AddVoiceClicked i) "+>"
+        , Button.config (AddVoiceClicked i) "+>"
             |> Button.withWidth Button.halfWidth
             |> Button.withSize size
             |> Button.toHtml
@@ -300,7 +299,7 @@ addVoiceZero size =
         [ margin (px 1)
         , paddingLeft (px (Style.noteWidth size + 5))
         ]
-        [ Button.button (AddVoiceClicked <| Index.previous Index.zero) "+>"
+        [ Button.config (AddVoiceClicked <| Index.previous Index.zero) "+>"
             |> Button.withWidth Button.singleWidth
             |> Button.withSize size
             |> Button.toHtml
@@ -320,7 +319,7 @@ voiceNumbers part size =
                 [ margin (px 1)
                 , paddingRight (px (Style.noteWidth size + 2))
                 ]
-                [ Button.button AddBeatBelowClicked "+v"
+                [ Button.config AddBeatBelowClicked "+v"
                     |> Button.withWidth Button.fullWidth
                     |> Button.withSize size
                     |> Button.toHtml

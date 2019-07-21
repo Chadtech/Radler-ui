@@ -32,42 +32,36 @@ tests =
             (Encode.string testPackageJson)
     of
         Ok package ->
-            case
-                Decode.decodeString
-                    Api.endpointsFromPortNumberDecoder
-                    "3000"
-            of
-                Ok endpoints ->
-                    let
-                        testModel : Model
-                        testModel =
-                            { package = package
-                            , parts =
-                                [ testPart "part-a"
-                                , testPart "part-b"
-                                ]
-                                    |> Array.fromList
-                            , trackers =
-                                [ Tracker.init Size.big Index.zero
-                                , Tracker.init Size.big Index.zero
-                                ]
-                                    |> Array.fromList
-                            , endpoints = endpoints
-                            }
-                                |> Model.init
-                    in
-                    describe "Radler Tests"
-                        [ Data.Package.tests package
-                        , Data.Part.tests
-                        , Data.Note.tests
-                        , Ui.Modal.Build.tests testModel
-                        , ArrayUtil.tests
-                        ]
+            let
+                endpoints : Api.Endpoints
+                endpoints =
+                    Api.fromPortNumber 3000
 
-                Err err ->
-                    test "Test endpoints failed to decode" <|
-                        \_ ->
-                            Expect.fail (Decode.errorToString err)
+                testModel : Model
+                testModel =
+                    { package = package
+                    , parts =
+                        [ testPart "part-a"
+                        , testPart "part-b"
+                        ]
+                            |> Array.fromList
+                    , trackers =
+                        [ Tracker.init Size.big Index.zero
+                        , Tracker.init Size.big Index.zero
+                        ]
+                            |> Array.fromList
+                    , endpoints = endpoints
+                    , terminal = ""
+                    }
+                        |> Model.init
+            in
+            describe "Radler Tests"
+                [ Data.Package.tests package
+                , Data.Part.tests
+                , Data.Note.tests
+                , Ui.Modal.Build.tests testModel
+                , ArrayUtil.tests
+                ]
 
         Err err ->
             test "Test package failed to decode" <|

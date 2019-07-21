@@ -34,6 +34,7 @@ type alias Flags =
     , parts : Array Part
     , trackers : Array Tracker
     , endpoints : Api.Endpoints
+    , terminal : String
     }
 
 
@@ -43,11 +44,17 @@ type alias Flags =
 
 decoder : Decoder Flags
 decoder =
-    Decode.map4 Flags
+    Decode.map5 Flags
         (Decode.field "package" Package.decoder)
         (Decode.field "parts" partsDecoder)
         (Decode.field "trackers" trackersDecoder)
-        (Decode.field "enginePortNumber" Api.endpointsFromPortNumberDecoder)
+        (Decode.field "enginePortNumber" endpointsDecoder)
+        (Decode.field "terminal" Decode.string)
+
+
+endpointsDecoder : Decoder Api.Endpoints
+endpointsDecoder =
+    Decode.map Api.fromPortNumber Decode.int
 
 
 partsDecoder : Decoder (Array Part)

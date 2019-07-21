@@ -1,7 +1,7 @@
 module Msg exposing
     ( Msg(..)
     , decode
-    , escapePressedDecoder
+    , keyDecoder
     )
 
 import Data.Error as Error exposing (Error)
@@ -10,6 +10,8 @@ import Data.Tracker exposing (Tracker)
 import Json.Decode as Decode exposing (Decoder)
 import Page.Package as Package
 import Page.Parts as Parts
+import Page.Terminal as Terminal
+import Service.Api.Play as Play
 import Ui.Header as Header
 import Ui.Modal as Modal
 import Ui.Tracker as Tracker
@@ -25,12 +27,23 @@ type Msg
     | HeaderMsg Header.Msg
     | PackageMsg Package.Msg
     | PartsMsg Parts.Msg
+    | TerminalMsg Terminal.Msg
     | ModalMsg Modal.Msg
     | EscapePressed
+    | CmdEnterPressed
+    | PlayMsg Play.Msg
 
 
 
 -- DECODERS --
+
+
+keyDecoder : Decoder Msg
+keyDecoder =
+    [ escapePressedDecoder
+    , cmdEnterPressedDecoder
+    ]
+        |> Decode.oneOf
 
 
 escapePressedDecoder : Decoder Msg
@@ -38,16 +51,33 @@ escapePressedDecoder =
     let
         fromString : String -> Decoder Msg
         fromString str =
-            case str of
-                "Escape" ->
-                    Decode.succeed EscapePressed
+            if str == "Escape" then
+                Decode.succeed EscapePressed
 
-                _ ->
-                    Decode.fail "Key is not escape"
+            else
+                Decode.fail "Key is not escape"
     in
     Decode.string
         |> Decode.field "key"
         |> Decode.andThen fromString
+
+
+cmdEnterPressedDecoder : Decoder Msg
+cmdEnterPressedDecoder =
+    let
+        fromStringAndMeta : ( Bool, String ) -> Decoder Msg
+        fromStringAndMeta tuple =
+            case tuple of
+                ( True, "Enter" ) ->
+                    Decode.succeed CmdEnterPressed
+
+                _ ->
+                    Decode.fail "Key is not enter, or meta not pressed"
+    in
+    Decode.map2 Tuple.pair
+        (Decode.field "meta" Decode.bool)
+        (Decode.field "key" Decode.string)
+        |> Decode.andThen fromStringAndMeta
 
 
 decode : Decode.Value -> Msg

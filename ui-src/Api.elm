@@ -2,13 +2,14 @@ module Api exposing
     ( Endpoint
     , Endpoints
     , Error
-    , endpointsFromPortNumberDecoder
+    , PostParams
     , errorToString
-    , sendScore
+    , fromPortNumber
+    , post
     )
 
 import Http
-import Json.Decode as Decode exposing (Decoder)
+import Json.Decode as Decode
 
 
 
@@ -22,13 +23,7 @@ type Endpoint
 type alias Endpoints =
     { play : Endpoint
     , build : Endpoint
-    }
-
-
-type alias ScorePayload msg =
-    { endpoint : Endpoint
-    , score : String
-    , msgCtor : Result Error () -> msg
+    , terminal : Endpoint
     }
 
 
@@ -38,48 +33,78 @@ type Error
 
 
 
--- HELPERS --
+-- PUBLIC HELPERS --
 
 
-endpointsFromPortNumberDecoder : Decoder Endpoints
-endpointsFromPortNumberDecoder =
+fromPortNumber : Int -> Endpoints
+fromPortNumber portNumber =
     let
-        fromPortNumber : Int -> Decoder Endpoints
-        fromPortNumber portNumber =
-            let
-                onMountPath : String -> String
-                onMountPath route =
-                    [ "http://localhost:"
-                    , String.fromInt portNumber
-                    , "/"
-                    , route
-                    ]
-                        |> String.concat
-            in
-            { play = Endpoint <| onMountPath "play"
-            , build = Endpoint <| onMountPath "build"
-            }
-                |> Decode.succeed
+        onMountPath : String -> Endpoint
+        onMountPath route =
+            [ "http://localhost:"
+            , String.fromInt portNumber
+            , "/"
+            , route
+            ]
+                |> String.concat
+                |> Endpoint
     in
-    Decode.int
-        |> Decode.andThen fromPortNumber
+    { play = onMountPath "play"
+    , build = onMountPath "build"
+    , terminal = onMountPath "terminal"
+    }
+
+
+type alias PostParams msg =
+    { endpoint : Endpoint
+    , body : String
+    , expect : Result Error () -> msg
+    }
+
+
+post : PostParams msg -> Cmd msg
+post { endpoint, body, expect } =
+    Http.post
+        { url = endpointToString endpoint
+        , body = Http.stringBody "string" body
+        , expect =
+            Http.expectStringResponse
+                expect
+                responseToError
+        }
+
+
+errorToString : Error -> String
+errorToString error =
+    case error of
+        ExpectedError str ->
+            str
+
+        Other httpError ->
+            case httpError of
+                Http.BadUrl url ->
+                    "bad url -> " ++ url
+
+                Http.Timeout ->
+                    "time out"
+
+                Http.NetworkError ->
+                    "network error"
+
+                Http.BadStatus code ->
+                    "Bad Status" ++ String.fromInt code
+
+                Http.BadBody decodeError ->
+                    "Decoder problem -> " ++ decodeError
+
+
+
+-- PRIVATE HELPERS --
 
 
 endpointToString : Endpoint -> String
 endpointToString (Endpoint str) =
     str
-
-
-sendScore : ScorePayload msg -> Cmd msg
-sendScore { endpoint, score, msgCtor } =
-    Http.post
-        { url = endpointToString endpoint
-        , body = Http.stringBody "string" score
-        , expect =
-            Http.expectStringResponse
-                msgCtor
-                responseToError
-        }
 
 
 responseToError : Http.Response String -> Result Error ()
@@ -110,35 +135,12 @@ responseToError response =
         Http.GoodStatus_ _ body ->
             let
                 toApiError : Decode.Error -> Error
-                toApiError =
-                    Decode.errorToString
-                        >> Http.BadBody
-                        >> Other
+                toApiError error =
+                    error
+                        |> Decode.errorToString
+                        |> Http.BadBody
+                        |> Other
             in
             body
                 |> Decode.decodeString (Decode.null ())
                 |> Result.mapError toApiError
-
-
-errorToString : Error -> String
-errorToString error =
-    case error of
-        ExpectedError str ->
-            str
-
-        Other httpError ->
-            case httpError of
-                Http.BadUrl url ->
-                    "bad url -> " ++ url
-
-                Http.Timeout ->
-                    "time out"
-
-                Http.NetworkError ->
-                    "network error"
-
-                Http.BadStatus code ->
-                    "Bad Status" ++ String.fromInt code
-
-                Http.BadBody decodeError ->
-                    "Decoder problem -> " ++ decodeError

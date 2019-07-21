@@ -107,26 +107,26 @@ updatePartModel msg partsModel =
 -- VIEW --
 
 
-view : Model -> Maybe Parts.Model -> Html Msg
+view : Model -> Maybe Parts.Model -> List (Grid.Column Msg)
 view model maybePartsModel =
-    Grid.box
-        [ margin zero
-        , padding (px 5)
-        , width (pct 100)
-        ]
-        [ Grid.row
-            [ height (pct 100) ]
-            [ Grid.column
-                [ flex3 (int 0) (int 1) (px 375) ]
-                [ partsView model maybePartsModel ]
-            , Grid.column
-                [ paddingLeft (px 5) ]
-                [ maybeSelectedPartView model maybePartsModel ]
-            ]
-        ]
+    --    Grid.box
+    --        [ margin zero
+    --        , padding (px 5)
+    --        , width (pct 100)
+    --        ]
+    --    [ Grid.row
+    --        [ height (pct 100) ]
+    [ Grid.column
+        [ flex3 (int 0) (int 1) (px 375) ]
+        [ partsView model maybePartsModel ]
+    , Grid.column
+        [ paddingLeft (px 5) ]
+        [ maybeSelectedPartView model maybePartsModel ]
+    ]
 
 
 
+--    ]
 -- PART VIEW --
 
 

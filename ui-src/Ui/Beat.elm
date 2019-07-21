@@ -112,7 +112,7 @@ buttonColumn : Msg -> String -> Size -> Grid.Column Msg
 buttonColumn msg label size =
     Grid.column
         [ margin (px 1) ]
-        [ Button.button msg label
+        [ Button.config msg label
             |> Button.withWidth Button.halfWidth
             |> Button.withSize size
             |> Button.toHtml

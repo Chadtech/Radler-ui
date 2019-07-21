@@ -30,10 +30,11 @@ module Model exposing
     , setPartsPage
     , setPlayFor
     , setPlayFrom
+    , setTerminal
     , toggleRepeatPlayback
     )
 
-import Api
+import Api exposing (Endpoints)
 import Array exposing (Array)
 import BackendStatus as BackendStatus exposing (BackendStatus)
 import Data.Error exposing (Error(..))
@@ -80,9 +81,10 @@ type alias Model =
     , playFromBeat : Int
     , playForBeats : Int
     , repeatPlayback : Bool
-    , endpoints : Api.Endpoints
+    , endpoints : Endpoints
     , modal : Maybe Modal
     , backendStatus : BackendStatus
+    , terminal : String
     }
 
 
@@ -107,11 +109,17 @@ init flags =
     , repeatPlayback = False
     , endpoints = flags.endpoints
     , backendStatus = BackendStatus.Idle
+    , terminal = flags.terminal
     }
 
 
 
 -- HELPERS --
+
+
+setTerminal : String -> Model -> Model
+setTerminal str model =
+    { model | terminal = str }
 
 
 toggleRepeatPlayback : Model -> Model

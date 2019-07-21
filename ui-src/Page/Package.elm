@@ -7,12 +7,11 @@ module Page.Package exposing
 import Colors
 import Css exposing (..)
 import Data.Package as Package
+import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
-import Html.Styled.Attributes as Attrs
-import Html.Styled.Events as Events
 import Model exposing (Model)
-import Style
 import Util.Css as CssUtil
+import View.TextArea as TextArea
 
 
 
@@ -40,36 +39,21 @@ update msg =
 -- VIEW --
 
 
-view : Model -> Html Msg
+view : Model -> List (Grid.Column Msg)
 view model =
-    Html.textarea
-        [ Attrs.css
-            [ color Colors.point0
-            , Style.fontSmoothingNone
-            , Style.basicSpacing
-            , width (pct 100)
-            , Style.hfnss
-            , maybeInvalidBorders model
-            , maybeInvalidBackground model
-            ]
-        , Attrs.spellcheck False
-        , Attrs.value model.package.jsonStrField
-        , Events.onInput PackageUpdated
+    [ Grid.column
+        [ margin (px 1) ]
+        [ TextArea.config PackageUpdated model.package.jsonStrField
+            |> TextArea.withStyles [ maybeInvalidStyles model ]
+            |> TextArea.toHtml
         ]
-        []
+    ]
 
 
-maybeInvalidBackground : Model -> Style
-maybeInvalidBackground { package } =
-    backgroundColor Colors.lowWarning
-        |> List.singleton
-        |> Css.batch
-        |> CssUtil.styleIf (not package.validJson)
-
-
-maybeInvalidBorders : Model -> Style
-maybeInvalidBorders { package } =
-    border3 (px 2) solid Colors.critical
-        |> List.singleton
+maybeInvalidStyles : Model -> Style
+maybeInvalidStyles { package } =
+    [ backgroundColor Colors.lowWarning
+    , border3 (px 2) solid Colors.critical
+    ]
         |> Css.batch
         |> CssUtil.styleIf (not package.validJson)

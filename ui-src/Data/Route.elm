@@ -16,6 +16,7 @@ type Route
     = Package
     | Trackers
     | Parts
+    | Terminal
 
 
 
@@ -34,6 +35,9 @@ toString route =
         Parts ->
             "parts"
 
+        Terminal ->
+            "terminal"
+
 
 toPage : Route -> Page
 toPage route =
@@ -47,6 +51,9 @@ toPage route =
         Parts ->
             Page.Parts Nothing
 
+        Terminal ->
+            Page.Terminal
+
 
 isPage : Page -> Route -> Bool
 isPage page route =
@@ -58,6 +65,9 @@ isPage page route =
             True
 
         ( Page.Parts _, Parts ) ->
+            True
+
+        ( Page.Terminal, Terminal ) ->
             True
 
         _ ->

@@ -2,7 +2,7 @@ module View.Button exposing
     ( Button
     , Option
     , Width
-    , button
+    , config
     , doubleWidth
     , fullWidth
     , halfWidth
@@ -32,7 +32,10 @@ type Button msg
 
 
 type alias Model msg =
-    { onClick : msg, label : String, options : List Option }
+    { onClick : msg
+    , label : String
+    , options : List Option
+    }
 
 
 type Option
@@ -144,9 +147,13 @@ optionsToSummary =
 -- BUTTON --
 
 
-button : msg -> String -> Button msg
-button onClick label =
-    Button { onClick = onClick, label = label, options = [] }
+config : msg -> String -> Button msg
+config onClick label =
+    Button
+        { onClick = onClick
+        , label = label
+        , options = []
+        }
 
 
 toHtml : Button msg -> Html msg

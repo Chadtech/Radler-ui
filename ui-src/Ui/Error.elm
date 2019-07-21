@@ -53,7 +53,7 @@ modalView error =
             []
             [ Grid.column
                 [ justifyContent center ]
-                [ Button.button IgnoreClicked "ignore"
+                [ Button.config IgnoreClicked "ignore"
                     |> Button.withWidth Button.singleWidth
                     |> Button.toHtml
                 ]
@@ -66,14 +66,16 @@ modalView error =
 initializationErrorView : Decode.Error -> Html msg
 initializationErrorView error =
     Grid.box
-        [ marginTop (pct 50)
-        , transform (translateY (pct -50))
+        [ height (vh 100)
+        , position relative
         ]
         [ Grid.row
-            []
+            [ height (pct 100) ]
             [ Grid.column
                 [ Style.card
                 , Style.bigSpacing
+                , justifyContent center
+                , overflow auto
                 ]
                 [ text (Decode.errorToString error) ]
             ]

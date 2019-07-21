@@ -182,7 +182,7 @@ view params =
             , row
                 [ Grid.column
                     []
-                    [ Button.button BackClicked "back"
+                    [ Button.config BackClicked "back"
                         |> Button.withWidth Button.fullWidth
                         |> Button.toHtml
                     ]
@@ -290,7 +290,7 @@ smallViewButton : Size -> Grid.Column Msg
 smallViewButton size =
     Grid.column
         []
-        [ Button.button SmallClicked "small"
+        [ Button.config SmallClicked "small"
             |> Button.indent (size == Size.small)
             |> Button.withWidth Button.fullWidth
             |> Button.toHtml
@@ -301,7 +301,7 @@ bigViewButton : Size -> Grid.Column Msg
 bigViewButton size =
     Grid.column
         [ paddingLeft (px 5) ]
-        [ Button.button BigClicked "big"
+        [ Button.config BigClicked "big"
             |> Button.indent (size == Size.big)
             |> Button.withWidth Button.fullWidth
             |> Button.toHtml

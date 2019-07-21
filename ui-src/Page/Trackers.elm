@@ -14,23 +14,19 @@ import Style
 import Ui.Tracker as Tracker
 
 
-view : Model -> Html Msg
+view : Model -> List (Grid.Column Msg)
 view model =
-    Html.div
-        [ Attrs.css
-            [ Style.indent
-            , width (pct 100)
-            , Style.basicSpacing
-            , backgroundColor Colors.background1
-            , overflow auto
-            ]
+    [ Grid.column
+        [ Style.indent
+        , width (pct 100)
+        , Style.basicSpacing
+        , backgroundColor Colors.background1
+        , overflowX auto
+        , overflowY hidden
+        , display inlineFlex
         ]
-        [ Grid.box
-            [ display inlineFlex
-            , Style.basicSpacing
-            ]
-            (viewTrackers model)
-        ]
+        (viewTrackers model)
+    ]
 
 
 viewTrackers : Model -> List (Html Msg)
