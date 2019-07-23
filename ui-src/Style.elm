@@ -5,11 +5,14 @@ module Style exposing
     , flush
     , font
     , fontSmoothingNone
+    , fullWidth
     , globals
     , height
     , hfnss
     , hftin
+    , highlight
     , indent
+    , leftPadding
     , outdent
     , singleWidth
     , width
@@ -55,6 +58,14 @@ globals =
         ]
     ]
         |> global
+
+
+highlight : Style
+highlight =
+    [ backgroundColor Colors.background4
+    , color Colors.point1
+    ]
+        |> Css.batch
 
 
 indent : Style
@@ -124,6 +135,11 @@ bigSpacing =
         |> Css.batch
 
 
+leftPadding : Style
+leftPadding =
+    paddingLeft (px 5)
+
+
 
 -- HELPERS --
 
@@ -147,12 +163,17 @@ width size width_ =
                 |> Css.width
 
         Width.Full ->
-            Css.width <| Css.pct 100
+            fullWidth
 
 
 singleWidth : Size -> Style
 singleWidth size =
     width size Width.Single
+
+
+fullWidth : Style
+fullWidth =
+    Css.width <| Css.pct 100
 
 
 height : Size -> Style

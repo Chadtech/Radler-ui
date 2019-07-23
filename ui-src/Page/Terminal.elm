@@ -12,6 +12,7 @@ import Data.Width as Width
 import Html.Grid as Grid
 import Model exposing (Model)
 import Service.Api as Api
+import Style
 import Util.Cmd as CmdUtil
 import View.Button as Button
 import View.TextArea as TextArea
@@ -88,7 +89,7 @@ view model =
         , margin (px 2)
         ]
         [ Grid.row
-            [ width (pct 100)
+            [ Style.fullWidth
             , flex (int 0)
             , flexBasis auto
             , marginBottom (px 5)
@@ -101,7 +102,7 @@ view model =
                 ]
             ]
         , Grid.row
-            [ width (pct 100)
+            [ Style.fullWidth
             , flex (int 1)
             ]
             [ Grid.column

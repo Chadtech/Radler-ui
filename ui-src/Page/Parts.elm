@@ -112,7 +112,7 @@ view model maybePartsModel =
         [ flex3 (int 0) (int 1) (px 375) ]
         [ partsView model maybePartsModel ]
     , Grid.column
-        [ paddingLeft (px 5) ]
+        [ Style.leftPadding ]
         [ maybeSelectedPartView model maybePartsModel ]
     ]
 
@@ -139,7 +139,7 @@ maybeSelectedPartView model maybePartsModel =
 partView : Parts.Model -> Part -> Html Msg
 partView partsModel part =
     Grid.box
-        [ width (pct 100) ]
+        [ Style.fullWidth ]
         [ Grid.row
             []
             [ Grid.column
@@ -174,8 +174,8 @@ copyWithNameField model =
             |> Input.toHtml
         ]
     , Grid.column
-        [ paddingLeft (px 5)
-        , flex (int 0)
+        [ Style.leftPadding
+        , Grid.columnShrink
         ]
         [ Button.config CopyWithNameClicked "copy with name"
             |> Button.withWidth Width.double
@@ -191,7 +191,7 @@ copyWithNameField model =
 partsView : Model -> Maybe Parts.Model -> Html Msg
 partsView model maybePartsModel =
     Grid.box
-        [ width (pct 100)
+        [ Style.fullWidth
         , displayFlex
         , flexDirection column
         ]
@@ -220,7 +220,7 @@ partsListView model partsModel =
     Grid.box
         [ Style.indent
         , backgroundColor Colors.background3
-        , width (pct 100)
+        , Style.fullWidth
         ]
         (model
             |> Model.indexedPartNames
@@ -231,28 +231,19 @@ partsListView model partsModel =
 
 partOptionView : Maybe (Index Part) -> ( Index Part, String ) -> Html Msg
 partOptionView selectedIndex ( index, name ) =
-    let
-        highlight : Style
-        highlight =
-            [ backgroundColor Colors.background4
-            , color Colors.point1
-            ]
-                |> Css.batch
-    in
     Grid.row
         [ Style.basicSpacing ]
         [ Grid.column
             []
             [ Text.config
                 { styles =
-                    [ Style.hfnss
-                    , marginLeft (px 10)
+                    [ marginLeft (px 10)
                     , cursor pointer
-                    , width (pct 100)
-                    , hover [ highlight ]
+                    , Style.fullWidth
+                    , hover [ Style.highlight ]
                     , CssUtil.styleIf
                         (selectedIndex == Just index)
-                        highlight
+                        Style.highlight
                     ]
                 , options = [ Text.onClick (PartClicked index) ]
                 , value = name

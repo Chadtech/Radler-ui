@@ -140,7 +140,7 @@ view params =
                         [ padding (px 5)
                         , backgroundColor Colors.point0
                         , color Colors.ignorable2
-                        , width (pct 100)
+                        , Style.fullWidth
                         ]
                         "tracker options"
                     ]
@@ -198,7 +198,7 @@ collapseOptions { model, collapse } =
                 collapseCheckbox =
                     Grid.column
                         [ marginRight (px 5)
-                        , flex (int 0)
+                        , Grid.columnShrink
                         ]
                         [ Checkbox.checkbox
                             (CollapseClicked thisCollapse)
@@ -221,7 +221,7 @@ collapseOptions { model, collapse } =
                     , collapseLabelHtml
                         [ Grid.columnShrink ]
                     , Grid.column
-                        [ paddingLeft (px 5) ]
+                        [ Style.leftPadding ]
                         [ Input.config
                             CollapseEveryChanged
                             (String.fromInt everyAmount)
@@ -265,7 +265,7 @@ markLabel labelText =
 markField : Int -> (String -> Msg) -> Grid.Column Msg
 markField mark msgCtor =
     Grid.column
-        [ paddingLeft (px 5) ]
+        [ Style.leftPadding ]
         [ Input.config msgCtor (String.fromInt mark)
             |> Input.withWidth Width.full
             |> Input.toHtml
@@ -286,7 +286,7 @@ smallViewButton size =
 bigViewButton : Size -> Grid.Column Msg
 bigViewButton size =
     Grid.column
-        [ paddingLeft (px 5) ]
+        [ Style.leftPadding ]
         [ Button.config BigClicked "big"
             |> Button.indent (size == Size.big)
             |> Button.withWidth Width.full
@@ -299,12 +299,12 @@ partOptionsContainer params =
     Grid.column
         [ Style.indent
         , backgroundColor Colors.background3
-        , width (pct 100)
+        , Style.fullWidth
         , maxHeight (px 200)
         , overflow auto
         ]
         [ Grid.box
-            [ width (pct 100) ]
+            [ Style.fullWidth ]
             (List.map partOptionView params.parts)
         ]
 
@@ -319,11 +319,8 @@ partOptionView ( index, name ) =
                 { styles =
                     [ marginLeft (px 10)
                     , cursor pointer
-                    , width (pct 100)
-                    , hover
-                        [ backgroundColor Colors.background4
-                        , color Colors.point1
-                        ]
+                    , Style.fullWidth
+                    , hover [ Style.highlight ]
                     ]
                 , options =
                     [ Text.onClick (PartClicked index) ]

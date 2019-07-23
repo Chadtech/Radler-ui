@@ -19,7 +19,7 @@ view : Model -> List (Grid.Column Msg)
 view model =
     [ Grid.column
         [ Style.indent
-        , width (pct 100)
+        , Style.fullWidth
         , Style.basicSpacing
         , backgroundColor Colors.background1
         , overflowX auto
@@ -61,8 +61,7 @@ notFoundView : Html Msg
 notFoundView =
     Card.config []
         [ Text.withStyles
-            [ Style.hfnss
-            , whiteSpace noWrap
+            [ whiteSpace noWrap
             , margin (px 4)
             ]
             "Error : Part not found"

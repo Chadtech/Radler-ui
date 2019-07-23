@@ -209,7 +209,7 @@ trackerOptionsRow part size =
         , flexBasis (px <| Size.toUnitWidth size + 3)
         , position relative
         , margin (px 1)
-        , height (px <| Size.toUnitHeight size)
+        , Style.height size
         ]
         [ Button.config DeleteTrackerClicked "x"
             |> Button.withWidth Width.full
@@ -218,7 +218,7 @@ trackerOptionsRow part size =
             |> Button.toHtml
         ]
     , Grid.column
-        [ flex (int 0)
+        [ Grid.columnShrink
         , margin (px 1)
         ]
         [ Button.config OptionsClicked "options"
@@ -227,8 +227,8 @@ trackerOptionsRow part size =
             |> Button.toHtml
         ]
     , Grid.column
-        [ margin (px 1)
-        , paddingLeft (px 5)
+        [ Style.basicSpacing
+        , Style.leftPadding
         ]
         [ Text.withStyles
             [ Style.font size
