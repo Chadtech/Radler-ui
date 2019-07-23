@@ -10,21 +10,26 @@ import Page.Package as Package
 import Page.Parts as Parts
 import Page.Terminal as Terminal
 import Page.Trackers as Trackers
-import Style
 import Ui.Header as Header
 import Ui.Modal as Modal
+import View.Card as Card
 
 
 view : Model -> List (Html Msg)
 view model =
     [ Header.view model
         |> Html.map HeaderMsg
-    , Grid.row
+    , Card.config
         [ height (calc (vh 100) minus (px 78))
-        , Style.card
         , overflow hidden
+        , position relative
         ]
-        (body model)
+        [ Grid.row
+            [ height (pct 100)
+            , width (pct 100)
+            ]
+            (body model)
+        ]
     , modalView model
     ]
 

@@ -11,12 +11,12 @@ import Data.Encoding as Encoding
 import Data.Index as Index exposing (Index)
 import Data.Note exposing (Note)
 import Data.Part as Part exposing (Part)
-import Data.Size exposing (Size)
+import Data.Size as Size exposing (Size)
 import Data.Tracker as Tracker exposing (Tracker)
 import Data.Tracker.Collapse exposing (Collapse)
+import Data.Width as Width
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
-import Html.Styled.Attributes as Attrs
 import Html.Styled.Lazy
 import Model exposing (Model)
 import Style
@@ -24,6 +24,8 @@ import Ui.Beat as Beat
 import Ui.Tracker.Options
 import Util.Cmd as CmdUtil
 import View.Button as Button
+import View.Card as Card
+import View.Text as Text
 
 
 
@@ -106,9 +108,8 @@ type alias ViewParams =
 
 view : ViewParams -> Html Msg
 view { trackerIndex, tracker, part, partNames } =
-    Grid.box
-        [ Style.card
-        , flexDirection Css.column
+    Card.config
+        [ flexDirection Css.column
         , height (calc (vh 100) minus (px 95))
         , position relative
         ]
@@ -203,22 +204,17 @@ beatsView part majorMark minorMark size collapse trackerIndex =
 -}
 trackerOptionsRow : Part -> Size -> List (Grid.Column Msg)
 trackerOptionsRow part size =
-    let
-        buttonWidth : Float
-        buttonWidth =
-            Style.noteWidth size + 3
-    in
     [ Grid.column
         [ flex none
-        , flexBasis (px buttonWidth)
+        , flexBasis (px <| Size.toUnitWidth size + 3)
         , position relative
         , margin (px 1)
-        , height (px <| Style.noteHeight size)
+        , height (px <| Size.toUnitHeight size)
         ]
         [ Button.config DeleteTrackerClicked "x"
-            |> Button.withWidth Button.fullWidth
+            |> Button.withWidth Width.full
             |> Button.withSize size
-            |> Button.makeTallerBy (Style.noteHeight size + 2)
+            |> Button.makeTallerBy (Size.toUnitHeight size + 2)
             |> Button.toHtml
         ]
     , Grid.column
@@ -226,7 +222,7 @@ trackerOptionsRow part size =
         , margin (px 1)
         ]
         [ Button.config OptionsClicked "options"
-            |> Button.withWidth Button.doubleWidth
+            |> Button.withWidth Width.double
             |> Button.withSize size
             |> Button.toHtml
         ]
@@ -234,13 +230,11 @@ trackerOptionsRow part size =
         [ margin (px 1)
         , paddingLeft (px 5)
         ]
-        [ Html.p
-            [ Attrs.css
-                [ Style.font size
-                , lineHeight <| px <| Style.noteHeight size
-                ]
+        [ Text.withStyles
+            [ Style.font size
+            , lineHeight <| px <| Size.toUnitHeight size
             ]
-            [ Html.text part.name ]
+            part.name
         ]
     ]
 
@@ -263,7 +257,7 @@ voiceOption : Size -> Index (Note Encoding.None) -> Grid.Column Msg
 voiceOption size i =
     Grid.column
         [ position relative
-        , width (px (Style.noteWidth size))
+        , Style.singleWidth size
         , margin (px 1)
         ]
         [ Grid.box
@@ -271,12 +265,12 @@ voiceOption size i =
             , displayFlex
             ]
             [ Button.config (DeleteVoiceClicked i) "x"
-                |> Button.withWidth Button.halfWidth
+                |> Button.withWidth Width.half
                 |> Button.withSize size
                 |> Button.toHtml
             ]
         , Button.config (AddVoiceClicked i) "+>"
-            |> Button.withWidth Button.halfWidth
+            |> Button.withWidth Width.half
             |> Button.withSize size
             |> Button.toHtml
         ]
@@ -286,10 +280,10 @@ addVoiceZero : Size -> Grid.Column Msg
 addVoiceZero size =
     Grid.column
         [ margin (px 1)
-        , paddingLeft (px (Style.noteWidth size + 5))
+        , paddingLeft (px (Size.toUnitWidth size + 5))
         ]
         [ Button.config (AddVoiceClicked <| Index.previous Index.zero) "+>"
-            |> Button.withWidth Button.singleWidth
+            |> Button.withWidth Width.single
             |> Button.withSize size
             |> Button.toHtml
         ]
@@ -306,10 +300,10 @@ voiceNumbers part size =
         addBeatButton =
             Grid.column
                 [ margin (px 1)
-                , paddingRight (px (Style.noteWidth size + 2))
+                , paddingRight (px (Size.toUnitWidth size + 2))
                 ]
                 [ Button.config AddBeatBelowClicked "+v"
-                    |> Button.withWidth Button.fullWidth
+                    |> Button.withWidth Width.full
                     |> Button.withSize size
                     |> Button.toHtml
                 ]
@@ -317,20 +311,18 @@ voiceNumbers part size =
         voiceNumber : Int -> Grid.Column Msg
         voiceNumber i =
             Grid.column
-                [ width (px (Style.noteWidth size))
+                [ Style.singleWidth size
                 , flex none
                 , margin (px 1)
                 ]
-                [ Html.p
-                    [ Attrs.css
-                        [ textAlign center
-                        , Style.singleWidth size
-                        , Style.font size
-                        , zIndex (int 1)
-                        , Style.flush
-                        ]
+                [ Text.withStyles
+                    [ textAlign center
+                    , Style.singleWidth size
+                    , Style.font size
+                    , zIndex (int 1)
+                    , Style.flush
                     ]
-                    [ Html.text (String.fromInt i) ]
+                    (String.fromInt i)
                 ]
     in
     List.range 0 (Part.voiceCount part - 1)

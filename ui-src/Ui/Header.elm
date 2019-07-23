@@ -4,22 +4,24 @@ module Ui.Header exposing
     , view
     )
 
-import BackendStatus
 import Css exposing (..)
+import Data.BackendStatus as BackendStatus
 import Data.Modal as Modal
 import Data.Page as Page exposing (Page)
 import Data.Route as Route exposing (Route)
 import Data.Size as Size
+import Data.Width as Width
 import Html.Grid as Grid
-import Html.Styled as Html exposing (Html)
-import Html.Styled.Attributes as Attrs
-import Html.Styled.Events as Events
+import Html.Styled exposing (Html)
 import Model exposing (Model)
 import Service.Api.Play as Play
 import Style
 import Util.Cmd as CmdUtil
 import View.Button as Button
+import View.Card as Card
 import View.Checkbox as Checkbox
+import View.Input as Input
+import View.Text as Text
 
 
 
@@ -117,9 +119,8 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    Grid.box
-        [ Style.card
-        , displayFlex
+    Card.config
+        [ displayFlex
         , minHeight minContent
         , flexDirection Css.column
         ]
@@ -141,7 +142,7 @@ playbackButtons model =
     , Grid.column
         [ flex none
         , padding (px 1)
-        , Style.doubleWidth Size.big
+        , Style.width Size.big Width.double
         ]
         [ text "repeat"
         ]
@@ -153,7 +154,17 @@ playbackButtons model =
         [ alignItems flexEnd
         , flexDirection Css.column
         ]
-        [ BackendStatus.view model.backendStatus ]
+        [ Grid.box
+            [ backgroundColor <|
+                BackendStatus.toColor
+                    model.backendStatus
+            , Style.indent
+            , margin (px 1)
+            , Style.singleWidth Size.Big
+            , height (pct 100)
+            ]
+            []
+        ]
     ]
 
 
@@ -174,7 +185,7 @@ newTrackerButton page =
         Page.Trackers ->
             [ horizontalSeparator
             , Button.config NewTrackerClicked "new tracker"
-                |> Button.withWidth Button.doubleWidth
+                |> Button.withWidth Width.double
                 |> Button.makeTallerBy 4
                 |> Button.toHtml
                 |> column
@@ -194,16 +205,12 @@ column childButton =
 
 
 text : String -> Html Msg
-text str =
-    Html.p
-        [ Attrs.css
-            [ Style.hfnss
-            , lineHeight (px 32)
-            , Style.singleWidth Size.big
-            , textAlign center
-            ]
+text =
+    Text.withStyles
+        [ lineHeight (px 32)
+        , Style.singleWidth Size.big
+        , textAlign center
         ]
-        [ Html.text str ]
 
 
 textColumn : String -> Grid.Column Msg
@@ -220,30 +227,18 @@ horizontalSeparator =
         []
 
 
-input : (String -> Msg) -> String -> Html Msg
-input msgCtor value =
-    Html.input
-        [ Attrs.css
-            [ Style.hfnss
-            , Style.singleWidth Size.big
-            , height (px 30)
-            ]
-        , Attrs.value value
-        , Attrs.spellcheck False
-        , Events.onInput msgCtor
-        ]
-        []
-
-
 inputColumn : (String -> Msg) -> String -> Grid.Column Msg
 inputColumn msgCtor value =
-    column <| input msgCtor value
+    Input.config msgCtor value
+        |> Input.makeTallerBy 4
+        |> Input.toHtml
+        |> column
 
 
 button : Msg -> String -> Html Msg
 button msg label =
     Button.config msg label
-        |> Button.withWidth Button.singleWidth
+        |> Button.withWidth Width.single
         |> Button.makeTallerBy 4
         |> Button.toHtml
 
@@ -256,7 +251,7 @@ buttonColumn msg label =
 pageButton : Route -> Page -> Html Msg
 pageButton route currentPage =
     Button.config (RouteClicked route) (Route.toString route)
-        |> Button.withWidth Button.doubleWidth
+        |> Button.withWidth Width.double
         |> Button.makeTallerBy 4
         |> Button.indent (Route.isPage currentPage route)
         |> Button.toHtml

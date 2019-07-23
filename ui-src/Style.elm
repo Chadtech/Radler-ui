@@ -1,28 +1,25 @@
 module Style exposing
     ( basicSpacing
     , bigSpacing
-    , buttonStyle
-    , card
     , dim
-    , doubleWidth
     , flush
     , font
     , fontSmoothingNone
     , globals
-    , halfWidth
+    , height
     , hfnss
     , hftin
     , indent
-    , noteHeight
-    , noteWidth
     , outdent
     , singleWidth
+    , width
     )
 
 import Colors
 import Css exposing (..)
 import Css.Global exposing (global)
-import Data.Size exposing (Size(..))
+import Data.Size as Size exposing (Size(..))
+import Data.Width as Width exposing (Width)
 import Html.Styled exposing (Html)
 
 
@@ -127,76 +124,40 @@ bigSpacing =
         |> Css.batch
 
 
-card : Style
-card =
-    [ outdent
-    , backgroundColor Colors.ignorable2
-    , display inlineFlex
-    , basicSpacing
-    ]
-        |> Css.batch
-
-
-buttonStyle : Size -> Style
-buttonStyle size =
-    [ outdent
-    , font size
-    , width (px (noteWidth size / 2))
-    , height (px (noteHeight size))
-    , backgroundColor Colors.ignorable2
-    , color Colors.point0
-    , fontSmoothingNone
-    , padding (px 0)
-    , outline none
-    , active [ indent ]
-    , hover [ color Colors.point1 ]
-    , cursor pointer
-    ]
-        |> Css.batch
-
-
 
 -- HELPERS --
 
 
-doubleWidth : Size -> Style
-doubleWidth size =
-    widthFromFloat <| (noteWidth size * 2) + 2
+width : Size -> Width -> Style
+width size width_ =
+    case width_ of
+        Width.Half ->
+            ((Size.toUnitWidth size / 2) - 1)
+                |> Css.px
+                |> Css.width
+
+        Width.Single ->
+            Size.toUnitWidth size
+                |> Css.px
+                |> Css.width
+
+        Width.Double ->
+            ((Size.toUnitWidth size * 2) + 2)
+                |> Css.px
+                |> Css.width
+
+        Width.Full ->
+            Css.width <| Css.pct 100
 
 
 singleWidth : Size -> Style
-singleWidth =
-    widthFromFloat << noteWidth
+singleWidth size =
+    width size Width.Single
 
 
-halfWidth : Size -> Style
-halfWidth size =
-    widthFromFloat <| (noteWidth size / 2) - 1
-
-
-widthFromFloat : Float -> Style
-widthFromFloat =
-    width << px
-
-
-noteWidth : Size -> Float
-noteWidth size =
-    case size of
-        Big ->
-            90
-
-        Small ->
-            60
-
-
-noteHeight : Size -> Float
-noteHeight size =
-    case size of
-        Big ->
-            26
-
-        Small ->
-            16
+height : Size -> Style
+height =
+    Css.height << Css.px << Size.toUnitHeight
 
 
 font : Size -> Style

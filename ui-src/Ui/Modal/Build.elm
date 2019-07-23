@@ -6,20 +6,20 @@ module Ui.Modal.Build exposing
     )
 
 import Api
-import BackendStatus as BackendStatus
 import Css exposing (..)
+import Data.BackendStatus as BackendStatus
 import Data.Error as Error
 import Data.Modal.Build as Build
+import Data.Width as Width
 import Expect
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
-import Html.Styled.Attributes as Attrs
 import Model exposing (Model)
 import Service.Api as Api
-import Style
 import Test exposing (Test, describe, test)
 import Util.Cmd as CmdUtil
 import View.Button as Button
+import View.Text as Text
 
 
 
@@ -117,7 +117,7 @@ finishedView =
         [ marginBottom (px 5) ]
         [ Grid.column
             []
-            [ text "done building" ]
+            [ Text.fromString "done building" ]
         ]
     , Grid.row
         [ justifyContent center ]
@@ -134,7 +134,7 @@ buildView =
         []
         [ Grid.column
             []
-            [ text "building.." ]
+            [ Text.fromString "building.." ]
         ]
     ]
 
@@ -145,7 +145,7 @@ readyView =
         [ marginBottom (px 5) ]
         [ Grid.column
             []
-            [ text "building takes a long time, are you sure you want to build this piece?" ]
+            [ Text.fromString "building takes a long time, are you sure you want to build this piece?" ]
         ]
     , Grid.row
         [ justifyContent center ]
@@ -162,17 +162,10 @@ readyView =
     ]
 
 
-text : String -> Html msg
-text str =
-    Html.p
-        [ Attrs.css [ Style.hfnss ] ]
-        [ Html.text str ]
-
-
 button : Msg -> String -> Html Msg
 button clickMsg label =
     Button.config clickMsg label
-        |> Button.withWidth Button.singleWidth
+        |> Button.withWidth Width.single
         |> Button.toHtml
 
 

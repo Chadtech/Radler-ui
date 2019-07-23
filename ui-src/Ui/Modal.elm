@@ -7,8 +7,8 @@ module Ui.Modal exposing
 
 import Css exposing (..)
 import Data.Modal exposing (Modal(..))
+import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
-import Html.Styled.Attributes as Attrs
 import Json.Decode as Decode exposing (Decoder)
 import Model exposing (Model)
 import Style
@@ -16,6 +16,7 @@ import Ui.Error as Error
 import Ui.Modal.Build as Build
 import Ui.Modal.DeletePart as DeletePart
 import Util.Cmd as CmdUtil
+import View.Card as Card
 
 
 
@@ -69,32 +70,27 @@ view model modal =
 
 backdrop : Html Msg -> Html Msg
 backdrop child =
-    Html.div
-        [ Attrs.css
-            [ position absolute
-            , left (px 0)
-            , top (px 0)
-            , right (px 0)
-            , bottom (px 0)
-            , Style.dim
-            , zIndex (int 2)
-            ]
+    Grid.box
+        [ position absolute
+        , left (px 0)
+        , top (px 0)
+        , right (px 0)
+        , bottom (px 0)
+        , Style.dim
+        , zIndex (int 2)
         ]
         [ child ]
 
 
 modalCard : Model -> Modal -> Html Msg
 modalCard model modal =
-    Html.div
-        [ Attrs.css
-            [ Style.card
-            , Style.bigSpacing
-            , marginTop (vh 50)
-            , marginLeft (pct 50)
-            , transform (translate2 (pct -50) (pct -50))
-            , maxHeight (px 600)
-            , overflow scroll
-            ]
+    Card.config
+        [ Style.bigSpacing
+        , marginTop (vh 50)
+        , marginLeft (pct 50)
+        , transform (translate2 (pct -50) (pct -50))
+        , maxHeight (px 600)
+        , overflow scroll
         ]
         (modalContent model modal)
 

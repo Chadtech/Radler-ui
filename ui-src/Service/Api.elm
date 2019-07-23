@@ -7,7 +7,7 @@ module Service.Api exposing
     )
 
 import Api
-import BackendStatus
+import Data.BackendStatus as BackendStatus
 import Data.Error as Error
 import Model exposing (Model)
 import Util.Cmd as CmdUtil

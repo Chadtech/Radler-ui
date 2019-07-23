@@ -11,15 +11,16 @@ import Data.Modal as Modal
 import Data.Modal.DeletePart as DeletePart
 import Data.Page.Parts as Parts
 import Data.Part as Part exposing (Part)
+import Data.Width as Width
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
-import Html.Styled.Attributes as Attrs
-import Html.Styled.Events as Events
 import Model exposing (Model)
 import Style
 import Util.Cmd as CmdUtil
 import Util.Css as CssUtil
 import View.Button as Button
+import View.Input as Input
+import View.Text as Text
 
 
 
@@ -122,13 +123,6 @@ view model maybePartsModel =
 
 maybeSelectedPartView : Model -> Maybe Parts.Model -> Html Msg
 maybeSelectedPartView model maybePartsModel =
-    let
-        nothingView : String -> Html Msg
-        nothingView str =
-            Html.p
-                []
-                [ Html.text str ]
-    in
     case maybePartsModel of
         Just partsModel ->
             case Model.getPart partsModel.selectedPartIndex model of
@@ -136,10 +130,10 @@ maybeSelectedPartView model maybePartsModel =
                     partView partsModel part
 
                 Nothing ->
-                    nothingView "error! part not found"
+                    Text.fromString "error! part not found"
 
         Nothing ->
-            nothingView "no part selected"
+            Text.fromString "no part selected"
 
 
 partView : Parts.Model -> Part -> Html Msg
@@ -150,17 +144,9 @@ partView partsModel part =
             []
             [ Grid.column
                 []
-                [ Html.input
-                    [ Attrs.css
-                        [ color Colors.point0
-                        , width (pct 100)
-                        , Style.fontSmoothingNone
-                        ]
-                    , Attrs.value part.name
-                    , Attrs.spellcheck False
-                    , Events.onInput NameFieldUpdated
-                    ]
-                    []
+                [ Input.config NameFieldUpdated part.name
+                    |> Input.withWidth Width.full
+                    |> Input.toHtml
                 ]
             ]
         , Grid.row
@@ -171,7 +157,7 @@ partView partsModel part =
             [ Grid.column
                 [ justifyContent flexEnd ]
                 [ Button.config DeleteClicked "delete part"
-                    |> Button.withWidth Button.doubleWidth
+                    |> Button.withWidth Width.double
                     |> Button.toHtml
                 ]
             ]
@@ -183,24 +169,16 @@ copyWithNameField : Parts.Model -> List (Grid.Column SelectedPartMsg)
 copyWithNameField model =
     [ Grid.column
         []
-        [ Html.input
-            [ Attrs.css
-                [ Style.hfnss
-                , color Colors.point0
-                , Style.fontSmoothingNone
-                , width (pct 100)
-                ]
-            , Events.onInput CopyNameChanged
-            , Attrs.value model.copyName
-            ]
-            []
+        [ Input.config CopyNameChanged model.copyName
+            |> Input.withWidth Width.full
+            |> Input.toHtml
         ]
     , Grid.column
         [ paddingLeft (px 5)
         , flex (int 0)
         ]
         [ Button.config CopyWithNameClicked "copy with name"
-            |> Button.withWidth Button.doubleWidth
+            |> Button.withWidth Width.double
             |> Button.toHtml
         ]
     ]
@@ -230,7 +208,7 @@ partsView model maybePartsModel =
             [ Grid.column
                 []
                 [ Button.config NewPartClicked "new part"
-                    |> Button.withWidth Button.fullWidth
+                    |> Button.withWidth Width.full
                     |> Button.toHtml
                 ]
             ]
@@ -239,19 +217,16 @@ partsView model maybePartsModel =
 
 partsListView : Model -> Maybe Parts.Model -> Html Msg
 partsListView model partsModel =
-    Html.div
-        [ Attrs.css
-            [ Style.indent
-            , backgroundColor Colors.background3
-            , width (pct 100)
-            ]
+    Grid.box
+        [ Style.indent
+        , backgroundColor Colors.background3
+        , width (pct 100)
         ]
-        [ model
+        (model
             |> Model.indexedPartNames
             |> List.map
                 (partOptionView (Maybe.map .selectedPartIndex partsModel))
-            |> Grid.box []
-        ]
+        )
 
 
 partOptionView : Maybe (Index Part) -> ( Index Part, String ) -> Html Msg
@@ -263,27 +238,24 @@ partOptionView selectedIndex ( index, name ) =
             , color Colors.point1
             ]
                 |> Css.batch
-
-        style : List Style
-        style =
-            [ Style.hfnss
-            , marginLeft (px 10)
-            , cursor pointer
-            , width (pct 100)
-            , hover [ highlight ]
-            , CssUtil.styleIf
-                (selectedIndex == Just index)
-                highlight
-            ]
     in
     Grid.row
         [ Style.basicSpacing ]
         [ Grid.column
             []
-            [ Html.p
-                [ Attrs.css style
-                , Events.onClick (PartClicked index)
-                ]
-                [ Html.text name ]
+            [ Text.config
+                { styles =
+                    [ Style.hfnss
+                    , marginLeft (px 10)
+                    , cursor pointer
+                    , width (pct 100)
+                    , hover [ highlight ]
+                    , CssUtil.styleIf
+                        (selectedIndex == Just index)
+                        highlight
+                    ]
+                , options = [ Text.onClick (PartClicked index) ]
+                , value = name
+                }
             ]
         ]

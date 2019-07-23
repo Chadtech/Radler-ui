@@ -7,13 +7,15 @@ module Ui.Error exposing
 
 import Css exposing (..)
 import Data.Error as Error exposing (Error(..))
+import Data.Width as Width
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
-import Html.Styled.Attributes as Attrs
 import Json.Decode as Decode
 import Model exposing (Model)
 import Style
 import View.Button as Button
+import View.Card as Card
+import View.Text as Text
 
 
 
@@ -54,7 +56,7 @@ modalView error =
             [ Grid.column
                 [ justifyContent center ]
                 [ Button.config IgnoreClicked "ignore"
-                    |> Button.withWidth Button.singleWidth
+                    |> Button.withWidth Width.single
                     |> Button.toHtml
                 ]
             ]
@@ -65,30 +67,33 @@ modalView error =
 -}
 initializationErrorView : Decode.Error -> Html msg
 initializationErrorView error =
-    Grid.box
-        [ height (vh 100)
-        , position relative
+    Grid.row
+        [ justifyContent center
+        , height (pct 100)
         ]
-        [ Grid.row
-            [ height (pct 100) ]
-            [ Grid.column
-                [ Style.card
-                , Style.bigSpacing
-                , justifyContent center
-                , overflow auto
+        [ Grid.column
+            [ Grid.columnShrink
+            , flexDirection Css.column
+            , justifyContent center
+            , height (pct 100)
+            ]
+            [ Grid.box
+                [ height (px 500)
                 ]
-                [ text (Decode.errorToString error) ]
+                [ Card.config
+                    [ Style.bigSpacing
+                    , justifyContent center
+                    , overflow auto
+                    ]
+                    [ text (Decode.errorToString error) ]
+                ]
             ]
         ]
 
 
 text : String -> Html msg
-text str =
-    Html.p
-        [ Attrs.css
-            [ Style.hfnss
-            , property "word-wrap" "break-word"
-            , maxWidth (px 500)
-            ]
+text =
+    Text.withStyles
+        [ property "word-wrap" "break-word"
+        , maxWidth (px 500)
         ]
-        [ Html.text str ]

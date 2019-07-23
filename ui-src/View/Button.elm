@@ -1,23 +1,19 @@
 module View.Button exposing
     ( Button
     , Option
-    , Width
     , config
-    , doubleWidth
-    , fullWidth
-    , halfWidth
     , indent
     , isDisabled
     , makeTallerBy
-    , singleWidth
     , toHtml
     , withSize
     , withWidth
     )
 
 import Colors
-import Css exposing (Style, active, backgroundColor, height, pct, px)
+import Css exposing (..)
 import Data.Size as Size exposing (Size)
+import Data.Width as Width exposing (Width)
 import Html.Styled as Html exposing (Attribute, Html)
 import Html.Styled.Attributes as Attrs
 import Html.Styled.Events as Events
@@ -48,13 +44,6 @@ type Option
     | Disabled Bool
 
 
-type Width
-    = HalfWidth
-    | SingleWidth
-    | DoubleWidth
-    | FullWidth
-
-
 type alias Summary =
     { size : Size
     , width : Maybe Width
@@ -62,30 +51,6 @@ type alias Summary =
     , indent : Maybe Bool
     , disabled : Bool
     }
-
-
-
--- VALUES --
-
-
-halfWidth : Width
-halfWidth =
-    HalfWidth
-
-
-singleWidth : Width
-singleWidth =
-    SingleWidth
-
-
-doubleWidth : Width
-doubleWidth =
-    DoubleWidth
-
-
-fullWidth : Width
-fullWidth =
-    FullWidth
 
 
 
@@ -178,11 +143,19 @@ toHtml (Button { onClick, label, options }) =
     in
     Html.button
         [ Attrs.css
-            [ Style.buttonStyle summary.size
+            [ indentStyle summary.indent
+            , Style.font summary.size
+            , height (px <| Size.toUnitHeight summary.size + summary.extraHeight)
+            , backgroundColor Colors.ignorable2
+            , color Colors.point0
+            , Style.fontSmoothingNone
+            , padding (px 0)
+            , outline none
+            , active [ Style.indent ]
+            , hover [ color Colors.point1 ]
+            , cursor pointer
             , buttonWidth summary
-            , indentStyle summary.indent
             , disabledStyle summary.disabled
-            , height (px <| Style.noteHeight summary.size + summary.extraHeight)
             ]
         , Events.onClick onClick
         ]
@@ -205,7 +178,7 @@ indentStyle : Maybe Bool -> Style
 indentStyle maybeIndent =
     case maybeIndent of
         Nothing ->
-            CssUtil.noStyle
+            Style.outdent
 
         Just True ->
             Style.indent
@@ -216,18 +189,6 @@ indentStyle maybeIndent =
 
 buttonWidth : Summary -> Style
 buttonWidth summary =
-    case summary.width of
-        Nothing ->
-            CssUtil.noStyle
-
-        Just HalfWidth ->
-            Style.halfWidth summary.size
-
-        Just SingleWidth ->
-            Style.singleWidth summary.size
-
-        Just DoubleWidth ->
-            Style.doubleWidth summary.size
-
-        Just FullWidth ->
-            Css.width (pct 100)
+    Style.width
+        summary.size
+        (Maybe.withDefault Width.Single summary.width)

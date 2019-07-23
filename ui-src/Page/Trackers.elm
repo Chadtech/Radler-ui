@@ -7,11 +7,12 @@ import Data.Part exposing (Part)
 import Data.Tracker exposing (Tracker)
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
-import Html.Styled.Attributes as Attrs
 import Model exposing (Model)
 import Msg exposing (Msg(..))
 import Style
 import Ui.Tracker as Tracker
+import View.Card as Card
+import View.Text as Text
 
 
 view : Model -> List (Grid.Column Msg)
@@ -58,14 +59,11 @@ viewTrackers model =
 
 notFoundView : Html Msg
 notFoundView =
-    Html.div
-        [ Attrs.css [ Style.card ] ]
-        [ Html.p
-            [ Attrs.css
-                [ Style.hfnss
-                , whiteSpace noWrap
-                , margin (px 4)
-                ]
+    Card.config []
+        [ Text.withStyles
+            [ Style.hfnss
+            , whiteSpace noWrap
+            , margin (px 4)
             ]
-            [ Html.text "Error : Part not found" ]
+            "Error : Part not found"
         ]

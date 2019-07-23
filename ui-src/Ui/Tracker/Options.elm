@@ -12,14 +12,16 @@ import Data.Size as Size exposing (Size)
 import Data.Tracker as Tracker exposing (Tracker)
 import Data.Tracker.Collapse as Collapse exposing (Collapse)
 import Data.Tracker.Options as TrackerOptions
+import Data.Width as Width
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
-import Html.Styled.Attributes as Attrs
-import Html.Styled.Events as Events
 import Model exposing (Model)
 import Style
 import View.Button as Button
+import View.Card as Card
 import View.Checkbox as Checkbox
+import View.Input as Input
+import View.Text as Text
 
 
 
@@ -120,15 +122,12 @@ type alias ViewParams =
 
 view : ViewParams -> Html Msg
 view params =
-    Html.div
-        [ Attrs.css
-            [ Style.card
-            , transform (translate2 (pct -50) (pct -50))
-            , position absolute
-            , top (pct 50)
-            , left (pct 50)
-            , width (px 375)
-            ]
+    Card.config
+        [ transform (translate2 (pct -50) (pct -50))
+        , position absolute
+        , top (pct 50)
+        , left (pct 50)
+        , width (px 375)
         ]
         [ Grid.box
             [ margin (px 0)
@@ -137,21 +136,19 @@ view params =
             [ row
                 [ Grid.column
                     []
-                    [ Html.p
-                        [ Attrs.css
-                            [ padding (px 5)
-                            , backgroundColor Colors.point0
-                            , color Colors.ignorable2
-                            , width (pct 100)
-                            ]
+                    [ Text.withStyles
+                        [ padding (px 5)
+                        , backgroundColor Colors.point0
+                        , color Colors.ignorable2
+                        , width (pct 100)
                         ]
-                        [ Html.text "tracker options" ]
+                        "tracker options"
                     ]
                 ]
             , row
                 [ Grid.column
                     []
-                    [ text "switch to part.." ]
+                    [ Text.fromString "switch to part.." ]
                 ]
             , row
                 [ partOptionsContainer params ]
@@ -183,7 +180,7 @@ view params =
                 [ Grid.column
                     []
                     [ Button.config BackClicked "back"
-                        |> Button.withWidth Button.fullWidth
+                        |> Button.withWidth Width.full
                         |> Button.toHtml
                     ]
                 ]
@@ -209,36 +206,33 @@ collapseOptions { model, collapse } =
                             |> Checkbox.toHtml
                         ]
 
-                collapseLabelHtml : Grid.Column Msg
-                collapseLabelHtml =
+                collapseLabelHtml : List Style -> Grid.Column Msg
+                collapseLabelHtml columnStyles =
                     Grid.column
-                        []
-                        [ Html.p
-                            [ Attrs.css [ lineHeight (px 30) ] ]
-                            [ Html.text <| Collapse.toLabel thisCollapse ]
+                        columnStyles
+                        [ Text.withStyles
+                            [ lineHeight (px 30) ]
+                            (Collapse.toLabel thisCollapse)
                         ]
             in
             case thisCollapse of
                 Collapse.Every everyAmount ->
                     [ collapseCheckbox
                     , collapseLabelHtml
+                        [ Grid.columnShrink ]
                     , Grid.column
-                        []
-                        [ Html.input
-                            [ Attrs.css
-                                [ Style.singleWidth Size.big
-                                , marginLeft (px 5)
-                                ]
-                            , Attrs.value <| String.fromInt everyAmount
-                            , Events.onInput CollapseEveryChanged
-                            ]
-                            []
+                        [ paddingLeft (px 5) ]
+                        [ Input.config
+                            CollapseEveryChanged
+                            (String.fromInt everyAmount)
+                            |> Input.makeTallerBy 4
+                            |> Input.toHtml
                         ]
                     ]
 
                 _ ->
                     [ collapseCheckbox
-                    , collapseLabelHtml
+                    , collapseLabelHtml []
                     ]
 
         collapseOption : Collapse -> Html Msg
@@ -247,15 +241,10 @@ collapseOptions { model, collapse } =
                 [ margin2 (px 5) (px 0) ]
                 (collapseOptionBody thisCollapse)
     in
-    text "collapse.."
+    Text.fromString "collapse.."
         :: List.map
             collapseOption
             (Collapse.all model.collapseEveryField)
-
-
-text : String -> Html Msg
-text str =
-    Html.p [] [ Html.text str ]
 
 
 row : List (Grid.Column Msg) -> Html Msg
@@ -267,9 +256,9 @@ markLabel : String -> Grid.Column Msg
 markLabel labelText =
     Grid.column
         []
-        [ Html.p
-            [ Attrs.css [ lineHeight (px 26) ] ]
-            [ Html.text labelText ]
+        [ Text.withStyles
+            [ lineHeight (px 26) ]
+            labelText
         ]
 
 
@@ -277,12 +266,9 @@ markField : Int -> (String -> Msg) -> Grid.Column Msg
 markField mark msgCtor =
     Grid.column
         [ paddingLeft (px 5) ]
-        [ Html.input
-            [ Attrs.css [ width (pct 100) ]
-            , Events.onInput msgCtor
-            , Attrs.value <| String.fromInt mark
-            ]
-            []
+        [ Input.config msgCtor (String.fromInt mark)
+            |> Input.withWidth Width.full
+            |> Input.toHtml
         ]
 
 
@@ -292,7 +278,7 @@ smallViewButton size =
         []
         [ Button.config SmallClicked "small"
             |> Button.indent (size == Size.small)
-            |> Button.withWidth Button.fullWidth
+            |> Button.withWidth Width.full
             |> Button.toHtml
         ]
 
@@ -303,7 +289,7 @@ bigViewButton size =
         [ paddingLeft (px 5) ]
         [ Button.config BigClicked "big"
             |> Button.indent (size == Size.big)
-            |> Button.withWidth Button.fullWidth
+            |> Button.withWidth Width.full
             |> Button.toHtml
         ]
 
@@ -318,34 +304,30 @@ partOptionsContainer params =
         , overflow auto
         ]
         [ Grid.box
-            []
+            [ width (pct 100) ]
             (List.map partOptionView params.parts)
         ]
 
 
 partOptionView : ( Index Part, String ) -> Html Msg
 partOptionView ( index, name ) =
-    let
-        style : List Style
-        style =
-            [ Style.hfnss
-            , marginLeft (px 10)
-            , cursor pointer
-            , width (pct 100)
-            , hover
-                [ backgroundColor Colors.background4
-                , color Colors.point1
-                ]
-            ]
-    in
     Grid.row
         [ Style.basicSpacing ]
         [ Grid.column
             []
-            [ Html.p
-                [ Attrs.css style
-                , Events.onClick (PartClicked index)
-                ]
-                [ Html.text name ]
+            [ Text.config
+                { styles =
+                    [ marginLeft (px 10)
+                    , cursor pointer
+                    , width (pct 100)
+                    , hover
+                        [ backgroundColor Colors.background4
+                        , color Colors.point1
+                        ]
+                    ]
+                , options =
+                    [ Text.onClick (PartClicked index) ]
+                , value = name
+                }
             ]
         ]

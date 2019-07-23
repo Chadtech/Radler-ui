@@ -35,7 +35,7 @@ module Model exposing
 
 import Api exposing (Endpoints)
 import Array exposing (Array)
-import BackendStatus as BackendStatus exposing (BackendStatus)
+import Data.BackendStatus as BackendStatus exposing (BackendStatus)
 import Data.Error exposing (Error(..))
 import Data.Flags exposing (Flags)
 import Data.Index as Index exposing (Index)

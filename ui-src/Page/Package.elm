@@ -8,7 +8,6 @@ import Colors
 import Css exposing (..)
 import Data.Package as Package
 import Html.Grid as Grid
-import Html.Styled as Html exposing (Html)
 import Model exposing (Model)
 import Util.Css as CssUtil
 import View.TextArea as TextArea

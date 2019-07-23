@@ -4,6 +4,8 @@ module Data.Size exposing
     , decoder
     , encode
     , small
+    , toUnitHeight
+    , toUnitWidth
     )
 
 import Json.Decode as Decode exposing (Decoder)
@@ -35,6 +37,26 @@ small =
 
 
 -- HELPERS --
+
+
+toUnitWidth : Size -> Float
+toUnitWidth size =
+    case size of
+        Big ->
+            90
+
+        Small ->
+            60
+
+
+toUnitHeight : Size -> Float
+toUnitHeight size =
+    case size of
+        Big ->
+            26
+
+        Small ->
+            16
 
 
 encode : Size -> Encode.Value

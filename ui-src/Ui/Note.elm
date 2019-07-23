@@ -15,13 +15,12 @@ import Data.Part as Part exposing (Part)
 import Data.Size as Size exposing (Size)
 import Data.Tracker exposing (Tracker)
 import Html.Styled as Html exposing (Attribute, Html)
-import Html.Styled.Attributes as Attrs
 import Html.Styled.Events as Events
 import Json.Decode as Decode exposing (Decoder)
 import Model exposing (Model)
-import Style
 import Task
 import Util.Cmd as CmdUtil
+import View.Input as Input
 
 
 
@@ -118,7 +117,10 @@ view trackerIndexInt beatIndexInt noteIndexInt majorMark minorMark size note =
 
         bgColor : Color
         bgColor =
-            case remainderBy majorMark <| Index.toInt beatIndex of
+            case
+                remainderBy majorMark <|
+                    Index.toInt beatIndex
+            of
                 0 ->
                     Colors.highlight1
 
@@ -128,26 +130,13 @@ view trackerIndexInt beatIndexInt noteIndexInt majorMark minorMark size note =
 
                     else
                         Colors.background2
-
-        style : List Style
-        style =
-            [ backgroundColor bgColor
-            , Style.font size
-            , color Colors.point0
-            , height (px (Style.noteHeight size))
-            , width (px (Style.noteWidth size))
-            , Style.fontSmoothingNone
-            ]
     in
-    Html.input
-        [ Attrs.css style
-        , Attrs.value (Note.toString note)
-        , Attrs.spellcheck False
-        , Events.onInput Updated
-        , onMovementKey MovementKeyPressed
-        , Attrs.id (noteId trackerIndex beatIndex noteIndex)
-        ]
-        []
+    Input.config Updated (Note.toString note)
+        |> Input.withSize size
+        |> Input.withBackgroundColor bgColor
+        |> Input.withHtmlAttr (onMovementKey MovementKeyPressed)
+        |> Input.withId (noteId trackerIndex beatIndex noteIndex)
+        |> Input.toHtml
 
 
 noteId : Index Tracker -> Index (Beat Encoding.None) -> Index (Note Encoding.None) -> String

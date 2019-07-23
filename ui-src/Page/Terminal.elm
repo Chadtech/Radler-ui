@@ -8,6 +8,7 @@ module Page.Terminal exposing
 import Api
 import Css exposing (..)
 import Data.Error as Error
+import Data.Width as Width
 import Html.Grid as Grid
 import Model exposing (Model)
 import Service.Api as Api
@@ -95,7 +96,7 @@ view model =
             [ Grid.column
                 []
                 [ Button.config ExecuteClicked "execute"
-                    |> Button.withWidth Button.doubleWidth
+                    |> Button.withWidth Width.double
                     |> Button.toHtml
                 ]
             ]

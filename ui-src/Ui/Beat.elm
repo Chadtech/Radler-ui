@@ -11,9 +11,10 @@ import Data.Encoding as Encoding
 import Data.Index as Index exposing (Index)
 import Data.Note as Note exposing (Note)
 import Data.Part as Part exposing (Part)
-import Data.Size exposing (Size)
+import Data.Size as Size exposing (Size)
 import Data.Tracker exposing (Tracker)
 import Data.Tracker.Collapse as Collapse exposing (Collapse)
+import Data.Width as Width
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attrs
@@ -113,7 +114,7 @@ buttonColumn msg label size =
     Grid.column
         [ margin (px 1) ]
         [ Button.config msg label
-            |> Button.withWidth Button.halfWidth
+            |> Button.withWidth Width.half
             |> Button.withSize size
             |> Button.toHtml
         ]
@@ -151,8 +152,8 @@ numberView size majorMark index =
             [ Attrs.css
                 [ Style.outdent
                 , Style.font size
-                , width (px (Style.noteWidth size))
-                , height (px (Style.noteHeight size))
+                , Style.singleWidth size
+                , Style.height size
                 , backgroundColor Colors.ignorable2
                 , color Colors.point0
                 , Style.fontSmoothingNone

@@ -9,6 +9,7 @@ import Css exposing (..)
 import Data.Index as Index exposing (Index)
 import Data.Modal.DeletePart as DeletePart
 import Data.Part as Part exposing (Part)
+import Data.Width as Width
 import Html.Grid as Grid
 import Html.Styled as Html exposing (Html)
 import Json.Decode as Decode exposing (Decoder)
@@ -16,6 +17,7 @@ import Model exposing (Model)
 import Ports
 import Util.Cmd as CmdUtil
 import View.Button as Button
+import View.Text as Text
 
 
 
@@ -97,53 +99,34 @@ contentView deletePartModel model =
                     readyView part
 
                 Nothing ->
-                    [ Html.p
-                        []
-                        [ Html.text "error! part not found" ]
-                    ]
+                    [ Text.fromString "error! part not found" ]
 
         DeletePart.Deleting ->
-            [ Html.p
-                []
-                [ Html.text "deleting.." ]
-            ]
+            [ Text.fromString "deleting.." ]
 
         DeletePart.Error error ->
-            [ Html.p
-                []
-                [ Html.text "error : "
-                , Html.text error
-                ]
-            ]
+            [ Text.fromString ("error : " ++ error) ]
 
 
 readyView : Part -> List (Html Msg)
 readyView part =
-    let
-        message : Html Msg
-        message =
-            Html.p
-                []
-                [ [ "Are you sure you want to delete "
-                  , part.name
-                  , "?"
-                  ]
-                    |> String.concat
-                    |> Html.text
-                ]
-    in
     [ Grid.row
         [ marginBottom (px 5) ]
         [ Grid.column
             []
-            [ message ]
+            [ Text.concat
+                [ "Are you sure you want to delete "
+                , part.name
+                , "?"
+                ]
+            ]
         ]
     , Grid.row
         [ justifyContent center ]
         [ Grid.column
             [ flex (int 0) ]
             [ Button.config YesClicked "yes"
-                |> Button.withWidth Button.singleWidth
+                |> Button.withWidth Width.single
                 |> Button.toHtml
             ]
         , Grid.column
@@ -151,7 +134,7 @@ readyView part =
             , marginLeft (px 5)
             ]
             [ Button.config CancelClicked "cancel"
-                |> Button.withWidth Button.singleWidth
+                |> Button.withWidth Width.single
                 |> Button.toHtml
             ]
         ]
