@@ -1,5 +1,5 @@
 module Terminal
-    ( Expression
+    ( Action
     , fromText
     , Error
     , throw
@@ -8,18 +8,22 @@ module Terminal
 
 import Flow
 import Prelude.Extra
+
+import qualified Data.List as List
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
+import qualified Parse
+import qualified Control.Monad as CM
 
 
 -- TYPES --
 
 
-data Expression
+data Action
     = Unit
 
 
-instance Show Expression where
+instance Show Action where
     show expr =
         case expr of
             Unit ->
@@ -29,8 +33,21 @@ instance Show Expression where
 -- HELPERS --
 
 
-fromText :: Text -> Either Error Expression
-fromText text =
+fromText :: Text -> Either Error (List Action)
+fromText txt =
+    case Parse.fromParameters txt of
+        Right params ->
+            params
+                |> Parse.fieldsToList
+                |> List.map fromField
+                |> CM.sequence
+
+        Left error ->
+            Left <| ParseError error
+
+
+fromField :: (Text, Text) -> Either Error Action
+fromField (key, value) =
     Right Unit
 
 
@@ -38,11 +55,11 @@ fromText text =
 
 
 data Error
-    = Error
+    = ParseError Text
 
 
 throw :: Error -> Text
 throw err =
     case err of
-        Error ->
-            "ERROR!!"
+        ParseError error ->
+            T.append "Parse Error -> " error

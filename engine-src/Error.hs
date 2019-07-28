@@ -13,7 +13,6 @@ import Flow
 import qualified Score
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
-import Prelude.Extra (List)
 import qualified Terminal
 
 
@@ -27,10 +26,10 @@ instance Show Error where
     
 
 throw :: Error -> Text
-throw error =
-    case error of
-        ScoreError err ->
-            Score.throw err
+throw err =
+    case err of
+        ScoreError scoreErr ->
+            Score.throw scoreErr
 
-        TerminalError err ->
-            Terminal.throw err
+        TerminalError terminalErr ->
+            Terminal.throw terminalErr

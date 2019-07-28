@@ -27,7 +27,7 @@ import qualified Terminal
 data Route 
     = Play (Either Error Score)
     | Build (Either Error Score)
-    | Terminal (Either Error Terminal.Expression)
+    | Terminal (Either Error (List Terminal.Action))
     | Echo Text
     | Ping
 

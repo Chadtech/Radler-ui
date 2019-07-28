@@ -20,11 +20,9 @@ module Score
 
 import Flow
 import Prelude.Extra
-    
+
 import Audio (Audio)
 import qualified Audio
-import Mono (Mono)
-import qualified Mono
 import Config (Config)
 import qualified Config
 import qualified Control.Monad as CM
@@ -34,15 +32,12 @@ import qualified Data.Traversable as Traversable
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 import Index (Index)
-import qualified Index
 import Parse (parse)
 import qualified Parse
 import Part (Part)
 import qualified Part
 import Resolution (Resolution)
 import qualified Resolution
-import Room (Room)
-import qualified Room 
 
 
 -- TYPES --
@@ -155,15 +150,15 @@ isntCommentLine =
 buildFromChunks :: List Text -> Either Error Score
 buildFromChunks chunks =
     case chunks of
-        name : voices : notes : configTxt : [] ->
+        name_ : voices : notes : configTxt : [] ->
             case Config.read configTxt of
-                Right config ->
-                    name
+                Right config_ ->
+                    name_
                         |> T.strip
                         |> Score
                         |> Right
-                        |> parse (Part.readMany config voices notes) PartError
-                        |> Parse.apply config
+                        |> parse (Part.readMany config_ voices notes) PartError
+                        |> Parse.apply config_
 
                 Left err ->
                     Left <| ConfigError err
@@ -208,10 +203,10 @@ instance Show Error where
     
 
 throw :: Error -> Text
-throw error =
-    case error of
-        PartError err ->
-            Part.throw err
+throw err =
+    case err of
+        PartError partErr ->
+            Part.throw partErr
 
         UnexpectedChunkStructure chunks ->
             [ "I could not parse the score. \

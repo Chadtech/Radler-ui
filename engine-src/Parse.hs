@@ -13,6 +13,7 @@ module Parse
     , float
     , parse
     , decodeInt
+    , fieldsToList
     ) where
 
 import Flow
@@ -105,6 +106,13 @@ delimitedTextHelper (Decoder parser) =
         <*> parser
 
 
+{-|
+    this will parse things that look like this
+
+        a(b) c(d)
+
+    into a `Fields Text` [("a", "b"), ("c", "d")]
+-}
 fromParameters :: TL.Text -> Either TL.Text (Fields TL.Text)
 fromParameters text =
     text
@@ -117,6 +125,11 @@ fromParameters text =
 listToFields :: List (T.Text, T.Text) -> Fields TL.Text
 listToFields =
     Fields <. Map.fromList <. List.map (Tuple.both TL.fromStrict)
+
+
+fieldsToList :: Fields v -> List (TL.Text, v)
+fieldsToList (Fields map_) =
+    Map.toList map_
 
 
 fieldsHelper :: P.Parser (T.Text, T.Text)
