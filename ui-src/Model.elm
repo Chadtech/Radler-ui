@@ -342,6 +342,7 @@ save model =
     [ Package.saveToDisk model.package
     , saveParts model
     , saveTrackers model
+    , Ports.saveTerminalToDisk model.terminal
     ]
         |> Cmd.batch
 

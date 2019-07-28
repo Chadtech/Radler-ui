@@ -22,7 +22,7 @@ update msg model =
                 |> CmdUtil.withNoCmd
 
         TrackerMsg ti subMsg ->
-            case Model.getTrackersPartIndex ti model of
+            case Model.getTrackersPartIndex (Debug.log "INDEX" ti) model of
                 Just pi ->
                     model
                         |> Tracker.update ti pi subMsg

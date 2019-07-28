@@ -9,6 +9,6 @@ elm
 cabal.sandbox.config
 dist
 
-project/score
+project
 
 audio-product

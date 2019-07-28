@@ -2,6 +2,7 @@ port module Ports exposing
     ( JsMsg(..)
     , fromJs
     , savePartToDisk
+    , saveTerminalToDisk
     , saveTrackersToDisk
     , send
     )
@@ -17,6 +18,12 @@ type JsMsg
     | SaveTrackersToDisk (List Tracker)
     | SavePackageToDisk String
     | DeletePartFromDisk String (Index Part)
+    | SaveTerminalToDisk String
+
+
+saveTerminalToDisk : String -> Cmd msg
+saveTerminalToDisk =
+    SaveTerminalToDisk >> send
 
 
 savePartToDisk : Part -> Cmd msg
@@ -62,6 +69,11 @@ send msg =
             trackers
                 |> Encode.list Tracker.encode
                 |> toCmd "saveTrackersToDisk"
+
+        SaveTerminalToDisk terminal ->
+            terminal
+                |> Encode.string
+                |> toCmd "saveTerminalToDisk"
 
 
 field : String -> Encode.Value -> ( String, Encode.Value )

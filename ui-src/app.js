@@ -40,7 +40,7 @@ function readTrackers() {
 
 function readTerminal() {
     try {
-        return readFileSync(
+        return fs.readFileSync(
             projectDir("terminal"),
             "utf-8"
         )
@@ -111,10 +111,16 @@ ipcRenderer.on('init', function (event, payload) {
                 }
             );
         },
-        saveTrackersToDisk: function(payload){
+        saveTrackersToDisk: function (payload) {
             fs.writeFileSync(
                 projectDir('trackers.json'),
                 JSON.stringify(payload)
+            );
+        },
+        saveTerminalToDisk: function (payload) {
+            fs.writeFileSync(
+                projectDir("terminal"),
+                payload
             );
         }
     }
