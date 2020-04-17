@@ -2,6 +2,10 @@
 
 This is Radler, software for composing and producing music. The UI is a tracker, which is basically a spreadsheet software where the columns are different musical instruments, the rows are beats, and the cells contain the note and other information like volume or duration.
 
+This is what it looks like:
+
+![radler](https://i.imgur.com/SOGVQSQ.png)
+
 # Getting Started
 
 ```
