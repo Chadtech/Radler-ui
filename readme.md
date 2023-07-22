@@ -1,6 +1,6 @@
 # Radler 
 
-This is Radler, software for composing and producing music. [HERE IS AN ALBUM OF MUSIC I MADE WITH THIS SOFTWARE AND OTHERS I HAVE MADE](https://chadtech.bandcamp.com/album/volume-0)The UI is a tracker, which is basically a spreadsheet software where the columns are different musical instruments, the rows are beats, and the cells contain the note and other information like volume or duration.
+This is Radler, software for composing and producing music. [HERE IS AN ALBUM OF MUSIC I MADE WITH THIS SOFTWARE AND OTHER SOFTWARE I HAVE ALSO MADE.](https://chadtech.bandcamp.com/album/volume-0) The UI is a tracker, which is basically a spreadsheet software where the columns are different musical instruments, the rows are beats, and the cells contain the note and other information like volume or duration.
 
 This is what it looks like:
 
